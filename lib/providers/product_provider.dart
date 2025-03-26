@@ -1,0 +1,212 @@
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+import '../models/product.dart';
+import '../services/api_service.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class ProductProvider with ChangeNotifier {
+  final ApiService _apiService;
+  List<Product> _products = [];
+  List<Product> _featuredProducts = [];
+  List<Product> _relatedProducts = [];
+  bool _isLoading = false;
+  String? _error;
+
+  ProductProvider({ApiService? apiService})
+      : _apiService = apiService ?? ApiService();
+
+  // API Base URL
+  static const String baseUrl = 'https://your-api-url.com/api';
+
+  // Cache key
+  static const String _productsKey = 'cached_products';
+
+  // Getters
+  List<Product> get products => _products;
+  List<Product> get featuredProducts => _featuredProducts;
+  List<Product> get relatedProducts => _relatedProducts;
+  bool get isLoading => _isLoading;
+  String? get error => _error;
+
+  // Get featured products
+  Future<void> getFeaturedProducts() async {
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
+      print('Fetching featured products...');
+      _featuredProducts = await _apiService.getFeaturedProducts();
+      print('Fetched ${_featuredProducts.length} featured products');
+      notifyListeners();
+    } catch (e) {
+      _error = 'Failed to load featured products: $e';
+      print('Error loading featured products: $_error');
+      notifyListeners();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Get related products
+  Future<List<Product>> getRelatedProducts(int productId) async {
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
+      _relatedProducts = await _apiService.getRelatedProducts(productId);
+      notifyListeners();
+      return _relatedProducts;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      throw Exception('Failed to fetch related products: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Load products by category
+  Future<void> loadProductsByCategory(
+      int categoryId, String subcategory) async {
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
+      _products =
+          await _apiService.getProductsByCategory(categoryId, subcategory);
+      notifyListeners();
+    } catch (e) {
+      _error = 'Failed to load products: $e';
+      print(_error);
+      notifyListeners();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Load all products
+  Future<void> loadProducts() async {
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
+      _products = await _apiService.getProducts();
+      await _cacheProducts();
+      notifyListeners();
+    } catch (e) {
+      _error = 'Failed to load products: $e';
+      print(_error);
+      notifyListeners();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Get product details by ID
+  Future<Product?> getProductDetails(int productId) async {
+    try {
+      return await _apiService.getProductDetails(productId);
+    } catch (e) {
+      _error = 'Failed to fetch product details: $e';
+      print(_error);
+      notifyListeners();
+      return null;
+    }
+  }
+
+  // Search products
+  Future<List<Product>> searchProducts(String query) async {
+    try {
+      final url = Uri.parse('$baseUrl/products/search?q=$query');
+      final response = await http.get(
+        url,
+        headers: await _getAuthHeaders(),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => Product.fromJson(json)).toList();
+      } else {
+        throw Exception(
+            'Failed to search products. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error searching products: $e');
+    }
+  }
+
+  // Cache products locally
+  Future<void> _cacheProducts() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final productsJson = _products.map((p) => p.toJson()).toList();
+      await prefs.setString(_productsKey, json.encode(productsJson));
+    } catch (e) {
+      print('Error caching products: $e');
+    }
+  }
+
+  // Load cached products
+  Future<void> loadCachedProducts() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final productsJson = prefs.getString(_productsKey);
+
+      if (productsJson != null) {
+        final List<dynamic> decodedProducts = json.decode(productsJson);
+        _products = decodedProducts.map((p) => Product.fromJson(p)).toList();
+        notifyListeners();
+      }
+    } catch (e) {
+      print('Error loading cached products: $e');
+    }
+  }
+
+  // Generate authentication headers
+  Future<Map<String, String>> _getAuthHeaders() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    return {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
+  }
+
+  // Clear errors
+  void clearError() {
+    _error = null;
+    notifyListeners();
+  }
+
+  // Add a new product
+  Future<void> addProduct(Product product) async {
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
+      await _apiService.addProduct(product);
+      _products.add(product);
+      notifyListeners();
+    } catch (e) {
+      _error = 'Failed to add product: $e';
+      print(_error);
+      notifyListeners();
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+}
