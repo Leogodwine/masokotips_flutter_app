@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import '../models/transport.dart';
 import '../config/api_config.dart';
@@ -48,11 +49,8 @@ class TransportService {
   Future<Transport> addTransport({
     required String title,
     required String description,
-    required String fromLocation,
-    required String toLocation,
+    required String vehicleLocation,
     required String vehicleType,
-    required DateTime departureTime,
-    required DateTime arrivalTime,
     required double price,
     required double capacity,
     required bool isTemperatureControlled,
@@ -83,11 +81,8 @@ class TransportService {
         body: jsonEncode({
           'title': title,
           'description': description,
-          'from_location': fromLocation,
-          'to_location': toLocation,
+          'vehicle_location': vehicleLocation,
           'vehicle_type': vehicleType,
-          'departure_time': departureTime.toIso8601String(),
-          'arrival_time': arrivalTime.toIso8601String(),
           'price': price,
           'capacity': capacity,
           'is_temperature_controlled': isTemperatureControlled,
@@ -166,7 +161,7 @@ class TransportService {
   }
 
   Future<String> uploadTransportImage(
-      String transportId, String imagePath) async {
+      String transportId, String imageName, Uint8List imageBytes) async {
     _checkAuthToken();
     try {
       final request = http.MultipartRequest(
@@ -180,9 +175,10 @@ class TransportService {
       });
 
       request.files.add(
-        await http.MultipartFile.fromPath(
+        http.MultipartFile.fromBytes(
           'image',
-          imagePath,
+          imageBytes,
+          filename: imageName,
         ),
       );
 

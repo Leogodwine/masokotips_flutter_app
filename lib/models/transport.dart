@@ -1,16 +1,15 @@
+import '../config/api_config.dart';
+
 class Transport {
   final String id;
   final String title;
   final String description;
-  final String fromLocation;
-  final String toLocation;
+  final String vehicleLocation;
   final String vehicleType;
-  final DateTime departureTime;
-  final DateTime arrivalTime;
   final double price;
   final List<String>? amenities;
   final String status;
-  final String? imageUrl;
+  final String? _imageUrl;
   final double capacity; // in tons
   final bool isTemperatureControlled;
   final double? temperatureRange; // in Celsius
@@ -29,19 +28,18 @@ class Transport {
   final DateTime updatedAt;
   final Map<String, dynamic>? driver;
 
+  String? get imageUrl => _processImageUrl(_imageUrl);
+
   Transport({
     required this.id,
     required this.title,
     required this.description,
-    required this.fromLocation,
-    required this.toLocation,
+    required this.vehicleLocation,
     required this.vehicleType,
-    required this.departureTime,
-    required this.arrivalTime,
     required this.price,
     this.amenities,
     required this.status,
-    this.imageUrl,
+    String? imageUrl,
     required this.capacity,
     required this.isTemperatureControlled,
     this.temperatureRange,
@@ -59,7 +57,31 @@ class Transport {
     required this.createdAt,
     required this.updatedAt,
     this.driver,
-  });
+  }) : _imageUrl = imageUrl;
+
+  // Helper method to process image URLs
+  String? _processImageUrl(String? path) {
+    if (path == null || path.isEmpty) {
+      return null;
+    }
+
+    // Remove any backslashes and trim whitespace
+    path = path.replaceAll('\\', '/').trim();
+
+    // If it's already a full URL, return it as is
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
+    }
+
+    // Get the base URL without the /api suffix
+    final baseUrl = ApiConfig.baseUrl.replaceAll('/api', '');
+
+    // If the path already includes /storage/, don't add it again
+    final storagePath = path.startsWith('/storage/') ? path : '/storage/$path';
+
+    // Construct the full URL using the base URL
+    return '$baseUrl$storagePath';
+  }
 
   factory Transport.fromJson(Map<String, dynamic> json) {
     print('Parsing Transport from JSON: $json');
@@ -67,13 +89,8 @@ class Transport {
       id: json['id']?.toString() ?? '',
       title: json['title'] ?? '',
       description: json['description'] ?? '',
-      fromLocation: json['from_location'] ?? '',
-      toLocation: json['to_location'] ?? '',
+      vehicleLocation: json['vehicle_location'] ?? '',
       vehicleType: json['vehicle_type'] ?? '',
-      departureTime: DateTime.parse(
-          json['departure_time'] ?? DateTime.now().toIso8601String()),
-      arrivalTime: DateTime.parse(
-          json['arrival_time'] ?? DateTime.now().toIso8601String()),
       price: double.tryParse(json['price']?.toString() ?? '0') ?? 0.0,
       amenities: json['amenities'] != null
           ? List<String>.from(json['amenities'])
@@ -117,11 +134,8 @@ class Transport {
       'id': id,
       'title': title,
       'description': description,
-      'from_location': fromLocation,
-      'to_location': toLocation,
+      'vehicle_location': vehicleLocation,
       'vehicle_type': vehicleType,
-      'departure_time': departureTime.toIso8601String(),
-      'arrival_time': arrivalTime.toIso8601String(),
       'price': price,
       'amenities': amenities,
       'status': status,
@@ -151,11 +165,8 @@ class Transport {
     String? id,
     String? title,
     String? description,
-    String? fromLocation,
-    String? toLocation,
+    String? vehicleLocation,
     String? vehicleType,
-    DateTime? departureTime,
-    DateTime? arrivalTime,
     double? price,
     List<String>? amenities,
     String? status,
@@ -182,11 +193,8 @@ class Transport {
       id: id ?? this.id,
       title: title ?? this.title,
       description: description ?? this.description,
-      fromLocation: fromLocation ?? this.fromLocation,
-      toLocation: toLocation ?? this.toLocation,
+      vehicleLocation: vehicleLocation ?? this.vehicleLocation,
       vehicleType: vehicleType ?? this.vehicleType,
-      departureTime: departureTime ?? this.departureTime,
-      arrivalTime: arrivalTime ?? this.arrivalTime,
       price: price ?? this.price,
       amenities: amenities ?? this.amenities,
       status: status ?? this.status,

@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 class CachedNetworkImageWithCors extends StatelessWidget {
   final String imageUrl;
@@ -23,9 +22,6 @@ class CachedNetworkImageWithCors extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     print('Attempting to load image from URL: $imageUrl');
-
-    // Check image accessibility before building
-    _checkImageAccessibility();
 
     return CachedNetworkImage(
       imageUrl: imageUrl,
@@ -67,18 +63,15 @@ class CachedNetworkImageWithCors extends StatelessWidget {
       },
       httpHeaders: const {
         'Accept': 'image/*',
+        'Cache-Control': 'no-cache',
+        'User-Agent': 'Flutter/1.0',
       },
+      memCacheWidth: 800,
+      memCacheHeight: 800,
+      maxWidthDiskCache: 800,
+      maxHeightDiskCache: 800,
+      fadeInDuration: const Duration(milliseconds: 300),
+      fadeOutDuration: const Duration(milliseconds: 300),
     );
-  }
-
-  Future<void> _checkImageAccessibility() async {
-    try {
-      final response = await http.get(Uri.parse(imageUrl));
-      print('HTTP Status Code: ${response.statusCode}');
-      print('Response Headers: ${response.headers}');
-      print('Response Body Length: ${response.bodyBytes.length}');
-    } catch (e) {
-      print('HTTP Request Error: $e');
-    }
   }
 }

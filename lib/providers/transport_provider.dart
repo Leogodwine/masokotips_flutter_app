@@ -14,9 +14,7 @@ class TransportProvider with ChangeNotifier {
   double? _minCapacity;
   double? _maxPrice;
   bool? _temperatureControlled;
-  String? _fromLocation;
-  String? _toLocation;
-  DateTime? _departureDate;
+  String? _vehicleLocation;
 
   List<Transport> get transports => _filteredTransports;
   bool get isLoading => _isLoading;
@@ -27,9 +25,7 @@ class TransportProvider with ChangeNotifier {
   double? get minCapacity => _minCapacity;
   double? get maxPrice => _maxPrice;
   bool? get temperatureControlled => _temperatureControlled;
-  String? get fromLocation => _fromLocation;
-  String? get toLocation => _toLocation;
-  DateTime? get departureDate => _departureDate;
+  String? get vehicleLocation => _vehicleLocation;
 
   TransportProvider();
 
@@ -83,25 +79,11 @@ class TransportProvider with ChangeNotifier {
             transport.isTemperatureControlled == _temperatureControlled;
       }
 
-      if (_fromLocation != null) {
+      if (_vehicleLocation != null) {
         matches = matches &&
-            transport.fromLocation
+            transport.vehicleLocation
                 .toLowerCase()
-                .contains(_fromLocation!.toLowerCase());
-      }
-
-      if (_toLocation != null) {
-        matches = matches &&
-            transport.toLocation
-                .toLowerCase()
-                .contains(_toLocation!.toLowerCase());
-      }
-
-      if (_departureDate != null) {
-        matches = matches &&
-            transport.departureTime.year == _departureDate!.year &&
-            transport.departureTime.month == _departureDate!.month &&
-            transport.departureTime.day == _departureDate!.day;
+                .contains(_vehicleLocation!.toLowerCase());
       }
 
       return matches;
@@ -130,14 +112,8 @@ class TransportProvider with ChangeNotifier {
     _applyFilters();
   }
 
-  void setLocationFilters(String? fromLocation, String? toLocation) {
-    _fromLocation = fromLocation;
-    _toLocation = toLocation;
-    _applyFilters();
-  }
-
-  void setDepartureDateFilter(DateTime? date) {
-    _departureDate = date;
+  void setLocationFilter(String? location) {
+    _vehicleLocation = location;
     _applyFilters();
   }
 
@@ -146,9 +122,7 @@ class TransportProvider with ChangeNotifier {
     _minCapacity = null;
     _maxPrice = null;
     _temperatureControlled = null;
-    _fromLocation = null;
-    _toLocation = null;
-    _departureDate = null;
+    _vehicleLocation = null;
     _filteredTransports = _transports;
     notifyListeners();
   }
@@ -156,11 +130,8 @@ class TransportProvider with ChangeNotifier {
   Future<Transport> addTransport({
     required String title,
     required String description,
-    required String fromLocation,
-    required String toLocation,
+    required String vehicleLocation,
     required String vehicleType,
-    required DateTime departureTime,
-    required DateTime arrivalTime,
     required double price,
     required double capacity,
     required bool isTemperatureControlled,
@@ -187,11 +158,8 @@ class TransportProvider with ChangeNotifier {
       final transport = await _transportService.addTransport(
         title: title,
         description: description,
-        fromLocation: fromLocation,
-        toLocation: toLocation,
+        vehicleLocation: vehicleLocation,
         vehicleType: vehicleType,
-        departureTime: departureTime,
-        arrivalTime: arrivalTime,
         price: price,
         capacity: capacity,
         isTemperatureControlled: isTemperatureControlled,
@@ -227,10 +195,10 @@ class TransportProvider with ChangeNotifier {
   }
 
   Future<String> uploadTransportImage(
-      String transportId, String imagePath) async {
+      String transportId, String imageName, Uint8List imageBytes) async {
     try {
       return await _transportService.uploadTransportImage(
-          transportId, imagePath);
+          transportId, imageName, imageBytes);
     } catch (e) {
       _error = e.toString();
       notifyListeners();
@@ -281,9 +249,7 @@ class TransportProvider with ChangeNotifier {
   List<Transport> filterTransports({
     String? searchQuery,
     String? vehicleType,
-    String? fromLocation,
-    String? toLocation,
-    DateTime? departureTime,
+    String? vehicleLocation,
     double? minPrice,
     double? maxPrice,
     bool? isTemperatureControlled,
@@ -305,16 +271,8 @@ class TransportProvider with ChangeNotifier {
         return false;
       }
 
-      if (fromLocation != null && transport.fromLocation != fromLocation) {
-        return false;
-      }
-
-      if (toLocation != null && transport.toLocation != toLocation) {
-        return false;
-      }
-
-      if (departureTime != null &&
-          transport.departureTime.isBefore(departureTime)) {
+      if (vehicleLocation != null &&
+          transport.vehicleLocation != vehicleLocation) {
         return false;
       }
 

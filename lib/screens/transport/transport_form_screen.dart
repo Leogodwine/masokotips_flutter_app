@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/transport.dart';
 import '../../providers/transport_provider.dart';
-import 'package:intl/intl.dart';
 
 class TransportFormScreen extends StatefulWidget {
   final Transport? transport;
@@ -19,15 +18,12 @@ class TransportFormScreen extends StatefulWidget {
 class _TransportFormScreenState extends State<TransportFormScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
-  late TextEditingController _fromLocationController;
-  late TextEditingController _toLocationController;
+  late TextEditingController _vehicleLocationController;
   late TextEditingController _priceController;
   late TextEditingController _vehicleTypeController;
   late TextEditingController _amenitiesController;
   late TextEditingController _capacityController;
   late TextEditingController _insuranceDetailsController;
-  late DateTime _departureTime;
-  late DateTime _arrivalTime;
   String _status = 'active';
   bool _isTemperatureControlled = false;
   bool _hasInsurance = false;
@@ -46,10 +42,8 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
     super.initState();
     _titleController =
         TextEditingController(text: widget.transport?.title ?? '');
-    _fromLocationController =
-        TextEditingController(text: widget.transport?.fromLocation ?? '');
-    _toLocationController =
-        TextEditingController(text: widget.transport?.toLocation ?? '');
+    _vehicleLocationController =
+        TextEditingController(text: widget.transport?.vehicleLocation ?? '');
     _priceController =
         TextEditingController(text: widget.transport?.price.toString() ?? '');
     _vehicleTypeController =
@@ -63,9 +57,6 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
     _insuranceDetailsController = TextEditingController(
       text: widget.transport?.insuranceDetails ?? '',
     );
-    _departureTime = widget.transport?.departureTime ?? DateTime.now();
-    _arrivalTime = widget.transport?.arrivalTime ??
-        DateTime.now().add(const Duration(hours: 1));
     _status = widget.transport?.status ?? 'active';
     _isTemperatureControlled =
         widget.transport?.isTemperatureControlled ?? false;
@@ -76,54 +67,13 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
   @override
   void dispose() {
     _titleController.dispose();
-    _fromLocationController.dispose();
-    _toLocationController.dispose();
+    _vehicleLocationController.dispose();
     _priceController.dispose();
     _vehicleTypeController.dispose();
     _amenitiesController.dispose();
     _capacityController.dispose();
     _insuranceDetailsController.dispose();
     super.dispose();
-  }
-
-  Future<void> _selectDateTime(BuildContext context, bool isDeparture) async {
-    final DateTime? date = await showDatePicker(
-      context: context,
-      initialDate: isDeparture ? _departureTime : _arrivalTime,
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-    );
-
-    if (date != null) {
-      final TimeOfDay? time = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.fromDateTime(
-          isDeparture ? _departureTime : _arrivalTime,
-        ),
-      );
-
-      if (time != null) {
-        setState(() {
-          if (isDeparture) {
-            _departureTime = DateTime(
-              date.year,
-              date.month,
-              date.day,
-              time.hour,
-              time.minute,
-            );
-          } else {
-            _arrivalTime = DateTime(
-              date.year,
-              date.month,
-              date.day,
-              time.hour,
-              time.minute,
-            );
-          }
-        });
-      }
-    }
   }
 
   Future<void> _submitForm() async {
@@ -140,11 +90,8 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
         await context.read<TransportProvider>().addTransport(
               title: _titleController.text,
               description: _titleController.text,
-              fromLocation: _fromLocationController.text,
-              toLocation: _toLocationController.text,
+              vehicleLocation: _vehicleLocationController.text,
               vehicleType: _vehicleTypeController.text,
-              departureTime: _departureTime,
-              arrivalTime: _arrivalTime,
               price: double.parse(_priceController.text),
               capacity: double.parse(_capacityController.text),
               isTemperatureControlled: _isTemperatureControlled,
@@ -160,11 +107,8 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
       } else {
         final updatedTransport = widget.transport!.copyWith(
           title: _titleController.text,
-          fromLocation: _fromLocationController.text,
-          toLocation: _toLocationController.text,
+          vehicleLocation: _vehicleLocationController.text,
           vehicleType: _vehicleTypeController.text,
-          departureTime: _departureTime,
-          arrivalTime: _arrivalTime,
           price: double.parse(_priceController.text),
           capacity: double.parse(_capacityController.text),
           isTemperatureControlled: _isTemperatureControlled,
@@ -218,73 +162,17 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
             ),
             const SizedBox(height: 16),
             TextFormField(
-              controller: _fromLocationController,
+              controller: _vehicleLocationController,
               decoration: const InputDecoration(
-                labelText: 'From Location',
+                labelText: 'Vehicle Location',
                 border: OutlineInputBorder(),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter the departure location';
+                  return 'Please enter the vehicle location';
                 }
                 return null;
               },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _toLocationController,
-              decoration: const InputDecoration(
-                labelText: 'To Location',
-                border: OutlineInputBorder(),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter the destination location';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Departure Time'),
-                      Text(
-                        DateFormat('MMM d, HH:mm').format(_departureTime),
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.calendar_today),
-                  onPressed: () => _selectDateTime(context, true),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Arrival Time'),
-                      Text(
-                        DateFormat('MMM d, HH:mm').format(_arrivalTime),
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.calendar_today),
-                  onPressed: () => _selectDateTime(context, false),
-                ),
-              ],
             ),
             const SizedBox(height: 16),
             TextFormField(

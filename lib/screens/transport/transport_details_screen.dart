@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/transport.dart';
 import 'package:masoko_tips/widgets/cached_network_image_with_cors.dart';
-import 'package:intl/intl.dart';
 
 class TransportDetailsScreen extends StatelessWidget {
   final Transport transport;
@@ -117,31 +116,8 @@ class TransportDetailsScreen extends StatelessWidget {
                         _buildInfoRow(
                           context,
                           icon: Icons.location_on,
-                          label: 'From',
-                          value: transport.fromLocation,
-                        ),
-                        const SizedBox(height: 8),
-                        _buildInfoRow(
-                          context,
-                          icon: Icons.location_on,
-                          label: 'To',
-                          value: transport.toLocation,
-                        ),
-                        const SizedBox(height: 8),
-                        _buildInfoRow(
-                          context,
-                          icon: Icons.access_time,
-                          label: 'Departure',
-                          value: DateFormat('MMM d, HH:mm')
-                              .format(transport.departureTime),
-                        ),
-                        const SizedBox(height: 8),
-                        _buildInfoRow(
-                          context,
-                          icon: Icons.access_time,
-                          label: 'Arrival',
-                          value: DateFormat('MMM d, HH:mm')
-                              .format(transport.arrivalTime),
+                          label: 'Location',
+                          value: transport.vehicleLocation,
                         ),
                       ],
                     ),

@@ -6,6 +6,7 @@ use App\Models\Transport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Resources\TransportResource;
 
 class TransportController extends Controller
 {
@@ -23,11 +24,11 @@ class TransportController extends Controller
 
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'from_location' => 'required|string|max:255',
-            'to_location' => 'required|string|max:255',
-            'vehicle_type' => 'required|string|max:255',
+            'description' => 'required|string',
+            'vehicle_location' => 'required|string',
+            'vehicle_type' => 'required|string',
             'departure_time' => 'required|date',
             'arrival_time' => 'required|date|after:departure_time',
             'price' => 'required|numeric|min:0',
@@ -35,7 +36,7 @@ class TransportController extends Controller
             'is_temperature_controlled' => 'required|boolean',
             'temperature_range' => 'nullable|numeric',
             'supported_product_types' => 'required|array',
-            'driver_id' => 'nullable|exists:users,id',
+            'driver_id' => 'nullable|exists:drivers,id',
             'driver_rating' => 'nullable|numeric|min:0|max:5',
             'has_insurance' => 'required|boolean',
             'insurance_details' => 'nullable|string',
@@ -43,56 +44,54 @@ class TransportController extends Controller
             'amenities' => 'nullable|array',
             'status' => 'required|string|in:active,inactive',
             'image_url' => 'nullable|string',
-            'owner_name' => 'required|string|max:255',
+            'owner_name' => 'required|string',
             'price_per_kg' => 'nullable|numeric|min:0',
-            'driver_name' => 'required|string|max:255',
-            'driver_phone' => 'required|string|max:20',
+            'driver_name' => 'required|string',
+            'driver_phone' => 'required|string',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+        $transport = Transport::create($validated);
 
-        $transport = Transport::create($request->all());
-        return response()->json(['data' => $transport], 201);
+        return response()->json([
+            'message' => 'Transport created successfully',
+            'data' => new TransportResource($transport)
+        ], 201);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Transport $transport)
     {
-        $transport = Transport::findOrFail($id);
-
-        $validator = Validator::make($request->all(), [
-            'title' => 'sometimes|string|max:255',
-            'from_location' => 'sometimes|string|max:255',
-            'to_location' => 'sometimes|string|max:255',
-            'vehicle_type' => 'sometimes|string|max:255',
-            'departure_time' => 'sometimes|date',
-            'arrival_time' => 'sometimes|date|after:departure_time',
-            'price' => 'sometimes|numeric|min:0',
-            'capacity' => 'sometimes|numeric|min:0',
-            'is_temperature_controlled' => 'sometimes|boolean',
+        $validated = $request->validate([
+            'title' => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|required|string',
+            'vehicle_location' => 'sometimes|required|string',
+            'vehicle_type' => 'sometimes|required|string',
+            'departure_time' => 'sometimes|required|date',
+            'arrival_time' => 'sometimes|required|date|after:departure_time',
+            'price' => 'sometimes|required|numeric|min:0',
+            'capacity' => 'sometimes|required|numeric|min:0',
+            'is_temperature_controlled' => 'sometimes|required|boolean',
             'temperature_range' => 'nullable|numeric',
-            'supported_product_types' => 'sometimes|array',
-            'driver_id' => 'nullable|exists:users,id',
+            'supported_product_types' => 'sometimes|required|array',
+            'driver_id' => 'nullable|exists:drivers,id',
             'driver_rating' => 'nullable|numeric|min:0|max:5',
-            'has_insurance' => 'sometimes|boolean',
+            'has_insurance' => 'sometimes|required|boolean',
             'insurance_details' => 'nullable|string',
             'certifications' => 'nullable|array',
             'amenities' => 'nullable|array',
-            'status' => 'sometimes|string|in:active,inactive',
+            'status' => 'sometimes|required|string|in:active,inactive',
             'image_url' => 'nullable|string',
-            'owner_name' => 'sometimes|string|max:255',
+            'owner_name' => 'sometimes|required|string',
             'price_per_kg' => 'nullable|numeric|min:0',
-            'driver_name' => 'sometimes|string|max:255',
-            'driver_phone' => 'sometimes|string|max:20',
+            'driver_name' => 'sometimes|required|string',
+            'driver_phone' => 'sometimes|required|string',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+        $transport->update($validated);
 
-        $transport->update($request->all());
-        return response()->json(['data' => $transport]);
+        return response()->json([
+            'message' => 'Transport updated successfully',
+            'data' => new TransportResource($transport)
+        ]);
     }
 
     public function destroy($id)

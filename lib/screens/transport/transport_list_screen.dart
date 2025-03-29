@@ -3,8 +3,6 @@ import 'package:provider/provider.dart';
 import '../../providers/transport_provider.dart';
 import 'transport_details_screen.dart';
 import 'package:masoko_tips/widgets/cached_network_image_with_cors.dart';
-import 'package:intl/intl.dart';
-import '../../providers/auth_provider.dart';
 
 class TransportListScreen extends StatefulWidget {
   final String category;
@@ -22,9 +20,7 @@ class _TransportListScreenState extends State<TransportListScreen> {
   bool _isLoading = false;
   bool _showFilters = false;
   final _formKey = GlobalKey<FormState>();
-  final _fromController = TextEditingController();
-  final _toController = TextEditingController();
-  DateTime? _selectedDate;
+  final _locationController = TextEditingController();
   String? _selectedProductType;
   double? _minCapacity;
   double? _maxPrice;
@@ -44,18 +40,23 @@ class _TransportListScreenState extends State<TransportListScreen> {
     super.initState();
     // Load transports when the screen is mounted
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadTransports();
+      _initializeAndLoadTransports();
     });
+  }
+
+  Future<void> _initializeAndLoadTransports() async {
+    await _loadTransports();
   }
 
   @override
   void dispose() {
-    _fromController.dispose();
-    _toController.dispose();
+    _locationController.dispose();
     super.dispose();
   }
 
   Future<void> _loadTransports() async {
+    if (!mounted) return;
+
     setState(() {
       _isLoading = true;
     });
@@ -65,7 +66,10 @@ class _TransportListScreenState extends State<TransportListScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading transports: $e')),
+          SnackBar(
+            content: Text('Error loading transports: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
@@ -79,8 +83,7 @@ class _TransportListScreenState extends State<TransportListScreen> {
 
   void _applyFilters() {
     final provider = context.read<TransportProvider>();
-    provider.setLocationFilters(_fromController.text, _toController.text);
-    provider.setDepartureDateFilter(_selectedDate);
+    provider.setLocationFilter(_locationController.text);
     provider.setProductTypeFilter(_selectedProductType);
     provider.setCapacityFilter(_minCapacity);
     provider.setPriceFilter(_maxPrice);
@@ -89,9 +92,7 @@ class _TransportListScreenState extends State<TransportListScreen> {
 
   void _clearFilters() {
     setState(() {
-      _fromController.clear();
-      _toController.clear();
-      _selectedDate = null;
+      _locationController.clear();
       _selectedProductType = null;
       _minCapacity = null;
       _maxPrice = null;
@@ -111,17 +112,9 @@ class _TransportListScreenState extends State<TransportListScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextFormField(
-                controller: _fromController,
+                controller: _locationController,
                 decoration: const InputDecoration(
-                  labelText: 'From Location',
-                  prefixIcon: Icon(Icons.location_on),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _toController,
-                decoration: const InputDecoration(
-                  labelText: 'To Location',
+                  labelText: 'Vehicle Location',
                   prefixIcon: Icon(Icons.location_on),
                 ),
               ),
@@ -178,27 +171,8 @@ class _TransportListScreenState extends State<TransportListScreen> {
               ),
               const SizedBox(height: 16),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  TextButton.icon(
-                    onPressed: () async {
-                      final date = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime.now().add(const Duration(days: 30)),
-                      );
-                      if (date != null) {
-                        setState(() {
-                          _selectedDate = date;
-                        });
-                      }
-                    },
-                    icon: const Icon(Icons.calendar_today),
-                    label: Text(_selectedDate != null
-                        ? DateFormat('MMM d, y').format(_selectedDate!)
-                        : 'Select Date'),
-                  ),
                   TextButton.icon(
                     onPressed: _clearFilters,
                     icon: const Icon(Icons.clear),
@@ -227,10 +201,14 @@ class _TransportListScreenState extends State<TransportListScreen> {
       appBar: AppBar(
         title: const Text('Available Vehicles'),
         elevation: 0,
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Colors.white,
         actions: [
           IconButton(
-            icon:
-                Icon(_showFilters ? Icons.filter_list_off : Icons.filter_list),
+            icon: Icon(
+              _showFilters ? Icons.filter_list_off : Icons.filter_list,
+              color: Colors.white,
+            ),
             onPressed: () {
               setState(() {
                 _showFilters = !_showFilters;
@@ -267,7 +245,9 @@ class _TransportListScreenState extends State<TransportListScreen> {
                               Icon(
                                 Icons.directions_car_outlined,
                                 size: 64,
-                                color: Colors.grey[400],
+                                color: Theme.of(context)
+                                    .primaryColor
+                                    .withOpacity(0.5),
                               ),
                               const SizedBox(height: 16),
                               Text(
@@ -285,6 +265,11 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                 },
                                 icon: const Icon(Icons.add),
                                 label: const Text('Add Vehicle'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      Theme.of(context).primaryColor,
+                                  foregroundColor: Colors.white,
+                                ),
                               ),
                             ],
                           ),
@@ -298,7 +283,12 @@ class _TransportListScreenState extends State<TransportListScreen> {
                           final transport = transports[index];
                           return Card(
                             margin: const EdgeInsets.only(bottom: 16),
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             child: InkWell(
+                              borderRadius: BorderRadius.circular(12),
                               onTap: () {
                                 Navigator.push(
                                   context,
@@ -319,9 +309,11 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                         Expanded(
                                           child: Text(
                                             transport.title,
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.bold,
+                                              color: Theme.of(context)
+                                                  .primaryColor,
                                             ),
                                           ),
                                         ),
@@ -367,7 +359,24 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                               return Container(
                                                 height: 200,
                                                 color: Colors.grey[300],
-                                                child: const Icon(Icons.error),
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(Icons.error_outline,
+                                                        size: 48,
+                                                        color:
+                                                            Colors.grey[600]),
+                                                    const SizedBox(height: 8),
+                                                    Text(
+                                                      'Failed to load image',
+                                                      style: TextStyle(
+                                                        color: Colors.grey[600],
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                               );
                                             },
                                           ),
@@ -376,11 +385,14 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                     const SizedBox(height: 16),
                                     Row(
                                       children: [
-                                        const Icon(Icons.location_on, size: 16),
+                                        Icon(Icons.location_on,
+                                            size: 16,
+                                            color:
+                                                Theme.of(context).primaryColor),
                                         const SizedBox(width: 4),
                                         Expanded(
                                           child: Text(
-                                            '${transport.fromLocation} → ${transport.toLocation}',
+                                            'Location: ${transport.vehicleLocation}',
                                             style:
                                                 const TextStyle(fontSize: 16),
                                           ),
@@ -390,21 +402,10 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                     const SizedBox(height: 8),
                                     Row(
                                       children: [
-                                        const Icon(Icons.access_time, size: 16),
-                                        const SizedBox(width: 4),
-                                        Expanded(
-                                          child: Text(
-                                            '${DateFormat('MMM d, HH:mm').format(transport.departureTime)} - ${DateFormat('MMM d, HH:mm').format(transport.arrivalTime)}',
-                                            style:
-                                                const TextStyle(fontSize: 16),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Row(
-                                      children: [
-                                        const Icon(Icons.scale, size: 16),
+                                        Icon(Icons.scale,
+                                            size: 16,
+                                            color:
+                                                Theme.of(context).primaryColor),
                                         const SizedBox(width: 4),
                                         Text(
                                           'Capacity: ${transport.capacity} tons',
@@ -412,17 +413,21 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                         ),
                                         const SizedBox(width: 16),
                                         if (transport.isTemperatureControlled)
-                                          const Icon(
+                                          Icon(
                                             Icons.thermostat,
                                             size: 16,
-                                            color: Colors.blue,
+                                            color:
+                                                Theme.of(context).primaryColor,
                                           ),
                                       ],
                                     ),
                                     const SizedBox(height: 8),
                                     Row(
                                       children: [
-                                        const Icon(Icons.person, size: 16),
+                                        Icon(Icons.person,
+                                            size: 16,
+                                            color:
+                                                Theme.of(context).primaryColor),
                                         const SizedBox(width: 4),
                                         Text(
                                           'Owner: ${transport.ownerName}',
@@ -433,7 +438,10 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                     const SizedBox(height: 8),
                                     Row(
                                       children: [
-                                        const Icon(Icons.drive_eta, size: 16),
+                                        Icon(Icons.drive_eta,
+                                            size: 16,
+                                            color:
+                                                Theme.of(context).primaryColor),
                                         const SizedBox(width: 4),
                                         Text(
                                           'Driver: ${transport.driverName}',
@@ -458,7 +466,10 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                     const SizedBox(height: 8),
                                     Row(
                                       children: [
-                                        const Icon(Icons.phone, size: 16),
+                                        Icon(Icons.phone,
+                                            size: 16,
+                                            color:
+                                                Theme.of(context).primaryColor),
                                         const SizedBox(width: 4),
                                         Text(
                                           'Contact: ${transport.driverPhone}',
@@ -470,7 +481,10 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                     if (transport.hasInsurance) ...[
                                       Row(
                                         children: [
-                                          const Icon(Icons.security, size: 16),
+                                          Icon(Icons.security,
+                                              size: 16,
+                                              color: Theme.of(context)
+                                                  .primaryColor),
                                           const SizedBox(width: 4),
                                           const Text(
                                             'Insured',
@@ -497,7 +511,10 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                             .certifications!.isNotEmpty) ...[
                                       Row(
                                         children: [
-                                          const Icon(Icons.verified, size: 16),
+                                          Icon(Icons.verified,
+                                              size: 16,
+                                              color: Theme.of(context)
+                                                  .primaryColor),
                                           const SizedBox(width: 4),
                                           const Text(
                                             'Certifications:',
@@ -533,6 +550,14 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                                 materialTapTargetSize:
                                                     MaterialTapTargetSize
                                                         .shrinkWrap,
+                                                backgroundColor:
+                                                    Theme.of(context)
+                                                        .primaryColor
+                                                        .withOpacity(0.1),
+                                                labelStyle: TextStyle(
+                                                  color: Theme.of(context)
+                                                      .primaryColor,
+                                                ),
                                               ))
                                           .toList(),
                                     ),
@@ -543,8 +568,10 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                       children: [
                                         Row(
                                           children: [
-                                            const Icon(Icons.directions_car,
-                                                size: 16),
+                                            Icon(Icons.directions_car,
+                                                size: 16,
+                                                color: Theme.of(context)
+                                                    .primaryColor),
                                             const SizedBox(width: 4),
                                             Text(
                                               transport.vehicleType,
@@ -589,6 +616,14 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                                   materialTapTargetSize:
                                                       MaterialTapTargetSize
                                                           .shrinkWrap,
+                                                  backgroundColor:
+                                                      Theme.of(context)
+                                                          .primaryColor
+                                                          .withOpacity(0.1),
+                                                  labelStyle: TextStyle(
+                                                    color: Theme.of(context)
+                                                        .primaryColor,
+                                                  ),
                                                 ))
                                             .toList(),
                                       ),
