@@ -5,6 +5,7 @@ import '../models/user.dart';
 import '../models/product.dart'; // Ensure this file contains the Product class definition
 import '../models/category.dart'; // Ensure this file contains the Category class definition
 import '../models/service.dart'; // Ensure this file contains the Service class definition
+import '../models/transport.dart'; // Ensure this file contains the Transport class definition
 
 class ApiService {
   static String baseUrl = 'http://127.0.0.1:8000/api';
@@ -473,6 +474,90 @@ class ApiService {
       }
     } catch (e) {
       throw Exception('Error adding product: $e');
+    }
+  }
+
+  // Transport methods
+  Future<List<Transport>> getTransports() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/transports'),
+        headers: await _getAuthHeaders(),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => Transport.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load transports');
+      }
+    } catch (e) {
+      throw Exception('Error loading transports: $e');
+    }
+  }
+
+  Future<Transport?> getTransportDetails(int transportId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/transports/$transportId'),
+        headers: await _getAuthHeaders(),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return Transport.fromJson(data);
+      } else {
+        throw Exception('Failed to load transport details');
+      }
+    } catch (e) {
+      throw Exception('Error loading transport details: $e');
+    }
+  }
+
+  Future<void> addTransport(Transport transport) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/transports'),
+        headers: await _getAuthHeaders(),
+        body: json.encode(transport.toJson()),
+      );
+
+      if (response.statusCode != 201) {
+        throw Exception('Failed to add transport');
+      }
+    } catch (e) {
+      throw Exception('Error adding transport: $e');
+    }
+  }
+
+  Future<void> updateTransport(Transport transport) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/transports/${transport.id}'),
+        headers: await _getAuthHeaders(),
+        body: json.encode(transport.toJson()),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to update transport');
+      }
+    } catch (e) {
+      throw Exception('Error updating transport: $e');
+    }
+  }
+
+  Future<void> deleteTransport(int transportId) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('$baseUrl/transports/$transportId'),
+        headers: await _getAuthHeaders(),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to delete transport');
+      }
+    } catch (e) {
+      throw Exception('Error deleting transport: $e');
     }
   }
 }

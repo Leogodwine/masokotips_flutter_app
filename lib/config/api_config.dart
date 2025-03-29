@@ -1,26 +1,26 @@
 class ApiConfig {
   // Base URL for API requests
-  static String baseUrl = 'http://localhost:8000/api'; // Local WAMP server URL
-
-  // Alternative URLs if the main one fails
-  static final List<String> alternativeBaseUrls = [
-    'http://10.0.2.2:8000/api', // Android emulator to host localhost
-    'http://127.0.0.1:8000/api', // Direct localhost
-    'http://localhost:8000/api', // Named localhost
-    'http://10.0.3.2:8000/api', // Genymotion emulator to host
-  ];
+  static const String baseUrl =
+      'http://localhost:8000/api'; // Local development URL
 
   // Timeout duration for API requests
-  static const int timeoutDuration = 60; // seconds
+  static const Duration timeoutDuration = Duration(seconds: 60);
 
   // API Keys (if needed)
   static const String apiKey = '';
+
+  // Mock data flag
+  static bool useMockData = false;
+
+  // List of alternative base URLs for different environments
+  static const List<String> alternativeBaseUrls = [
+    'http://10.0.2.2:8000/api', // Android emulator
+    'http://127.0.0.1:8000/api', // Local development
+    'https://api.yourdomain.com/api', // Production
+  ];
 
   // Placeholder images
   static const String placeholderImage = 'https://via.placeholder.com/150';
   static const String categoryPlaceholder = 'https://via.placeholder.com/150';
   static const String productPlaceholder = 'https://via.placeholder.com/150';
-
-  // Mock mode - set to true to use mock data rather than real API calls
-  static bool useMockData = true;
 }

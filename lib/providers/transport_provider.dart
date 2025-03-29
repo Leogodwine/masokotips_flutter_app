@@ -1,106 +1,344 @@
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+import '../models/transport.dart';
+import '../services/transport_service.dart';
 
 class TransportProvider with ChangeNotifier {
-  final Map<String, Map<String, dynamic>> _transportServices = {
-    'Tandem': {
-      'imageUrl': 'https://example.com/tandem.jpg',
-      'description':
-          'Efficient tandem truck service for bulk transportation. Perfect for agricultural produce and construction materials.',
-      'specifications': {
-        'Capacity': '20-25 tons',
-        'Length': '12.2 meters',
-        'Loading Type': 'Side and rear loading',
-        'Features': 'GPS tracking, Temperature monitoring'
-      },
-      'serviceAreas': ['Nairobi', 'Mombasa', 'Nakuru', 'Kisumu'],
-      'baseRate': 100,
-      'minDistance': 50,
-      'additionalCharges': 'Loading/Unloading: \$50 per hour',
-      'isAvailable': true,
-      'providerName': 'Swift Transport Ltd',
-      'providerDescription':
-          'Professional transport service with 10+ years experience',
-      'providerPhone': '+254700000000',
-      'providerEmail': 'info@swifttransport.com',
-      'providerImage': 'https://example.com/provider.jpg'
-    },
-    'Kirikuu': {
-      'imageUrl': 'https://example.com/kirikuu.jpg',
-      'description':
-          'Versatile Kirikuu trucks suitable for medium-sized cargo transport. Ideal for urban and inter-city deliveries.',
-      'specifications': {
-        'Capacity': '10-15 tons',
-        'Length': '8.5 meters',
-        'Loading Type': 'Rear loading',
-        'Features': 'Real-time tracking, 24/7 support'
-      },
-      'serviceAreas': ['Nairobi', 'Thika', 'Machakos', 'Kitui'],
-      'baseRate': 80,
-      'minDistance': 30,
-      'additionalCharges': 'Waiting time: \$30 per hour',
-      'isAvailable': true,
-      'providerName': 'Express Logistics',
-      'providerDescription': 'Reliable and efficient logistics solutions',
-      'providerPhone': '+254711111111',
-      'providerEmail': 'info@expresslogistics.com',
-      'providerImage': 'https://example.com/provider2.jpg'
-    },
-    'FlatbedTrucks': {
-      'imageUrl': 'https://example.com/flatbed.jpg',
-      'description':
-          'Spacious flatbed trucks for oversized and specialized cargo. Perfect for machinery and construction equipment.',
-      'specifications': {
-        'Capacity': '25-30 tons',
-        'Length': '13.6 meters',
-        'Loading Type': 'Side and top loading',
-        'Features': 'Hydraulic ramps, Load securing equipment'
-      },
-      'serviceAreas': ['Nairobi', 'Mombasa', 'Eldoret', 'Nakuru'],
-      'baseRate': 120,
-      'minDistance': 100,
-      'additionalCharges': 'Special equipment: \$100 per day',
-      'isAvailable': true,
-      'providerName': 'Heavy Haulers Co.',
-      'providerDescription':
-          'Specialized in heavy and oversized cargo transport',
-      'providerPhone': '+254722222222',
-      'providerEmail': 'info@heavyhaulers.com',
-      'providerImage': 'https://example.com/provider3.jpg'
-    }
-  };
+  final TransportService _transportService = TransportService();
+  List<Transport> _transports = [];
+  List<Transport> _filteredTransports = [];
+  bool _isLoading = false;
+  String? _error;
 
-  Map<String, Map<String, dynamic>> get transportServices => _transportServices;
+  // Filter states
+  String? _selectedProductType;
+  double? _minCapacity;
+  double? _maxPrice;
+  bool? _temperatureControlled;
+  String? _fromLocation;
+  String? _toLocation;
+  DateTime? _departureDate;
 
-  Map<String, dynamic>? getTransportDetails(String type) {
-    return _transportServices[type];
+  List<Transport> get transports => _filteredTransports;
+  bool get isLoading => _isLoading;
+  String? get error => _error;
+
+  // Filter getters
+  String? get selectedProductType => _selectedProductType;
+  double? get minCapacity => _minCapacity;
+  double? get maxPrice => _maxPrice;
+  bool? get temperatureControlled => _temperatureControlled;
+  String? get fromLocation => _fromLocation;
+  String? get toLocation => _toLocation;
+  DateTime? get departureDate => _departureDate;
+
+  TransportProvider();
+
+  void initialize(String authToken) {
+    _transportService.setAuthToken(authToken);
   }
 
-  Future<void> updateAvailability(String type, bool isAvailable) async {
-    if (_transportServices.containsKey(type)) {
-      _transportServices[type]?['isAvailable'] = isAvailable;
-      notifyListeners();
-      await _saveToPrefs();
-    }
+  @override
+  void dispose() {
+    _transports.clear();
+    _filteredTransports.clear();
+    super.dispose();
   }
 
-  Future<void> _saveToPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-        'transport_services', json.encode(_transportServices));
-  }
+  Future<void> loadTransports() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
 
-  Future<void> loadFromPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? data = prefs.getString('transport_services');
-    if (data != null) {
-      final Map<String, dynamic> decoded = json.decode(data);
-      _transportServices.clear();
-      decoded.forEach((key, value) {
-        _transportServices[key] = Map<String, dynamic>.from(value);
-      });
+    try {
+      _transports = await _transportService.getTransports();
+      _applyFilters();
+      _error = null;
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
       notifyListeners();
     }
+  }
+
+  void _applyFilters() {
+    _filteredTransports = _transports.where((transport) {
+      bool matches = true;
+
+      if (_selectedProductType != null) {
+        matches = matches &&
+            transport.supportedProductTypes.contains(_selectedProductType);
+      }
+
+      if (_minCapacity != null) {
+        matches = matches && transport.capacity >= _minCapacity!;
+      }
+
+      if (_maxPrice != null) {
+        matches = matches && transport.price <= _maxPrice!;
+      }
+
+      if (_temperatureControlled != null) {
+        matches = matches &&
+            transport.isTemperatureControlled == _temperatureControlled;
+      }
+
+      if (_fromLocation != null) {
+        matches = matches &&
+            transport.fromLocation
+                .toLowerCase()
+                .contains(_fromLocation!.toLowerCase());
+      }
+
+      if (_toLocation != null) {
+        matches = matches &&
+            transport.toLocation
+                .toLowerCase()
+                .contains(_toLocation!.toLowerCase());
+      }
+
+      if (_departureDate != null) {
+        matches = matches &&
+            transport.departureTime.year == _departureDate!.year &&
+            transport.departureTime.month == _departureDate!.month &&
+            transport.departureTime.day == _departureDate!.day;
+      }
+
+      return matches;
+    }).toList();
+    notifyListeners();
+  }
+
+  // Filter setters
+  void setProductTypeFilter(String? productType) {
+    _selectedProductType = productType;
+    _applyFilters();
+  }
+
+  void setCapacityFilter(double? minCapacity) {
+    _minCapacity = minCapacity;
+    _applyFilters();
+  }
+
+  void setPriceFilter(double? maxPrice) {
+    _maxPrice = maxPrice;
+    _applyFilters();
+  }
+
+  void setTemperatureControlledFilter(bool? temperatureControlled) {
+    _temperatureControlled = temperatureControlled;
+    _applyFilters();
+  }
+
+  void setLocationFilters(String? fromLocation, String? toLocation) {
+    _fromLocation = fromLocation;
+    _toLocation = toLocation;
+    _applyFilters();
+  }
+
+  void setDepartureDateFilter(DateTime? date) {
+    _departureDate = date;
+    _applyFilters();
+  }
+
+  void clearFilters() {
+    _selectedProductType = null;
+    _minCapacity = null;
+    _maxPrice = null;
+    _temperatureControlled = null;
+    _fromLocation = null;
+    _toLocation = null;
+    _departureDate = null;
+    _filteredTransports = _transports;
+    notifyListeners();
+  }
+
+  Future<Transport> addTransport({
+    required String title,
+    required String description,
+    required String fromLocation,
+    required String toLocation,
+    required String vehicleType,
+    required DateTime departureTime,
+    required DateTime arrivalTime,
+    required double price,
+    required double capacity,
+    required bool isTemperatureControlled,
+    double? temperatureRange,
+    required List<String> supportedProductTypes,
+    String? driverId,
+    double? driverRating,
+    required bool hasInsurance,
+    String? insuranceDetails,
+    Map<String, dynamic>? certifications,
+    List<String>? amenities,
+    String status = 'active',
+    String? imageUrl,
+    required String ownerName,
+    double? pricePerKg,
+    required String driverName,
+    required String driverPhone,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final transport = await _transportService.addTransport(
+        title: title,
+        description: description,
+        fromLocation: fromLocation,
+        toLocation: toLocation,
+        vehicleType: vehicleType,
+        departureTime: departureTime,
+        arrivalTime: arrivalTime,
+        price: price,
+        capacity: capacity,
+        isTemperatureControlled: isTemperatureControlled,
+        temperatureRange: temperatureRange,
+        supportedProductTypes: supportedProductTypes,
+        driverId: driverId,
+        driverRating: driverRating,
+        hasInsurance: hasInsurance,
+        insuranceDetails: insuranceDetails,
+        certifications: certifications,
+        amenities: amenities,
+        status: status,
+        imageUrl: imageUrl,
+        ownerName: ownerName,
+        pricePerKg: pricePerKg,
+        driverName: driverName,
+        driverPhone: driverPhone,
+      );
+
+      _transports.add(transport);
+      _applyFilters();
+      _error = null;
+      notifyListeners();
+      return transport;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<String> uploadTransportImage(
+      String transportId, String imagePath) async {
+    try {
+      return await _transportService.uploadTransportImage(
+          transportId, imagePath);
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> updateTransport(Transport transport) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final updatedTransport =
+          await _transportService.updateTransport(transport);
+      final index = _transports.indexWhere((t) => t.id == transport.id);
+      if (index != -1) {
+        _transports[index] = updatedTransport;
+        _applyFilters();
+      }
+      _error = null;
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteTransport(String id) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _transportService.deleteTransport(id);
+      _transports.removeWhere((transport) => transport.id == id);
+      _applyFilters();
+      _error = null;
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  List<Transport> filterTransports({
+    String? searchQuery,
+    String? vehicleType,
+    String? fromLocation,
+    String? toLocation,
+    DateTime? departureTime,
+    double? minPrice,
+    double? maxPrice,
+    bool? isTemperatureControlled,
+    List<String>? productTypes,
+  }) {
+    return _transports.where((transport) {
+      if (searchQuery != null && searchQuery.isNotEmpty) {
+        if (!transport.title
+                .toLowerCase()
+                .contains(searchQuery.toLowerCase()) &&
+            !transport.description
+                .toLowerCase()
+                .contains(searchQuery.toLowerCase())) {
+          return false;
+        }
+      }
+
+      if (vehicleType != null && transport.vehicleType != vehicleType) {
+        return false;
+      }
+
+      if (fromLocation != null && transport.fromLocation != fromLocation) {
+        return false;
+      }
+
+      if (toLocation != null && transport.toLocation != toLocation) {
+        return false;
+      }
+
+      if (departureTime != null &&
+          transport.departureTime.isBefore(departureTime)) {
+        return false;
+      }
+
+      if (minPrice != null && transport.price < minPrice) {
+        return false;
+      }
+
+      if (maxPrice != null && transport.price > maxPrice) {
+        return false;
+      }
+
+      if (isTemperatureControlled != null &&
+          transport.isTemperatureControlled != isTemperatureControlled) {
+        return false;
+      }
+
+      if (productTypes != null && productTypes.isNotEmpty) {
+        if (!productTypes
+            .any((type) => transport.supportedProductTypes.contains(type))) {
+          return false;
+        }
+      }
+
+      return true;
+    }).toList();
   }
 }

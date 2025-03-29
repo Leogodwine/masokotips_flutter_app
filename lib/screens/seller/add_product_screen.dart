@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../models/product.dart';
-import '../../providers/product_provider.dart';
 import '../../services/product_service.dart';
 import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class AddProductScreen extends StatefulWidget {
   final Function(Product) onProductAdded;
@@ -27,8 +26,18 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _priceController = TextEditingController();
   final _stockController = TextEditingController();
   String _selectedCategory = 'Vegetables';
-  List<File> _selectedImages = [];
+  final List<File> _selectedImages = [];
   bool _isLoading = false;
+
+  // Add slug generation function
+  String _generateSlug(String name) {
+    return name
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9\s-]'), '')
+        .replaceAll(RegExp(r'\s+'), '-')
+        .replaceAll(RegExp(r'-+'), '-')
+        .trim();
+  }
 
   final List<String> _categories = [
     'Vegetables',
@@ -39,6 +48,17 @@ class _AddProductScreenState extends State<AddProductScreen> {
     'Seeds and Seedling',
     'Livestock and poultry'
   ];
+
+  // Add a map for category IDs
+  final Map<String, int> _categoryIds = {
+    'Vegetables': 11,
+    'Fruits': 12,
+    'Spices': 13,
+    'Cash Crops': 14,
+    'Cereals': 15,
+    'Seeds and Seedling': 16,
+    'Livestock and poultry': 17,
+  };
 
   @override
   void dispose() {
@@ -66,25 +86,37 @@ class _AddProductScreenState extends State<AddProductScreen> {
     setState(() => _isLoading = true);
 
     try {
+      // Generate slug from product name
+      final slug = _generateSlug(_nameController.text);
+
+      // Create a new product with the image paths
       final product = Product(
-        id: DateTime.now().millisecondsSinceEpoch,
+        id: 0, // The server will assign the ID
         name: _nameController.text,
         description: _descriptionController.text,
         price: double.parse(_priceController.text),
         stock: int.parse(_stockController.text),
         isActive: true,
         isFeatured: false,
-        categoryId: _categories.indexOf(_selectedCategory) + 1,
-        userId: 0,
-        images: _selectedImages.map((file) => file.path).toList(),
+        categoryId: _categoryIds[_selectedCategory] ?? 101,
+        userId: 0, // The server will set this based on the authenticated user
+        images: _selectedImages
+            .map((file) => file.path)
+            .toList(), // Use the file paths directly
         rating: 0,
         ratingCount: 0,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
+        slug: slug,
       );
 
-      await context.read<ProductProvider>().addProduct(product);
+      // Add the product
+      final addedProduct = await widget.productService.addProduct(product);
 
+      // Call the callback with the added product
+      widget.onProductAdded(addedProduct);
+
+      // Show success message
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Product added successfully')),
@@ -94,7 +126,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error adding product: $e')),
+          SnackBar(content: Text('Failed to add product: $e')),
         );
       }
     } finally {
@@ -109,17 +141,24 @@ class _AddProductScreenState extends State<AddProductScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add New Product'),
+        elevation: 0,
       ),
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            // Product Name Field
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Product Name',
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                prefixIcon: const Icon(Icons.inventory_2_outlined),
+                filled: true,
+                fillColor: Colors.grey[50],
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -129,11 +168,17 @@ class _AddProductScreenState extends State<AddProductScreen> {
               },
             ),
             const SizedBox(height: 16),
+            // Description Field
             TextFormField(
               controller: _descriptionController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Description',
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                prefixIcon: const Icon(Icons.description_outlined),
+                filled: true,
+                fillColor: Colors.grey[50],
               ),
               maxLines: 3,
               validator: (value) {
@@ -144,48 +189,72 @@ class _AddProductScreenState extends State<AddProductScreen> {
               },
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              controller: _priceController,
-              decoration: const InputDecoration(
-                labelText: 'Price',
-                border: OutlineInputBorder(),
-                prefixText: '\$',
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a price';
-                }
-                if (double.tryParse(value) == null) {
-                  return 'Please enter a valid price';
-                }
-                return null;
-              },
+            // Price and Stock Row
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _priceController,
+                    decoration: InputDecoration(
+                      labelText: 'Price',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      prefixIcon: const Icon(Icons.attach_money),
+                      filled: true,
+                      fillColor: Colors.grey[50],
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Required';
+                      }
+                      if (double.tryParse(value) == null) {
+                        return 'Invalid';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: TextFormField(
+                    controller: _stockController,
+                    decoration: InputDecoration(
+                      labelText: 'Stock',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      prefixIcon: const Icon(Icons.inventory),
+                      filled: true,
+                      fillColor: Colors.grey[50],
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Required';
+                      }
+                      if (int.tryParse(value) == null) {
+                        return 'Invalid';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              controller: _stockController,
-              decoration: const InputDecoration(
-                labelText: 'Stock',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter stock quantity';
-                }
-                if (int.tryParse(value) == null) {
-                  return 'Please enter a valid quantity';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
+            // Category Dropdown
             DropdownButtonFormField<String>(
               value: _selectedCategory,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Category',
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                prefixIcon: const Icon(Icons.category_outlined),
+                filled: true,
+                fillColor: Colors.grey[50],
               ),
               items: _categories.map((category) {
                 return DropdownMenuItem(
@@ -199,56 +268,135 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 }
               },
             ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: _pickImages,
-              icon: const Icon(Icons.add_photo_alternate),
-              label: const Text('Add Images'),
-            ),
-            if (_selectedImages.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              SizedBox(
-                height: 100,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _selectedImages.length,
-                  itemBuilder: (context, index) {
-                    return Stack(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: Image.file(
-                            _selectedImages[index],
-                            height: 100,
-                            width: 100,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        Positioned(
-                          right: 0,
-                          top: 0,
-                          child: IconButton(
-                            icon: const Icon(Icons.remove_circle),
-                            color: Colors.red,
-                            onPressed: () {
-                              setState(() {
-                                _selectedImages.removeAt(index);
-                              });
-                            },
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-            ],
             const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _isLoading ? null : _submitForm,
-              child: _isLoading
-                  ? const CircularProgressIndicator()
-                  : const Text('Add Product'),
+            // Image Picker Section
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey[300]!),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Product Images',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 12),
+                  ElevatedButton.icon(
+                    onPressed: _pickImages,
+                    icon: const Icon(Icons.add_photo_alternate),
+                    label: const Text('Add Images'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  if (_selectedImages.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: 100,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _selectedImages.length,
+                        itemBuilder: (context, index) {
+                          return Stack(
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.only(right: 8),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.grey[300]!),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: kIsWeb
+                                      ? Image.network(
+                                          _selectedImages[index].path,
+                                          height: 100,
+                                          width: 100,
+                                          fit: BoxFit.cover,
+                                        )
+                                      : Image.file(
+                                          _selectedImages[index],
+                                          height: 100,
+                                          width: 100,
+                                          fit: BoxFit.cover,
+                                        ),
+                                ),
+                              ),
+                              Positioned(
+                                right: 0,
+                                top: 0,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: IconButton(
+                                    icon: const Icon(
+                                      Icons.remove_circle,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _selectedImages.removeAt(index);
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+            // Submit Button
+            SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton(
+                onPressed: _isLoading ? null : _submitForm,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  foregroundColor: Colors.white,
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : const Text(
+                        'Add Product',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+              ),
             ),
           ],
         ),

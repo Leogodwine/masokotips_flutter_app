@@ -12,6 +12,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\Api\TransportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -87,6 +88,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/products/{product}', [ProductController::class, 'update']);
         Route::delete('/products/{product}', [ProductController::class, 'destroy']);
         Route::get('/orders', [OrderController::class, 'sellerOrders']);
+        Route::post('/products/upload-image', [ProductController::class, 'uploadImage']);
     });
 
     // Service Provider Routes
@@ -127,4 +129,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('/{id}', [RecipeController::class, 'destroy']);
         Route::post('/{id}/reviews', [ReviewController::class, 'store']);
     });
+
+    // Transport Routes
+    Route::apiResource('transports', TransportController::class);
+    Route::post('transports/{id}/image', [TransportController::class, 'uploadImage']);
 });

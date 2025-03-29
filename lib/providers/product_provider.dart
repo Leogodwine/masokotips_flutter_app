@@ -39,11 +39,9 @@ class ProductProvider with ChangeNotifier {
       print('Fetching featured products...');
       _featuredProducts = await _apiService.getFeaturedProducts();
       print('Fetched ${_featuredProducts.length} featured products');
-      notifyListeners();
     } catch (e) {
       _error = 'Failed to load featured products: $e';
       print('Error loading featured products: $_error');
-      notifyListeners();
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -58,11 +56,9 @@ class ProductProvider with ChangeNotifier {
       notifyListeners();
 
       _relatedProducts = await _apiService.getRelatedProducts(productId);
-      notifyListeners();
       return _relatedProducts;
     } catch (e) {
       _error = e.toString();
-      notifyListeners();
       throw Exception('Failed to fetch related products: $e');
     } finally {
       _isLoading = false;
@@ -80,11 +76,9 @@ class ProductProvider with ChangeNotifier {
 
       _products =
           await _apiService.getProductsByCategory(categoryId, subcategory);
-      notifyListeners();
     } catch (e) {
       _error = 'Failed to load products: $e';
       print(_error);
-      notifyListeners();
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -100,11 +94,9 @@ class ProductProvider with ChangeNotifier {
 
       _products = await _apiService.getProducts();
       await _cacheProducts();
-      notifyListeners();
     } catch (e) {
       _error = 'Failed to load products: $e';
       print(_error);
-      notifyListeners();
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -118,7 +110,6 @@ class ProductProvider with ChangeNotifier {
     } catch (e) {
       _error = 'Failed to fetch product details: $e';
       print(_error);
-      notifyListeners();
       return null;
     }
   }
@@ -198,11 +189,9 @@ class ProductProvider with ChangeNotifier {
 
       await _apiService.addProduct(product);
       _products.add(product);
-      notifyListeners();
     } catch (e) {
       _error = 'Failed to add product: $e';
       print(_error);
-      notifyListeners();
       rethrow;
     } finally {
       _isLoading = false;

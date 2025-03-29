@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
+import '../services/transport_service.dart';
 import '../models/user.dart';
 
 class AuthProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
+  final TransportService _transportService = TransportService();
   String? _token;
   User? _user;
 
@@ -59,6 +61,9 @@ class AuthProvider with ChangeNotifier {
       if (response['token'] != null) {
         _token = response['token'];
         await _saveToken(_token!);
+
+        // Set the auth token in TransportService
+        _transportService.setAuthToken(_token!);
 
         // Create user object from the response
         if (response['user'] != null) {
@@ -136,6 +141,8 @@ class AuthProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     _token = prefs.getString('auth_token');
     if (_token != null) {
+      // Set the auth token in TransportService
+      _transportService.setAuthToken(_token!);
       await fetchUserProfile();
     }
     notifyListeners();

@@ -1,3 +1,5 @@
+import '../config/api_config.dart';
+
 class Product {
   final int id;
   final String name;
@@ -15,8 +17,41 @@ class Product {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
+  final String? slug;
 
   String get imageUrl => images.isNotEmpty ? images[0] : '';
+
+  // Helper method to process image URLs
+  static String _processImageUrl(String path) {
+    print('Processing image URL: $path');
+    print('Base URL: ${ApiConfig.baseUrl}');
+
+    if (path.isEmpty) {
+      print('Empty path detected, returning empty string');
+      return '';
+    }
+
+    // Remove any backslashes and trim whitespace
+    path = path.replaceAll('\\', '/').trim();
+    print('Cleaned path: $path');
+
+    // If it's already a full URL, return it as is
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      print('Full URL detected, returning as is: $path');
+      return path;
+    }
+
+    // Get the base URL without the /api suffix
+    final baseUrl = ApiConfig.baseUrl.replaceAll('/api', '');
+
+    // If the path already includes /storage/, don't add it again
+    final storagePath = path.startsWith('/storage/') ? path : '/storage/$path';
+
+    // Construct the full URL
+    final fullUrl = '$baseUrl$storagePath';
+    print('Constructed full URL: $fullUrl');
+    return fullUrl;
+  }
 
   Product({
     required this.id,
@@ -35,6 +70,7 @@ class Product {
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
+    this.slug,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -49,7 +85,7 @@ class Product {
       categoryId: int.tryParse(json['category_id'].toString()) ?? 0,
       userId: int.tryParse(json['user_id'].toString()) ?? 0,
       images: (json['images'] as List<dynamic>?)
-              ?.map((e) => e.toString().replaceAll('\\/', '/'))
+              ?.map((e) => _processImageUrl(e.toString()))
               .toList() ??
           [],
       specifications: json['specifications'] != null
@@ -64,27 +100,22 @@ class Product {
       deletedAt: json['deleted_at'] != null
           ? DateTime.parse(json['deleted_at'])
           : null,
+      slug: json['slug'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'name': name,
       'description': description,
       'price': price,
       'stock': stock,
       'is_active': isActive,
-      'is_featured': isFeatured,
+      'is_featured': isFeatured ? 1 : 0,
       'category_id': categoryId,
-      'user_id': userId,
       'images': images,
       'specifications': specifications,
-      'rating': rating,
-      'rating_count': ratingCount,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
-      'deleted_at': deletedAt?.toIso8601String(),
+      'slug': slug,
     };
   }
 
@@ -106,6 +137,7 @@ class Product {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
+    String? slug,
   }) {
     return Product(
       id: id ?? this.id,
@@ -124,6 +156,7 @@ class Product {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      slug: slug ?? this.slug,
     );
   }
 }

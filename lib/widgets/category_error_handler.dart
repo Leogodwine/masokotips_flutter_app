@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/category_provider.dart';
-import '../config/api_config.dart';
 
 class CategoryErrorHandler extends StatelessWidget {
   final String? error;
@@ -22,7 +19,7 @@ class CategoryErrorHandler extends StatelessWidget {
       return child;
     }
 
-    // Otherwise show error with retry and mock data options
+    // Otherwise show error with retry option
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -47,37 +44,10 @@ class CategoryErrorHandler extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Retry'),
-                  onPressed: onRetry,
-                ),
-                const SizedBox(width: 16),
-                OutlinedButton.icon(
-                  icon: const Icon(Icons.local_mall),
-                  label: const Text('Use Sample Data'),
-                  onPressed: () {
-                    // Enable mock mode
-                    ApiConfig.useMockData = true;
-
-                    // Use mock categories
-                    final categoryProvider =
-                        Provider.of<CategoryProvider>(context, listen: false);
-                    categoryProvider.useMockData();
-
-                    // Show feedback to user
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Using sample category data'),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  },
-                ),
-              ],
+            ElevatedButton.icon(
+              icon: const Icon(Icons.refresh),
+              label: const Text('Retry'),
+              onPressed: onRetry,
             ),
           ],
         ),

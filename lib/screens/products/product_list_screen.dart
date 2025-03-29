@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/product_provider.dart';
 import '../products/product_details_screen.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:masoko_tips/widgets/cached_network_image_with_cors.dart';
 
 class ProductListScreen extends StatefulWidget {
   final String title;
@@ -96,7 +96,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            CachedNetworkImage(
+                            CachedNetworkImageWithCors(
                               imageUrl: product.imageUrl,
                               height: 160,
                               width: double.infinity,
@@ -128,7 +128,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
-                                      fontSize: 16,
+                                      fontSize: 14,
                                       fontWeight: FontWeight.w600,
                                       height: 1.2,
                                     ),
@@ -138,7 +138,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                     '\$${product.price.toStringAsFixed(2)}',
                                     style: TextStyle(
                                       color: Theme.of(context).primaryColor,
-                                      fontSize: 18,
+                                      fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),

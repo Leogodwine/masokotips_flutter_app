@@ -98,7 +98,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           children: [
             // Product Image with Hero Animation
             Hero(
-              tag: 'product-${widget.product.id}',
+              tag: 'home-featured-${widget.product.id}',
               child: CachedNetworkImage(
                 imageUrl: widget.product.imageUrl.isNotEmpty
                     ? widget.product.imageUrl
@@ -106,21 +106,77 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 height: 300,
                 width: double.infinity,
                 fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  height: 300,
-                  color: Colors.grey[300],
-                  child: const Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  height: 300,
-                  color: Colors.grey[300],
-                  child: const Icon(
-                    Icons.error,
-                    color: Colors.grey,
-                  ),
-                ),
+                placeholder: (context, url) {
+                  print('Loading placeholder for URL: $url');
+                  return Container(
+                    height: 300,
+                    color: Colors.grey[300],
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                },
+                errorWidget: (context, url, error) {
+                  print('Error loading image: $error');
+                  print('Image URL: $url');
+                  print('Product imageUrl: ${widget.product.imageUrl}');
+                  print('Product images: ${widget.product.images}');
+                  print('Error type: ${error.runtimeType}');
+                  print('Error toString: ${error.toString()}');
+                  return Container(
+                    height: 300,
+                    color: Colors.grey[300],
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.error_outline,
+                          color: Colors.grey,
+                          size: 48,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Failed to load image',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          error.toString(),
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                httpHeaders: const {
+                  'Accept': 'image/*',
+                  'Cache-Control': 'no-cache',
+                  'User-Agent': 'Flutter/1.0',
+                },
+                memCacheWidth: 800,
+                memCacheHeight: 800,
+                maxWidthDiskCache: 800,
+                maxHeightDiskCache: 800,
+                fadeInDuration: const Duration(milliseconds: 300),
+                fadeOutDuration: const Duration(milliseconds: 300),
+                imageBuilder: (context, imageProvider) {
+                  print(
+                      'Image loaded successfully: ${widget.product.imageUrl}');
+                  return Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: imageProvider,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
             Padding(
