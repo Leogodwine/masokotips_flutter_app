@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../models/product.dart';
 import '../../providers/product_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../utils/logger.dart';
 import 'product_details_screen.dart';
 
 class CategoryProductsScreen extends StatefulWidget {

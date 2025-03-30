@@ -8,8 +8,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../search/search_screen.dart';
 import 'dart:async';
 import '../../utils/logger.dart';
-import '../products/category_products_screen.dart';
 import '../categories/subcategories_screen.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
 class HomeContentScreen extends StatefulWidget {
   const HomeContentScreen({Key? key}) : super(key: key);
@@ -283,82 +283,154 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
 
                 Log.e(
                     'HomeContentScreen: Building category grid with ${categories.length} items');
-                return GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    childAspectRatio: 1,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                  ),
-                  itemCount: categories.length,
-                  itemBuilder: (context, index) {
-                    final category = categories[index];
-                    Log.e(
-                        'HomeContentScreen: Building category: ${category.name}');
-                    return InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SubcategoriesScreen(
-                              category: category,
-                            ),
-                          ),
-                        );
-                      },
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  Theme.of(context)
-                                      .primaryColor
-                                      .withOpacity(0.1),
-                                  Theme.of(context)
-                                      .primaryColor
-                                      .withOpacity(0.2),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
+                return AnimationLimiter(
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 1.2,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                    ),
+                    itemCount: categories.length,
+                    itemBuilder: (context, index) {
+                      final category = categories[index];
+                      Log.e(
+                          'HomeContentScreen: Building category: ${category.name}');
+                      return AnimationConfiguration.staggeredGrid(
+                        position: index,
+                        duration: const Duration(milliseconds: 375),
+                        columnCount: 2,
+                        child: ScaleAnimation(
+                          child: FadeInAnimation(
+                            child: Card(
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
                               ),
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.1),
-                                  spreadRadius: 1,
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(16),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => SubcategoriesScreen(
+                                        category: category,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        Theme.of(context)
+                                            .primaryColor
+                                            .withOpacity(0.1),
+                                        Theme.of(context)
+                                            .primaryColor
+                                            .withOpacity(0.05),
+                                      ],
+                                    ),
+                                  ),
+                                  child: Stack(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(16),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              width: 48,
+                                              height: 48,
+                                              decoration: BoxDecoration(
+                                                color: Theme.of(context)
+                                                    .primaryColor
+                                                    .withOpacity(0.1),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: Icon(
+                                                _getCategoryIcon(category.name),
+                                                size: 24,
+                                                color: Theme.of(context)
+                                                    .primaryColor,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 12),
+                                            Text(
+                                              category.name,
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            if (category.description != null &&
+                                                category.description!
+                                                    .isNotEmpty) ...[
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                category.description!,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.grey[600],
+                                                ),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ],
+                                            if (category.children != null &&
+                                                category
+                                                    .children!.isNotEmpty) ...[
+                                              const SizedBox(height: 8),
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 8,
+                                                  vertical: 4,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Theme.of(context)
+                                                      .primaryColor
+                                                      .withOpacity(0.1),
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                child: Text(
+                                                  '${category.children!.length} subcategories',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Theme.of(context)
+                                                        .primaryColor,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ],
-                            ),
-                            child: Icon(
-                              _getCategoryIcon(category.icon ?? ''),
-                              size: 28,
-                              color: Theme.of(context).primaryColor,
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            category.name,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                        ),
+                      );
+                    },
+                  ),
                 );
               },
             ),
@@ -535,60 +607,20 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
     );
   }
 
-  IconData _getCategoryIcon(String iconName) {
-    switch (iconName.toLowerCase()) {
-      case 'shopping_basket':
-        return Icons.shopping_basket;
-      case 'miscellaneous_services':
+  IconData _getCategoryIcon(String categoryName) {
+    switch (categoryName.toLowerCase()) {
+      case 'products':
+        return Icons.inventory_2_outlined;
+      case 'services':
         return Icons.miscellaneous_services;
-      case 'trending_up':
+      case 'market information':
         return Icons.trending_up;
-      case 'local_shipping':
+      case 'transport':
         return Icons.local_shipping;
-      case 'eco':
+      case 'organic products':
         return Icons.eco;
-      case 'more_horiz':
+      case 'other services':
         return Icons.more_horiz;
-      case 'vegetables':
-        return Icons.eco;
-      case 'fruits':
-        return Icons.apple;
-      case 'spices':
-        return Icons.spa;
-      case 'cash crops':
-        return Icons.monetization_on;
-      case 'cereals':
-        return Icons.grain;
-      case 'seeds and seedling':
-        return Icons.local_florist;
-      case 'livestock and poultry':
-        return Icons.pets;
-      case 'organic vegetables':
-        return Icons.eco;
-      case 'organic fruits':
-        return Icons.apple;
-      case 'organic spices':
-        return Icons.spa;
-      case 'organic cash crops':
-        return Icons.monetization_on;
-      case 'organic cereals':
-        return Icons.grain;
-      case 'organic livestock and poultry':
-        return Icons.pets;
-      case 'packaging materials':
-        return Icons.inventory_2;
-      case 'hydroponics':
-        return Icons.water_drop;
-      case 'fertilizer':
-        return Icons.agriculture;
-      case 'organic manure':
-        return Icons.recycling;
-      case 'machinery':
-        return Icons.construction;
-      case 'behive and aquatic':
-        return Icons.water;
-      case 'food and beverage':
-        return Icons.restaurant;
       default:
         return Icons.category;
     }
