@@ -4,6 +4,7 @@ import '../models/product.dart';
 import '../services/api_service.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/logger.dart';
 
 class ProductProvider with ChangeNotifier {
   final ApiService _apiService;
@@ -14,10 +15,14 @@ class ProductProvider with ChangeNotifier {
   String? _error;
 
   ProductProvider({ApiService? apiService})
-      : _apiService = apiService ?? ApiService();
+      : _apiService = apiService ??
+            ApiService(
+              baseUrl: 'http://127.0.0.1:8000/api',
+              apiKey: 'your-api-key', // Replace with actual API key
+            );
 
   // API Base URL
-  static const String baseUrl = 'https://your-api-url.com/api';
+  static const String baseUrl = 'http://127.0.0.1:8000/api';
 
   // Cache key
   static const String _productsKey = 'cached_products';
@@ -36,12 +41,14 @@ class ProductProvider with ChangeNotifier {
       _error = null;
       notifyListeners();
 
-      print('Fetching featured products...');
+      Log.e('ProductProvider: Fetching featured products...');
       _featuredProducts = await _apiService.getFeaturedProducts();
-      print('Fetched ${_featuredProducts.length} featured products');
-    } catch (e) {
+      Log.e(
+          'ProductProvider: Successfully fetched ${_featuredProducts.length} featured products');
+    } catch (e, stackTrace) {
+      Log.e('ProductProvider: Error loading featured products: $e');
+      Log.e('ProductProvider: Stack trace: $stackTrace');
       _error = 'Failed to load featured products: $e';
-      print('Error loading featured products: $_error');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -51,13 +58,26 @@ class ProductProvider with ChangeNotifier {
   // Get related products
   Future<List<Product>> getRelatedProducts(int productId) async {
     try {
+      Log.e(
+          'ProductProvider: Starting to fetch related products for product: $productId');
       _isLoading = true;
       _error = null;
       notifyListeners();
 
       _relatedProducts = await _apiService.getRelatedProducts(productId);
+      Log.e(
+          'ProductProvider: Successfully fetched ${_relatedProducts.length} related products');
+
+      // Log details of each related product
+      for (var product in _relatedProducts) {
+        Log.e(
+            'ProductProvider: Related product - ID: ${product.id}, Name: ${product.name}');
+      }
+
       return _relatedProducts;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      Log.e('ProductProvider: Error fetching related products: $e');
+      Log.e('ProductProvider: Stack trace: $stackTrace');
       _error = e.toString();
       throw Exception('Failed to fetch related products: $e');
     } finally {
@@ -69,16 +89,20 @@ class ProductProvider with ChangeNotifier {
   // Load products by category
   Future<void> loadProductsByCategory(
       int categoryId, String subcategory) async {
-    try {
-      _isLoading = true;
-      _error = null;
-      notifyListeners();
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
 
-      _products =
+    try {
+      Log.e(
+          'Loading products for category: $categoryId, subcategory: $subcategory');
+      final products =
           await _apiService.getProductsByCategory(categoryId, subcategory);
+      _products = products;
+      Log.e('Loaded ${products.length} products');
     } catch (e) {
-      _error = 'Failed to load products: $e';
-      print(_error);
+      Log.e('Error loading products: $e');
+      _error = e.toString();
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -197,5 +221,49 @@ class ProductProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<void> loadFeaturedProducts() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      Log.e('Loading featured products');
+      final products = await _apiService.getFeaturedProducts();
+      _featuredProducts = products;
+      Log.e('Loaded ${products.length} featured products');
+    } catch (e) {
+      Log.e('Error loading featured products: $e');
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> loadRelatedProducts(int productId) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      Log.e('Loading related products for product: $productId');
+      final products = await _apiService.getRelatedProducts(productId);
+      _products = products;
+      Log.e('Loaded ${products.length} related products');
+    } catch (e) {
+      Log.e('Error loading related products: $e');
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  void clearProducts() {
+    _products = [];
+    _error = null;
+    notifyListeners();
   }
 }

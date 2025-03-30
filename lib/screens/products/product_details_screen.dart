@@ -5,6 +5,7 @@ import '../../providers/product_provider.dart';
 import '../../providers/wishlist_provider.dart';
 import '../../providers/cart_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../utils/logger.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final Product product;
@@ -43,19 +44,35 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   /// Load related products and update the state
   Future<void> _loadRelatedProducts() async {
     if (widget.product.id <= 0) {
-      return; // Exit early if the product ID is invalid
+      Log.e('ProductDetailsScreen: Invalid product ID: ${widget.product.id}');
+      return;
     }
 
     setState(() => _isLoadingRelated = true);
     try {
+      Log.e(
+          'ProductDetailsScreen: Loading related products for product: ${widget.product.id}');
       final products = await getRelatedProducts(widget.product.id);
+      Log.e('ProductDetailsScreen: Loaded ${products.length} related products');
       setState(() => _relatedProducts = products);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load related products: $e')),
-      );
+      Log.e('ProductDetailsScreen: Error loading related products: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load related products: $e'),
+            duration: const Duration(seconds: 3),
+            action: SnackBarAction(
+              label: 'RETRY',
+              onPressed: _loadRelatedProducts,
+            ),
+          ),
+        );
+      }
     } finally {
-      setState(() => _isLoadingRelated = false);
+      if (mounted) {
+        setState(() => _isLoadingRelated = false);
+      }
     }
   }
 
@@ -242,17 +259,17 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: widget.product.stock > 0
+                          color: (widget.product.stock ?? 0) > 0
                               ? Colors.green[100]
                               : Colors.red[100],
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          widget.product.stock > 0
+                          (widget.product.stock ?? 0) > 0
                               ? 'In Stock (${widget.product.stock})'
                               : 'Out of Stock',
                           style: TextStyle(
-                            color: widget.product.stock > 0
+                            color: (widget.product.stock ?? 0) > 0
                                 ? Colors.green[700]
                                 : Colors.red[700],
                             fontWeight: FontWeight.w500,
@@ -322,7 +339,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         final isInCart =
                             cartProvider.isInCart(widget.product.id);
                         return ElevatedButton(
-                          onPressed: widget.product.stock > 0
+                          onPressed: (widget.product.stock ?? 0) > 0
                               ? () {
                                   if (isInCart) {
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -358,10 +375,24 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
                   // Related Products Section
                   if (_isLoadingRelated)
-                    const Center(child: CircularProgressIndicator())
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: CircularProgressIndicator(),
+                      ),
+                    )
                   else if (_relatedProducts.isEmpty)
                     const Center(
-                      child: Text('No related products found'),
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text(
+                          'No related products found',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
                     )
                   else
                     Container(
@@ -411,13 +442,22 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                               imageUrl: product.imageUrl,
                                               fit: BoxFit.cover,
                                               placeholder: (context, url) =>
-                                                  const Center(
-                                                child:
-                                                    CircularProgressIndicator(),
+                                                  Container(
+                                                color: Colors.grey[200],
+                                                child: const Center(
+                                                  child:
+                                                      CircularProgressIndicator(),
+                                                ),
                                               ),
                                               errorWidget:
                                                   (context, url, error) =>
-                                                      const Icon(Icons.error),
+                                                      Container(
+                                                color: Colors.grey[200],
+                                                child: const Icon(
+                                                  Icons.error_outline,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
                                             ),
                                           ),
                                           Padding(

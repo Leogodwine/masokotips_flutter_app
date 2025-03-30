@@ -3,23 +3,111 @@ import '../config/api_config.dart';
 class Product {
   final int id;
   final String name;
+  final String slug;
   final String description;
   final double price;
-  final int stock;
+  final int? stock;
+  final String? unit;
   final bool isActive;
   final bool isFeatured;
+  final String imageUrl;
   final int categoryId;
   final int userId;
-  final List<String> images;
-  final Map<String, String>? specifications;
+  final List<String>? images;
+  final Map<String, dynamic>? specifications;
   final double rating;
   final int ratingCount;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
-  final String? slug;
 
-  String get imageUrl => images.isNotEmpty ? images[0] : '';
+  Product({
+    required this.id,
+    required this.name,
+    required this.slug,
+    required this.description,
+    required this.price,
+    this.stock,
+    this.unit,
+    required this.isActive,
+    required this.isFeatured,
+    required this.imageUrl,
+    required this.categoryId,
+    required this.userId,
+    this.images,
+    this.specifications,
+    required this.rating,
+    required this.ratingCount,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+  });
+
+  factory Product.fromJson(Map<String, dynamic> json) {
+    // Handle image URL - use image_url if available, otherwise use first image from images array
+    String imageUrl = json['image_url'] ?? '';
+    if (imageUrl.isEmpty &&
+        json['images'] != null &&
+        (json['images'] as List).isNotEmpty) {
+      imageUrl = json['images'][0];
+    }
+
+    // Process the image URL if it's not empty
+    if (imageUrl.isNotEmpty) {
+      imageUrl = _processImageUrl(imageUrl);
+    }
+
+    return Product(
+      id: json['id'] ?? 0,
+      name: json['name'] ?? '',
+      slug: json['slug'] ?? '',
+      description: json['description'] ?? '',
+      price: double.tryParse(json['price']?.toString() ?? '0') ?? 0.0,
+      stock:
+          json['stock'] != null ? int.tryParse(json['stock'].toString()) : null,
+      unit: json['unit'],
+      isActive: json['is_active'] ?? true,
+      isFeatured: json['is_featured'] == 1,
+      imageUrl: imageUrl,
+      categoryId: int.tryParse(json['category_id']?.toString() ?? '0') ?? 0,
+      userId: int.tryParse(json['user_id']?.toString() ?? '0') ?? 0,
+      images: json['images'] != null
+          ? (json['images'] as List).cast<String>()
+          : null,
+      specifications: json['specifications'],
+      rating: double.tryParse(json['rating']?.toString() ?? '0') ?? 0.0,
+      ratingCount: int.tryParse(json['rating_count']?.toString() ?? '0') ?? 0,
+      createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] ?? '') ?? DateTime.now(),
+      deletedAt: json['deleted_at'] != null
+          ? DateTime.tryParse(json['deleted_at'])
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'slug': slug,
+      'description': description,
+      'price': price,
+      'stock': stock,
+      'unit': unit,
+      'is_active': isActive,
+      'is_featured': isFeatured ? 1 : 0,
+      'image_url': imageUrl,
+      'category_id': categoryId,
+      'user_id': userId,
+      'images': images,
+      'specifications': specifications,
+      'rating': rating,
+      'rating_count': ratingCount,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+      'deleted_at': deletedAt?.toIso8601String(),
+    };
+  }
 
   // Helper method to process image URLs
   static String _processImageUrl(String path) {
@@ -53,100 +141,39 @@ class Product {
     return fullUrl;
   }
 
-  Product({
-    required this.id,
-    required this.name,
-    required this.description,
-    required this.price,
-    required this.stock,
-    required this.isActive,
-    required this.isFeatured,
-    required this.categoryId,
-    required this.userId,
-    required this.images,
-    this.specifications,
-    required this.rating,
-    required this.ratingCount,
-    required this.createdAt,
-    required this.updatedAt,
-    this.deletedAt,
-    this.slug,
-  });
-
-  factory Product.fromJson(Map<String, dynamic> json) {
-    return Product(
-      id: int.tryParse(json['id'].toString()) ?? 0,
-      name: json['name'] ?? '',
-      description: json['description'] ?? '',
-      price: double.tryParse(json['price'].toString()) ?? 0.0,
-      stock: int.tryParse(json['stock'].toString()) ?? 0,
-      isActive: json['is_active'] ?? false,
-      isFeatured: json['is_featured'] == 1,
-      categoryId: int.tryParse(json['category_id'].toString()) ?? 0,
-      userId: int.tryParse(json['user_id'].toString()) ?? 0,
-      images: (json['images'] as List<dynamic>?)
-              ?.map((e) => _processImageUrl(e.toString()))
-              .toList() ??
-          [],
-      specifications: json['specifications'] != null
-          ? Map<String, String>.from(json['specifications'])
-          : null,
-      rating: double.tryParse(json['rating'].toString()) ?? 0.0,
-      ratingCount: int.tryParse(json['rating_count'].toString()) ?? 0,
-      createdAt: DateTime.parse(
-          json['created_at'] ?? DateTime.now().toIso8601String()),
-      updatedAt: DateTime.parse(
-          json['updated_at'] ?? DateTime.now().toIso8601String()),
-      deletedAt: json['deleted_at'] != null
-          ? DateTime.parse(json['deleted_at'])
-          : null,
-      slug: json['slug'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'description': description,
-      'price': price,
-      'stock': stock,
-      'is_active': isActive,
-      'is_featured': isFeatured ? 1 : 0,
-      'category_id': categoryId,
-      'images': images,
-      'specifications': specifications,
-      'slug': slug,
-    };
-  }
-
   // Add the copyWith method
   Product copyWith({
     int? id,
     String? name,
+    String? slug,
     String? description,
     double? price,
     int? stock,
+    String? unit,
     bool? isActive,
     bool? isFeatured,
+    String? imageUrl,
     int? categoryId,
     int? userId,
     List<String>? images,
-    Map<String, String>? specifications,
+    Map<String, dynamic>? specifications,
     double? rating,
     int? ratingCount,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
-    String? slug,
   }) {
     return Product(
       id: id ?? this.id,
       name: name ?? this.name,
+      slug: slug ?? this.slug,
       description: description ?? this.description,
       price: price ?? this.price,
       stock: stock ?? this.stock,
+      unit: unit ?? this.unit,
       isActive: isActive ?? this.isActive,
       isFeatured: isFeatured ?? this.isFeatured,
+      imageUrl: imageUrl ?? this.imageUrl,
       categoryId: categoryId ?? this.categoryId,
       userId: userId ?? this.userId,
       images: images ?? this.images,
@@ -156,7 +183,6 @@ class Product {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
-      slug: slug ?? this.slug,
     );
   }
 }

@@ -169,6 +169,8 @@ class TransportServiceScreen extends StatelessWidget {
               ratingCount: 0,
               createdAt: DateTime.now(),
               updatedAt: DateTime.now(),
+              slug: '$transportType-service'.toLowerCase().replaceAll(' ', '-'),
+              imageUrl: transportDetails['imageUrl'] as String,
             );
 
             context.read<CartProvider>().addToCart(product);

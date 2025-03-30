@@ -1,7 +1,7 @@
 class ApiConfig {
   // Base URL for API requests
   static const String baseUrl =
-      'http://localhost:8000/api'; // Local development URL
+      'http://127.0.0.1:8000/api'; // Local development URL
 
   // Timeout duration for API requests
   static const Duration timeoutDuration = Duration(seconds: 60);

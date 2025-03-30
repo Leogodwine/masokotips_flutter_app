@@ -66,7 +66,7 @@ class _SearchScreenState extends State<SearchScreen> {
     super.initState();
     Future.microtask(() {
       print('Initializing SearchScreen...');
-      context.read<CategoryProvider>().loadCategories();
+      context.read<CategoryProvider>().loadMainCategories();
     });
   }
 
@@ -97,7 +97,7 @@ class _SearchScreenState extends State<SearchScreen> {
       ),
       body: Consumer<CategoryProvider>(
         builder: (context, categoryProvider, child) {
-          final allCategories = categoryProvider.categories;
+          final allCategories = categoryProvider.mainCategories;
 
           if (categoryProvider.isLoading) {
             return const Center(child: CircularProgressIndicator());
@@ -115,7 +115,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
-                      categoryProvider.loadCategories();
+                      categoryProvider.loadMainCategories();
                     },
                     child: const Text('Retry'),
                   ),
@@ -171,7 +171,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                   ),
                   subtitle: Text(
-                    '${category.subcategories.length} subcategories',
+                    '${category.children?.length ?? 0} subcategories',
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),

@@ -12,16 +12,17 @@ class DeveloperSettingsScreen extends StatefulWidget {
 }
 
 class _DeveloperSettingsScreenState extends State<DeveloperSettingsScreen> {
-  final TextEditingController _apiUrlController = TextEditingController(
-    text: ApiService.baseUrl,
-  );
+  late final TextEditingController _apiUrlController;
+  late final ApiService _apiService;
 
   @override
   void initState() {
     super.initState();
-    // Ensure ApiService methods exist
-    ApiService.updateBaseUrl('http://127.0.0.1:8000/api');
-    _apiUrlController.text = ApiService.baseUrl;
+    _apiService = ApiService(
+      baseUrl: 'http://127.0.0.1:8000/api',
+      apiKey: 'your-api-key', // Replace with actual API key
+    );
+    _apiUrlController = TextEditingController(text: _apiService.baseUrl);
   }
 
   @override
@@ -129,7 +130,10 @@ class _DeveloperSettingsScreenState extends State<DeveloperSettingsScreen> {
   void _updateApiUrl() {
     String newUrl = _apiUrlController.text.trim();
     if (newUrl.isNotEmpty) {
-      ApiService.updateBaseUrl(newUrl);
+      _apiService = ApiService(
+        baseUrl: newUrl,
+        apiKey: 'your-api-key', // Replace with actual API key
+      );
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('API URL updated - restart app to apply changes'),
@@ -148,7 +152,6 @@ class _DeveloperSettingsScreenState extends State<DeveloperSettingsScreen> {
         ),
       );
 
-      // Show a loading dialog
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -165,22 +168,18 @@ class _DeveloperSettingsScreenState extends State<DeveloperSettingsScreen> {
         ),
       );
 
-      // Test the API connection
-      final bool isConnected = await ApiService.checkApiConnection();
-
-      // Dismiss the loading dialog
+      final bool isConnected = await _apiService.checkConnection();
       Navigator.of(context).pop();
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(isConnected
-              ? 'Connection successful to ${ApiService.baseUrl}'
-              : 'Connection failed to ${ApiService.baseUrl}'),
+              ? 'Connection successful to ${_apiService.baseUrl}'
+              : 'Connection failed to ${_apiService.baseUrl}'),
           backgroundColor: isConnected ? Colors.green : Colors.red,
         ),
       );
     } catch (e) {
-      // Dismiss the loading dialog if it's showing
       if (Navigator.of(context).canPop()) {
         Navigator.of(context).pop();
       }

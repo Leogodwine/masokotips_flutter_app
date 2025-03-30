@@ -11,7 +11,10 @@ class ProfileTestWidget extends StatefulWidget {
 }
 
 class _ProfileTestWidgetState extends State<ProfileTestWidget> {
-  final ApiService _apiService = ApiService();
+  final ApiService _apiService = ApiService(
+    baseUrl: 'http://127.0.0.1:8000/api',
+    apiKey: 'your-api-key', // Replace with actual API key
+  );
   String _responseText = "No response yet";
   bool _isLoading = false;
 

@@ -30,7 +30,10 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
   String? _searchQuery;
   String? _sortBy;
   final TextEditingController _searchController = TextEditingController();
-  final ApiService _apiService = ApiService();
+  final ApiService _apiService = ApiService(
+    baseUrl: 'http://127.0.0.1:8000/api',
+    apiKey: 'your-api-key', // Replace with actual API key
+  );
 
   // Filter state
   RangeValues _priceRange = const RangeValues(0, 1000);

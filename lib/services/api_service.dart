@@ -6,26 +6,35 @@ import '../models/product.dart'; // Ensure this file contains the Product class 
 import '../models/category.dart'; // Ensure this file contains the Category class definition
 import '../models/service.dart'; // Ensure this file contains the Service class definition
 import '../models/transport.dart'; // Ensure this file contains the Transport class definition
+import '../utils/logger.dart';
 
 class ApiService {
-  static String baseUrl = 'http://127.0.0.1:8000/api';
+  final String baseUrl;
+  final String apiKey;
 
-  // Update the base URL
-  static void updateBaseUrl(String newBaseUrl) {
-    baseUrl = newBaseUrl;
-  }
+  ApiService({
+    required this.baseUrl,
+    required this.apiKey,
+  });
 
-  // Check API connection
-  static Future<bool> checkApiConnection() async {
+  Map<String, String> get _headers => {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $apiKey',
+      };
+
+  Future<bool> checkConnection() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/health-check'));
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return data['status'] == 'ok';
-      }
-      return false;
+      final uri = Uri.parse('$baseUrl/api/health');
+      Log.e('Checking API connection at: $uri');
+
+      final response = await http.get(uri, headers: _headers);
+      Log.e('Health check response status: ${response.statusCode}');
+
+      return response.statusCode == 200;
     } catch (e) {
-      throw Exception('Failed to connect to API: $e');
+      Log.e('Error checking API connection: $e');
+      return false;
     }
   }
 
@@ -124,6 +133,7 @@ class ApiService {
           'name': name,
           'email': email,
           'password': password,
+          'password_confirmation': password,
           'role': role,
         }),
       );
@@ -274,39 +284,44 @@ class ApiService {
   // Fetch related products
   Future<List<Product>> getRelatedProducts(int productId) async {
     try {
-      final url = Uri.parse('$baseUrl/products/$productId/related');
-      print('Making API call to: $url');
+      Log.e('ApiService: Fetching related products for product ID: $productId');
+      final uri = Uri.parse('$baseUrl/products/$productId/related');
+      Log.e('ApiService: Request URL: $uri');
+
       final response = await http.get(
-        url,
+        uri,
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
       );
 
-      print('API Response Status: ${response.statusCode}');
-      print('API Response Body: ${response.body}');
+      Log.e('ApiService: Response status code: ${response.statusCode}');
+      Log.e('ApiService: Response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        // Handle both array and object response formats
-        final List<dynamic> productsData =
-            data is List ? data : data['data'] ?? [];
-        final products = productsData.map((json) {
-          final productMap = json as Map<String, dynamic>;
-          productMap['id'] = int.tryParse(productMap['id'].toString()) ??
-              0; // Ensure id is an int
-          return Product.fromJson(productMap);
-        }).toList();
-        print('Parsed ${products.length} related products');
+        final List<dynamic> data = json.decode(response.body);
+        Log.e('ApiService: Parsed ${data.length} related products');
+
+        final products = data.map((json) => Product.fromJson(json)).toList();
+
+        // Log details of each parsed product
+        for (var product in products) {
+          Log.e(
+              'ApiService: Parsed product - ID: ${product.id}, Name: ${product.name}');
+        }
+
         return products;
       } else {
+        Log.e(
+            'ApiService: Error response: ${response.statusCode} - ${response.body}');
         throw Exception(
-            'Failed to fetch related products. Status code: ${response.statusCode}');
+            'Failed to fetch related products: ${response.statusCode}');
       }
-    } catch (e) {
-      print('Error in getRelatedProducts: $e');
-      throw Exception('Error fetching related products: $e');
+    } catch (e, stackTrace) {
+      Log.e('ApiService: Exception while fetching related products: $e');
+      Log.e('ApiService: Stack trace: $stackTrace');
+      throw Exception('Failed to fetch related products: $e');
     }
   }
 
@@ -336,11 +351,50 @@ class ApiService {
     }
   }
 
+  // Get products by category
   Future<List<Product>> getProductsByCategory(
       int categoryId, String subcategory) async {
     try {
-      final url = Uri.parse(
-          '$baseUrl/products?category_id=$categoryId&subcategory=$subcategory');
+      final uri = Uri.parse('$baseUrl/products').replace(
+        queryParameters: {
+          'category_id': categoryId.toString(),
+          if (subcategory.isNotEmpty) 'subcategory': subcategory,
+        },
+      );
+      Log.e('Fetching products for category: $categoryId');
+      Log.e('Request URL: $uri');
+
+      final response = await http.get(uri, headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      });
+      Log.e('Response status: ${response.statusCode}');
+      Log.e('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        final List<dynamic> data = responseData['data'] ?? [];
+        Log.e('Received ${data.length} products');
+
+        final products = data.map((json) => Product.fromJson(json)).toList();
+        Log.e('Parsed ${products.length} products');
+
+        return products;
+      } else {
+        Log.e('Error response: ${response.body}');
+        throw Exception('Failed to load products: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error in getProductsByCategory: $e');
+      rethrow;
+    }
+  }
+
+  // Get categories
+  Future<List<Category>> getCategories() async {
+    try {
+      final url = Uri.parse('$baseUrl/categories');
+      Log.e('Making API call to: $url');
       final response = await http.get(
         url,
         headers: {
@@ -349,50 +403,28 @@ class ApiService {
         },
       );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        // Handle both array and object response formats
-        final List<dynamic> productsData =
-            data is List ? data : data['products'] ?? [];
-        return productsData.map((json) => Product.fromJson(json)).toList();
-      } else {
-        throw Exception(
-            'Failed to fetch products by category. Status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Error fetching products by category: $e');
-    }
-  }
-
-  // Get categories
-  Future<List<Category>> getCategories({int? parentId}) async {
-    try {
-      final queryParams = <String, String>{
-        if (parentId != null) 'parent_id': parentId.toString(),
-      };
-
-      final uri = Uri.parse('$baseUrl/categories')
-          .replace(queryParameters: queryParams);
-
-      final response = await http.get(
-        uri,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-      );
+      Log.e('API Response Status: ${response.statusCode}');
+      Log.e('API Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         // Handle both array and object response formats
         final List<dynamic> categoriesData =
-            data is List ? data : data['categories'] ?? [];
-        return categoriesData.map((json) => Category.fromJson(json)).toList();
+            data is List ? data : data['data'] ?? [];
+        Log.e('Categories data length: ${categoriesData.length}');
+
+        final categories = categoriesData.map((json) {
+          Log.e('Processing category: $json');
+          return Category.fromJson(json);
+        }).toList();
+
+        Log.e('Processed ${categories.length} categories');
+        return categories;
       } else {
-        throw Exception(
-            'Failed to fetch categories. Status code: ${response.statusCode}');
+        throw Exception('Failed to fetch categories: ${response.body}');
       }
     } catch (e) {
+      Log.e('Error in getCategories: $e');
       throw Exception('Error fetching categories: $e');
     }
   }
@@ -400,34 +432,31 @@ class ApiService {
   // Get featured products
   Future<List<Product>> getFeaturedProducts() async {
     try {
-      final url = Uri.parse('$baseUrl/products/featured');
-      print('Making API call to: $url');
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-      );
+      final uri = Uri.parse('$baseUrl/products/featured');
+      Log.e('Fetching featured products from: $uri');
 
-      print('API Response Status: ${response.statusCode}');
-      print('API Response Body: ${response.body}');
+      final response = await http.get(uri, headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      });
+      Log.e('Response status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        // Handle response with 'data' key
-        final List<dynamic> productsData = data['data'] ?? [];
-        final products =
-            productsData.map((json) => Product.fromJson(json)).toList();
-        print('Parsed ${products.length} featured products');
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        final List<dynamic> data = responseData['data'] ?? [];
+        Log.e('Received ${data.length} featured products');
+
+        final products = data.map((json) => Product.fromJson(json)).toList();
+        Log.e('Parsed ${products.length} featured products');
+
         return products;
       } else {
         throw Exception(
-            'Failed to fetch featured products. Status code: ${response.statusCode}');
+            'Failed to load featured products: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error in getFeaturedProducts: $e');
-      throw Exception('Error fetching featured products: $e');
+      Log.e('Error in getFeaturedProducts: $e');
+      rethrow;
     }
   }
 

@@ -124,6 +124,10 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                           ratingCount: widget.service.reviewCount,
                           createdAt: DateTime.now(),
                           updatedAt: DateTime.now(),
+                          slug: widget.service.title
+                              .toLowerCase()
+                              .replaceAll(' ', '-'),
+                          imageUrl: widget.service.imageUrl,
                         );
 
                         // Add the product to the cart

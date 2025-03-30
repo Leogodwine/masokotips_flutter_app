@@ -112,7 +112,7 @@ class WishlistScreen extends StatelessWidget {
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (product.stock > 0)
+                      if ((product.stock ?? 0) > 0)
                         Consumer<CartProvider>(
                           builder: (context, cartProvider, _) {
                             final isInCart = cartProvider.isInCart(product.id);

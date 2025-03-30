@@ -108,6 +108,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         slug: slug,
+        imageUrl: _selectedImages.isNotEmpty ? _selectedImages.first.path : '',
       );
 
       // Add the product

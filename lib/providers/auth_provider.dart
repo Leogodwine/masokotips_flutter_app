@@ -5,7 +5,10 @@ import '../services/transport_service.dart';
 import '../models/user.dart';
 
 class AuthProvider with ChangeNotifier {
-  final ApiService _apiService = ApiService();
+  final ApiService _apiService = ApiService(
+    baseUrl: 'http://127.0.0.1:8000/api',
+    apiKey: 'your-api-key', // Replace with actual API key
+  );
   final TransportService _transportService = TransportService();
   String? _token;
   User? _user;

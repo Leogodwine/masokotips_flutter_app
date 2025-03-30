@@ -325,7 +325,8 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
 
                   // Apply in-stock filter
                   if (_showInStock) {
-                    products = products.where((p) => p.stock > 0).toList();
+                    products =
+                        products.where((p) => (p.stock ?? 0) > 0).toList();
                   }
 
                   if (products.isEmpty) {
@@ -504,7 +505,7 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          if (product.stock > 0)
+                          if ((product.stock ?? 0) > 0)
                             Text(
                               'In Stock (${product.stock})',
                               style: TextStyle(

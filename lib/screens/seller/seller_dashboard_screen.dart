@@ -39,11 +39,14 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
     });
 
     try {
+      print('Loading seller products...');
       final products = await _productService.getSellerProducts();
+      print('Loaded ${products.length} products');
       setState(() {
         _sellerProducts = products;
       });
     } catch (e) {
+      print('Error loading seller products: $e');
       setState(() {
         _errorMessage = 'Failed to load products: $e';
       });
@@ -147,8 +150,12 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                   MaterialPageRoute(
                     builder: (context) => AddProductScreen(
                       onProductAdded: (product) {
+                        print(
+                            'Product added callback received: ${product.name}');
                         setState(() {
                           _sellerProducts.add(product);
+                          print(
+                              'Product added to list. Total products: ${_sellerProducts.length}');
                         });
                       },
                       productService: _productService,
@@ -351,19 +358,22 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                                                     vertical: 4,
                                                   ),
                                                   decoration: BoxDecoration(
-                                                    color: product.stock > 0
-                                                        ? Colors.green[100]
-                                                        : Colors.red[100],
+                                                    color:
+                                                        (product.stock ?? 0) > 0
+                                                            ? Colors.green[100]
+                                                            : Colors.red[100],
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             12),
                                                   ),
                                                   child: Text(
-                                                    product.stock > 0
+                                                    (product.stock ?? 0) > 0
                                                         ? 'In Stock (${product.stock})'
                                                         : 'Out of Stock',
                                                     style: TextStyle(
-                                                      color: product.stock > 0
+                                                      color: (product.stock ??
+                                                                  0) >
+                                                              0
                                                           ? Colors.green[700]
                                                           : Colors.red[700],
                                                       fontSize: 12,

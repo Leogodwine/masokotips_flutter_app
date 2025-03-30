@@ -231,7 +231,7 @@ class CartScreen extends StatelessWidget {
                                             icon: const Icon(
                                                 Icons.add_circle_outline),
                                             onPressed: item.quantity <
-                                                    item.product.stock
+                                                    (item.product.stock ?? 0)
                                                 ? () {
                                                     cartProvider.updateQuantity(
                                                       item.product.id,

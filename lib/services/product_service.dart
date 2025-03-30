@@ -50,15 +50,19 @@ class ProductService {
   Future<Product> addProduct(Product product) async {
     _checkAuthToken(); // Ensure auth token is set
     try {
+      print('Adding product: ${product.name}');
       // First, upload all images and get their URLs
       List<String> imageUrls = [];
-      for (var i = 0; i < product.images.length; i++) {
-        final imageUrl = await uploadProductImage(product.images[i]);
+      final images = product.images ?? [];
+      for (var i = 0; i < images.length; i++) {
+        print('Uploading image ${i + 1}/${images.length}');
+        final imageUrl = await uploadProductImage(images[i]);
         imageUrls.add(imageUrl);
       }
 
       // Now create the product with the uploaded image URLs
-      final url = '${ApiConfig.baseUrl}/seller/products';
+      const url = '${ApiConfig.baseUrl}/seller/products';
+      print('Sending request to: $url');
       final request = http.MultipartRequest('POST', Uri.parse(url));
 
       // Add headers
@@ -72,27 +76,41 @@ class ProductService {
         'name': product.name,
         'description': product.description,
         'price': product.price.toString(),
-        'stock': product.stock.toString(),
+        'stock': product.stock?.toString() ?? '0',
         'is_active': product.isActive ? '1' : '0',
         'is_featured': product.isFeatured ? '1' : '0',
         'category_id': product.categoryId.toString(),
-        'slug': product.slug ?? '',
+        'slug': product.slug,
       });
 
+      print('Request fields: ${request.fields}');
+
       // Add each image URL as a separate field
-      for (var i = 0; i < imageUrls.length; i++) {
-        request.fields['images[$i]'] = imageUrls[i];
+      if (imageUrls.isNotEmpty) {
+        // Set the first image as the main image_url
+        request.fields['image_url'] = imageUrls[0];
+
+        // Add all images to the images array
+        for (var i = 0; i < imageUrls.length; i++) {
+          request.fields['images[$i]'] = imageUrls[i];
+        }
       }
 
       // Send the request
+      print('Sending request...');
       final response = await request.send();
       final responseBody = await http.Response.fromStream(response);
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${responseBody.body}');
 
       if (response.statusCode == 201) {
         final data = jsonDecode(responseBody.body);
+        print('Successfully created product: ${data['name']}');
         return Product.fromJson(data);
       } else {
         final errorBody = jsonDecode(responseBody.body);
+        print(
+            'Failed to add product. Error: ${errorBody['message'] ?? 'Unknown error'}');
         throw Exception(
             'Failed to add product. Status code: ${response.statusCode}. Error: ${errorBody['message'] ?? 'Unknown error'}');
       }
