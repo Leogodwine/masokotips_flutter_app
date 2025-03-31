@@ -5,6 +5,7 @@ import '../../services/product_service.dart';
 import '../../providers/auth_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'add_product_screen.dart';
+import 'edit_product_screen.dart';
 import '../transport/transport_list_screen.dart';
 
 class SellerDashboardScreen extends StatefulWidget {
@@ -54,6 +55,32 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
       setState(() {
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _navigateToEditProduct(Product product) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditProductScreen(
+          product: product,
+          productService: _productService,
+          onProductUpdated: (updatedProduct) {
+            setState(() {
+              final index =
+                  _sellerProducts.indexWhere((p) => p.id == updatedProduct.id);
+              if (index != -1) {
+                _sellerProducts[index] = updatedProduct;
+              }
+            });
+          },
+        ),
+      ),
+    );
+
+    // If product was deleted (result is true), refresh the list
+    if (result == true) {
+      _loadSellerProducts();
     }
   }
 
@@ -384,6 +411,15 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                                                         TextOverflow.ellipsis,
                                                   ),
                                                 ),
+                                              ),
+                                              IconButton(
+                                                icon: const Icon(
+                                                  Icons.edit,
+                                                  color: Colors.blue,
+                                                ),
+                                                onPressed: () =>
+                                                    _navigateToEditProduct(
+                                                        product),
                                               ),
                                               IconButton(
                                                 icon: const Icon(

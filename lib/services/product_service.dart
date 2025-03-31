@@ -121,23 +121,78 @@ class ProductService {
   }
 
   // Update a product
-  Future<void> updateProduct(Product product) async {
+  Future<Product> updateProduct(Product product) async {
     _checkAuthToken(); // Ensure auth token is set
     try {
-      final url = '${ApiConfig.baseUrl}/seller/products/${product.id}';
-      final response = await http.put(
-        Uri.parse(url),
-        headers: {
-          'Authorization': 'Bearer $_authToken',
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: jsonEncode(product.toJson()),
-      );
+      print('Updating product: ${product.name}');
 
-      if (response.statusCode != 200) {
+      // First, upload any new images if they exist
+      List<String> imageUrls = [];
+      final images = product.images ?? [];
+      for (var i = 0; i < images.length; i++) {
+        // Only upload if it's a local file path (not a URL)
+        if (!images[i].startsWith('http')) {
+          print('Uploading new image ${i + 1}/${images.length}');
+          try {
+            final imageUrl = await uploadProductImage(images[i]);
+            imageUrls.add(imageUrl);
+          } catch (e) {
+            print('Error uploading image ${i + 1}: $e');
+            continue; // Skip this image if upload fails
+          }
+        } else {
+          imageUrls.add(images[i]);
+        }
+      }
+
+      // Create a multipart request for updating the product
+      final url = '${ApiConfig.baseUrl}/seller/products/${product.id}';
+      final request = http.MultipartRequest('POST', Uri.parse(url));
+
+      // Add the _method field to simulate PUT request
+      request.fields['_method'] = 'PUT';
+
+      // Add headers
+      request.headers.addAll({
+        'Authorization': 'Bearer $_authToken',
+        'Accept': 'application/json',
+      });
+
+      // Add product fields
+      request.fields.addAll({
+        'name': product.name,
+        'description': product.description,
+        'price': product.price.toString(),
+        'stock': product.stock?.toString() ?? '0',
+        'is_active': product.isActive ? '1' : '0',
+        'is_featured': product.isFeatured ? '1' : '0',
+        'category_id': product.categoryId.toString(),
+      });
+
+      // Add image URLs
+      if (imageUrls.isNotEmpty) {
+        for (var i = 0; i < imageUrls.length; i++) {
+          request.fields['images[$i]'] = imageUrls[i];
+        }
+        request.fields['image_url'] = imageUrls[0];
+      }
+
+      print('Sending update request to: $url');
+      print('Update fields: ${request.fields}');
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return Product.fromJson(data['data']);
+      } else {
+        final errorBody = jsonDecode(response.body);
         throw Exception(
-            'Failed to update product. Status code: ${response.statusCode}');
+            'Failed to update product. Status code: ${response.statusCode}. Error: ${errorBody['message'] ?? 'Unknown error'}');
       }
     } catch (e) {
       print('Error updating product: $e');
@@ -150,17 +205,28 @@ class ProductService {
     _checkAuthToken(); // Ensure auth token is set
     try {
       final url = '${ApiConfig.baseUrl}/seller/products/$productId';
+      print('Attempting to delete product at URL: $url');
+      print(
+          'Auth token: ${_authToken?.substring(0, 10)}...'); // Log first 10 chars of token
+
       final response = await http.delete(
         Uri.parse(url),
         headers: {
           'Authorization': 'Bearer $_authToken',
           'Accept': 'application/json',
+          'Content-Type': 'application/json',
         },
       );
 
+      print('Delete response status code: ${response.statusCode}');
+      print('Delete response body: ${response.body}');
+
       if (response.statusCode != 200) {
+        final errorBody = response.body.isNotEmpty
+            ? response.body
+            : 'No error details available';
         throw Exception(
-            'Failed to delete product. Status code: ${response.statusCode}');
+            'Failed to delete product. Status code: ${response.statusCode}. Error: $errorBody');
       }
     } catch (e) {
       print('Error deleting product: $e');
@@ -196,6 +262,9 @@ class ProductService {
       } else {
         // For mobile/desktop, we can use the file directly
         final file = File(imagePath);
+        if (!await file.exists()) {
+          throw Exception('Image file does not exist: $imagePath');
+        }
         request.files.add(
           await http.MultipartFile.fromPath(
             'image',
@@ -205,15 +274,20 @@ class ProductService {
       }
 
       // Send the request
+      print('Uploading image to: $url');
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
+
+      print('Upload response status: ${response.statusCode}');
+      print('Upload response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         return data['url'];
       } else {
+        final errorBody = json.decode(response.body);
         throw Exception(
-            'Failed to upload image. Status code: ${response.statusCode}. Error: ${response.body}');
+            'Failed to upload image. Status code: ${response.statusCode}. Error: ${errorBody['message'] ?? 'Unknown error'}');
       }
     } catch (e) {
       print('Error uploading product image: $e');
