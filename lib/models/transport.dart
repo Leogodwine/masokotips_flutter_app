@@ -112,7 +112,7 @@ class Transport {
       hasInsurance: json['has_insurance'] ?? false,
       insuranceDetails: json['insurance_details'],
       certifications: json['certifications'] != null
-          ? List<String>.from(json['certifications']['certifications'] ?? [])
+          ? List<String>.from(json['certifications'])
           : null,
       isAvailable: json['is_available'] ?? true,
       ownerName: json['owner_name'] ?? '',
@@ -139,7 +139,7 @@ class Transport {
       'price': price,
       'amenities': amenities,
       'status': status,
-      'image_url': imageUrl,
+      'image_url': _imageUrl,
       'capacity': capacity,
       'is_temperature_controlled': isTemperatureControlled,
       'temperature_range': temperatureRange,
@@ -148,8 +148,7 @@ class Transport {
       'driver_rating': driverRating,
       'has_insurance': hasInsurance,
       'insurance_details': insuranceDetails,
-      'certifications':
-          certifications != null ? {'certifications': certifications} : null,
+      'certifications': certifications,
       'is_available': isAvailable,
       'owner_name': ownerName,
       'price_per_kg': pricePerKg,
@@ -198,7 +197,7 @@ class Transport {
       price: price ?? this.price,
       amenities: amenities ?? this.amenities,
       status: status ?? this.status,
-      imageUrl: imageUrl ?? this.imageUrl,
+      imageUrl: imageUrl ?? _imageUrl,
       capacity: capacity ?? this.capacity,
       isTemperatureControlled:
           isTemperatureControlled ?? this.isTemperatureControlled,

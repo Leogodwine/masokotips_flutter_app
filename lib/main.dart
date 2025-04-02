@@ -22,6 +22,8 @@ import 'screens/transport/transport_list_screen.dart';
 import 'screens/transport/add_transport_screen.dart';
 import 'screens/organic_products_screen.dart';
 import 'screens/edit_organic_product_screen.dart';
+import 'screens/transport/edit_transport_screen.dart';
+import 'package:masoko_tips/models/transport.dart';
 
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -130,6 +132,11 @@ class _MyAppState extends State<MyApp> {
               '/transport/list': (context) =>
                   const TransportListScreen(category: 'all'),
               '/transport/add': (context) => const AddTransportScreen(),
+              '/transport/edit': (context) {
+                final transport =
+                    ModalRoute.of(context)!.settings.arguments as Transport;
+                return EditTransportScreen(transport: transport);
+              },
               '/organic-products': (context) => const OrganicProductsScreen(),
               '/organic-products/edit': (context) =>
                   const EditOrganicProductScreen(),

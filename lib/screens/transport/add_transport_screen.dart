@@ -147,6 +147,17 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
 
+    // Add validation for supportedProductTypes
+    if (_selectedProductTypes.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select at least one supported product type'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     final authProvider = context.read<AuthProvider>();
     if (authProvider.token == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -168,7 +179,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
       // First create the transport
       final transport = await transportProvider.addTransport(
         title: _titleController.text,
-        description: _descriptionController.text,
+        description: _descriptionController.text.trim(),
         vehicleLocation: _vehicleLocationController.text,
         vehicleType: _selectedVehicleType ?? '',
         price: double.parse(_priceController.text),
@@ -181,7 +192,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
         insuranceDetails: _insuranceDetailsController.text,
         amenities: _amenities,
         status: _status,
-        imageUrl: null, // We'll update this after uploading the image
+        imageUrl: null,
         ownerName: _ownerNameController.text,
         pricePerKg: _pricePerKgController.text.isNotEmpty
             ? double.parse(_pricePerKgController.text)

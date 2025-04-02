@@ -102,7 +102,7 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
               status: _status,
               ownerName: _titleController.text,
               driverName: _titleController.text,
-              driverPhone: '',
+              driverPhone: '1234567890',
             );
       } else {
         final updatedTransport = widget.transport!.copyWith(

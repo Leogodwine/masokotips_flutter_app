@@ -79,7 +79,7 @@ class TransportProvider with ChangeNotifier {
             transport.isTemperatureControlled == _temperatureControlled;
       }
 
-      if (_vehicleLocation != null) {
+      if (_vehicleLocation != null && _vehicleLocation!.isNotEmpty) {
         matches = matches &&
             transport.vehicleLocation
                 .toLowerCase()
@@ -112,7 +112,7 @@ class TransportProvider with ChangeNotifier {
     _applyFilters();
   }
 
-  void setLocationFilter(String? location) {
+  void setVehicleLocationFilter(String? location) {
     _vehicleLocation = location;
     _applyFilters();
   }
@@ -229,17 +229,21 @@ class TransportProvider with ChangeNotifier {
   }
 
   Future<void> deleteTransport(String id) async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
     try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
       await _transportService.deleteTransport(id);
+
+      // Remove from both lists
       _transports.removeWhere((transport) => transport.id == id);
-      _applyFilters();
+      _filteredTransports.removeWhere((transport) => transport.id == id);
+
       _error = null;
     } catch (e) {
       _error = e.toString();
+      rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -272,7 +276,9 @@ class TransportProvider with ChangeNotifier {
       }
 
       if (vehicleLocation != null &&
-          transport.vehicleLocation != vehicleLocation) {
+          !transport.vehicleLocation
+              .toLowerCase()
+              .contains(vehicleLocation.toLowerCase())) {
         return false;
       }
 

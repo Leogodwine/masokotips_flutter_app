@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/transport_provider.dart';
+import '../../models/transport.dart';
 import 'transport_details_screen.dart';
 import 'package:masoko_tips/widgets/cached_network_image_with_cors.dart';
 
@@ -83,7 +84,7 @@ class _TransportListScreenState extends State<TransportListScreen> {
 
   void _applyFilters() {
     final provider = context.read<TransportProvider>();
-    provider.setLocationFilter(_locationController.text);
+    provider.setVehicleLocationFilter(_locationController.text);
     provider.setProductTypeFilter(_selectedProductType);
     provider.setCapacityFilter(_minCapacity);
     provider.setPriceFilter(_maxPrice);
@@ -340,6 +341,25 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.edit),
+                                          color: Theme.of(context).primaryColor,
+                                          onPressed: () {
+                                            Navigator.pushNamed(
+                                              context,
+                                              '/transport/edit',
+                                              arguments: transport,
+                                            );
+                                          },
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.delete),
+                                          color: Colors.red,
+                                          onPressed: () {
+                                            _showDeleteConfirmationDialog(
+                                                context, transport);
+                                          },
                                         ),
                                       ],
                                     ),
@@ -640,6 +660,67 @@ class _TransportListScreenState extends State<TransportListScreen> {
                 ),
               ],
             ),
+    );
+  }
+
+  Future<void> _showDeleteConfirmationDialog(
+      BuildContext context, Transport transport) async {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Delete Transport'),
+              content:
+                  Text('Are you sure you want to delete ${transport.title}?'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    setState(() {
+                      // Disable buttons while deleting
+                    });
+                    try {
+                      await context
+                          .read<TransportProvider>()
+                          .deleteTransport(transport.id);
+                      if (mounted) {
+                        Navigator.of(context).pop(); // Close dialog
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Transport deleted successfully'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error deleting transport: $e'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  child: const Text(
+                    'Delete',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }
