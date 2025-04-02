@@ -28,7 +28,6 @@ class _EditProductScreenState extends State<EditProductScreen> {
   late TextEditingController _priceController;
   late TextEditingController _stockController;
   List<String> _selectedImages = [];
-  List<File> _newImages = [];
   bool _isLoading = false;
   String? _errorMessage;
 

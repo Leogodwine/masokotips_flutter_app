@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/product_provider.dart';
-import '../../models/product.dart';
-import 'product_details_screen.dart';
+import '../../providers/organic_product_provider.dart';
+import '../../models/organic_product.dart';
+import '../../screens/edit_organic_product_screen.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -15,7 +15,6 @@ class OrganicProductsScreen extends StatefulWidget {
 
 class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
   String _selectedSubcategory = 'All';
-  bool _isLoading = false;
   String _sortBy = 'name_asc';
   bool _showInStock = false;
   final TextEditingController _searchController = TextEditingController();
@@ -45,13 +44,9 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
 
   Future<void> _loadOrganicProducts() async {
     if (!mounted) return;
-    setState(() => _isLoading = true);
 
     try {
-      await context.read<ProductProvider>().loadProductsByCategory(
-            5, // Organic Products category ID
-            _selectedSubcategory == 'All' ? '' : _selectedSubcategory,
-          );
+      await context.read<OrganicProductProvider>().loadProducts();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -64,10 +59,6 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
           ),
         );
       }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
     }
   }
 
@@ -76,69 +67,44 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Sort & Filter'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Sort by:',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            RadioListTile(
-              title: const Text('Name (A-Z)'),
-              value: 'name_asc',
-              groupValue: _sortBy,
-              onChanged: (value) {
-                setState(() => _sortBy = value.toString());
-                Navigator.pop(context);
-                _loadOrganicProducts();
-              },
-            ),
-            RadioListTile(
-              title: const Text('Price (Low to High)'),
-              value: 'price_asc',
-              groupValue: _sortBy,
-              onChanged: (value) {
-                setState(() => _sortBy = value.toString());
-                Navigator.pop(context);
-                _loadOrganicProducts();
-              },
-            ),
-            RadioListTile(
-              title: const Text('Price (High to Low)'),
-              value: 'price_desc',
-              groupValue: _sortBy,
-              onChanged: (value) {
-                setState(() => _sortBy = value.toString());
-                Navigator.pop(context);
-                _loadOrganicProducts();
-              },
-            ),
-            const Divider(),
-            const Text('Filters:',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            SwitchListTile(
-              title: const Text('In Stock Only'),
-              value: _showInStock,
-              onChanged: (value) {
-                setState(() => _showInStock = value);
-                Navigator.pop(context);
-                _loadOrganicProducts();
-              },
-            ),
-          ],
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<String>(
+                value: _sortBy,
+                isExpanded: true,
+                decoration: const InputDecoration(
+                  labelText: 'Sort By',
+                  border: OutlineInputBorder(),
+                ),
+                items: const [
+                  DropdownMenuItem(
+                      value: 'name_asc', child: Text('Name (A-Z)')),
+                  DropdownMenuItem(
+                      value: 'name_desc', child: Text('Name (Z-A)')),
+                  DropdownMenuItem(
+                      value: 'price_asc', child: Text('Price (Low-High)')),
+                  DropdownMenuItem(
+                      value: 'price_desc', child: Text('Price (High-Low)')),
+                ],
+                onChanged: (value) {
+                  setState(() => _sortBy = value!);
+                },
+              ),
+              const SizedBox(height: 16),
+              SwitchListTile(
+                title: const Text('Show In Stock Only'),
+                value: _showInStock,
+                onChanged: (value) {
+                  setState(() => _showInStock = value);
+                },
+              ),
+            ],
+          ),
         ),
         actions: [
-          TextButton(
-            onPressed: () {
-              setState(() {
-                _sortBy = 'name_asc';
-                _showInStock = false;
-              });
-              Navigator.pop(context);
-              _loadOrganicProducts();
-            },
-            child: const Text('Reset'),
-          ),
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Close'),
@@ -146,6 +112,62 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
         ],
       ),
     );
+  }
+
+  List<OrganicProduct> _filterProducts(List<OrganicProduct> products) {
+    var filtered = products;
+
+    // Apply subcategory filter
+    if (_selectedSubcategory != 'All') {
+      filtered = filtered.where((product) {
+        // Map category names to their corresponding IDs
+        final categoryMap = {
+          'Organic Vegetables': 1,
+          'Organic Fruits': 2,
+          'Organic Spices': 3,
+          'Organic Cash Crops': 4,
+          'Organic Cereals': 5,
+          'Organic Livestock and Poultry': 6,
+        };
+
+        return product.categoryId == categoryMap[_selectedSubcategory];
+      }).toList();
+    }
+
+    // Apply search filter
+    if (_searchQuery.isNotEmpty) {
+      filtered = filtered
+          .where((product) =>
+              product.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+              (product.description
+                      ?.toLowerCase()
+                      .contains(_searchQuery.toLowerCase()) ??
+                  false))
+          .toList();
+    }
+
+    // Apply in-stock filter
+    if (_showInStock) {
+      filtered = filtered.where((product) => product.stock > 0).toList();
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) {
+      switch (_sortBy) {
+        case 'name_asc':
+          return a.name.compareTo(b.name);
+        case 'name_desc':
+          return b.name.compareTo(a.name);
+        case 'price_asc':
+          return a.price.compareTo(b.price);
+        case 'price_desc':
+          return b.price.compareTo(a.price);
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
   }
 
   @override
@@ -157,6 +179,17 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
           IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: _showFilterDialog,
+          ),
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const EditOrganicProductScreen(),
+                ),
+              ).then((_) => _loadOrganicProducts());
+            },
           ),
         ],
       ),
@@ -191,206 +224,164 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
             ),
           ),
           // Subcategory selector
-          Container(
-            height: 50,
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: _subcategories.length,
-              itemBuilder: (context, index) {
-                final subcategory = _subcategories[index];
-                final isSelected = subcategory == _selectedSubcategory;
+            child: Row(
+              children: _subcategories.map((category) {
+                final isSelected = category == _selectedSubcategory;
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: FilterChip(
-                    label: Text(subcategory),
+                    label: Text(category),
                     selected: isSelected,
                     onSelected: (selected) {
-                      setState(() {
-                        _selectedSubcategory = subcategory;
-                      });
+                      setState(() => _selectedSubcategory = category);
                       _loadOrganicProducts();
                     },
                   ),
                 );
-              },
+              }).toList(),
             ),
           ),
-          // Featured Products Section
-          Consumer<ProductProvider>(
-            builder: (context, productProvider, child) {
-              final featuredProducts = productProvider.products
-                  .where((p) => p.rating >= 4.5)
-                  .take(3)
-                  .toList();
+          const SizedBox(height: 16),
+          // Products list
+          Expanded(
+            child: Consumer<OrganicProductProvider>(
+              builder: (context, provider, child) {
+                if (provider.isLoading) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
 
-              if (featuredProducts.isEmpty) return const SizedBox();
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      'Featured Organic Products',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                if (provider.error != null) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Error: ${provider.error}',
+                          style: const TextStyle(color: Colors.red),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _loadOrganicProducts,
+                          child: const Text('Retry'),
+                        ),
+                      ],
                     ),
-                  ),
-                  SizedBox(
-                    height: 200,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: featuredProducts.length,
-                      itemBuilder: (context, index) {
-                        final product = featuredProducts[index];
-                        return Container(
-                          width: 160,
-                          margin: const EdgeInsets.only(right: 16),
-                          child: Card(
-                            clipBehavior: Clip.antiAlias,
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        ProductDetailsScreen(product: product),
-                                  ),
-                                );
-                              },
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Hero(
-                                    tag: 'featured-${product.id}',
-                                    child: CachedNetworkImage(
-                                      imageUrl: product.imageUrl,
-                                      height: 120,
-                                      width: double.infinity,
-                                      fit: BoxFit.cover,
+                  );
+                }
+
+                final filteredProducts = _filterProducts(provider.products);
+
+                if (filteredProducts.isEmpty) {
+                  return const Center(
+                    child: Text('No organic products found'),
+                  );
+                }
+
+                return AnimationLimiter(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: filteredProducts.length,
+                    itemBuilder: (context, index) {
+                      final product = filteredProducts[index];
+                      return AnimationConfiguration.staggeredList(
+                        position: index,
+                        duration: const Duration(milliseconds: 375),
+                        child: SlideAnimation(
+                          verticalOffset: 50.0,
+                          child: FadeInAnimation(
+                            child: Card(
+                              margin: const EdgeInsets.only(bottom: 16),
+                              child: ListTile(
+                                leading: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: CachedNetworkImage(
+                                    imageUrl: product.imageUrl ?? '',
+                                    width: 60,
+                                    height: 60,
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) => Container(
+                                      color: Colors.grey[200],
+                                      child: const Icon(Icons.image),
+                                    ),
+                                    errorWidget: (context, url, error) =>
+                                        Container(
+                                      color: Colors.grey[200],
+                                      child: const Icon(Icons.error),
                                     ),
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          product.name,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          '\$${product.price.toStringAsFixed(2)}',
-                                          style: TextStyle(
-                                            color:
-                                                Theme.of(context).primaryColor,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                ),
+                                title: Text(
+                                  product.name,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                ],
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '\$${product.price.toStringAsFixed(2)}',
+                                      style: TextStyle(
+                                        color: Theme.of(context).primaryColor,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Stock: ${product.stock}',
+                                      style: TextStyle(
+                                        color: product.stock > 0
+                                            ? Colors.green
+                                            : Colors.red,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                trailing: SizedBox(
+                                  width: 100,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.edit),
+                                        onPressed: () async {
+                                          final result = await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  EditOrganicProductScreen(
+                                                product: product,
+                                              ),
+                                            ),
+                                          );
+                                          if (result == true && mounted) {
+                                            _loadOrganicProducts();
+                                          }
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete),
+                                        onPressed: () =>
+                                            _showDeleteConfirmation(
+                                                context, product),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                      );
+                    },
                   ),
-                ],
-              );
-            },
-          ),
-          // Products grid
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: _loadOrganicProducts,
-              child: Consumer<ProductProvider>(
-                builder: (context, productProvider, child) {
-                  if (_isLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  var products = productProvider.products;
-
-                  // Apply in-stock filter
-                  if (_showInStock) {
-                    products =
-                        products.where((p) => (p.stock ?? 0) > 0).toList();
-                  }
-
-                  if (products.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.eco_outlined,
-                            size: 64,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            _searchQuery.isNotEmpty
-                                ? 'No organic products found for "$_searchQuery"'
-                                : _showInStock
-                                    ? 'No organic products in stock'
-                                    : 'No organic products available in $_selectedSubcategory',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.grey[600],
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 24),
-                          ElevatedButton(
-                            onPressed: _loadOrganicProducts,
-                            child: const Text('Refresh'),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  return AnimationLimiter(
-                    child: GridView.builder(
-                      padding: const EdgeInsets.all(16),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 0.75,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                      ),
-                      itemCount: products.length,
-                      itemBuilder: (context, index) {
-                        final product = products[index];
-                        return AnimationConfiguration.staggeredGrid(
-                          position: index,
-                          duration: const Duration(milliseconds: 375),
-                          columnCount: 2,
-                          child: SlideAnimation(
-                            verticalOffset: 50.0,
-                            child: FadeInAnimation(
-                              child: _buildProductCard(product),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                },
-              ),
+                );
+              },
             ),
           ),
         ],
@@ -398,162 +389,44 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
     );
   }
 
-  Widget _buildProductCard(Product product) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ProductDetailsScreen(product: product),
+  Future<void> _showDeleteConfirmation(
+    BuildContext context,
+    OrganicProduct product,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Product'),
+        content: Text('Are you sure you want to delete ${product.name}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
           ),
-        );
-      },
-      child: Card(
-        elevation: 2,
-        clipBehavior: Clip.antiAlias,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Product image
-            Hero(
-              tag: 'product-${product.id}',
-              child: CachedNetworkImage(
-                imageUrl: product.imageUrl,
-                height: 160,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  height: 160,
-                  color: Colors.grey[100],
-                  child: const Center(
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                    ),
-                  ),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  height: 160,
-                  color: Colors.grey[100],
-                  child: const Icon(
-                    Icons.image_not_supported_outlined,
-                    size: 32,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-            ),
-            // Product details
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Product name
-                  Text(
-                    product.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      height: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  // Rating
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.star_rounded,
-                        size: 18,
-                        color: Colors.amber[700],
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        product.rating.toStringAsFixed(1),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '(${product.ratingCount})',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  // Price and stock
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '\$${product.price.toStringAsFixed(2)}',
-                            style: TextStyle(
-                              color: Theme.of(context).primaryColor,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          if ((product.stock ?? 0) > 0)
-                            Text(
-                              'In Stock (${product.stock})',
-                              style: TextStyle(
-                                color: Colors.green[700],
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                        ],
-                      ),
-                      // Organic badge
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.green[100],
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.eco,
-                              size: 16,
-                              color: Colors.green[700],
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Organic',
-                              style: TextStyle(
-                                color: Colors.green[700],
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
+        ],
       ),
     );
+
+    if (confirmed == true && context.mounted) {
+      try {
+        await context.read<OrganicProductProvider>().deleteProduct(product.id);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Product deleted successfully')),
+          );
+          _loadOrganicProducts();
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error deleting product: $e')),
+          );
+        }
+      }
+    }
   }
 }

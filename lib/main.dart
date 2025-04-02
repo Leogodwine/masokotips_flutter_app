@@ -7,6 +7,8 @@ import 'providers/product_provider.dart';
 import 'providers/category_provider.dart';
 import 'providers/reviews_provider.dart';
 import 'providers/transport_provider.dart';
+import 'providers/organic_product_provider.dart';
+import 'services/organic_product_service.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/cart/cart_screen.dart';
@@ -18,6 +20,8 @@ import 'screens/profile/developer_settings_screen.dart';
 import 'screens/seller/seller_dashboard_screen.dart';
 import 'screens/transport/transport_list_screen.dart';
 import 'screens/transport/add_transport_screen.dart';
+import 'screens/organic_products_screen.dart';
+import 'screens/edit_organic_product_screen.dart';
 
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -63,12 +67,21 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
         ChangeNotifierProvider(create: (_) => ReviewsProvider()),
         ChangeNotifierProvider(create: (_) => TransportProvider()),
+        ChangeNotifierProvider(
+          create: (context) => OrganicProductProvider(
+            OrganicProductService(),
+          ),
+        ),
       ],
       child: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
-          // Initialize TransportProvider with auth token when available
+          // Initialize providers with auth token when available
           if (authProvider.token != null) {
             context.read<TransportProvider>().initialize(authProvider.token!);
+            context
+                .read<OrganicProductProvider>()
+                .service
+                .setAuthToken(authProvider.token!);
           }
 
           return MaterialApp(
@@ -81,6 +94,7 @@ class _MyAppState extends State<MyApp> {
                 brightness: Brightness.light,
               ),
               useMaterial3: true,
+              fontFamily: 'Poppins',
               appBarTheme: const AppBarTheme(
                 centerTitle: true,
                 elevation: 0,
@@ -116,6 +130,9 @@ class _MyAppState extends State<MyApp> {
               '/transport/list': (context) =>
                   const TransportListScreen(category: 'all'),
               '/transport/add': (context) => const AddTransportScreen(),
+              '/organic-products': (context) => const OrganicProductsScreen(),
+              '/organic-products/edit': (context) =>
+                  const EditOrganicProductScreen(),
             },
           );
         },

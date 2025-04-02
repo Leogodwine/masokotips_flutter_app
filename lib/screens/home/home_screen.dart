@@ -186,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } catch (e) {
       Log.e('Error during login navigation: $e');
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error during login: $e')),
         );
@@ -196,16 +196,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if (_selectedIndex != 0) {
+    return PopScope(
+      canPop: _selectedIndex == 0,
+      onPopInvoked: (didPop) {
+        if (!didPop) {
           setState(() {
             _selectedIndex = 0;
             _pageController.jumpToPage(0);
           });
-          return false;
         }
-        return true;
       },
       child: Scaffold(
         appBar: AppBar(

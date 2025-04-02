@@ -29,11 +29,14 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
     // Load categories
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Log.e('HomeContentScreen: Starting to load categories...');
+      if (!mounted) return;
       context.read<CategoryProvider>().loadMainCategories().then((_) {
+        if (!mounted) return;
         Log.e('HomeContentScreen: Categories loaded successfully');
         Log.e(
             'HomeContentScreen: Categories count: ${context.read<CategoryProvider>().mainCategories.length}');
       }).catchError((error) {
+        if (!mounted) return;
         Log.e('HomeContentScreen: Error loading categories: $error');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -103,7 +106,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
             Container(
               padding: const EdgeInsets.all(24.0),
               decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withOpacity(0.1),
+                color: Theme.of(context).primaryColor.withAlpha(25),
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(30),
                   bottomRight: Radius.circular(30),
@@ -332,10 +335,10 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                       colors: [
                                         Theme.of(context)
                                             .primaryColor
-                                            .withOpacity(0.1),
+                                            .withAlpha(25),
                                         Theme.of(context)
                                             .primaryColor
-                                            .withOpacity(0.05),
+                                            .withAlpha(13),
                                       ],
                                     ),
                                   ),
@@ -355,7 +358,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                               decoration: BoxDecoration(
                                                 color: Theme.of(context)
                                                     .primaryColor
-                                                    .withOpacity(0.1),
+                                                    .withAlpha(25),
                                                 borderRadius:
                                                     BorderRadius.circular(12),
                                               ),
@@ -403,7 +406,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                                 decoration: BoxDecoration(
                                                   color: Theme.of(context)
                                                       .primaryColor
-                                                      .withOpacity(0.1),
+                                                      .withAlpha(25),
                                                   borderRadius:
                                                       BorderRadius.circular(12),
                                                 ),

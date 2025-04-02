@@ -15,8 +15,11 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     // Load categories when the screen is initialized
-    Future.microtask(() => Provider.of<CategoryProvider>(context, listen: false)
-        .loadMainCategories());
+    Future.microtask(() {
+      if (!mounted) return;
+      Provider.of<CategoryProvider>(context, listen: false)
+          .loadMainCategories();
+    });
   }
 
   @override

@@ -7,6 +7,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'add_product_screen.dart';
 import 'edit_product_screen.dart';
 import '../transport/transport_list_screen.dart';
+import '../organic_products_screen.dart';
 
 class SellerDashboardScreen extends StatefulWidget {
   const SellerDashboardScreen({Key? key}) : super(key: key);
@@ -156,6 +157,17 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                 _selectedIndex = 0;
               });
             });
+          } else if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const OrganicProductsScreen(),
+              ),
+            ).then((_) {
+              setState(() {
+                _selectedIndex = 0;
+              });
+            });
           }
         },
         items: const [
@@ -166,6 +178,10 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.directions_car),
             label: 'Transports',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.eco),
+            label: 'Organic',
           ),
         ],
       ),
