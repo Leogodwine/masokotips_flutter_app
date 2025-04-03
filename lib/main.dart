@@ -23,7 +23,11 @@ import 'screens/transport/add_transport_screen.dart';
 import 'screens/organic_products_screen.dart';
 import 'screens/edit_organic_product_screen.dart';
 import 'screens/transport/edit_transport_screen.dart';
+import 'screens/provider/service_provider_dashboard_screen.dart';
+import 'screens/provider/service_provider_manager.dart';
+import 'screens/provider/add_service_screen.dart';
 import 'package:masoko_tips/models/transport.dart';
+import 'services/service_service.dart';
 
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -129,6 +133,22 @@ class _MyAppState extends State<MyApp> {
               '/developer_settings': (context) =>
                   const DeveloperSettingsScreen(),
               '/seller/dashboard': (context) => const SellerDashboardScreen(),
+              '/provider/dashboard': (context) =>
+                  const ServiceProviderDashboardScreen(),
+              '/provider/add-service': (context) {
+                final serviceService = ServiceService();
+                final authProvider =
+                    Provider.of<AuthProvider>(context, listen: false);
+                if (authProvider.token != null) {
+                  serviceService.setAuthToken(authProvider.token!);
+                }
+                return AddServiceScreen(
+                  onServiceAdded: (service) {
+                    Navigator.pop(context);
+                  },
+                  serviceService: serviceService,
+                );
+              },
               '/transport/list': (context) =>
                   const TransportListScreen(category: 'all'),
               '/transport/add': (context) => const AddTransportScreen(),
