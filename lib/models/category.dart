@@ -112,14 +112,6 @@ final mainCategories = [
     ],
   ),
   Category(
-    id: 2,
-    name: 'Services',
-    slug: 'services',
-    isActive: true,
-    sortOrder: 2,
-    icon: 'miscellaneous_services',
-  ),
-  Category(
     id: 3,
     name: 'Market Information',
     slug: 'market-information',
@@ -246,11 +238,11 @@ final mainCategories = [
   ),
   Category(
     id: 6,
-    name: 'Other Services',
-    slug: 'other-services',
+    name: 'Agricultural Services',
+    slug: 'agricultural-services',
     isActive: true,
     sortOrder: 6,
-    icon: 'more_horiz',
+    icon: 'agriculture',
     children: [
       Category(
           id: 61,

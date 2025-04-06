@@ -7,6 +7,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../services/service_service.dart';
+import '../../providers/auth_provider.dart';
+import '../../config/api_config.dart';
 
 class ServiceListScreen extends StatefulWidget {
   final String category;
@@ -23,6 +26,7 @@ class ServiceListScreen extends StatefulWidget {
 class _ServiceListScreenState extends State<ServiceListScreen> {
   final ScrollController _scrollController = ScrollController();
   bool _isLoadingMore = false;
+  bool _isInitialLoading = true;
   bool _hasMore = true;
   int _page = 1;
   final List<Service> _services = [];
@@ -31,9 +35,11 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
   String? _sortBy;
   final TextEditingController _searchController = TextEditingController();
   final ApiService _apiService = ApiService(
-    baseUrl: 'http://127.0.0.1:8000/api',
+    baseUrl: ApiConfig.baseUrl,
     apiKey: 'your-api-key', // Replace with actual API key
   );
+  final ServiceService _serviceService = ServiceService();
+  String? _error;
 
   // Filter state
   RangeValues _priceRange = const RangeValues(0, 1000);
@@ -52,8 +58,26 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
   @override
   void initState() {
     super.initState();
-    _loadInitialServices();
+    _initializeServices();
     _scrollController.addListener(_onScroll);
+  }
+
+  Future<void> _initializeServices() async {
+    // Set auth token if available
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    if (authProvider.token != null) {
+      _serviceService.setAuthToken(authProvider.token!);
+    }
+
+    // Check if API is available
+    final isApiAvailable = await _apiService.checkConnection();
+    if (!isApiAvailable) {
+      setState(() {
+        _error = 'API server is not available. Using local data instead.';
+      });
+    }
+
+    await _loadInitialServices();
   }
 
   @override
@@ -64,7 +88,16 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
   }
 
   Future<void> _loadInitialServices() async {
+    setState(() {
+      _isInitialLoading = true;
+      _error = null;
+    });
+
     await _loadMoreServices();
+
+    setState(() {
+      _isInitialLoading = false;
+    });
   }
 
   Future<void> _loadMoreServices() async {
@@ -73,7 +106,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
     setState(() => _isLoadingMore = true);
 
     try {
-      // Call the real API
+      // Try to load from API first
       final result = await _apiService.getServices(
         category: widget.category,
         search: _searchQuery,
@@ -94,20 +127,42 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
         _page++;
         _hasMore = currentPage < lastPage;
         _isLoadingMore = false;
+        _error = null;
       });
     } catch (e) {
-      setState(() => _isLoadingMore = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error loading services: $e'),
-            duration: const Duration(seconds: 3),
-            action: SnackBarAction(
-              label: 'RETRY',
-              onPressed: () => _loadMoreServices(),
+      // If API fails, try to load from local service service
+      try {
+        final services = await _serviceService.getMyServices();
+
+        // Filter services by category if needed
+        final filteredServices = services
+            .where(
+                (service) => service.categoryId.toString() == widget.category)
+            .toList();
+
+        setState(() {
+          _services.addAll(filteredServices);
+          _isLoadingMore = false;
+          _error = null;
+        });
+      } catch (localError) {
+        setState(() {
+          _isLoadingMore = false;
+          _error = 'Failed to load services. Please try again later.';
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error loading services: $e'),
+              duration: const Duration(seconds: 3),
+              action: SnackBarAction(
+                label: 'RETRY',
+                onPressed: () => _loadMoreServices(),
+              ),
             ),
-          ),
-        );
+          );
+        }
       }
     }
   }
@@ -256,6 +311,76 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
     }
   }
 
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.handyman_outlined,
+            size: 80,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No services available',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'There are no services in this category yet',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.grey[600],
+                ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.pushNamed(context, '/provider/add-service');
+            },
+            icon: const Icon(Icons.add),
+            label: const Text('Add a Service'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 80,
+            color: Colors.red[300],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Something went wrong',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _error ?? 'Failed to load services',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.grey[600],
+                ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: _loadInitialServices,
+            icon: const Icon(Icons.refresh),
+            label: const Text('Try Again'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -319,149 +444,164 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          setState(() {
-            _services.clear();
-            _page = 1;
-            _hasMore = true;
-          });
-          await _loadInitialServices();
-        },
-        child: Consumer<ReviewsProvider>(
-          builder: (context, reviewsProvider, child) {
-            if (_services.isEmpty && !_isLoadingMore) {
-              return const Center(child: CircularProgressIndicator());
-            }
+      body: _isInitialLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _error != null
+              ? _buildErrorState()
+              : RefreshIndicator(
+                  onRefresh: () async {
+                    setState(() {
+                      _services.clear();
+                      _page = 1;
+                      _hasMore = true;
+                    });
+                    await _loadInitialServices();
+                  },
+                  child: Consumer<ReviewsProvider>(
+                    builder: (context, reviewsProvider, child) {
+                      if (_services.isEmpty && !_isLoadingMore) {
+                        return _buildEmptyState();
+                      }
 
-            return AnimationLimiter(
-              child: ListView.builder(
-                controller: _scrollController,
-                padding: const EdgeInsets.all(16),
-                itemCount: _services.length + (_hasMore ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index == _services.length) {
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                  }
-
-                  final service = _services[index];
-                  return AnimationConfiguration.staggeredList(
-                    position: index,
-                    duration: const Duration(milliseconds: 375),
-                    child: SlideAnimation(
-                      verticalOffset: 50.0,
-                      child: FadeInAnimation(
-                        child: Card(
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: 0,
-                            vertical: 8,
-                          ),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.all(12),
-                            leading: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: CachedNetworkImage(
-                                imageUrl: service.imageUrl,
-                                width: 60,
-                                height: 60,
-                                fit: BoxFit.cover,
-                                placeholder: (context, url) => Container(
-                                  width: 60,
-                                  height: 60,
-                                  color: Colors.grey[300],
-                                  child: const Center(
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  ),
-                                ),
-                                errorWidget: (context, url, error) => Container(
-                                  width: 60,
-                                  height: 60,
-                                  color: Colors.grey[300],
-                                  child: const Icon(
-                                    Icons.error,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            title: Text(
-                              service.title,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 4),
-                                Text(
-                                  service.description,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.star,
-                                      size: 16,
-                                      color: Colors.amber[700],
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      service.rating.toString(),
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      '(${service.reviewCount} reviews)',
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            trailing: Text(
-                              '\$${service.price.toStringAsFixed(2)}',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: Theme.of(context).primaryColor,
-                              ),
-                            ),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ServiceDetailScreen(
-                                    service: service,
-                                  ),
+                      return AnimationLimiter(
+                        child: ListView.builder(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.all(16),
+                          itemCount: _services.length + (_hasMore ? 1 : 0),
+                          itemBuilder: (context, index) {
+                            if (index == _services.length) {
+                              return const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: CircularProgressIndicator(),
                                 ),
                               );
-                            },
-                          ),
+                            }
+
+                            final service = _services[index];
+                            return AnimationConfiguration.staggeredList(
+                              position: index,
+                              duration: const Duration(milliseconds: 375),
+                              child: SlideAnimation(
+                                verticalOffset: 50.0,
+                                child: FadeInAnimation(
+                                  child: Card(
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 0,
+                                      vertical: 8,
+                                    ),
+                                    child: ListTile(
+                                      contentPadding: const EdgeInsets.all(12),
+                                      leading: ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: CachedNetworkImage(
+                                          imageUrl: service.imageUrl ??
+                                              'https://via.placeholder.com/60',
+                                          width: 60,
+                                          height: 60,
+                                          fit: BoxFit.cover,
+                                          placeholder: (context, url) =>
+                                              Container(
+                                            width: 60,
+                                            height: 60,
+                                            color: Colors.grey[300],
+                                            child: const Center(
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                              ),
+                                            ),
+                                          ),
+                                          errorWidget: (context, url, error) =>
+                                              Container(
+                                            width: 60,
+                                            height: 60,
+                                            color: Colors.grey[300],
+                                            child: const Icon(
+                                              Icons.error,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      title: Text(
+                                        service.title,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      subtitle: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            service.description,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.star,
+                                                size: 16,
+                                                color: Colors.amber[700],
+                                              ),
+                                              const SizedBox(width: 4),
+                                              const Text(
+                                                '4.5',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                '(10 reviews)',
+                                                style: TextStyle(
+                                                  color: Colors.grey[600],
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      trailing: Text(
+                                        '\$${service.price.toStringAsFixed(2)}',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                          color: Theme.of(context).primaryColor,
+                                        ),
+                                      ),
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                ServiceDetailScreen(
+                                              service: service,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            );
-          },
-        ),
+                      );
+                    },
+                  ),
+                ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, '/provider/add-service');
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }

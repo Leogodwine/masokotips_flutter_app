@@ -24,7 +24,7 @@ class ProductService {
   Future<List<Product>> getSellerProducts() async {
     _checkAuthToken(); // Ensure auth token is set
     try {
-      const url = '${ApiConfig.baseUrl}/seller/products';
+      final url = '${ApiConfig.baseUrl}/seller/products';
       final response = await http.get(
         Uri.parse(url),
         headers: {
@@ -61,7 +61,7 @@ class ProductService {
       }
 
       // Now create the product with the uploaded image URLs
-      const url = '${ApiConfig.baseUrl}/seller/products';
+      final url = '${ApiConfig.baseUrl}/seller/products';
       print('Sending request to: $url');
       final request = http.MultipartRequest('POST', Uri.parse(url));
 

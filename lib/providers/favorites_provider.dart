@@ -11,10 +11,10 @@ class FavoritesProvider with ChangeNotifier {
   bool isFavorite(String serviceId) => _items.containsKey(serviceId);
 
   void toggleFavorite(Service service) {
-    if (_items.containsKey(service.id)) {
-      _items.remove(service.id);
+    if (_items.containsKey(service.id.toString())) {
+      _items.remove(service.id.toString());
     } else {
-      _items[service.id] = service;
+      _items[service.id.toString()] = service;
     }
     notifyListeners();
   }

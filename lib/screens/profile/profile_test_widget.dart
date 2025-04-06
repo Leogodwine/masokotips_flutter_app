@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
+import '../../config/api_config.dart';
 
 class ProfileTestWidget extends StatefulWidget {
   const ProfileTestWidget({super.key});
@@ -12,8 +13,8 @@ class ProfileTestWidget extends StatefulWidget {
 
 class _ProfileTestWidgetState extends State<ProfileTestWidget> {
   final ApiService _apiService = ApiService(
-    baseUrl: 'http://127.0.0.1:8000/api',
-    apiKey: 'your-api-key', // Replace with actual API key
+    baseUrl: ApiConfig.baseUrl,
+    apiKey: ApiConfig.apiKey,
   );
   String _responseText = "No response yet";
   bool _isLoading = false;

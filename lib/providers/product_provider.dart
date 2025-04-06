@@ -5,6 +5,7 @@ import '../services/api_service.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/logger.dart';
+import '../config/api_config.dart';
 
 class ProductProvider with ChangeNotifier {
   final ApiService _apiService;
@@ -17,12 +18,12 @@ class ProductProvider with ChangeNotifier {
   ProductProvider({ApiService? apiService})
       : _apiService = apiService ??
             ApiService(
-              baseUrl: 'http://127.0.0.1:8000/api',
-              apiKey: 'your-api-key', // Replace with actual API key
+              baseUrl: ApiConfig.baseUrl,
+              apiKey: ApiConfig.apiKey,
             );
 
   // API Base URL
-  static const String baseUrl = 'http://127.0.0.1:8000/api';
+  static String get baseUrl => ApiConfig.baseUrl;
 
   // Cache key
   static const String _productsKey = 'cached_products';

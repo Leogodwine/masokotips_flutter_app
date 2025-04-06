@@ -3,15 +3,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import '../services/transport_service.dart';
 import '../models/user.dart';
+import '../config/api_config.dart';
 
 class AuthProvider with ChangeNotifier {
-  final ApiService _apiService = ApiService(
-    baseUrl: 'http://127.0.0.1:8000/api',
-    apiKey: 'your-api-key', // Replace with actual API key
-  );
+  late final ApiService _apiService;
   final TransportService _transportService = TransportService();
   String? _token;
   User? _user;
+
+  AuthProvider() {
+    _apiService = ApiService(
+      baseUrl: ApiConfig.baseUrl,
+      apiKey: ApiConfig.apiKey,
+    );
+  }
 
   String? get token => _token;
   User? get user => _user;
@@ -89,6 +94,16 @@ class AuthProvider with ChangeNotifier {
       await _apiService.register(name, email, password, role: role);
     } catch (e) {
       throw Exception('Registration failed: $e');
+    }
+  }
+
+  // Create admin account
+  Future<void> createAdminAccount(
+      String name, String email, String password) async {
+    try {
+      await _apiService.register(name, email, password, role: 'admin');
+    } catch (e) {
+      throw Exception('Failed to create admin account: $e');
     }
   }
 

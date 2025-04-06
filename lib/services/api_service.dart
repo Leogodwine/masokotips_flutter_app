@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 import '../models/product.dart'; // Ensure this file contains the Product class definition
 import '../models/category.dart'; // Ensure this file contains the Category class definition
@@ -11,16 +10,21 @@ import '../utils/logger.dart';
 class ApiService {
   final String baseUrl;
   final String apiKey;
+  String? _authToken;
 
   ApiService({
     required this.baseUrl,
     required this.apiKey,
   });
 
+  void setAuthToken(String token) {
+    _authToken = token;
+  }
+
   Map<String, String> get _headers => {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': 'Bearer $apiKey',
+        'Authorization': 'Bearer $_authToken',
       };
 
   Future<bool> checkConnection() async {
@@ -90,6 +94,8 @@ class ApiService {
       final uri =
           Uri.parse('$baseUrl/services').replace(queryParameters: queryParams);
 
+      Log.d('Fetching services from: $uri');
+
       final response = await http.get(
         uri,
         headers: {
@@ -98,22 +104,47 @@ class ApiService {
         },
       );
 
+      Log.d('Services API response status: ${response.statusCode}');
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final List<dynamic> servicesJson = data['services'];
-        final List<Service> services =
-            servicesJson.map((json) => Service.fromJson(json)).toList();
 
+        // Check if the response has the expected structure
+        if (data is Map<String, dynamic> && data.containsKey('services')) {
+          final List<dynamic> servicesJson = data['services'];
+          final List<Service> services =
+              servicesJson.map((json) => Service.fromJson(json)).toList();
+
+          return {
+            'services': services,
+            'currentPage': data['current_page'] ?? 1,
+            'lastPage': data['last_page'] ?? 1,
+          };
+        } else {
+          // Handle unexpected response structure
+          Log.e('Unexpected API response structure: $data');
+          return {
+            'services': <Service>[],
+            'currentPage': 1,
+            'lastPage': 1,
+          };
+        }
+      } else if (response.statusCode == 404) {
+        // No services found
+        Log.d('No services found for category: $category');
         return {
-          'services': services,
-          'currentPage': data['current_page'],
-          'lastPage': data['last_page'],
+          'services': <Service>[],
+          'currentPage': 1,
+          'lastPage': 1,
         };
       } else {
+        Log.e(
+            'Failed to fetch services. Status code: ${response.statusCode}, Body: ${response.body}');
         throw Exception(
             'Failed to fetch services. Status code: ${response.statusCode}');
       }
     } catch (e) {
+      Log.e('Error fetching services: $e');
       throw Exception('Error fetching services: $e');
     }
   }
@@ -135,6 +166,7 @@ class ApiService {
           'password': password,
           'password_confirmation': password,
           'role': role,
+          'is_admin': role == 'admin',
         }),
       );
 
@@ -271,13 +303,10 @@ class ApiService {
 
   // Get authentication headers
   Future<Map<String, String>> _getAuthHeaders() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
-
     return {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      if (token != null) 'Authorization': 'Bearer $token',
+      if (_authToken != null) 'Authorization': 'Bearer $_authToken',
     };
   }
 
@@ -393,38 +422,58 @@ class ApiService {
   // Get categories
   Future<List<Category>> getCategories() async {
     try {
-      final url = Uri.parse('$baseUrl/categories');
-      Log.e('Making API call to: $url');
+      final uri = Uri.parse('$baseUrl/categories');
+      Log.e('ApiService: Fetching categories from: $uri');
+
       final response = await http.get(
-        url,
+        uri,
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
+          if (_authToken != null) 'Authorization': 'Bearer $_authToken',
         },
       );
 
-      Log.e('API Response Status: ${response.statusCode}');
-      Log.e('API Response Body: ${response.body}');
+      Log.e(
+          'ApiService: Categories API response status: ${response.statusCode}');
+      Log.e('ApiService: Categories API response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        List<dynamic> categoriesJson;
+
         // Handle both array and object response formats
-        final List<dynamic> categoriesData =
-            data is List ? data : data['data'] ?? [];
-        Log.e('Categories data length: ${categoriesData.length}');
+        if (data is List) {
+          categoriesJson = data;
+        } else if (data is Map<String, dynamic>) {
+          if (data.containsKey('categories')) {
+            categoriesJson = data['categories'];
+          } else if (data.containsKey('data')) {
+            categoriesJson = data['data'];
+          } else {
+            Log.e('ApiService: Unexpected categories response format: $data');
+            return [];
+          }
+        } else {
+          Log.e('ApiService: Unexpected categories response format: $data');
+          return [];
+        }
 
-        final categories = categoriesData.map((json) {
-          Log.e('Processing category: $json');
-          return Category.fromJson(json);
-        }).toList();
-
-        Log.e('Processed ${categories.length} categories');
+        final categories =
+            categoriesJson.map((json) => Category.fromJson(json)).toList();
+        Log.e(
+            'ApiService: Successfully parsed ${categories.length} categories');
         return categories;
+      } else if (response.statusCode == 401) {
+        Log.e('ApiService: Authentication required for categories');
+        throw Exception('Authentication required');
       } else {
+        Log.e(
+            'ApiService: Failed to fetch categories. Status code: ${response.statusCode}, Body: ${response.body}');
         throw Exception('Failed to fetch categories: ${response.body}');
       }
     } catch (e) {
-      Log.e('Error in getCategories: $e');
+      Log.e('ApiService: Error fetching categories: $e');
       throw Exception('Error fetching categories: $e');
     }
   }

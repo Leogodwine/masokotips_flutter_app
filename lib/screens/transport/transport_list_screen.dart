@@ -230,66 +230,66 @@ class _TransportListScreenState extends State<TransportListScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Column(
-                children: [
-                  if (_showFilters) _buildFilterPanel(),
-                  Expanded(
-                    child: Consumer<TransportProvider>(
-                      builder: (context, transportProvider, child) {
-                        final transports = transportProvider.transports;
+          : Column(
+              children: [
+                if (_showFilters) _buildFilterPanel(),
+                Expanded(
+                  child: Consumer<TransportProvider>(
+                    builder: (context, transportProvider, child) {
+                      final transports = transportProvider.transports;
 
-                        if (transports.isEmpty) {
-                          return Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.directions_car_outlined,
-                                  size: 64,
-                                  color: Theme.of(context)
-                                      .primaryColor
-                                      .withOpacity(0.5),
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'No vehicles available',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                                const SizedBox(height: 24),
-                                ElevatedButton.icon(
-                                  onPressed: () {
-                                    Navigator.pushNamed(
-                                        context, '/transport/add');
-                                  },
-                                  icon: const Icon(Icons.add),
-                                  label: const Text('Add Vehicle'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        Theme.of(context).primaryColor,
-                                    foregroundColor: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-
-                        return ListView.builder(
-                          padding: const EdgeInsets.all(16),
-                          shrinkWrap: true,
-                          itemCount: transports.length,
-                          itemBuilder: (context, index) {
-                            final transport = transports[index];
-                            return Card(
-                              margin: const EdgeInsets.only(bottom: 16),
-                              elevation: 2,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                      if (transports.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.directions_car_outlined,
+                                size: 64,
+                                color: Theme.of(context)
+                                    .primaryColor
+                                    .withOpacity(0.5),
                               ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No vehicles available',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  Navigator.pushNamed(
+                                      context, '/transport/add');
+                                },
+                                icon: const Icon(Icons.add),
+                                label: const Text('Add Vehicle'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      Theme.of(context).primaryColor,
+                                  foregroundColor: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      return ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: transports.length,
+                        itemBuilder: (context, index) {
+                          final transport = transports[index];
+                          return Card(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Material(
+                              color: Colors.transparent,
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(12),
                                 onTap: () {
@@ -302,240 +302,340 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                     ),
                                   );
                                 },
-                                child: SingleChildScrollView(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                transport.title,
-                                                style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Theme.of(context)
-                                                      .primaryColor,
-                                                ),
-                                              ),
-                                            ),
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                                vertical: 4,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    transport.status == 'active'
-                                                        ? Colors.green[100]
-                                                        : Colors.grey[100],
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                              child: Text(
-                                                transport.status.toUpperCase(),
-                                                style: TextStyle(
-                                                  color: transport.status ==
-                                                          'active'
-                                                      ? Colors.green[700]
-                                                      : Colors.grey[700],
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ),
-                                            IconButton(
-                                              icon: const Icon(Icons.edit),
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                              onPressed: () {
-                                                Navigator.pushNamed(
-                                                  context,
-                                                  '/transport/edit',
-                                                  arguments: transport,
-                                                );
-                                              },
-                                            ),
-                                            IconButton(
-                                              icon: const Icon(Icons.delete),
-                                              color: Colors.red,
-                                              onPressed: () {
-                                                _showDeleteConfirmationDialog(
-                                                    context, transport);
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 8),
-                                        if (transport.imageUrl != null)
-                                          ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            child: Hero(
-                                              tag:
-                                                  'transport-image-${transport.id}',
-                                              child: CachedNetworkImageWithCors(
-                                                imageUrl: transport.imageUrl!,
-                                                height: 200,
-                                                width: double.infinity,
-                                                fit: BoxFit.cover,
-                                                errorWidget:
-                                                    (context, url, error) {
-                                                  return Container(
-                                                    height: 200,
-                                                    color: Colors.grey[300],
-                                                    child: Column(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        Icon(
-                                                            Icons.error_outline,
-                                                            size: 48,
-                                                            color: Colors
-                                                                .grey[600]),
-                                                        const SizedBox(
-                                                            height: 8),
-                                                        Text(
-                                                          'Failed to load image',
-                                                          style: TextStyle(
-                                                            color: Colors
-                                                                .grey[600],
-                                                            fontSize: 14,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                          ),
-                                        const SizedBox(height: 16),
-                                        Row(
-                                          children: [
-                                            Icon(Icons.location_on,
-                                                size: 16,
-                                                color: Theme.of(context)
-                                                    .primaryColor),
-                                            const SizedBox(width: 4),
-                                            Expanded(
-                                              child: Text(
-                                                'Location: ${transport.vehicleLocation}',
-                                                style: const TextStyle(
-                                                    fontSize: 16),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Row(
-                                          children: [
-                                            Icon(Icons.scale,
-                                                size: 16,
-                                                color: Theme.of(context)
-                                                    .primaryColor),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              'Capacity: ${transport.capacity} tons',
-                                              style:
-                                                  const TextStyle(fontSize: 16),
-                                            ),
-                                            const SizedBox(width: 16),
-                                            if (transport
-                                                .isTemperatureControlled)
-                                              Icon(
-                                                Icons.thermostat,
-                                                size: 16,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              transport.title,
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
                                                 color: Theme.of(context)
                                                     .primaryColor,
                                               ),
-                                          ],
+                                            ),
+                                          ),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  transport.status == 'active'
+                                                      ? Colors.green[100]
+                                                      : Colors.grey[100],
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: Text(
+                                              transport.status.toUpperCase(),
+                                              style: TextStyle(
+                                                color:
+                                                    transport.status == 'active'
+                                                        ? Colors.green[700]
+                                                        : Colors.grey[700],
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(Icons.edit),
+                                            color:
+                                                Theme.of(context).primaryColor,
+                                            onPressed: () {
+                                              Navigator.pushNamed(
+                                                context,
+                                                '/transport/edit',
+                                                arguments: transport,
+                                              );
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(Icons.delete),
+                                            color: Colors.red,
+                                            onPressed: () {
+                                              _showDeleteConfirmationDialog(
+                                                  context, transport);
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      if (transport.imageUrl != null)
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          child: Hero(
+                                            tag:
+                                                'transport-image-${transport.id}',
+                                            child: CachedNetworkImageWithCors(
+                                              imageUrl: transport.imageUrl!,
+                                              height: 200,
+                                              width: double.infinity,
+                                              fit: BoxFit.cover,
+                                              errorWidget:
+                                                  (context, url, error) {
+                                                return Container(
+                                                  height: 200,
+                                                  color: Colors.grey[300],
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Icon(Icons.error_outline,
+                                                          size: 48,
+                                                          color:
+                                                              Colors.grey[600]),
+                                                      const SizedBox(height: 8),
+                                                      Text(
+                                                        'Failed to load image',
+                                                        style: TextStyle(
+                                                          color:
+                                                              Colors.grey[600],
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
                                         ),
-                                        const SizedBox(height: 8),
-                                        Row(
-                                          children: [
-                                            Icon(Icons.person,
-                                                size: 16,
-                                                color: Theme.of(context)
-                                                    .primaryColor),
-                                            const SizedBox(width: 4),
-                                            Text(
+                                      const SizedBox(height: 16),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.location_on,
+                                              size: 16,
+                                              color: Theme.of(context)
+                                                  .primaryColor),
+                                          const SizedBox(width: 4),
+                                          Expanded(
+                                            child: Text(
+                                              'Location: ${transport.vehicleLocation}',
+                                              style:
+                                                  const TextStyle(fontSize: 16),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.scale,
+                                              size: 16,
+                                              color: Theme.of(context)
+                                                  .primaryColor),
+                                          const SizedBox(width: 4),
+                                          Flexible(
+                                            child: Text(
+                                              'Capacity: ${transport.capacity} tons',
+                                              style:
+                                                  const TextStyle(fontSize: 16),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 16),
+                                          if (transport.isTemperatureControlled)
+                                            Icon(
+                                              Icons.thermostat,
+                                              size: 16,
+                                              color: Theme.of(context)
+                                                  .primaryColor,
+                                            ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.person,
+                                              size: 16,
+                                              color: Theme.of(context)
+                                                  .primaryColor),
+                                          const SizedBox(width: 4),
+                                          Expanded(
+                                            child: Text(
                                               'Owner: ${transport.ownerName}',
                                               style:
                                                   const TextStyle(fontSize: 16),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.drive_eta,
+                                              size: 16,
+                                              color: Theme.of(context)
+                                                  .primaryColor),
+                                          const SizedBox(width: 4),
+                                          Expanded(
+                                            child: Text(
+                                              'Driver: ${transport.driverName}',
+                                              style:
+                                                  const TextStyle(fontSize: 16),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                          if (transport.driverRating !=
+                                              null) ...[
+                                            const SizedBox(width: 8),
+                                            Icon(
+                                              Icons.star,
+                                              size: 16,
+                                              color: Colors.amber[700],
+                                            ),
+                                            Text(
+                                              transport.driverRating!
+                                                  .toStringAsFixed(1),
+                                              style:
+                                                  const TextStyle(fontSize: 16),
                                             ),
                                           ],
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Row(
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.phone,
+                                              size: 16,
+                                              color: Theme.of(context)
+                                                  .primaryColor),
+                                          const SizedBox(width: 4),
+                                          Expanded(
+                                            child: Text(
+                                              'Contact: ${transport.driverPhone}',
+                                              style:
+                                                  const TextStyle(fontSize: 16),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Visibility(
+                                        visible: transport.hasInsurance,
+                                        child: Row(
                                           children: [
-                                            Icon(Icons.drive_eta,
+                                            Icon(Icons.security,
                                                 size: 16,
                                                 color: Theme.of(context)
                                                     .primaryColor),
                                             const SizedBox(width: 4),
-                                            Text(
-                                              'Driver: ${transport.driverName}',
-                                              style:
-                                                  const TextStyle(fontSize: 16),
+                                            const Text(
+                                              'Insured',
+                                              style: TextStyle(fontSize: 16),
                                             ),
-                                            if (transport.driverRating !=
+                                            if (transport.insuranceDetails !=
                                                 null) ...[
                                               const SizedBox(width: 8),
-                                              Icon(
-                                                Icons.star,
-                                                size: 16,
-                                                color: Colors.amber[700],
-                                              ),
-                                              Text(
-                                                transport.driverRating!
-                                                    .toStringAsFixed(1),
-                                                style: const TextStyle(
-                                                    fontSize: 16),
+                                              Expanded(
+                                                child: Text(
+                                                  transport.insuranceDetails!,
+                                                  style: const TextStyle(
+                                                      fontSize: 16),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
                                               ),
                                             ],
                                           ],
                                         ),
-                                        const SizedBox(height: 8),
-                                        Row(
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Visibility(
+                                        visible:
+                                            transport.certifications != null &&
+                                                transport
+                                                    .certifications!.isNotEmpty,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Icon(Icons.phone,
-                                                size: 16,
-                                                color: Theme.of(context)
-                                                    .primaryColor),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              'Contact: ${transport.driverPhone}',
-                                              style:
-                                                  const TextStyle(fontSize: 16),
+                                            Row(
+                                              children: [
+                                                Icon(Icons.verified,
+                                                    size: 16,
+                                                    color: Theme.of(context)
+                                                        .primaryColor),
+                                                const SizedBox(width: 4),
+                                                const Text(
+                                                  'Certifications:',
+                                                  style:
+                                                      TextStyle(fontSize: 16),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 8),
+                                            Wrap(
+                                              spacing: 4,
+                                              runSpacing: 4,
+                                              children: transport
+                                                  .certifications!
+                                                  .map((cert) => Chip(
+                                                        label: Text(cert),
+                                                        materialTapTargetSize:
+                                                            MaterialTapTargetSize
+                                                                .shrinkWrap,
+                                                        labelStyle:
+                                                            const TextStyle(
+                                                                fontSize: 12),
+                                                      ))
+                                                  .toList(),
                                             ),
                                           ],
                                         ),
-                                        const SizedBox(height: 8),
-                                        Visibility(
-                                          visible: transport.hasInsurance,
-                                          child: Row(
-                                            children: [
-                                              Icon(Icons.security,
-                                                  size: 16,
-                                                  color: Theme.of(context)
-                                                      .primaryColor),
-                                              const SizedBox(width: 4),
-                                              const Text(
-                                                'Insured',
-                                                style: TextStyle(fontSize: 16),
-                                              ),
-                                              if (transport.insuranceDetails !=
-                                                  null) ...[
-                                                const SizedBox(width: 8),
-                                                Expanded(
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Wrap(
+                                        spacing: 8,
+                                        runSpacing: 8,
+                                        children:
+                                            transport.supportedProductTypes
+                                                .map((type) => Chip(
+                                                      label: Text(type),
+                                                      materialTapTargetSize:
+                                                          MaterialTapTargetSize
+                                                              .shrinkWrap,
+                                                      backgroundColor:
+                                                          Theme.of(context)
+                                                              .primaryColor
+                                                              .withOpacity(0.1),
+                                                      labelStyle: TextStyle(
+                                                        color: Theme.of(context)
+                                                            .primaryColor,
+                                                      ),
+                                                    ))
+                                                .toList(),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(
+                                            child: Row(
+                                              children: [
+                                                Icon(Icons.directions_car,
+                                                    size: 16,
+                                                    color: Theme.of(context)
+                                                        .primaryColor),
+                                                const SizedBox(width: 4),
+                                                Flexible(
                                                   child: Text(
-                                                    transport.insuranceDetails!,
+                                                    transport.vehicleType,
                                                     style: const TextStyle(
                                                         fontSize: 16),
                                                     overflow:
@@ -543,158 +643,78 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                                   ),
                                                 ),
                                               ],
-                                            ],
-                                          ),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Visibility(
-                                          visible: transport.certifications !=
-                                                  null &&
-                                              transport
-                                                  .certifications!.isNotEmpty,
-                                          child: Row(
-                                            children: [
-                                              Icon(Icons.verified,
-                                                  size: 16,
-                                                  color: Theme.of(context)
-                                                      .primaryColor),
-                                              const SizedBox(width: 4),
-                                              const Text(
-                                                'Certifications:',
-                                                style: TextStyle(fontSize: 16),
-                                              ),
-                                              const SizedBox(width: 8),
-                                              Expanded(
-                                                child: Wrap(
-                                                  spacing: 4,
-                                                  children: transport
-                                                      .certifications!
-                                                      .map((cert) => Chip(
-                                                            label: Text(cert),
-                                                            materialTapTargetSize:
-                                                                MaterialTapTargetSize
-                                                                    .shrinkWrap,
-                                                            labelStyle:
-                                                                const TextStyle(
-                                                                    fontSize:
-                                                                        12),
-                                                          ))
-                                                      .toList(),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Wrap(
-                                          spacing: 8,
-                                          children: transport
-                                              .supportedProductTypes
-                                              .map((type) => Chip(
-                                                    label: Text(type),
-                                                    materialTapTargetSize:
-                                                        MaterialTapTargetSize
-                                                            .shrinkWrap,
-                                                    backgroundColor:
-                                                        Theme.of(context)
-                                                            .primaryColor
-                                                            .withOpacity(0.1),
-                                                    labelStyle: TextStyle(
-                                                      color: Theme.of(context)
-                                                          .primaryColor,
-                                                    ),
-                                                  ))
-                                              .toList(),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Icon(Icons.directions_car,
-                                                    size: 16,
-                                                    color: Theme.of(context)
-                                                        .primaryColor),
-                                                const SizedBox(width: 4),
-                                                Text(
-                                                  transport.vehicleType,
-                                                  style: const TextStyle(
-                                                      fontSize: 16),
-                                                ),
-                                              ],
                                             ),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: [
+                                          ),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                              Text(
+                                                '\$${transport.price.toStringAsFixed(2)}',
+                                                style: TextStyle(
+                                                  color: Theme.of(context)
+                                                      .primaryColor,
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              if (transport.pricePerKg != null)
                                                 Text(
-                                                  '\$${transport.price.toStringAsFixed(2)}',
+                                                  '\$${transport.pricePerKg!.toStringAsFixed(2)}/kg',
                                                   style: TextStyle(
-                                                    color: Theme.of(context)
-                                                        .primaryColor,
-                                                    fontSize: 18,
-                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.grey[600],
+                                                    fontSize: 14,
                                                   ),
                                                 ),
-                                                if (transport.pricePerKg !=
-                                                    null)
-                                                  Text(
-                                                    '\$${transport.pricePerKg!.toStringAsFixed(2)}/kg',
-                                                    style: TextStyle(
-                                                      color: Colors.grey[600],
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                              ],
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      Visibility(
+                                        visible: transport.amenities != null &&
+                                            transport.amenities!.isNotEmpty,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const SizedBox(height: 8),
+                                            Wrap(
+                                              spacing: 8,
+                                              runSpacing: 8,
+                                              children: transport.amenities!
+                                                  .map((amenity) => Chip(
+                                                        label: Text(amenity),
+                                                        materialTapTargetSize:
+                                                            MaterialTapTargetSize
+                                                                .shrinkWrap,
+                                                        backgroundColor:
+                                                            Theme.of(context)
+                                                                .primaryColor
+                                                                .withOpacity(
+                                                                    0.1),
+                                                        labelStyle: TextStyle(
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .primaryColor,
+                                                        ),
+                                                      ))
+                                                  .toList(),
                                             ),
                                           ],
                                         ),
-                                        Visibility(
-                                          visible: transport.amenities !=
-                                                  null &&
-                                              transport.amenities!.isNotEmpty,
-                                          child: Column(
-                                            children: [
-                                              const SizedBox(height: 8),
-                                              Wrap(
-                                                spacing: 8,
-                                                children: transport.amenities!
-                                                    .map((amenity) => Chip(
-                                                          label: Text(amenity),
-                                                          materialTapTargetSize:
-                                                              MaterialTapTargetSize
-                                                                  .shrinkWrap,
-                                                          backgroundColor:
-                                                              Theme.of(context)
-                                                                  .primaryColor
-                                                                  .withOpacity(
-                                                                      0.1),
-                                                          labelStyle: TextStyle(
-                                                            color: Theme.of(
-                                                                    context)
-                                                                .primaryColor,
-                                                          ),
-                                                        ))
-                                                    .toList(),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
-                            );
-                          },
-                        );
-                      },
-                    ),
+                            ),
+                          );
+                        },
+                      );
+                    },
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
     );
   }

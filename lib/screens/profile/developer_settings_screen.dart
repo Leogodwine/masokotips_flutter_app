@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
+import '../../config/api_config.dart';
 
 class DeveloperSettingsScreen extends StatefulWidget {
   const DeveloperSettingsScreen({super.key});
@@ -19,8 +20,8 @@ class _DeveloperSettingsScreenState extends State<DeveloperSettingsScreen> {
   void initState() {
     super.initState();
     _apiService = ApiService(
-      baseUrl: 'http://127.0.0.1:8000/api',
-      apiKey: 'your-api-key', // Replace with actual API key
+      baseUrl: ApiConfig.baseUrl,
+      apiKey: ApiConfig.apiKey,
     );
     _apiUrlController = TextEditingController(text: _apiService.baseUrl);
   }
@@ -132,7 +133,7 @@ class _DeveloperSettingsScreenState extends State<DeveloperSettingsScreen> {
     if (newUrl.isNotEmpty) {
       _apiService = ApiService(
         baseUrl: newUrl,
-        apiKey: 'your-api-key', // Replace with actual API key
+        apiKey: ApiConfig.apiKey,
       );
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

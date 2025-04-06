@@ -5,20 +5,23 @@ import '../models/category.dart' as models;
 import '../config/api_config.dart';
 import '../utils/logger.dart';
 import '../services/api_service.dart';
+import '../services/auth_service.dart';
 
 class CategoryProvider with ChangeNotifier {
   final ApiService _apiService;
+  final AuthService _authService;
   List<models.Category> _mainCategories = [];
   List<models.Category> _subcategories = [];
   bool _isLoading = false;
   String? _error;
 
-  CategoryProvider({ApiService? apiService})
+  CategoryProvider({ApiService? apiService, AuthService? authService})
       : _apiService = apiService ??
             ApiService(
               baseUrl: ApiConfig.baseUrl,
               apiKey: ApiConfig.apiKey,
-            );
+            ),
+        _authService = authService ?? AuthService();
 
   // Getters
   List<models.Category> get mainCategories => _mainCategories;
@@ -29,25 +32,40 @@ class CategoryProvider with ChangeNotifier {
   // Load categories
   Future<void> loadMainCategories() async {
     Log.e('CategoryProvider: Starting to load categories...');
-    Log.e(
-        'CategoryProvider: Current state - isLoading: $_isLoading, categories count: ${_mainCategories.length}');
+
+    // Don't reload if already loading
+    if (_isLoading) {
+      Log.e('CategoryProvider: Already loading categories, skipping');
+      return;
+    }
 
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      // Try to load categories from API first
+      // Get the authentication token
+      final token = await _authService.getToken();
+      Log.e('CategoryProvider: Auth token available: ${token != null}');
+
+      if (token != null) {
+        _apiService.setAuthToken(token);
+        Log.e('CategoryProvider: Set auth token in API service');
+      } else {
+        Log.e(
+            'CategoryProvider: No auth token available, proceeding without authentication');
+      }
+
+      // Try to load categories from API
       Log.e('CategoryProvider: Fetching categories from API...');
       final response = await _apiService.getCategories();
       Log.e(
           'CategoryProvider: API Response: ${response.length} categories received');
 
       if (response.isEmpty) {
-        Log.e(
-            'CategoryProvider: No categories received from API, using fallback data');
-        _mainCategories = models.mainCategories;
-        _error = 'Using offline data';
+        Log.e('CategoryProvider: No categories received from API');
+        _error = 'No categories available from the server';
+        _mainCategories = [];
         notifyListeners();
         return;
       }
@@ -93,9 +111,8 @@ class CategoryProvider with ChangeNotifier {
     } catch (e, stackTrace) {
       Log.e('CategoryProvider: Error loading categories from API: $e');
       Log.e('CategoryProvider: Stack trace: $stackTrace');
-      // Use predefined categories as fallback only if API fails
-      _mainCategories = models.mainCategories;
-      _error = 'Using offline data: $e';
+      _error = 'Error loading categories: $e';
+      _mainCategories = [];
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -105,6 +122,13 @@ class CategoryProvider with ChangeNotifier {
   Future<void> loadSubcategories(int categoryId) async {
     Log.e(
         'CategoryProvider: Starting to load subcategories for category: $categoryId');
+
+    // Don't reload if already loading
+    if (_isLoading) {
+      Log.e('CategoryProvider: Already loading categories, skipping');
+      return;
+    }
+
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -125,10 +149,12 @@ class CategoryProvider with ChangeNotifier {
       } else {
         Log.e('CategoryProvider: Category not found with ID: $categoryId');
         _error = 'Category not found';
+        _subcategories = [];
       }
     } catch (e) {
       Log.e('CategoryProvider: Error loading subcategories: $e');
       _error = 'Error: $e';
+      _subcategories = [];
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -165,9 +191,14 @@ class CategoryProvider with ChangeNotifier {
 
   // Get subcategories for a specific category
   List<models.Category> getSubcategories(int parentId) {
-    final parentCategory =
-        _mainCategories.firstWhere((category) => category.id == parentId);
-    return parentCategory.children ?? [];
+    try {
+      final parentCategory =
+          _mainCategories.firstWhere((category) => category.id == parentId);
+      return parentCategory.children ?? [];
+    } catch (e) {
+      Log.e('CategoryProvider: Error getting subcategories: $e');
+      return [];
+    }
   }
 
   // Get a category by ID
@@ -175,6 +206,7 @@ class CategoryProvider with ChangeNotifier {
     try {
       return _mainCategories.firstWhere((category) => category.id == id);
     } catch (e) {
+      Log.e('CategoryProvider: Category not found with ID: $id');
       return null;
     }
   }

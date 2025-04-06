@@ -35,7 +35,15 @@ class _SearchScreenState extends State<SearchScreen> {
       'color': Colors.green,
     },
     'Services': {
-      'subcategories': [],
+      'subcategories': [
+        'Packaging Materials',
+        'Hydroponics',
+        'Fertilizer',
+        'Organic Manure',
+        'Machinery',
+        'Behive and Aquatic',
+        'Food and Beverage'
+      ],
       'icon': Icons.miscellaneous_services,
       'color': Colors.blue,
     },
@@ -75,18 +83,17 @@ class _SearchScreenState extends State<SearchScreen> {
       'icon': Icons.eco,
       'color': Colors.teal,
     },
-    'Other Services': {
+    'Agricultural Services': {
       'subcategories': [
-        'Packaging Materials',
-        'Hydroponics',
-        'Fertilizer',
-        'Organic Manure',
-        'Machinery',
-        'Behive and Aquatic',
-        'Food and Beverage'
+        'Cold Rooms Services',
+        'Machinery and Rental Services',
+        'Agronomist Services',
+        'Financial Services',
+        'Irrigation Services',
+        'Branding and Consultation Services'
       ],
-      'icon': Icons.build,
-      'color': Colors.indigo,
+      'icon': Icons.agriculture,
+      'color': Colors.brown,
     },
   };
 

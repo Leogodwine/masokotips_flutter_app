@@ -1,7 +1,17 @@
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 class ApiConfig {
   // Base URL for API requests
-  static const String baseUrl =
-      'http://127.0.0.1:8000/api'; // Local development URL
+  static String get baseUrl {
+    if (kIsWeb) {
+      return 'http://127.0.0.1:8000/api'; // Web
+    } else if (Platform.isAndroid) {
+      return 'http://10.0.2.2:8000/api'; // Android emulator
+    } else {
+      return 'http://127.0.0.1:8000/api'; // iOS simulator or other platforms
+    }
+  }
 
   // Timeout duration for API requests
   static const Duration timeoutDuration = Duration(seconds: 60);

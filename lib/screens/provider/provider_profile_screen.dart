@@ -168,18 +168,15 @@ class ProviderProfileScreen extends StatelessWidget {
     // Dummy services - replace with API call
     final services = [
       Service(
-        id: '1',
+        id: 1,
         title: 'Sample Service 1',
         description: 'Service description',
         price: 99.99,
+        categoryId: 1,
+        userId: 1,
         imageUrl: 'https://via.placeholder.com/150',
-        rating: 4.5,
-        reviewCount: 28,
-        providerId: provider.id,
-        providerName: provider.name,
-        providerImage: provider.imageUrl,
-        category: provider.serviceCategories.first,
-        categoryId: 1, // Replace with an appropriate integer category ID
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       ),
       // Add more services...
     ];
@@ -192,12 +189,14 @@ class ProviderProfileScreen extends StatelessWidget {
         final service = services[index];
         return Card(
           child: ListTile(
-            leading: Image.network(
-              service.imageUrl,
-              width: 50,
-              height: 50,
-              fit: BoxFit.cover,
-            ),
+            leading: service.imageUrl != null
+                ? Image.network(
+                    service.imageUrl!,
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  )
+                : const Icon(Icons.image),
             title: Text(service.title),
             subtitle: Text(
               '\$${service.price.toStringAsFixed(2)}',
@@ -205,7 +204,7 @@ class ProviderProfileScreen extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            trailing: Row(
+            trailing: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
@@ -213,7 +212,7 @@ class ProviderProfileScreen extends StatelessWidget {
                   size: 16,
                   color: Colors.amber,
                 ),
-                Text(' ${service.rating}'),
+                Text(' 4.5'),
               ],
             ),
             onTap: () {

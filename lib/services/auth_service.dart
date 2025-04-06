@@ -2,10 +2,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../utils/logger.dart';
+import '../config/api_config.dart';
 
 class AuthService {
-  static const String _baseUrl =
-      'http://localhost:8000/api'; // Update with your Laravel API URL
+  static String get _baseUrl => ApiConfig.baseUrl;
   static const String _tokenKey = 'auth_token';
 
   Future<bool> login(String email, String password) async {

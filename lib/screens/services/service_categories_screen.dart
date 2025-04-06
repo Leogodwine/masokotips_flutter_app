@@ -41,7 +41,15 @@ class _ServiceCategoriesScreenState extends State<ServiceCategoriesScreen>
       'name': 'Services',
       'icon': Icons.miscellaneous_services,
       'description': 'Various agricultural services',
-      'subcategories': [],
+      'subcategories': [
+        'Packaging Materials',
+        'Hydroponics',
+        'Fertilizer',
+        'Organic Manure',
+        'Machinery',
+        'Behive and Aquatic',
+        'Food and Beverage'
+      ],
       'color': Colors.blue[700],
     },
     {
@@ -91,17 +99,16 @@ class _ServiceCategoriesScreenState extends State<ServiceCategoriesScreen>
     },
     {
       'id': 6,
-      'name': 'Other Services',
-      'icon': Icons.more_horiz,
-      'description': 'Additional agricultural services and products',
+      'name': 'Agricultural Services',
+      'icon': Icons.agriculture,
+      'description': 'Specialized agricultural services',
       'subcategories': [
-        'Packaging Materials',
-        'Hydroponics',
-        'Fertilizer',
-        'Organic Manure',
-        'Machinery',
-        'Behive and Aquatic',
-        'Food and Beverage'
+        'Cold Rooms Services',
+        'Machinery and Rental Services',
+        'Agronomist Services',
+        'Financial Services',
+        'Irrigation Services',
+        'Branding and Consultation Services'
       ],
       'color': Colors.brown[700],
     },

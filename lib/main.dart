@@ -24,10 +24,18 @@ import 'screens/organic_products_screen.dart';
 import 'screens/edit_organic_product_screen.dart';
 import 'screens/transport/edit_transport_screen.dart';
 import 'screens/provider/service_provider_dashboard_screen.dart';
-import 'screens/provider/service_provider_manager.dart';
 import 'screens/provider/add_service_screen.dart';
 import 'package:masoko_tips/models/transport.dart';
 import 'services/service_service.dart';
+import 'screens/services/service_categories_screen.dart';
+import 'screens/services/agricultural_services_screen.dart';
+import 'screens/services/service_search_screen.dart';
+import 'screens/admin/market_info_management_screen.dart';
+import 'screens/market_info_screen.dart';
+import 'screens/admin/create_admin_screen.dart';
+import 'screens/admin/admin_login_screen.dart';
+import 'providers/admin_provider.dart';
+import 'screens/admin_dashboard_screen.dart';
 
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -40,27 +48,8 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  bool _tokenLoaded = false;
-
-  @override
-  void initState() {
-    super.initState();
-    // Load the auth token when the app starts
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_tokenLoaded) {
-        context.read<AuthProvider>().loadToken();
-        _tokenLoaded = true;
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,92 +67,130 @@ class _MyAppState extends State<MyApp> {
             OrganicProductService(),
           ),
         ),
+        ChangeNotifierProvider(create: (_) => AdminProvider()),
       ],
-      child: Consumer<AuthProvider>(
-        builder: (context, authProvider, child) {
-          // Initialize providers with auth token when available
-          if (authProvider.token != null) {
-            context.read<TransportProvider>().initialize(authProvider.token!);
-            context
-                .read<OrganicProductProvider>()
-                .service
-                .setAuthToken(authProvider.token!);
-          }
+      child: const AppContent(),
+    );
+  }
+}
 
-          return MaterialApp(
-            scaffoldMessengerKey: scaffoldMessengerKey,
-            title: 'maSOKOtips',
-            debugShowCheckedModeBanner: false,
-            theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: Colors.green,
-                brightness: Brightness.light,
-              ),
-              useMaterial3: true,
-              fontFamily: 'Poppins',
-              appBarTheme: const AppBarTheme(
-                centerTitle: true,
-                elevation: 0,
-              ),
-              elevatedButtonTheme: ElevatedButtonThemeData(
-                style: ElevatedButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-              cardTheme: CardTheme(
-                elevation: 2,
+class AppContent extends StatefulWidget {
+  const AppContent({super.key});
+
+  @override
+  State<AppContent> createState() => _AppContentState();
+}
+
+class _AppContentState extends State<AppContent> {
+  bool _tokenLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Load the auth token when the app starts
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_tokenLoaded) {
+        context.read<AuthProvider>().loadToken();
+        _tokenLoaded = true;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        // Initialize providers with auth token when available
+        if (authProvider.token != null) {
+          context.read<TransportProvider>().initialize(authProvider.token!);
+          context
+              .read<OrganicProductProvider>()
+              .service
+              .setAuthToken(authProvider.token!);
+        }
+
+        return MaterialApp(
+          scaffoldMessengerKey: scaffoldMessengerKey,
+          title: 'maSOKOtips',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.green,
+              brightness: Brightness.light,
+            ),
+            useMaterial3: true,
+            fontFamily: 'Poppins',
+            appBarTheme: const AppBarTheme(
+              centerTitle: true,
+              elevation: 0,
+            ),
+            elevatedButtonTheme: ElevatedButtonThemeData(
+              style: ElevatedButton.styleFrom(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
             ),
-            initialRoute: '/home',
-            routes: {
-              '/login': (context) => const LoginScreen(),
-              '/home': (context) => const HomeScreen(),
-              '/cart': (context) => const CartScreen(),
-              '/wishlist': (context) => const WishlistScreen(),
-              '/orders': (context) => const OrdersScreen(),
-              '/profile_test': (context) => const ProfileTestWidget(),
-              '/profile': (context) => const ProfileScreen(),
-              '/developer_settings': (context) =>
-                  const DeveloperSettingsScreen(),
-              '/seller/dashboard': (context) => const SellerDashboardScreen(),
-              '/provider/dashboard': (context) =>
-                  const ServiceProviderDashboardScreen(),
-              '/provider/add-service': (context) {
-                final serviceService = ServiceService();
-                final authProvider =
-                    Provider.of<AuthProvider>(context, listen: false);
-                if (authProvider.token != null) {
-                  serviceService.setAuthToken(authProvider.token!);
-                }
-                return AddServiceScreen(
-                  onServiceAdded: (service) {
-                    Navigator.pop(context);
-                  },
-                  serviceService: serviceService,
-                );
-              },
-              '/transport/list': (context) =>
-                  const TransportListScreen(category: 'all'),
-              '/transport/add': (context) => const AddTransportScreen(),
-              '/transport/edit': (context) {
-                final transport =
-                    ModalRoute.of(context)!.settings.arguments as Transport;
-                return EditTransportScreen(transport: transport);
-              },
-              '/organic-products': (context) => const OrganicProductsScreen(),
-              '/organic-products/edit': (context) =>
-                  const EditOrganicProductScreen(),
+            cardTheme: CardTheme(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+          initialRoute: '/home',
+          routes: {
+            '/login': (context) => const LoginScreen(),
+            '/home': (context) => const HomeScreen(),
+            '/cart': (context) => const CartScreen(),
+            '/wishlist': (context) => const WishlistScreen(),
+            '/orders': (context) => const OrdersScreen(),
+            '/profile_test': (context) => const ProfileTestWidget(),
+            '/profile': (context) => const ProfileScreen(),
+            '/developer_settings': (context) => const DeveloperSettingsScreen(),
+            '/seller/dashboard': (context) => const SellerDashboardScreen(),
+            '/provider/dashboard': (context) =>
+                const ServiceProviderDashboardScreen(),
+            '/provider/add-service': (context) {
+              final serviceService = ServiceService();
+              final authProvider =
+                  Provider.of<AuthProvider>(context, listen: false);
+              if (authProvider.token != null) {
+                serviceService.setAuthToken(authProvider.token!);
+              }
+              return AddServiceScreen(
+                onServiceAdded: (service) {
+                  Navigator.pop(context);
+                },
+                serviceService: serviceService,
+              );
             },
-          );
-        },
-      ),
+            '/transport/list': (context) =>
+                const TransportListScreen(category: 'all'),
+            '/transport/add': (context) => const AddTransportScreen(),
+            '/transport/edit': (context) {
+              final transport =
+                  ModalRoute.of(context)!.settings.arguments as Transport;
+              return EditTransportScreen(transport: transport);
+            },
+            '/organic-products': (context) => const OrganicProductsScreen(),
+            '/organic-products/edit': (context) =>
+                const EditOrganicProductScreen(),
+            '/services': (context) => const ServiceCategoriesScreen(),
+            '/services/agricultural': (context) =>
+                const AgriculturalServicesScreen(),
+            '/services/search': (context) => const ServiceSearchScreen(),
+            '/market-info': (context) => const MarketInfoScreen(),
+            '/admin/market-info': (context) =>
+                const MarketInfoManagementScreen(),
+            '/admin/create': (context) => const CreateAdminScreen(),
+            '/admin/login': (context) => const AdminLoginScreen(),
+            '/admin/dashboard': (context) => const AdminDashboardScreen(),
+          },
+        );
+      },
     );
   }
 }

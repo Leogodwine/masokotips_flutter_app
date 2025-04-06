@@ -33,18 +33,15 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
         itemCount: 2, // Replace with actual services list
         itemBuilder: (context, index) {
           final service = Service(
-            id: 'service$index',
+            id: index,
             title: 'Sample Service ${index + 1}',
             description: 'Sample description',
             price: 99.99,
+            categoryId: index,
+            userId: 1,
             imageUrl: 'https://via.placeholder.com/150',
-            rating: 4.5,
-            reviewCount: 10,
-            providerId: 'provider1',
-            providerName: 'Provider Name',
-            providerImage: 'https://via.placeholder.com/50',
-            category: 'Category',
-            categoryId: index, // Updated to pass an integer
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
           );
 
           return Card(
@@ -53,15 +50,17 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
               vertical: 8,
             ),
             child: ListTile(
-              leading: Image.network(
-                service.imageUrl,
-                width: 50,
-                height: 50,
-                fit: BoxFit.cover,
-              ),
+              leading: service.imageUrl != null
+                  ? Image.network(
+                      service.imageUrl!,
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    )
+                  : const Icon(Icons.image),
               title: Text(service.title),
               subtitle: Text(
-                '\$${service.price.toStringAsFixed(2)} - ${service.category}',
+                '\$${service.price.toStringAsFixed(2)} - Category ${service.categoryId}',
               ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -96,8 +95,8 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
       _titleController.text = service.title;
       _descriptionController.text = service.description;
       _priceController.text = service.price.toString();
-      _imageUrlController.text = service.imageUrl;
-      _selectedCategory = service.category;
+      _imageUrlController.text = service.imageUrl ?? '';
+      _selectedCategory = 'Category ${service.categoryId}';
     }
 
     showDialog(

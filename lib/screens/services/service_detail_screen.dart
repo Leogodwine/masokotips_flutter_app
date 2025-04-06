@@ -23,7 +23,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final favorites = Provider.of<FavoritesProvider>(context);
-    final isFavorite = favorites.isFavorite(widget.service.id);
+    final isFavorite = favorites.isFavorite(widget.service.id.toString());
 
     return Scaffold(
       appBar: AppBar(
@@ -57,7 +57,8 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
             Hero(
               tag: 'service-${widget.service.id}',
               child: CachedNetworkImage(
-                imageUrl: widget.service.imageUrl,
+                imageUrl: widget.service.imageUrl ??
+                    'https://via.placeholder.com/250',
                 height: 250,
                 width: double.infinity,
                 fit: BoxFit.cover,
@@ -110,7 +111,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                       onPressed: () {
                         // Create a Product object from the service
                         final product = Product(
-                          id: int.parse(widget.service.id),
+                          id: widget.service.id,
                           name: widget.service.title,
                           description: widget.service.description,
                           price: widget.service.price,
@@ -119,15 +120,15 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                           isFeatured: false,
                           categoryId: widget.service.categoryId,
                           userId: 0,
-                          images: [widget.service.imageUrl],
-                          rating: widget.service.rating,
-                          ratingCount: widget.service.reviewCount,
+                          images: [widget.service.imageUrl ?? ''],
+                          rating: 0.0,
+                          ratingCount: 0,
                           createdAt: DateTime.now(),
                           updatedAt: DateTime.now(),
                           slug: widget.service.title
                               .toLowerCase()
                               .replaceAll(' ', '-'),
-                          imageUrl: widget.service.imageUrl,
+                          imageUrl: widget.service.imageUrl ?? '',
                         );
 
                         // Add the product to the cart

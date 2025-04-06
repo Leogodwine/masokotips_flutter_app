@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../models/service.dart';
 import '../../services/service_service.dart';
 import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class AddServiceScreen extends StatefulWidget {
   final Function(Service) onServiceAdded;
@@ -23,18 +24,37 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _priceController = TextEditingController();
-  final _categoryController = TextEditingController();
   File? _imageFile;
   bool _isLoading = false;
   String? _error;
-  final ServiceService _serviceService = ServiceService();
+  int _selectedCategoryId = 1; // Default category ID
+
+  // Service categories with their IDs
+  final Map<int, String> _categories = {
+    1: 'Buyers & Sellers',
+    2: 'Transport',
+    3: 'Services',
+    4: 'Organic Products',
+    6: 'Agricultural Services',
+  };
+
+  // Agricultural Services subcategories
+  final List<String> _agriculturalSubcategories = [
+    'Cold Rooms Services',
+    'Machinery and Rental Services',
+    'Agronomist Services',
+    'Financial Services',
+    'Irrigation Services',
+    'Branding and Consultation Services'
+  ];
+
+  String? _selectedSubcategory;
 
   @override
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
     _priceController.dispose();
-    _categoryController.dispose();
     super.dispose();
   }
 
@@ -60,7 +80,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
         String? imageUrl;
         if (_imageFile != null) {
           imageUrl = await widget.serviceService.uploadServiceImage(
-            'new', // Temporary ID for new service
+            'temp',
             _imageFile!.path,
           );
         }
@@ -69,8 +89,9 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
           title: _titleController.text,
           description: _descriptionController.text,
           price: double.parse(_priceController.text),
-          categoryId: int.parse(_categoryController.text),
+          categoryId: _selectedCategoryId,
           imageUrl: imageUrl,
+          subcategory: _selectedCategoryId == 6 ? _selectedSubcategory : null,
         );
 
         widget.onServiceAdded(service);
@@ -161,23 +182,53 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _categoryController,
+              DropdownButtonFormField<int>(
+                value: _selectedCategoryId,
                 decoration: const InputDecoration(
-                  labelText: 'Category ID',
+                  labelText: 'Category',
                   border: OutlineInputBorder(),
                 ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a category ID';
-                  }
-                  if (int.tryParse(value) == null) {
-                    return 'Please enter a valid category ID';
-                  }
-                  return null;
+                items: _categories.entries.map((entry) {
+                  return DropdownMenuItem(
+                    value: entry.key,
+                    child: Text(entry.value),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedCategoryId = value!;
+                    _selectedSubcategory = null;
+                  });
                 },
               ),
+              if (_selectedCategoryId == 6) ...[
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: _selectedSubcategory,
+                  decoration: const InputDecoration(
+                    labelText: 'Agricultural Service Type',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: _agriculturalSubcategories.map((subcategory) {
+                    return DropdownMenuItem(
+                      value: subcategory,
+                      child: Text(subcategory),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedSubcategory = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (_selectedCategoryId == 6 &&
+                        (value == null || value.isEmpty)) {
+                      return 'Please select a service type';
+                    }
+                    return null;
+                  },
+                ),
+              ],
               const SizedBox(height: 16),
               ElevatedButton.icon(
                 onPressed: _pickImage,
@@ -187,10 +238,40 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
               if (_imageFile != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 16),
-                  child: Image.file(
-                    _imageFile!,
-                    height: 200,
-                    fit: BoxFit.cover,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: kIsWeb
+                        ? Image.network(
+                            _imageFile!.path,
+                            height: 200,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                height: 200,
+                                color: Colors.grey[300],
+                                child: const Center(
+                                  child: Icon(Icons.error_outline, size: 48),
+                                ),
+                              );
+                            },
+                          )
+                        : Image.file(
+                            _imageFile!,
+                            height: 200,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              print('Error loading image: $error');
+                              return Container(
+                                height: 200,
+                                color: Colors.grey[300],
+                                child: const Center(
+                                  child: Icon(Icons.error_outline, size: 48),
+                                ),
+                              );
+                            },
+                          ),
                   ),
                 ),
               const SizedBox(height: 24),

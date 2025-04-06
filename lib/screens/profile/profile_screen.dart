@@ -6,6 +6,7 @@ import 'developer_settings_screen.dart';
 import 'edit_profile_screen.dart';
 import './address_management_screen.dart';
 import '../seller/seller_dashboard_screen.dart';
+import '../provider/service_provider_dashboard_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -134,6 +135,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 );
                               },
                             ),
+                          if (user.roles.contains('service_provider'))
+                            _buildQuickActionButton(
+                              context,
+                              icon: Icons.handyman,
+                              label: 'Service Provider',
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const ServiceProviderDashboardScreen(),
+                                  ),
+                                );
+                              },
+                            ),
                           _buildQuickActionButton(
                             context,
                             icon: Icons.shopping_bag,
@@ -242,6 +258,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           : () => _showLoginDialog(context),
                     ),
                     const Divider(height: 1),
+                    // Admin login button - only visible when not logged in
+                    if (!isLoggedIn) ...[
+                      ListTile(
+                        leading: const Icon(Icons.admin_panel_settings),
+                        title: const Text('Admin Login'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () {
+                          Navigator.pushNamed(context, '/admin/login');
+                        },
+                      ),
+                      const Divider(height: 1),
+                    ],
                     // Add Seller Dashboard for users with seller role
                     if (isLoggedIn &&
                         user != null &&
@@ -256,6 +284,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             MaterialPageRoute(
                               builder: (context) =>
                                   const SellerDashboardScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      const Divider(height: 1),
+                    ],
+                    // Add Service Provider Dashboard for users with service_provider role
+                    if (isLoggedIn &&
+                        user != null &&
+                        user.roles.contains('service_provider')) ...[
+                      ListTile(
+                        leading: const Icon(Icons.handyman_outlined),
+                        title: const Text('Service Provider Dashboard'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const ServiceProviderDashboardScreen(),
                             ),
                           );
                         },

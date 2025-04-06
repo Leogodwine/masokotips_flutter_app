@@ -30,22 +30,17 @@ class FavoritesScreen extends StatelessWidget {
                   vertical: 8,
                 ),
                 child: ListTile(
-                  leading: Image.network(
-                    service.imageUrl,
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.cover,
-                  ),
+                  leading: service.imageUrl != null
+                      ? Image.network(
+                          service.imageUrl!,
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.cover,
+                        )
+                      : const Icon(Icons.image),
                   title: Text(service.title),
-                  subtitle: Row(
-                    children: [
-                      const Icon(
-                        Icons.star,
-                        size: 16,
-                        color: Colors.amber,
-                      ),
-                      Text(' ${service.rating} (${service.reviewCount})'),
-                    ],
+                  subtitle: Text(
+                    '\$${service.price.toStringAsFixed(2)} - Category ${service.categoryId}',
                   ),
                   trailing: IconButton(
                     icon: const Icon(
@@ -53,7 +48,7 @@ class FavoritesScreen extends StatelessWidget {
                       color: Colors.red,
                     ),
                     onPressed: () {
-                      favorites.removeFromFavorites(service.id);
+                      favorites.removeFromFavorites(service.id.toString());
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content:

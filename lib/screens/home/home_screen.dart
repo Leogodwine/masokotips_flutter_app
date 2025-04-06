@@ -18,6 +18,7 @@ import '../categories/main_categories_screen.dart';
 import '../transport/transport_categories_screen.dart';
 import '../profile/edit_profile_screen.dart';
 import '../profile/address_management_screen.dart';
+import '../provider/service_provider_dashboard_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -350,30 +351,30 @@ class _HomeScreenState extends State<HomeScreen> {
           selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
           unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
           elevation: 8,
-          items: [
+          items: const [
             BottomNavigationBarItem(
-              icon: const Icon(Icons.home_rounded),
-              activeIcon: const Icon(Icons.home),
+              icon: Icon(Icons.home_rounded),
+              activeIcon: Icon(Icons.home),
               label: 'Home',
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.shopping_basket_outlined),
-              activeIcon: const Icon(Icons.shopping_basket),
+              icon: Icon(Icons.shopping_basket_outlined),
+              activeIcon: Icon(Icons.shopping_basket),
               label: 'Products',
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.shopping_cart_outlined),
-              activeIcon: const Icon(Icons.shopping_cart),
+              icon: Icon(Icons.shopping_cart_outlined),
+              activeIcon: Icon(Icons.shopping_cart),
               label: 'Cart',
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.receipt_long_outlined),
-              activeIcon: const Icon(Icons.receipt_long),
+              icon: Icon(Icons.receipt_long_outlined),
+              activeIcon: Icon(Icons.receipt_long),
               label: 'Orders',
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.person_outline),
-              activeIcon: const Icon(Icons.person),
+              icon: Icon(Icons.person_outline),
+              activeIcon: Icon(Icons.person),
               label: 'Profile',
             ),
           ],
@@ -440,7 +441,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Text(
                             user?.email ?? 'Not logged in',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
+                              color: Colors.white.withValues(alpha: 204),
                               fontSize: 14,
                             ),
                           ),
@@ -460,7 +461,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 51),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
@@ -531,6 +532,22 @@ class _HomeScreenState extends State<HomeScreen> {
                               MaterialPageRoute(
                                 builder: (context) =>
                                     const SellerDashboardScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      if (user?.roles.contains('service_provider') ?? false)
+                        _buildDrawerItem(
+                          context,
+                          icon: Icons.handyman,
+                          title: 'Service Provider Dashboard',
+                          onTap: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const ServiceProviderDashboardScreen(),
                               ),
                             );
                           },

@@ -92,9 +92,8 @@ class Transport {
       vehicleLocation: json['vehicle_location'] ?? '',
       vehicleType: json['vehicle_type'] ?? '',
       price: double.tryParse(json['price']?.toString() ?? '0') ?? 0.0,
-      amenities: json['amenities'] != null
-          ? List<String>.from(json['amenities'])
-          : null,
+      amenities:
+          json['amenities'] != null ? List<String>.from(json['amenities']) : [],
       status: json['status'] ?? 'active',
       imageUrl: json['image_url'],
       capacity: double.tryParse(json['capacity']?.toString() ?? '0') ?? 0.0,
@@ -112,8 +111,13 @@ class Transport {
       hasInsurance: json['has_insurance'] ?? false,
       insuranceDetails: json['insurance_details'],
       certifications: json['certifications'] != null
-          ? List<String>.from(json['certifications'])
-          : null,
+          ? (json['certifications'] is Map
+              ? (json['certifications'] as Map)
+                  .values
+                  .map((e) => e.toString())
+                  .toList()
+              : List<String>.from(json['certifications']))
+          : [],
       isAvailable: json['is_available'] ?? true,
       ownerName: json['owner_name'] ?? '',
       pricePerKg: json['price_per_kg'] != null
@@ -121,10 +125,12 @@ class Transport {
           : null,
       driverName: json['driver_name'] ?? '',
       driverPhone: json['driver_phone'] ?? '',
-      createdAt: DateTime.parse(
-          json['created_at'] ?? DateTime.now().toIso8601String()),
-      updatedAt: DateTime.parse(
-          json['updated_at'] ?? DateTime.now().toIso8601String()),
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
+          : DateTime.now(),
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'])
+          : DateTime.now(),
       driver: json['driver'],
     );
   }
