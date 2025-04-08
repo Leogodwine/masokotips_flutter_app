@@ -18,7 +18,6 @@ import '../categories/main_categories_screen.dart';
 import '../transport/transport_categories_screen.dart';
 import '../profile/edit_profile_screen.dart';
 import '../profile/address_management_screen.dart';
-import '../provider/service_provider_dashboard_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -546,8 +545,16 @@ class _HomeScreenState extends State<HomeScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    const ServiceProviderDashboardScreen(),
+                                builder: (context) => Scaffold(
+                                  appBar: AppBar(
+                                    title: const Text(
+                                        'Service Provider Dashboard'),
+                                  ),
+                                  body: const Center(
+                                    child: Text(
+                                        'Service provider dashboard is currently unavailable'),
+                                  ),
+                                ),
                               ),
                             );
                           },

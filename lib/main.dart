@@ -23,12 +23,10 @@ import 'screens/transport/add_transport_screen.dart';
 import 'screens/organic_products_screen.dart';
 import 'screens/edit_organic_product_screen.dart';
 import 'screens/transport/edit_transport_screen.dart';
-import 'screens/provider/service_provider_dashboard_screen.dart';
 import 'screens/provider/add_service_screen.dart';
 import 'package:masoko_tips/models/transport.dart';
 import 'services/service_service.dart';
 import 'screens/services/service_categories_screen.dart';
-import 'screens/services/agricultural_services_screen.dart';
 import 'screens/services/service_search_screen.dart';
 import 'screens/admin/market_info_management_screen.dart';
 import 'screens/market_info_screen.dart';
@@ -36,6 +34,7 @@ import 'screens/admin/create_admin_screen.dart';
 import 'screens/admin/admin_login_screen.dart';
 import 'providers/admin_provider.dart';
 import 'screens/admin_dashboard_screen.dart';
+import 'config/theme_config.dart';
 
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -107,39 +106,15 @@ class _AppContentState extends State<AppContent> {
               .read<OrganicProductProvider>()
               .service
               .setAuthToken(authProvider.token!);
+          // Initialize admin provider with auth token
+          context.read<AdminProvider>().setAuthToken(authProvider.token!);
         }
 
         return MaterialApp(
           scaffoldMessengerKey: scaffoldMessengerKey,
           title: 'maSOKOtips',
           debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.green,
-              brightness: Brightness.light,
-            ),
-            useMaterial3: true,
-            fontFamily: 'Poppins',
-            appBarTheme: const AppBarTheme(
-              centerTitle: true,
-              elevation: 0,
-            ),
-            elevatedButtonTheme: ElevatedButtonThemeData(
-              style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-            cardTheme: CardTheme(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
+          theme: ThemeConfig.getThemeData(),
           initialRoute: '/home',
           routes: {
             '/login': (context) => const LoginScreen(),
@@ -151,8 +126,6 @@ class _AppContentState extends State<AppContent> {
             '/profile': (context) => const ProfileScreen(),
             '/developer_settings': (context) => const DeveloperSettingsScreen(),
             '/seller/dashboard': (context) => const SellerDashboardScreen(),
-            '/provider/dashboard': (context) =>
-                const ServiceProviderDashboardScreen(),
             '/provider/add-service': (context) {
               final serviceService = ServiceService();
               final authProvider =
@@ -160,11 +133,14 @@ class _AppContentState extends State<AppContent> {
               if (authProvider.token != null) {
                 serviceService.setAuthToken(authProvider.token!);
               }
+              final args = ModalRoute.of(context)!.settings.arguments
+                  as Map<String, dynamic>;
+              final category = args['category'];
+              final onServiceAdded = args['onServiceAdded'];
               return AddServiceScreen(
-                onServiceAdded: (service) {
-                  Navigator.pop(context);
-                },
+                onServiceAdded: onServiceAdded,
                 serviceService: serviceService,
+                category: category,
               );
             },
             '/transport/list': (context) =>
@@ -179,8 +155,6 @@ class _AppContentState extends State<AppContent> {
             '/organic-products/edit': (context) =>
                 const EditOrganicProductScreen(),
             '/services': (context) => const ServiceCategoriesScreen(),
-            '/services/agricultural': (context) =>
-                const AgriculturalServicesScreen(),
             '/services/search': (context) => const ServiceSearchScreen(),
             '/market-info': (context) => const MarketInfoScreen(),
             '/admin/market-info': (context) =>

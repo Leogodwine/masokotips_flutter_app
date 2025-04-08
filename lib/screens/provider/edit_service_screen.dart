@@ -27,26 +27,19 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
   late final TextEditingController _descriptionController;
   late final TextEditingController _priceController;
   late final TextEditingController _categoryController;
+  late final TextEditingController _subcategoryController;
   File? _imageFile;
   bool _isLoading = false;
   String? _error;
 
-  // Agricultural Services subcategories
-  final List<String> _agriculturalSubcategories = [
-    'Packaging Materials',
-    'Hydroponics',
-    'Fertilizer',
-    'Organic Manure',
-    'Machinery',
-    'Beehive and Aquatic',
-    'Food and Beverage',
-    'Cold Rooms Services',
-    'Machinery and Rental Services',
-    'Agronomist Services',
-    'Financial Services',
-    'Irrigation Services',
-    'Branding and Consultation Services'
-  ];
+  // Service categories with their IDs
+  final Map<int, String> _categories = {
+    1: 'Buyers & Sellers',
+    2: 'Transport',
+    3: 'Services',
+    4: 'Organic Products',
+    5: 'Other Services',
+  };
 
   String? _selectedSubcategory;
   int _selectedCategoryId = 1;
@@ -61,6 +54,8 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
         TextEditingController(text: widget.service.price.toString());
     _categoryController =
         TextEditingController(text: widget.service.categoryId.toString());
+    _subcategoryController =
+        TextEditingController(text: widget.service.subcategory ?? '');
     _selectedCategoryId = widget.service.categoryId;
     _selectedSubcategory = widget.service.subcategory;
   }
@@ -71,6 +66,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
     _descriptionController.dispose();
     _priceController.dispose();
     _categoryController.dispose();
+    _subcategoryController.dispose();
     super.dispose();
   }
 
@@ -124,8 +120,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                 description: _descriptionController.text,
                 price: double.parse(_priceController.text),
                 categoryId: _selectedCategoryId,
-                subcategory:
-                    _selectedCategoryId == 6 ? _selectedSubcategory : null,
+                subcategory: _selectedSubcategory,
               );
 
               serviceId = tempService.id.toString();
@@ -170,8 +165,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                 price: double.parse(_priceController.text),
                 categoryId: _selectedCategoryId,
                 imageUrl: imageUrl,
-                subcategory:
-                    _selectedCategoryId == 6 ? _selectedSubcategory : null,
+                subcategory: _selectedSubcategory,
               );
 
               widget.onServiceUpdated(updatedService);
@@ -198,7 +192,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
           price: double.parse(_priceController.text),
           categoryId: _selectedCategoryId,
           imageUrl: imageUrl ?? widget.service.imageUrl,
-          subcategory: _selectedCategoryId == 6 ? _selectedSubcategory : null,
+          subcategory: _selectedSubcategory,
         );
 
         widget.onServiceUpdated(updatedService);
@@ -225,7 +219,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Agricultural Service'),
+        title: const Text('Edit Service'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -296,41 +290,31 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                   labelText: 'Category',
                   border: OutlineInputBorder(),
                 ),
-                items: const [
-                  DropdownMenuItem(
-                      value: 6, child: Text('Agricultural Services')),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    _selectedCategoryId = value!;
-                    _selectedSubcategory = null;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: _selectedSubcategory,
-                decoration: const InputDecoration(
-                  labelText: 'Agricultural Service Type',
-                  border: OutlineInputBorder(),
-                ),
-                items: _agriculturalSubcategories.map((subcategory) {
+                items: _categories.entries.map((entry) {
                   return DropdownMenuItem(
-                    value: subcategory,
-                    child: Text(subcategory),
+                    value: entry.key,
+                    child: Text(entry.value),
                   );
                 }).toList(),
                 onChanged: (value) {
                   setState(() {
-                    _selectedSubcategory = value;
+                    _selectedCategoryId = value!;
+                    _selectedSubcategory = null;
+                    _subcategoryController.clear();
                   });
                 },
-                validator: (value) {
-                  if (_selectedCategoryId == 6 &&
-                      (value == null || value.isEmpty)) {
-                    return 'Please select a service type';
-                  }
-                  return null;
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _subcategoryController,
+                decoration: const InputDecoration(
+                  labelText: 'Subcategory (Optional)',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedSubcategory = value;
+                  });
                 },
               ),
               const SizedBox(height: 16),

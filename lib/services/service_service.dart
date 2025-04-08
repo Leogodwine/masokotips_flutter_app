@@ -72,6 +72,8 @@ class ServiceService {
       // Ensure baseUrl ends with a trailing slash
       final apiBaseUrl = baseUrl.endsWith('/') ? baseUrl : '$baseUrl/';
       Log.d('Fetching user services from: ${apiBaseUrl}my-services');
+      Log.d(
+          'Using auth token: ${_authToken != null ? 'Token is set' : 'No token set'}');
 
       final response = await http.get(
         Uri.parse('${apiBaseUrl}my-services'),
@@ -83,14 +85,35 @@ class ServiceService {
       );
 
       Log.d('User services API response status: ${response.statusCode}');
+      Log.d('User services API response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        Log.d('Decoded response data type: ${data.runtimeType}');
 
         // Check if the response has the expected structure
-        if (data is Map<String, dynamic> && data.containsKey('data')) {
-          final List<dynamic> servicesJson = data['data'];
-          return servicesJson.map((json) => Service.fromJson(json)).toList();
+        if (data is Map<String, dynamic>) {
+          Log.d('Response keys: ${data.keys.join(', ')}');
+
+          // Check if data contains 'data' key
+          if (data.containsKey('data')) {
+            final List<dynamic> servicesJson = data['data'];
+            Log.d('Found ${servicesJson.length} services in data.data');
+            return servicesJson.map((json) => Service.fromJson(json)).toList();
+          }
+          // Check if data contains 'services' key
+          else if (data.containsKey('services')) {
+            final List<dynamic> servicesJson = data['services'];
+            Log.d('Found ${servicesJson.length} services in data.services');
+            return servicesJson.map((json) => Service.fromJson(json)).toList();
+          } else {
+            Log.e('Unexpected API response structure: $data');
+            return [];
+          }
+        } else if (data is List) {
+          // Direct list of services
+          Log.d('Response is a direct list with ${data.length} items');
+          return data.map((json) => Service.fromJson(json)).toList();
         } else {
           Log.e('Unexpected API response structure: $data');
           return [];
@@ -99,13 +122,18 @@ class ServiceService {
         // No services found
         Log.d('No services found for the current user');
         return [];
+      } else if (response.statusCode == 401) {
+        // Unauthorized
+        Log.e('Unauthorized access. Token might be invalid or expired.');
+        throw Exception('Unauthorized access. Please log in again.');
       } else {
         Log.e(
             'Failed to load services. Status code: ${response.statusCode}, Body: ${response.body}');
         throw Exception('Failed to load services: ${response.body}');
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       Log.e('Error loading services: $e');
+      Log.e('Stack trace: $stackTrace');
       throw Exception('Error loading services: $e');
     }
   }

@@ -6,7 +6,6 @@ import 'developer_settings_screen.dart';
 import 'edit_profile_screen.dart';
 import './address_management_screen.dart';
 import '../seller/seller_dashboard_screen.dart';
-import '../provider/service_provider_dashboard_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -141,13 +140,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               icon: Icons.handyman,
                               label: 'Service Provider',
                               onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const ServiceProviderDashboardScreen(),
+                                // Service provider dashboard temporarily disabled
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        'Service provider dashboard is currently unavailable'),
                                   ),
                                 );
+                              },
+                            ),
+                          if (user.roles.contains('admin'))
+                            _buildQuickActionButton(
+                              context,
+                              icon: Icons.admin_panel_settings,
+                              label: 'Admin Dashboard',
+                              onPressed: () {
+                                Navigator.pushNamed(
+                                    context, '/admin/dashboard');
                               },
                             ),
                           _buildQuickActionButton(
@@ -299,11 +308,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         title: const Text('Service Provider Dashboard'),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const ServiceProviderDashboardScreen(),
+                          // Service provider dashboard temporarily disabled
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'Service provider dashboard is currently unavailable'),
                             ),
                           );
                         },
@@ -510,7 +519,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   IconData _getRoleIcon(String role) {
-    // Return the appropriate icon based on the role
     switch (role) {
       case 'admin':
         return Icons.admin_panel_settings;
@@ -526,17 +534,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   String _formatRoleName(String role) {
-    // Implement the logic to format the role name
-    // For example, you can use a switch statement or a map to return the correct formatted name
     switch (role) {
       case 'admin':
         return 'Admin';
       case 'seller':
         return 'Seller';
+      case 'service_provider':
+        return 'Service Provider';
       case 'buyer':
         return 'Buyer';
       default:
-        return role;
+        return role.substring(0, 1).toUpperCase() + role.substring(1);
     }
   }
 

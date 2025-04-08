@@ -42,13 +42,6 @@ class AdminAuthService {
     });
   }
 
-  // Hash password with SHA-256 before sending to server
-  String _hashPassword(String password) {
-    final bytes = utf8.encode(password);
-    final digest = sha256.convert(bytes);
-    return digest.toString();
-  }
-
   // Generate a secure session ID
   String _generateSessionId() {
     final random = DateTime.now().millisecondsSinceEpoch.toString();
@@ -61,7 +54,7 @@ class AdminAuthService {
   Future<void> _saveAdminSession(String sessionId) async {
     final prefs = await SharedPreferences.getInstance();
     final expiryTime =
-        DateTime.now().add(Duration(minutes: _sessionTimeoutMinutes));
+        DateTime.now().add(const Duration(minutes: _sessionTimeoutMinutes));
     await prefs.setString(_adminSessionKey, sessionId);
     await prefs.setString(
         '${_adminSessionKey}_expiry', expiryTime.toIso8601String());
@@ -101,6 +94,7 @@ class AdminAuthService {
       final deviceInfo = {
         'platform': 'flutter',
         'timestamp': DateTime.now().toIso8601String(),
+        'device_name': 'Flutter App'
       };
 
       Log.d('Sending verification request to: $baseUrl/admin/verify');
@@ -109,6 +103,7 @@ class AdminAuthService {
         Uri.parse('$baseUrl/admin/verify'),
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
           if (_authToken != null) 'Authorization': 'Bearer $_authToken',
         },
         body: json.encode({
@@ -128,25 +123,11 @@ class AdminAuthService {
           await _saveAdminSession(sessionId);
           Log.d('Admin credentials verified successfully');
           return true;
-        } else {
-          Log.e(
-              'Admin verification failed: ${data['message'] ?? 'Unknown error'}');
-          return false;
         }
-      } else if (response.statusCode == 401) {
-        Log.e('Admin verification failed: Unauthorized');
-        return false;
-      } else if (response.statusCode == 403) {
-        Log.e('Admin verification failed: User is not an admin');
-        return false;
-      } else if (response.statusCode == 404) {
-        Log.e('Admin verification failed: Admin not found');
-        return false;
-      } else {
-        Log.e(
-            'Admin verification failed with status code: ${response.statusCode}');
-        return false;
       }
+
+      Log.e('Admin verification failed: ${response.body}');
+      return false;
     } catch (e) {
       Log.e('Error verifying admin credentials: $e');
       return false;

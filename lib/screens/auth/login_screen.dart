@@ -6,7 +6,6 @@ import 'package:flutter/gestures.dart';
 import '../../widgets/loading_button.dart';
 import '../../widgets/api_error_widget.dart';
 import 'forgot_password_screen.dart';
-import '../profile/profile_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -47,12 +46,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
         // Only navigate if the widget is still mounted
         if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const ProfileScreen(),
-            ),
-          );
+          final user = authProvider.user;
+          if (user != null) {
+            // Debug print user roles
+            print('User roles: ${user.roles}');
+
+            // Navigate to profile screen first for all users
+            print('Navigating to profile screen');
+            Navigator.pushReplacementNamed(context, '/profile');
+          } else {
+            print('User is null after login');
+            Navigator.pushReplacementNamed(context, '/home');
+          }
         }
       } catch (e) {
         setState(() {

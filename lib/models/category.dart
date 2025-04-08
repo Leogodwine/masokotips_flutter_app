@@ -1,68 +1,46 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'category.g.dart';
+
+@JsonSerializable()
 class Category {
   final int id;
   final String name;
-  final String slug;
-  final String? icon;
   final String? description;
+  final String? imageUrl;
+  final List<String>? subcategories;
+  final String? slug;
   final bool isActive;
   final int sortOrder;
-  final String? image;
+  final String? icon;
+  @JsonKey(name: 'parent_id')
   final int? parentId;
+  @JsonKey(ignore: true)
   List<Category>? children;
+  @JsonKey(name: 'products_count')
   final int productsCount;
+  @JsonKey(ignore: true)
+  final List<dynamic>? services;
 
   Category({
     required this.id,
     required this.name,
-    required this.slug,
-    this.icon,
     this.description,
-    required this.isActive,
-    required this.sortOrder,
-    this.image,
-    this.parentId,
+    this.imageUrl,
+    this.subcategories,
+    this.slug,
+    this.isActive = true,
+    this.sortOrder = 0,
+    this.icon,
     this.children,
+    this.parentId,
     this.productsCount = 0,
+    this.services,
   });
 
-  factory Category.fromJson(Map<String, dynamic> json) {
-    return Category(
-      id: json['id'],
-      name: json['name'],
-      slug: json['slug'],
-      icon: json['icon'],
-      description: json['description'],
-      isActive: json['is_active'] ?? true,
-      sortOrder: json['sort_order'] ?? 0,
-      image: json['image'],
-      parentId: json['parent_id'],
-      productsCount: json['products_count'] ?? 0,
-      children: null, // We'll set children later in CategoryProvider
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'slug': slug,
-      'icon': icon,
-      'description': description,
-      'is_active': isActive,
-      'sort_order': sortOrder,
-      'image': image,
-      'parent_id': parentId,
-      'products_count': productsCount,
-      'children': children?.map((child) => child.toJson()).toList(),
-    };
-  }
-
-  bool get isMainCategory => parentId == null;
-
-  @override
-  String toString() {
-    return 'Category(id: $id, name: $name, slug: $slug, parentId: $parentId)';
-  }
+  factory Category.fromJson(Map<String, dynamic> json) =>
+      _$CategoryFromJson(json);
+  Map<String, dynamic> toJson() => _$CategoryToJson(this);
 }
 
 // Predefined categories and subcategories

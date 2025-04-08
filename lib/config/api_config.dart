@@ -5,11 +5,11 @@ class ApiConfig {
   // Base URL for API requests
   static String get baseUrl {
     if (kIsWeb) {
-      return 'http://127.0.0.1:8000/api'; // Web
+      return 'http://localhost:8000/api'; // Web
     } else if (Platform.isAndroid) {
       return 'http://10.0.2.2:8000/api'; // Android emulator
     } else {
-      return 'http://127.0.0.1:8000/api'; // iOS simulator or other platforms
+      return 'http://localhost:8000/api'; // iOS simulator or other platforms
     }
   }
 
@@ -25,7 +25,7 @@ class ApiConfig {
   // List of alternative base URLs for different environments
   static const List<String> alternativeBaseUrls = [
     'http://10.0.2.2:8000/api', // Android emulator
-    'http://127.0.0.1:8000/api', // Local development
+    'http://localhost:8000/api', // Local development
     'https://api.yourdomain.com/api', // Production
   ];
 

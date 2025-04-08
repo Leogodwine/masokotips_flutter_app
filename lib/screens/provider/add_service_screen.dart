@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../models/service.dart';
+import '../../models/category.dart';
 import '../../services/service_service.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -8,11 +9,13 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 class AddServiceScreen extends StatefulWidget {
   final Function(Service) onServiceAdded;
   final ServiceService serviceService;
+  final Category? category;
 
   const AddServiceScreen({
     super.key,
     required this.onServiceAdded,
     required this.serviceService,
+    this.category,
   });
 
   @override
@@ -27,7 +30,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   File? _imageFile;
   bool _isLoading = false;
   String? _error;
-  int _selectedCategoryId = 1; // Default category ID
+  late int _selectedCategoryId;
 
   // Service categories with their IDs
   final Map<int, String> _categories = {
@@ -35,20 +38,17 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
     2: 'Transport',
     3: 'Services',
     4: 'Organic Products',
-    6: 'Agricultural Services',
+    5: 'Other Services',
   };
 
-  // Agricultural Services subcategories
-  final List<String> _agriculturalSubcategories = [
-    'Cold Rooms Services',
-    'Machinery and Rental Services',
-    'Agronomist Services',
-    'Financial Services',
-    'Irrigation Services',
-    'Branding and Consultation Services'
-  ];
-
   String? _selectedSubcategory;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedCategoryId =
+        widget.category?.id ?? 1; // Use provided category ID or default to 1
+  }
 
   @override
   void dispose() {
@@ -91,7 +91,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
           price: double.parse(_priceController.text),
           categoryId: _selectedCategoryId,
           imageUrl: imageUrl,
-          subcategory: _selectedCategoryId == 6 ? _selectedSubcategory : null,
+          subcategory: _selectedSubcategory,
         );
 
         widget.onServiceAdded(service);
@@ -201,34 +201,18 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                   });
                 },
               ),
-              if (_selectedCategoryId == 6) ...[
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: _selectedSubcategory,
-                  decoration: const InputDecoration(
-                    labelText: 'Agricultural Service Type',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: _agriculturalSubcategories.map((subcategory) {
-                    return DropdownMenuItem(
-                      value: subcategory,
-                      child: Text(subcategory),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedSubcategory = value;
-                    });
-                  },
-                  validator: (value) {
-                    if (_selectedCategoryId == 6 &&
-                        (value == null || value.isEmpty)) {
-                      return 'Please select a service type';
-                    }
-                    return null;
-                  },
+              const SizedBox(height: 16),
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Subcategory (Optional)',
+                  border: OutlineInputBorder(),
                 ),
-              ],
+                onChanged: (value) {
+                  setState(() {
+                    _selectedSubcategory = value;
+                  });
+                },
+              ),
               const SizedBox(height: 16),
               ElevatedButton.icon(
                 onPressed: _pickImage,
