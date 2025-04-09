@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../widgets/loading_button.dart';
 import '../../utils/logger.dart';
 import '../../services/admin_auth_service.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
 
 class AdminLoginScreen extends StatefulWidget {
   const AdminLoginScreen({super.key});
@@ -33,10 +35,11 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
         _errorMessage = null;
       });
 
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
       try {
         Log.d('Attempting admin login for email: ${_emailController.text}');
 
-        // First verify admin credentials
         final isVerified = await _adminAuthService.verifyAdminCredentials(
           _emailController.text.trim(),
           _passwordController.text,
@@ -46,17 +49,24 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
           setState(() {
             _errorMessage = 'Invalid email or password. Please try again.';
           });
+          setState(() => _isLoading = false);
           return;
         }
 
-        // If verified, proceed with login
-        final response = await _adminAuthService.loginAdmin(
+        final adminLoginResponse = await _adminAuthService.loginAdmin(
           _emailController.text.trim(),
           _passwordController.text,
         );
 
-        if (response['success'] == true) {
-          Log.d('Admin login successful');
+        if (adminLoginResponse['success'] == true) {
+          Log.d('AdminAuthService login successful. Updating AuthProvider.');
+
+          await authProvider.login(
+            _emailController.text.trim(),
+            _passwordController.text,
+          );
+
+          Log.d('AuthProvider updated. Navigating to admin dashboard.');
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -67,18 +77,30 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
             Navigator.pushReplacementNamed(context, '/admin/dashboard');
           }
         } else {
-          Log.e('Admin login failed: ${response['message']}');
+          Log.e(
+              'AdminAuthService login failed: ${adminLoginResponse['message']}');
           setState(() {
-            _errorMessage =
-                response['message'] ?? 'Login failed. Please try again.';
+            _errorMessage = adminLoginResponse['message'] ??
+                'Admin login failed. Please try again.';
           });
         }
       } catch (e) {
         Log.e('Admin login error: $e');
         setState(() {
-          _errorMessage = e.toString().contains('Exception:')
-              ? e.toString().split('Exception:')[1].trim()
-              : 'An error occurred during login. Please try again.';
+          String displayError = 'An error occurred during login.';
+          if (e is Exception) {
+            final message = e.toString();
+            if (message.contains('Invalid response format') ||
+                message.contains('Token not found')) {
+              displayError = 'Login failed: Unexpected response from server.';
+            } else if (message.contains('Login failed:')) {
+              displayError =
+                  message.replaceFirst('Exception: Login failed: ', '');
+            } else {
+              displayError = message.replaceFirst('Exception: ', '');
+            }
+          }
+          _errorMessage = displayError;
         });
       } finally {
         if (mounted) {

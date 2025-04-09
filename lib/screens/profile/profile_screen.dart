@@ -159,6 +159,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     context, '/admin/dashboard');
                               },
                             ),
+                          if (user.roles.contains('admin'))
+                            _buildQuickActionButton(
+                              context,
+                              icon: Icons.info_outline,
+                              label: 'Market Info',
+                              onPressed: () {
+                                Navigator.pushNamed(
+                                    context, '/admin/market-info');
+                              },
+                            ),
                           _buildQuickActionButton(
                             context,
                             icon: Icons.shopping_bag,
@@ -486,6 +496,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
                 ),
+              ],
+
+              // Add Market Info Management for admin users
+              if (isLoggedIn &&
+                  user != null &&
+                  user.roles.contains('admin')) ...[
+                ListTile(
+                  leading: const Icon(Icons.info_outline),
+                  title: const Text('Market Information'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.pushNamed(context, '/admin/market-info');
+                  },
+                ),
+                const Divider(height: 1),
               ],
             ],
           ),

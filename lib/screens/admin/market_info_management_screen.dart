@@ -79,7 +79,7 @@ class _MarketInfoManagementScreenState
   Future<void> _openAddMarketInfoScreen() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    // Check if user is authenticated
+    // Check if user is authenticated and is an admin
     if (!authProvider.isAuthenticated) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -88,8 +88,21 @@ class _MarketInfoManagementScreenState
             duration: Duration(seconds: 2),
           ),
         );
-        // Navigate to login screen
-        Navigator.pushNamed(context, '/login');
+        // Navigate to admin login screen instead of regular login
+        Navigator.pushNamed(context, '/admin/login');
+      }
+      return;
+    }
+
+    // Check if user has admin role
+    if (!authProvider.user!.roles.contains('admin')) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Only administrators can add market information'),
+            duration: Duration(seconds: 2),
+          ),
+        );
       }
       return;
     }
@@ -125,8 +138,21 @@ class _MarketInfoManagementScreenState
             duration: Duration(seconds: 2),
           ),
         );
-        // Navigate to login screen
-        Navigator.pushNamed(context, '/login');
+        // Navigate to admin login screen instead of regular login
+        Navigator.pushNamed(context, '/admin/login');
+      }
+      return;
+    }
+
+    // Check if user has admin role
+    if (!authProvider.user!.roles.contains('admin')) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Only administrators can edit market information'),
+            duration: Duration(seconds: 2),
+          ),
+        );
       }
       return;
     }

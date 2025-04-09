@@ -19,42 +19,88 @@ class MarketInfoService {
 
   Future<List<MarketInfo>> getAllMarketInfo() async {
     try {
-      final apiBaseUrl = baseUrl.endsWith('/') ? baseUrl : '$baseUrl/';
-      Log.d('Fetching market information from: ${apiBaseUrl}market-info');
+      final apiBaseUrl = baseUrl.replaceAll('/api', '');
+      final endpoint = '${apiBaseUrl}/api/admin/market-info-list';
+
+      Log.d('Base URL: $baseUrl');
+      Log.d('API Base URL: $apiBaseUrl');
+      Log.d('Full endpoint: $endpoint');
+      Log.d('Auth token present: ${_authToken != null}');
+      if (_authToken != null) {
+        Log.d('Auth token length: ${_authToken!.length}');
+      }
+
+      final headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        if (_authToken != null) 'Authorization': 'Bearer $_authToken',
+      };
+
+      Log.d('Request headers: $headers');
 
       final response = await http.get(
-        Uri.parse('${apiBaseUrl}market-info'),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-        },
+        Uri.parse(endpoint),
+        headers: headers,
       );
 
       Log.d('Market info API response status: ${response.statusCode}');
+      Log.d('Market info API response headers: ${response.headers}');
+      Log.d('Market info API response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        try {
+          final data = json.decode(response.body);
+          Log.d('Decoded response data: $data');
 
-        if (data is Map<String, dynamic> && data.containsKey('data')) {
-          final List<dynamic> marketInfoJson = data['data'];
-          return marketInfoJson
-              .map((json) => MarketInfo.fromJson(json))
-              .toList();
-        } else {
-          Log.e('Unexpected API response structure: $data');
+          if (data is Map<String, dynamic>) {
+            if (data.containsKey('data')) {
+              final dynamic dataField = data['data'];
+              if (dataField is List) {
+                Log.d('Market info JSON array length: ${dataField.length}');
+                final List<MarketInfo> result = [];
+                for (var item in dataField) {
+                  try {
+                    if (item is Map<String, dynamic>) {
+                      result.add(MarketInfo.fromJson(item));
+                    } else {
+                      Log.e('Invalid item format: $item');
+                    }
+                  } catch (e) {
+                    Log.e('Error parsing market info item: $e');
+                  }
+                }
+                return result;
+              } else {
+                Log.d('Data field is not a list, returning empty array');
+                return [];
+              }
+            } else {
+              Log.d('Response missing data field, returning empty array');
+              return [];
+            }
+          } else {
+            Log.d('Response is not a map, returning empty array');
+            return [];
+          }
+        } catch (e) {
+          Log.e('Error parsing response JSON: $e');
           return [];
         }
       } else if (response.statusCode == 404) {
-        Log.d('No market information found');
+        Log.d('No market information found (404)');
         return [];
+      } else if (response.statusCode == 401) {
+        Log.e('Unauthorized access. Please check your authentication token.');
+        throw Exception(
+            'Unauthorized access. Please check your authentication token.');
       } else {
         Log.e(
             'Failed to load market information. Status code: ${response.statusCode}, Body: ${response.body}');
         throw Exception('Failed to load market information: ${response.body}');
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       Log.e('Error loading market information: $e');
+      Log.e('Stack trace: $stackTrace');
       throw Exception('Error loading market information: $e');
     }
   }
@@ -83,8 +129,8 @@ class MarketInfoService {
 
       Log.d('Request body: ${json.encode(requestBody)}');
 
-      final apiBaseUrl = baseUrl.endsWith('/') ? baseUrl : '$baseUrl/';
-      final endpoint = '${apiBaseUrl}market-info';
+      final apiBaseUrl = baseUrl.replaceAll('/api', '');
+      final endpoint = '${apiBaseUrl}/api/admin/market-info-create';
 
       Log.d('Adding market info at endpoint: $endpoint');
 
@@ -155,7 +201,7 @@ class MarketInfoService {
     bool? isActive,
     bool? isFeatured,
   }) async {
-    final apiBaseUrl = baseUrl.endsWith('/') ? baseUrl : '$baseUrl/';
+    final apiBaseUrl = baseUrl.replaceAll('/api', '');
 
     final requestBody = {
       'title': title,
@@ -168,7 +214,7 @@ class MarketInfoService {
     };
 
     final response = await http.put(
-      Uri.parse('${apiBaseUrl}market-info/$id'),
+      Uri.parse('${apiBaseUrl}/api/admin/market-info-update/$id'),
       headers: {
         'Authorization': 'Bearer $_authToken',
         'Accept': 'application/json',
@@ -185,10 +231,10 @@ class MarketInfoService {
   }
 
   Future<void> deleteMarketInfo(String id) async {
-    final apiBaseUrl = baseUrl.endsWith('/') ? baseUrl : '$baseUrl/';
+    final apiBaseUrl = baseUrl.replaceAll('/api', '');
 
     final response = await http.delete(
-      Uri.parse('${apiBaseUrl}market-info/$id'),
+      Uri.parse('${apiBaseUrl}/api/admin/market-info-delete/$id'),
       headers: {
         'Authorization': 'Bearer $_authToken',
         'Accept': 'application/json',
@@ -211,8 +257,8 @@ class MarketInfoService {
             'Blob URL detected in web environment - special handling required');
       }
 
-      final apiBaseUrl = baseUrl.endsWith('/') ? baseUrl : '$baseUrl/';
-      final endpoint = '${apiBaseUrl}market-info/upload-image';
+      final apiBaseUrl = baseUrl.replaceAll('/api', '');
+      final endpoint = '${apiBaseUrl}/api/admin/market-info-upload-image';
 
       Log.d('Uploading image to endpoint: $endpoint');
 

@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'dart:convert';
 
 part 'user.g.dart';
 
@@ -49,6 +50,19 @@ class User {
       // Convert single role string to an array of strings
       json['roles'] = [json['role']];
     }
+
+    // Handle cases where roles is a string representation of a list
+    if (json['roles'] is String) {
+      try {
+        // Try to parse the string as JSON
+        final List<dynamic> parsedRoles = jsonDecode(json['roles']);
+        json['roles'] = parsedRoles.map((e) => e.toString()).toList();
+      } catch (e) {
+        // If parsing fails, treat it as a single role
+        json['roles'] = [json['roles']];
+      }
+    }
+
     return _$UserFromJson(json);
   }
   Map<String, dynamic> toJson() => _$UserToJson(this);
