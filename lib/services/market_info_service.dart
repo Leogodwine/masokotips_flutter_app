@@ -130,12 +130,11 @@ class MarketInfoService {
       Log.d('Request body: ${json.encode(requestBody)}');
 
       final apiBaseUrl = baseUrl.replaceAll('/api', '');
-      final endpoint = '${apiBaseUrl}/api/admin/market-info-create';
+      final endpoint = '${apiBaseUrl}/api/admin/market-info';
 
       Log.d('Adding market info at endpoint: $endpoint');
 
-      final response = await http
-          .post(
+      final response = await http.post(
         Uri.parse(endpoint),
         headers: {
           'Authorization': 'Bearer $_authToken',
@@ -143,13 +142,6 @@ class MarketInfoService {
           'Content-Type': 'application/json',
         },
         body: json.encode(requestBody),
-      )
-          .timeout(
-        const Duration(seconds: 10),
-        onTimeout: () {
-          Log.d('Request to $endpoint timed out');
-          throw TimeoutException('Request timed out');
-        },
       );
 
       Log.d('Add market info response status: ${response.statusCode}');

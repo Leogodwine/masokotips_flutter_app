@@ -3,47 +3,87 @@ import '../models/user.dart';
 import '../models/service.dart';
 import '../models/market_info.dart';
 import '../services/admin_service.dart';
+import '../services/admin_auth_service.dart';
+import '../models/admin_dashboard_data.dart';
+import '../utils/logger.dart';
 
 class AdminProvider with ChangeNotifier {
   final AdminService _adminService = AdminService();
+  final AdminAuthService _adminAuthService = AdminAuthService();
   bool _isLoading = false;
   String? _error;
   bool _isAdmin = false;
-  Map<String, dynamic>? _dashboardData;
+  AdminDashboardData? _dashboardData;
   List<User> _users = [];
   List<Service> _services = [];
   List<MarketInfo> _marketInfo = [];
 
+  AdminProvider() {
+    _initializeAuth();
+  }
+
+  Future<void> _initializeAuth() async {
+    try {
+      Log.d('Initializing admin auth');
+      await _adminAuthService.initializeAuthToken();
+      final token = _adminAuthService.authToken;
+      if (token != null) {
+        setAuthToken(token);
+        Log.d('Auth token initialized from storage');
+        await loadDashboardData();
+      } else {
+        Log.d('No stored auth token found');
+      }
+    } catch (e, stackTrace) {
+      Log.e('Error initializing auth: $e\n$stackTrace');
+    }
+  }
+
+  AdminDashboardData? get dashboardData => _dashboardData;
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get isAdmin => _isAdmin;
-  Map<String, dynamic>? get dashboardData => _dashboardData;
   List<User> get users => _users;
   List<Service> get services => _services;
   List<MarketInfo> get marketInfo => _marketInfo;
 
   void setAuthToken(String token) {
     _adminService.setAuthToken(token);
+    _adminAuthService.setAuthToken(token);
+    Log.d('Auth token set in both services');
   }
 
   Future<bool> login(String email, String password) async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
     try {
-      final response = await _adminService.login(email, password);
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
 
-      if (response.containsKey('token')) {
-        _isAdmin = true;
-        setAuthToken(response['token']);
-        return true;
+      Log.d('Attempting admin login for email: $email');
+
+      final success = await _adminAuthService.login(email, password);
+      Log.d('Login result: $success');
+
+      if (success) {
+        final token = _adminAuthService.authToken;
+        if (token != null) {
+          setAuthToken(token);
+          Log.d('Auth token set successfully');
+          await loadDashboardData();
+          return true;
+        } else {
+          Log.e('Login successful but no token received');
+          _error = 'Login successful but no token received';
+          return false;
+        }
       } else {
-        _error = 'Invalid admin credentials';
+        Log.e('Login failed');
+        _error = 'Invalid credentials';
         return false;
       }
-    } catch (e) {
-      _error = e.toString();
+    } catch (e, stackTrace) {
+      Log.e('Error during login: $e\n$stackTrace');
+      _error = 'Login failed: $e';
       return false;
     } finally {
       _isLoading = false;
@@ -77,14 +117,60 @@ class AdminProvider with ChangeNotifier {
   }
 
   Future<void> loadDashboardData() async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
     try {
-      _dashboardData = await _adminService.getDashboardData();
-    } catch (e) {
-      _error = e.toString();
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
+      Log.d('Starting to load dashboard data');
+
+      if (_adminAuthService.authToken == null) {
+        Log.e('No auth token available for dashboard request');
+        _error = 'Not authenticated. Please login again.';
+        return;
+      }
+
+      final response = await _adminAuthService.getDashboardData();
+      Log.d('Dashboard response received: ${response.toString()}');
+
+      if (response['success'] == true) {
+        final data = response['data'];
+        if (data == null) {
+          Log.e('Dashboard data is null');
+          _error = 'Failed to load dashboard data: No data received';
+          return;
+        }
+
+        try {
+          final dashboardData = data as Map<String, dynamic>;
+          Log.d('Parsing dashboard data: ${dashboardData.toString()}');
+
+          // Ensure all required fields are present
+          if (!dashboardData.containsKey('stats') ||
+              !dashboardData.containsKey('recent_activities') ||
+              !dashboardData.containsKey('system_info') ||
+              !dashboardData.containsKey('quick_links') ||
+              !dashboardData.containsKey('last_updated')) {
+            Log.e('Invalid dashboard data structure: Missing required fields');
+            _error = 'Invalid dashboard data structure';
+            return;
+          }
+
+          _dashboardData = AdminDashboardData.fromJson(dashboardData);
+          _error = null;
+          _isAdmin = true;
+          Log.d('Dashboard data loaded and parsed successfully');
+        } catch (e, stackTrace) {
+          Log.e('Error parsing dashboard data: $e\n$stackTrace');
+          _error = 'Failed to parse dashboard data: $e';
+        }
+      } else {
+        _error = response['message'] ?? 'Failed to load dashboard data';
+        Log.e('Dashboard load failed: $_error');
+      }
+    } catch (e, stackTrace) {
+      Log.e('Error loading dashboard data: $e\n$stackTrace');
+      _error = 'Failed to load dashboard data: $e';
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -276,12 +362,23 @@ class AdminProvider with ChangeNotifier {
     }
   }
 
-  void logout() {
-    _isAdmin = false;
-    _dashboardData = null;
-    _users = [];
-    _services = [];
-    _marketInfo = [];
+  Future<void> logout() async {
+    _isLoading = true;
     notifyListeners();
+
+    try {
+      await _adminAuthService.logout();
+      _dashboardData = null;
+      _error = null;
+      _isAdmin = false;
+      _users = [];
+      _services = [];
+      _marketInfo = [];
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }

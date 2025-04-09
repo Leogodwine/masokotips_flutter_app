@@ -70,9 +70,11 @@ class _MarketInfoManagementScreenState
         _loadMarketInfo(); // Refresh the list
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete market information: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to delete market information: $e')),
+        );
+      }
     }
   }
 

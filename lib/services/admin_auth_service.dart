@@ -18,6 +18,8 @@ class AdminAuthService {
 
   String get getBaseUrl => baseUrl;
 
+  String? get authToken => _authToken;
+
   // Initialize auth token from SharedPreferences
   Future<void> initializeAuthToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -91,25 +93,15 @@ class AdminAuthService {
     try {
       Log.d('Verifying admin credentials for email: $email');
 
-      final deviceInfo = {
-        'platform': 'flutter',
-        'timestamp': DateTime.now().toIso8601String(),
-        'device_name': 'Flutter App'
-      };
-
-      Log.d('Sending verification request to: $baseUrl/admin/verify');
-
       final response = await http.post(
-        Uri.parse('$baseUrl/admin/verify'),
+        Uri.parse('$baseUrl/admin/login'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          if (_authToken != null) 'Authorization': 'Bearer $_authToken',
         },
         body: json.encode({
           'email': email,
           'password': password,
-          'device_info': deviceInfo,
         }),
       );
 
@@ -118,11 +110,19 @@ class AdminAuthService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        if (data['success'] == true) {
-          final sessionId = _generateSessionId();
-          await _saveAdminSession(sessionId);
-          Log.d('Admin credentials verified successfully');
-          return true;
+        if (data['success'] == true && data['user'] != null) {
+          final user = data['user'];
+          if (user['is_admin'] == true ||
+              (user['roles'] as List).contains('admin')) {
+            // Set the auth token if available
+            if (data['token'] != null) {
+              setAuthToken(data['token']);
+            }
+            final sessionId = _generateSessionId();
+            await _saveAdminSession(sessionId);
+            Log.d('Admin credentials verified successfully');
+            return true;
+          }
         }
       }
 
@@ -134,18 +134,16 @@ class AdminAuthService {
     }
   }
 
-  // Login admin
+  // Login admin - simplified to avoid redundant API calls
   Future<Map<String, dynamic>> loginAdmin(String email, String password) async {
     try {
       Log.d('Logging in admin with email: $email');
-
-      Log.d('Sending login request to: $baseUrl/admin/login');
 
       final response = await http.post(
         Uri.parse('$baseUrl/admin/login'),
         headers: {
           'Content-Type': 'application/json',
-          if (_authToken != null) 'Authorization': 'Bearer $_authToken',
+          'Accept': 'application/json',
         },
         body: json.encode({
           'email': email,
@@ -238,6 +236,110 @@ class AdminAuthService {
     } catch (e) {
       Log.e('Error during admin logout: $e');
       rethrow;
+    }
+  }
+
+  Future<bool> login(String email, String password) async {
+    try {
+      Log.d('Attempting admin login for email: $email');
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/admin/login'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      Log.d('Login response status: ${response.statusCode}');
+      Log.d('Login response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success'] == true && data['token'] != null) {
+          setAuthToken(data['token']);
+          await _saveAdminSession(_generateSessionId());
+          Log.d('Admin login successful');
+          return true;
+        } else {
+          Log.e('Login failed: ${data['message'] ?? 'Unknown error'}');
+          return false;
+        }
+      } else if (response.statusCode == 401) {
+        Log.e('Login failed: Invalid credentials');
+        return false;
+      } else {
+        Log.e('Login failed with status: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      Log.e('Error during login: $e');
+      return false;
+    }
+  }
+
+  Future<Map<String, dynamic>> getDashboardData() async {
+    if (_authToken == null) {
+      Log.e('No auth token available for dashboard request');
+      throw Exception('Not authenticated. Please login again.');
+    }
+
+    try {
+      Log.d(
+          'Fetching dashboard data with token: ${_authToken!.substring(0, 10)}...');
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/admin/dashboard'),
+        headers: {
+          'Authorization': 'Bearer $_authToken',
+          'Accept': 'application/json',
+        },
+      );
+
+      Log.d('Dashboard response status: ${response.statusCode}');
+      Log.d('Dashboard response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data is! Map<String, dynamic>) {
+          Log.e('Invalid response format: ${data.runtimeType}');
+          throw Exception('Invalid response format');
+        }
+        return data;
+      } else if (response.statusCode == 401) {
+        _authToken = null; // Clear invalid token
+        Log.e('Session expired, clearing auth token');
+        throw Exception('Session expired. Please login again.');
+      } else {
+        Log.e('Dashboard request failed with status: ${response.statusCode}');
+        throw Exception('Failed to get dashboard data: ${response.statusCode}');
+      }
+    } catch (e, stackTrace) {
+      Log.e('Error fetching dashboard data: $e\n$stackTrace');
+      throw Exception('Failed to get dashboard data: $e');
+    }
+  }
+
+  Future<void> logout() async {
+    if (_authToken == null) {
+      return;
+    }
+
+    try {
+      await http.post(
+        Uri.parse('$baseUrl/admin/logout'),
+        headers: {
+          'Authorization': 'Bearer $_authToken',
+          'Accept': 'application/json',
+        },
+      );
+      _authToken = null;
+    } catch (e) {
+      throw Exception('Failed to logout: $e');
     }
   }
 }

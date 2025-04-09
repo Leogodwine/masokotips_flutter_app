@@ -48,75 +48,87 @@ class AdminManager {
 
   /// Opens the admin dashboard screen with security check
   static Future<void> openAdminDashboard(BuildContext context) async {
-    if (await isAdmin(context)) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const AdminDashboardScreen()),
-      );
-    } else {
+    final isAdminUser = await isAdmin(context);
+    if (!context.mounted) return;
+    if (!isAdminUser) {
       _showAccessDeniedDialog(context);
+      return;
     }
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AdminDashboardScreen()),
+    );
   }
 
   /// Opens the market info management screen with security check
   static Future<void> openMarketInfoManagement(BuildContext context) async {
-    if (await isAdmin(context)) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => const MarketInfoManagementScreen()),
-      );
-    } else {
+    final isAdminUser = await isAdmin(context);
+    if (!context.mounted) return;
+    if (!isAdminUser) {
       _showAccessDeniedDialog(context);
+      return;
     }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => const MarketInfoManagementScreen()),
+    );
   }
 
   /// Opens the user management screen with security check
   static Future<void> openUserManagement(BuildContext context) async {
-    if (await isAdmin(context)) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const UserManagementScreen()),
-      );
-    } else {
+    final isAdminUser = await isAdmin(context);
+    if (!context.mounted) return;
+    if (!isAdminUser) {
       _showAccessDeniedDialog(context);
+      return;
     }
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const UserManagementScreen()),
+    );
   }
 
   /// Opens the review moderation screen with security check
   static Future<void> openReviewModeration(BuildContext context) async {
-    if (await isAdmin(context)) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const ReviewModerationScreen()),
-      );
-    } else {
+    final isAdminUser = await isAdmin(context);
+    if (!context.mounted) return;
+    if (!isAdminUser) {
       _showAccessDeniedDialog(context);
+      return;
     }
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ReviewModerationScreen()),
+    );
   }
 
   /// Opens the analytics screen with security check
   static Future<void> openAnalytics(BuildContext context) async {
-    if (await isAdmin(context)) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const AnalyticsScreen()),
-      );
-    } else {
+    final isAdminUser = await isAdmin(context);
+    if (!context.mounted) return;
+    if (!isAdminUser) {
       _showAccessDeniedDialog(context);
+      return;
     }
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AnalyticsScreen()),
+    );
   }
 
   /// Opens the create admin screen with security check
   static Future<void> openCreateAdminScreen(BuildContext context) async {
-    if (await isAdmin(context)) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const CreateAdminScreen()),
-      );
-    } else {
+    final isAdminUser = await isAdmin(context);
+    if (!context.mounted) return;
+    if (!isAdminUser) {
       _showAccessDeniedDialog(context);
+      return;
     }
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const CreateAdminScreen()),
+    );
   }
 
   /// Shows an access denied dialog

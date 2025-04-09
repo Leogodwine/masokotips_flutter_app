@@ -31,11 +31,11 @@ class CategoryProvider with ChangeNotifier {
 
   // Load categories
   Future<void> loadMainCategories() async {
-    Log.e('CategoryProvider: Starting to load categories...');
+    Log.i('CategoryProvider: Starting to load categories...');
 
     // Don't reload if already loading
     if (_isLoading) {
-      Log.e('CategoryProvider: Already loading categories, skipping');
+      Log.i('CategoryProvider: Already loading categories, skipping');
       return;
     }
 
@@ -46,24 +46,24 @@ class CategoryProvider with ChangeNotifier {
     try {
       // Get the authentication token
       final token = await _authService.getToken();
-      Log.e('CategoryProvider: Auth token available: ${token != null}');
+      Log.i('CategoryProvider: Auth token available: ${token != null}');
 
       if (token != null) {
         _apiService.setAuthToken(token);
-        Log.e('CategoryProvider: Set auth token in API service');
+        Log.i('CategoryProvider: Set auth token in API service');
       } else {
-        Log.e(
+        Log.i(
             'CategoryProvider: No auth token available, proceeding without authentication');
       }
 
       // Try to load categories from API
-      Log.e('CategoryProvider: Fetching categories from API...');
+      Log.i('CategoryProvider: Fetching categories from API...');
       final response = await _apiService.getCategories();
-      Log.e(
+      Log.i(
           'CategoryProvider: API Response: ${response.length} categories received');
 
       if (response.isEmpty) {
-        Log.e('CategoryProvider: No categories received from API');
+        Log.w('CategoryProvider: No categories received from API');
         _error = 'No categories available from the server';
         _mainCategories = [];
         notifyListeners();
@@ -74,7 +74,7 @@ class CategoryProvider with ChangeNotifier {
       final Map<int, models.Category> categoryMap = {};
       for (var category in response) {
         categoryMap[category.id] = category;
-        Log.e(
+        Log.d(
             'CategoryProvider: Category: ${category.name} (ID: ${category.id}, Parent: ${category.parentId})');
       }
 
@@ -85,7 +85,7 @@ class CategoryProvider with ChangeNotifier {
           if (parent != null) {
             parent.children ??= [];
             parent.children!.add(category);
-            Log.e(
+            Log.d(
                 'CategoryProvider: Added ${category.name} as child to ${parent.name}');
           }
         }
@@ -94,7 +94,7 @@ class CategoryProvider with ChangeNotifier {
       // Get only main categories (those without parent)
       _mainCategories =
           response.where((category) => category.parentId == null).toList();
-      Log.e(
+      Log.i(
           'CategoryProvider: Main categories count: ${_mainCategories.length}');
 
       // Sort main categories by sortOrder
@@ -120,12 +120,12 @@ class CategoryProvider with ChangeNotifier {
   }
 
   Future<void> loadSubcategories(int categoryId) async {
-    Log.e(
+    Log.i(
         'CategoryProvider: Starting to load subcategories for category: $categoryId');
 
     // Don't reload if already loading
     if (_isLoading) {
-      Log.e('CategoryProvider: Already loading categories, skipping');
+      Log.i('CategoryProvider: Already loading categories, skipping');
       return;
     }
 
@@ -135,19 +135,19 @@ class CategoryProvider with ChangeNotifier {
 
     try {
       final category = getCategoryById(categoryId);
-      Log.e('CategoryProvider: Found category: ${category?.name ?? 'null'}');
+      Log.i('CategoryProvider: Found category: ${category?.name ?? 'null'}');
 
       if (category != null) {
         _subcategories = category.children ?? [];
-        Log.e(
+        Log.i(
             'CategoryProvider: Loaded ${_subcategories.length} subcategories');
         for (var subcategory in _subcategories) {
-          Log.e(
+          Log.d(
               'CategoryProvider: Subcategory: ${subcategory.name} (ID: ${subcategory.id})');
         }
         _error = null;
       } else {
-        Log.e('CategoryProvider: Category not found with ID: $categoryId');
+        Log.w('CategoryProvider: Category not found with ID: $categoryId');
         _error = 'Category not found';
         _subcategories = [];
       }

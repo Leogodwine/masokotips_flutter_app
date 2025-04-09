@@ -62,136 +62,139 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(height: 8),
                       // User role badges
-                      Wrap(
-                        spacing: 8,
-                        children: user.roles.map((role) {
-                          return Chip(
-                            avatar: Icon(
-                              _getRoleIcon(role),
-                              size: 16,
-                              color: Theme.of(context).primaryColor,
-                            ),
-                            label: Text(
-                              _formatRoleName(role),
-                              style: TextStyle(
+                      if (user.roles.isNotEmpty)
+                        Wrap(
+                          spacing: 8,
+                          children: user.roles.map((role) {
+                            return Chip(
+                              avatar: Icon(
+                                _getRoleIcon(role),
+                                size: 16,
                                 color: Theme.of(context).primaryColor,
-                                fontWeight: FontWeight.bold,
                               ),
-                            ),
-                            backgroundColor:
-                                Theme.of(context).primaryColor.withOpacity(0.1),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                          );
-                        }).toList(),
-                      ),
+                              label: Text(
+                                _formatRoleName(role),
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              backgroundColor:
+                                  Theme.of(context).primaryColor.withAlpha(26),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            );
+                          }).toList(),
+                        ),
                       const SizedBox(height: 16),
                       // Quick action buttons
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _buildQuickActionButton(
-                            context,
-                            icon: Icons.edit,
-                            label: 'Edit Profile',
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const EditProfileScreen(),
-                                ),
-                              );
-                            },
-                          ),
-                          _buildQuickActionButton(
-                            context,
-                            icon: Icons.location_on,
-                            label: 'Addresses',
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const AddressManagementScreen(),
-                                ),
-                              );
-                            },
-                          ),
-                          if (user.roles.contains('seller'))
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
                             _buildQuickActionButton(
                               context,
-                              icon: Icons.store,
-                              label: 'Seller Dashboard',
+                              icon: Icons.edit,
+                              label: 'Edit Profile',
                               onPressed: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        const SellerDashboardScreen(),
+                                        const EditProfileScreen(),
                                   ),
                                 );
                               },
                             ),
-                          if (user.roles.contains('service_provider'))
                             _buildQuickActionButton(
                               context,
-                              icon: Icons.handyman,
-                              label: 'Service Provider',
+                              icon: Icons.location_on,
+                              label: 'Addresses',
                               onPressed: () {
-                                // Service provider dashboard temporarily disabled
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                        'Service provider dashboard is currently unavailable'),
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const AddressManagementScreen(),
                                   ),
                                 );
                               },
                             ),
-                          if (user.roles.contains('admin'))
-                            _buildQuickActionButton(
-                              context,
-                              icon: Icons.admin_panel_settings,
-                              label: 'Admin Dashboard',
-                              onPressed: () {
-                                Navigator.pushNamed(
-                                    context, '/admin/dashboard');
-                              },
-                            ),
-                          if (user.roles.contains('admin'))
-                            _buildQuickActionButton(
-                              context,
-                              icon: Icons.info_outline,
-                              label: 'Market Info',
-                              onPressed: () {
-                                Navigator.pushNamed(
-                                    context, '/admin/market-info');
-                              },
-                            ),
-                          _buildQuickActionButton(
-                            context,
-                            icon: Icons.shopping_bag,
-                            label: 'My Orders',
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/orders');
-                            },
-                          ),
-                          _buildQuickActionButton(
-                            context,
-                            icon: Icons.settings,
-                            label: 'Settings',
-                            onPressed: () {
-                              Navigator.push(
+                            if (user.roles.contains('seller'))
+                              _buildQuickActionButton(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const DeveloperSettingsScreen(),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
+                                icon: Icons.store,
+                                label: 'Seller Dashboard',
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const SellerDashboardScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            if (user.roles.contains('service_provider'))
+                              _buildQuickActionButton(
+                                context,
+                                icon: Icons.handyman,
+                                label: 'Service Provider',
+                                onPressed: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                          'Service provider dashboard is currently unavailable'),
+                                    ),
+                                  );
+                                },
+                              ),
+                            if (user.roles.contains('admin'))
+                              _buildQuickActionButton(
+                                context,
+                                icon: Icons.admin_panel_settings,
+                                label: 'Admin Dashboard',
+                                onPressed: () {
+                                  Navigator.pushNamed(
+                                      context, '/admin/dashboard');
+                                },
+                              ),
+                            if (user.roles.contains('admin'))
+                              _buildQuickActionButton(
+                                context,
+                                icon: Icons.info_outline,
+                                label: 'Market Info',
+                                onPressed: () {
+                                  Navigator.pushNamed(
+                                      context, '/admin/market-info');
+                                },
+                              ),
+                            _buildQuickActionButton(
+                              context,
+                              icon: Icons.shopping_bag,
+                              label: 'My Orders',
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/orders');
+                              },
+                            ),
+                            _buildQuickActionButton(
+                              context,
+                              icon: Icons.settings,
+                              label: 'Settings',
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const DeveloperSettingsScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -215,29 +218,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(height: 8),
                       ElevatedButton(
-                        onPressed: () {
-                          // Use a dialog instead of direct navigation
-                          showDialog(
+                        onPressed: () async {
+                          final result = await showDialog<bool>(
                             context: context,
                             builder: (context) => AlertDialog(
                               title: const Text('Login Required'),
                               content: const Text(
-                                  'You need to login to access your profile. Would you like to login now?'),
+                                  'You need to login to access this feature. Would you like to login now?'),
                               actions: [
                                 TextButton(
-                                  onPressed: () => Navigator.pop(context),
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
                                   child: const Text('LATER'),
                                 ),
                                 TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    Navigator.pushNamed(context, '/login');
-                                  },
+                                  onPressed: () => Navigator.pop(context, true),
                                   child: const Text('LOGIN'),
                                 ),
                               ],
                             ),
                           );
+                          if (!mounted) return;
+                          if (result == true) {
+                            Navigator.pushNamed(context, '/login');
+                          }
                         },
                         child: const Text('Login / Register'),
                       ),
@@ -482,16 +486,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       if (result == true) {
                         await authProvider.logout();
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Logged out successfully'),
-                              backgroundColor: Colors.green,
-                            ),
-                          );
-                          // Refresh the screen to show guest UI
-                          setState(() {});
-                        }
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Logged out successfully'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                        // Refresh the screen to show guest UI
+                        setState(() {});
                       }
                     },
                   ),
@@ -590,7 +593,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withOpacity(0.1),
+                  color: Theme.of(context).primaryColor.withAlpha(26),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
