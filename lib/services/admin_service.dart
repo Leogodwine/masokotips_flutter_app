@@ -3,16 +3,36 @@ import 'package:http/http.dart' as http;
 import '../models/user.dart';
 import '../models/service.dart';
 import '../models/market_info.dart';
+import '../models/product.dart';
+import '../models/organic_product.dart';
+import '../models/transport.dart';
 import '../utils/logger.dart';
 import '../config/api_config.dart';
+import 'package:dio/dio.dart';
+import '../models/category.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class AdminService {
   String? _authToken;
   String baseUrl = ApiConfig.baseUrl;
+  late Dio _dio;
+
+  AdminService() {
+    _dio = Dio(BaseOptions(baseUrl: baseUrl));
+    _dio.options.connectTimeout = const Duration(seconds: 5);
+    _dio.options.receiveTimeout = const Duration(seconds: 3);
+  }
 
   void setAuthToken(String token) {
     _authToken = token;
+    _dio.options.headers['Authorization'] = 'Bearer $token';
     Log.d('Auth token set in AdminService: ${token.substring(0, 10)}...');
+  }
+
+  bool isAuthenticated() {
+    return _authToken != null;
   }
 
   // Admin Authentication
@@ -404,6 +424,248 @@ class AdminService {
     } catch (e) {
       Log.e('Error deleting market info: $e');
       throw Exception('Failed to delete market info: $e');
+    }
+  }
+
+  // Product Management
+  Future<List<Product>> getProducts() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/products'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          if (_authToken != null) 'Authorization': 'Bearer $_authToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        final List<dynamic> productsData = data['data'] ?? [];
+        return productsData.map((json) => Product.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load products: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error in getProducts: $e');
+      throw Exception('Failed to load products: $e');
+    }
+  }
+
+  Future<Product> updateProduct(
+      int productId, Map<String, dynamic> productData) async {
+    try {
+      if (_authToken == null) {
+        throw Exception('Authentication token is missing');
+      }
+
+      final formData = FormData();
+
+      // Add non-file fields
+      formData.fields.addAll([
+        MapEntry('name', productData['name']),
+        MapEntry('description', productData['description']),
+        MapEntry('price', productData['price'].toString()),
+        MapEntry('stock', productData['stock'].toString()),
+        MapEntry('unit', productData['unit']),
+        MapEntry('category_id', productData['category_id'].toString()),
+        MapEntry('is_active', productData['is_active'].toString()),
+        MapEntry('is_featured', productData['is_featured'].toString()),
+        MapEntry('_method', 'PUT'),
+      ]);
+
+      // Handle images
+      if (productData['images'] != null) {
+        final List<dynamic> images = productData['images'];
+        for (var i = 0; i < images.length; i++) {
+          final image = images[i];
+          if (kIsWeb) {
+            // For web, use XFile
+            final xFile = image as XFile;
+            formData.files.add(MapEntry(
+              'images[]',
+              await MultipartFile.fromFile(xFile.path,
+                  filename: 'image_$i.jpg'),
+            ));
+          } else {
+            // For mobile, use File
+            final file = File(image.path);
+            formData.files.add(MapEntry(
+              'images[]',
+              await MultipartFile.fromFile(file.path, filename: 'image_$i.jpg'),
+            ));
+          }
+        }
+      }
+
+      final response = await _dio.post(
+        '/admin/products/$productId',
+        data: formData,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $_authToken',
+            'Accept': 'application/json',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        return Product.fromJson(response.data['data']);
+      } else {
+        throw Exception('Failed to update product: ${response.data}');
+      }
+    } catch (e) {
+      Log.e('Error updating product: $e');
+      rethrow;
+    }
+  }
+
+  Future<Product> createProduct(Map<String, dynamic> productData) async {
+    try {
+      if (_authToken == null) {
+        throw Exception('Authentication token is missing');
+      }
+
+      final formData = FormData();
+
+      // Add non-file fields
+      formData.fields.addAll([
+        MapEntry('name', productData['name']),
+        MapEntry('description', productData['description']),
+        MapEntry('price', productData['price'].toString()),
+        MapEntry('stock', productData['stock'].toString()),
+        MapEntry('unit', productData['unit']),
+        MapEntry('category_id', productData['category_id'].toString()),
+        MapEntry('is_active', productData['is_active'].toString()),
+        MapEntry('is_featured', productData['is_featured'].toString()),
+      ]);
+
+      // Handle images
+      if (productData['images'] != null) {
+        final List<dynamic> images = productData['images'];
+        for (var i = 0; i < images.length; i++) {
+          final image = images[i];
+          if (kIsWeb) {
+            // For web, use XFile
+            final xFile = image as XFile;
+            formData.files.add(MapEntry(
+              'images[]',
+              await MultipartFile.fromFile(xFile.path,
+                  filename: 'image_$i.jpg'),
+            ));
+          } else {
+            // For mobile, use File
+            final file = File(image.path);
+            formData.files.add(MapEntry(
+              'images[]',
+              await MultipartFile.fromFile(file.path, filename: 'image_$i.jpg'),
+            ));
+          }
+        }
+      }
+
+      final response = await _dio.post(
+        '/admin/products',
+        data: formData,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $_authToken',
+            'Accept': 'application/json',
+          },
+        ),
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return Product.fromJson(response.data['data']);
+      } else {
+        throw Exception('Failed to create product: ${response.data}');
+      }
+    } catch (e) {
+      Log.e('Error creating product: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> deleteProduct(int productId) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('$baseUrl/admin/products/$productId'),
+        headers: {
+          'Authorization': 'Bearer $_authToken',
+          'Accept': 'application/json',
+        },
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception('Failed to delete product: ${response.body}');
+      }
+    } catch (e) {
+      Log.e('Error deleting product: $e');
+      throw Exception('Failed to delete product: $e');
+    }
+  }
+
+  Future<List<Transport>> getTransports() async {
+    try {
+      final response = await _dio.get('/api/admin/transports');
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data['data'];
+        return data.map((json) => Transport.fromJson(json)).toList();
+      }
+      throw Exception('Failed to load transports');
+    } catch (e) {
+      Log.e('Error getting transports: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> deleteTransport(int transportId) async {
+    try {
+      final response = await _dio.delete('/api/admin/transports/$transportId');
+      if (response.statusCode != 200) {
+        throw Exception('Failed to delete transport');
+      }
+    } catch (e) {
+      Log.e('Error deleting transport: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<OrganicProduct>> getOrganicProducts() async {
+    try {
+      final response = await _dio.get('/api/admin/organic-products');
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data['data'];
+        return data.map((json) => OrganicProduct.fromJson(json)).toList();
+      }
+      throw Exception('Failed to load organic products');
+    } catch (e) {
+      throw Exception('Error loading organic products: $e');
+    }
+  }
+
+  Future<void> deleteOrganicProduct(int productId) async {
+    try {
+      final response =
+          await _dio.delete('/api/admin/organic-products/$productId');
+      if (response.statusCode != 200) {
+        throw Exception('Failed to delete organic product');
+      }
+    } catch (e) {
+      throw Exception('Error deleting organic product: $e');
+    }
+  }
+
+  Future<List<Category>> getCategories() async {
+    try {
+      final response = await _dio.get('/categories');
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data['data'];
+        return data.map((json) => Category.fromJson(json)).toList();
+      }
+      throw Exception('Failed to load categories');
+    } catch (e) {
+      throw Exception('Failed to load categories: $e');
     }
   }
 }
