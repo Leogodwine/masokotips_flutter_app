@@ -329,7 +329,8 @@ class ApiService {
       Log.e('ApiService: Response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        final List<dynamic> data = responseData['data'];
         Log.e('ApiService: Parsed ${data.length} related products');
 
         final products = data.map((json) => Product.fromJson(json)).toList();
@@ -348,8 +349,8 @@ class ApiService {
             'Failed to fetch related products: ${response.statusCode}');
       }
     } catch (e, stackTrace) {
-      Log.e('ApiService: Exception while fetching related products: $e');
-      Log.e('ApiService: Stack trace: $stackTrace');
+      Log.e(
+          'ApiService: Exception while fetching related products: $e\n$stackTrace');
       throw Exception('Failed to fetch related products: $e');
     }
   }

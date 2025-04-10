@@ -26,7 +26,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    _loadRelatedProducts();
+    // Use Future.microtask to ensure we're not in the build phase
+    Future.microtask(() {
+      if (!mounted) return;
+      _loadRelatedProducts();
+    });
   }
 
   /// Fetch related products from the API
@@ -48,30 +52,41 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       return;
     }
 
-    setState(() => _isLoadingRelated = true);
+    if (!mounted) return;
+
+    setState(() {
+      _isLoadingRelated = true;
+    });
+
     try {
       Log.e(
-          'ProductDetailsScreen: Loading related products for product: ${widget.product.id}');
-      final products = await getRelatedProducts(widget.product.id);
-      Log.e('ProductDetailsScreen: Loaded ${products.length} related products');
-      setState(() => _relatedProducts = products);
+          'ProductDetailsScreen: Loading related products for product ID: ${widget.product.id}');
+      final relatedProducts = await getRelatedProducts(widget.product.id);
+
+      if (!mounted) return;
+
+      setState(() {
+        _relatedProducts = relatedProducts;
+        _isLoadingRelated = false;
+      });
     } catch (e) {
       Log.e('ProductDetailsScreen: Error loading related products: $e');
+      if (!mounted) return;
+
+      setState(() {
+        _isLoadingRelated = false;
+      });
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to load related products: $e'),
-            duration: const Duration(seconds: 3),
             action: SnackBarAction(
               label: 'RETRY',
               onPressed: _loadRelatedProducts,
             ),
           ),
         );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoadingRelated = false);
       }
     }
   }
