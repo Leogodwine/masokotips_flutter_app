@@ -178,7 +178,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
 
       // First create the transport
       final transport = await transportProvider.addTransport(
-        title: _titleController.text,
+        name: _titleController.text,
         description: _descriptionController.text.trim(),
         vehicleLocation: _vehicleLocationController.text,
         vehicleType: _selectedVehicleType ?? '',
@@ -207,7 +207,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
       // Then upload the image if selected
       if (_selectedImageBytes != null) {
         final imageUrl = await transportProvider.uploadTransportImage(
-          transport.id,
+          transport.id.toString(),
           _selectedImageName!,
           _selectedImageBytes!,
         );
@@ -490,7 +490,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
                             });
                           },
                           backgroundColor:
-                              Theme.of(context).primaryColor.withOpacity(0.1),
+                              Theme.of(context).primaryColor.withAlpha(26),
                           selectedColor:
                               Theme.of(context).primaryColor.withOpacity(0.2),
                           labelStyle: TextStyle(
@@ -588,7 +588,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
                               });
                             },
                             backgroundColor:
-                                Theme.of(context).primaryColor.withOpacity(0.1),
+                                Theme.of(context).primaryColor.withAlpha(26),
                             labelStyle: TextStyle(
                               color: Theme.of(context).primaryColor,
                             ),

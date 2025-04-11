@@ -6,19 +6,19 @@ part 'admin_dashboard_data.g.dart';
 class AdminDashboardData {
   final UserStats stats;
   @JsonKey(name: 'recent_activities')
-  final RecentActivities recent_activities;
+  final RecentActivities recentActivities;
   @JsonKey(name: 'system_info')
-  final SystemInfo system_info;
+  final SystemInfo systemInfo;
   @JsonKey(name: 'quick_links')
-  final QuickLinks quick_links;
+  final QuickLinks quickLinks;
   @JsonKey(name: 'last_updated')
   final String lastUpdated;
 
   AdminDashboardData({
     required this.stats,
-    required this.recent_activities,
-    required this.system_info,
-    required this.quick_links,
+    required this.recentActivities,
+    required this.systemInfo,
+    required this.quickLinks,
     required this.lastUpdated,
   });
 
@@ -46,7 +46,8 @@ class Users {
   final int admins;
   final int sellers;
   final int buyers;
-  final int service_providers;
+  @JsonKey(name: 'service_providers')
+  final int serviceProviders;
   @JsonKey(name: 'new_users_today')
   final int newUsersToday;
   @JsonKey(name: 'active_users')
@@ -59,7 +60,7 @@ class Users {
     required this.admins,
     required this.sellers,
     required this.buyers,
-    required this.service_providers,
+    required this.serviceProviders,
     required this.newUsersToday,
     required this.activeUsers,
     required this.verifiedUsers,

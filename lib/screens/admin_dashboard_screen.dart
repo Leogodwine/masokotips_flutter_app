@@ -74,6 +74,8 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
               children: [
                 _buildStatsSection(dashboardData),
                 const SizedBox(height: 24),
+                _buildManagementSection(),
+                const SizedBox(height: 24),
                 _buildRecentUsersSection(dashboardData),
                 const SizedBox(height: 24),
                 _buildSystemInfoSection(dashboardData),
@@ -119,7 +121,7 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 _buildStatCard(
                     'Buyers', users.buyers.toString(), Icons.shopping_cart),
                 _buildStatCard('Service Providers',
-                    users.service_providers.toString(), Icons.handyman),
+                    users.serviceProviders.toString(), Icons.handyman),
                 _buildStatCard('New Users Today',
                     users.newUsersToday.toString(), Icons.person_add),
                 _buildStatCard(
@@ -166,8 +168,95 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
+  Widget _buildManagementSection() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Management',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              children: [
+                _buildManagementCard(
+                  'Products',
+                  Icons.shopping_bag,
+                  () => Navigator.pushNamed(context, '/admin/products'),
+                ),
+                _buildManagementCard(
+                  'Services',
+                  Icons.miscellaneous_services,
+                  () => Navigator.pushNamed(context, '/admin/services'),
+                ),
+                _buildManagementCard(
+                  'Organic Products',
+                  Icons.eco,
+                  () => Navigator.pushNamed(context, '/admin/organic-products'),
+                ),
+                _buildManagementCard(
+                  'Market Info',
+                  Icons.info,
+                  () => Navigator.pushNamed(context, '/admin/market-info'),
+                ),
+                _buildManagementCard(
+                  'Users',
+                  Icons.people,
+                  () => Navigator.pushNamed(context, '/admin/users'),
+                ),
+                _buildManagementCard(
+                  'Transport',
+                  Icons.local_shipping,
+                  () => Navigator.pushNamed(context, '/admin/transport'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildManagementCard(String title, IconData icon, VoidCallback onTap) {
+    return Card(
+      elevation: 2,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 32, color: Theme.of(context).primaryColor),
+              const SizedBox(height: 8),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildRecentUsersSection(AdminDashboardData data) {
-    final latestUsers = data.recent_activities.latestUsers;
+    final latestUsers = data.recentActivities.latestUsers;
 
     return Card(
       child: Padding(
@@ -211,7 +300,7 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Widget _buildSystemInfoSection(AdminDashboardData data) {
-    final systemInfo = data.system_info;
+    final systemInfo = data.systemInfo;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -263,8 +352,8 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Widget _buildQuickLinksSection(AdminDashboardData data) {
-    final userLinks = data.quick_links.users;
-    final reportLinks = data.quick_links.reports;
+    final userLinks = data.quickLinks.users;
+    final reportLinks = data.quickLinks.reports;
 
     return Card(
       child: Padding(

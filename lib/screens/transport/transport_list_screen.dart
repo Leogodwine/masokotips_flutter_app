@@ -92,14 +92,18 @@ class _TransportListScreenState extends State<TransportListScreen> {
   }
 
   void _clearFilters() {
-    setState(() {
-      _locationController.clear();
-      _selectedProductType = null;
-      _minCapacity = null;
-      _maxPrice = null;
-      _temperatureControlled = null;
-    });
+    _locationController.clear();
+    _selectedProductType = null;
+    _minCapacity = null;
+    _maxPrice = null;
+    _temperatureControlled = null;
     context.read<TransportProvider>().clearFilters();
+  }
+
+  void _toggleFilters() {
+    setState(() {
+      _showFilters = !_showFilters;
+    });
   }
 
   Widget _buildFilterPanel() {
@@ -210,11 +214,7 @@ class _TransportListScreenState extends State<TransportListScreen> {
               _showFilters ? Icons.filter_list_off : Icons.filter_list,
               color: Colors.white,
             ),
-            onPressed: () {
-              setState(() {
-                _showFilters = !_showFilters;
-              });
-            },
+            onPressed: _toggleFilters,
           ),
         ],
       ),
@@ -312,7 +312,7 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                         children: [
                                           Expanded(
                                             child: Text(
-                                              transport.title,
+                                              transport.name,
                                               style: TextStyle(
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.bold,
@@ -730,7 +730,7 @@ class _TransportListScreenState extends State<TransportListScreen> {
             return AlertDialog(
               title: const Text('Delete Transport'),
               content:
-                  Text('Are you sure you want to delete ${transport.title}?'),
+                  Text('Are you sure you want to delete ${transport.name}?'),
               actions: [
                 TextButton(
                   onPressed: () {

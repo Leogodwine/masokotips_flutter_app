@@ -6,10 +6,10 @@ class CreateAdminScreen extends StatefulWidget {
   const CreateAdminScreen({Key? key}) : super(key: key);
 
   @override
-  _CreateAdminScreenState createState() => _CreateAdminScreenState();
+  CreateAdminScreenState createState() => CreateAdminScreenState();
 }
 
-class _CreateAdminScreenState extends State<CreateAdminScreen> {
+class CreateAdminScreenState extends State<CreateAdminScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();

@@ -65,19 +65,55 @@ class ThemeConfig {
           borderRadius: BorderRadius.circular(12),
         ),
       ),
-      textTheme: const TextTheme(
-        displayLarge: TextStyle(color: textPrimaryColor),
-        displayMedium: TextStyle(color: textPrimaryColor),
-        displaySmall: TextStyle(color: textPrimaryColor),
-        headlineLarge: TextStyle(color: textPrimaryColor),
-        headlineMedium: TextStyle(color: textPrimaryColor),
-        headlineSmall: TextStyle(color: textPrimaryColor),
-        titleLarge: TextStyle(color: textPrimaryColor),
-        titleMedium: TextStyle(color: textPrimaryColor),
-        titleSmall: TextStyle(color: textPrimaryColor),
-        bodyLarge: TextStyle(color: textPrimaryColor),
-        bodyMedium: TextStyle(color: textPrimaryColor),
-        bodySmall: TextStyle(color: textSecondaryColor),
+      textTheme: TextTheme(
+        displayLarge: const TextStyle(
+          color: textPrimaryColor,
+          fontFamily: 'Poppins',
+        ).apply(fontFamilyFallback: ['sans-serif']),
+        displayMedium: const TextStyle(
+          color: textPrimaryColor,
+          fontFamily: 'Poppins',
+        ).apply(fontFamilyFallback: ['sans-serif']),
+        displaySmall: const TextStyle(
+          color: textPrimaryColor,
+          fontFamily: 'Poppins',
+        ).apply(fontFamilyFallback: ['sans-serif']),
+        headlineLarge: const TextStyle(
+          color: textPrimaryColor,
+          fontFamily: 'Poppins',
+        ).apply(fontFamilyFallback: ['sans-serif']),
+        headlineMedium: const TextStyle(
+          color: textPrimaryColor,
+          fontFamily: 'Poppins',
+        ).apply(fontFamilyFallback: ['sans-serif']),
+        headlineSmall: const TextStyle(
+          color: textPrimaryColor,
+          fontFamily: 'Poppins',
+        ).apply(fontFamilyFallback: ['sans-serif']),
+        titleLarge: const TextStyle(
+          color: textPrimaryColor,
+          fontFamily: 'Poppins',
+        ).apply(fontFamilyFallback: ['sans-serif']),
+        titleMedium: const TextStyle(
+          color: textPrimaryColor,
+          fontFamily: 'Poppins',
+        ).apply(fontFamilyFallback: ['sans-serif']),
+        titleSmall: const TextStyle(
+          color: textPrimaryColor,
+          fontFamily: 'Poppins',
+        ).apply(fontFamilyFallback: ['sans-serif']),
+        bodyLarge: const TextStyle(
+          color: textPrimaryColor,
+          fontFamily: 'Poppins',
+        ).apply(fontFamilyFallback: ['sans-serif']),
+        bodyMedium: const TextStyle(
+          color: textPrimaryColor,
+          fontFamily: 'Poppins',
+        ).apply(fontFamilyFallback: ['sans-serif']),
+        bodySmall: const TextStyle(
+          color: textSecondaryColor,
+          fontFamily: 'Poppins',
+        ).apply(fontFamilyFallback: ['sans-serif']),
       ),
     );
   }

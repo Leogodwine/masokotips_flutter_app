@@ -2,10 +2,17 @@ import 'package:flutter/foundation.dart';
 import '../models/user.dart';
 import '../models/service.dart';
 import '../models/market_info.dart';
+import '../models/product.dart';
+import '../models/organic_product.dart';
+import '../models/transport.dart';
 import '../services/admin_service.dart';
 import '../services/admin_auth_service.dart';
 import '../models/admin_dashboard_data.dart';
 import '../utils/logger.dart';
+import '../models/category.dart' as models;
+import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 class AdminProvider with ChangeNotifier {
   final AdminService _adminService = AdminService();
@@ -17,6 +24,11 @@ class AdminProvider with ChangeNotifier {
   List<User> _users = [];
   List<Service> _services = [];
   List<MarketInfo> _marketInfo = [];
+  List<Product> _products = [];
+  List<OrganicProduct> _organicProducts = [];
+  List<Transport> _transports = [];
+  // ignore: unused_field
+  List<models.Category> _categories = [];
 
   AdminProvider() {
     _initializeAuth();
@@ -46,6 +58,9 @@ class AdminProvider with ChangeNotifier {
   List<User> get users => _users;
   List<Service> get services => _services;
   List<MarketInfo> get marketInfo => _marketInfo;
+  List<Product> get products => _products;
+  List<OrganicProduct> get organicProducts => _organicProducts;
+  List<Transport> get transports => _transports;
 
   void setAuthToken(String token) {
     _adminService.setAuthToken(token);
@@ -222,6 +237,51 @@ class AdminProvider with ChangeNotifier {
     }
   }
 
+  Future<void> loadProducts() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _products = await _adminService.getProducts();
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> loadOrganicProducts() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _organicProducts = await _adminService.getOrganicProducts();
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> loadTransports() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _transports = await _adminService.getTransports();
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<bool> updateUser(int userId, Map<String, dynamic> userData) async {
     _isLoading = true;
     _error = null;
@@ -362,6 +422,101 @@ class AdminProvider with ChangeNotifier {
     }
   }
 
+  Future<bool> deleteProduct(int productId) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _adminService.deleteProduct(productId);
+      _products.removeWhere((product) => product.id == productId);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<Product> updateProduct(
+      int productId, Map<String, dynamic> productData) async {
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
+      final product = await _adminService.updateProduct(productId, productData);
+      final index = _products.indexWhere((p) => p.id == productId);
+      if (index != -1) {
+        _products[index] = product;
+      }
+      return product;
+    } catch (e) {
+      _error = e.toString();
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<Product> createProduct(Map<String, dynamic> productData) async {
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
+      // Remove the file conversion since we want to keep XFile
+      final product = await _adminService.createProduct(productData);
+      _products.add(product);
+      return product;
+    } catch (e) {
+      _error = e.toString();
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> deleteOrganicProduct(int productId) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _adminService.deleteOrganicProduct(productId);
+      _organicProducts.removeWhere((product) => product.id == productId);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> deleteTransport(int transportId) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _adminService.deleteTransport(transportId);
+      _transports.removeWhere((transport) => transport.id == transportId);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> logout() async {
     _isLoading = true;
     notifyListeners();
@@ -374,8 +529,29 @@ class AdminProvider with ChangeNotifier {
       _users = [];
       _services = [];
       _marketInfo = [];
+      _products = [];
+      _organicProducts = [];
+      _transports = [];
     } catch (e) {
       _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<List<models.Category>> getCategories() async {
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
+      final categories = await _adminService.getCategories();
+      _categories = categories;
+      return categories;
+    } catch (e) {
+      _error = e.toString();
+      return [];
     } finally {
       _isLoading = false;
       notifyListeners();

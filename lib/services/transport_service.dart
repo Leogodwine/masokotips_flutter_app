@@ -47,7 +47,7 @@ class TransportService {
   }
 
   Future<Transport> addTransport({
-    required String title,
+    required String name,
     required String description,
     required String vehicleLocation,
     required String vehicleType,
@@ -79,7 +79,7 @@ class TransportService {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          'title': title,
+          'name': name,
           'description': description,
           'vehicle_location': vehicleLocation,
           'vehicle_type': vehicleType,
@@ -140,7 +140,7 @@ class TransportService {
     }
   }
 
-  Future<void> deleteTransport(String id) async {
+  Future<void> deleteTransport(int id) async {
     _checkAuthToken();
     try {
       final response = await http.delete(

@@ -128,7 +128,7 @@ class TransportProvider with ChangeNotifier {
   }
 
   Future<Transport> addTransport({
-    required String title,
+    required String name,
     required String description,
     required String vehicleLocation,
     required String vehicleType,
@@ -156,7 +156,7 @@ class TransportProvider with ChangeNotifier {
 
     try {
       final transport = await _transportService.addTransport(
-        title: title,
+        name: name,
         description: description,
         vehicleLocation: vehicleLocation,
         vehicleType: vehicleType,
@@ -228,7 +228,7 @@ class TransportProvider with ChangeNotifier {
     }
   }
 
-  Future<void> deleteTransport(String id) async {
+  Future<void> deleteTransport(int id) async {
     try {
       _isLoading = true;
       _error = null;
@@ -261,9 +261,7 @@ class TransportProvider with ChangeNotifier {
   }) {
     return _transports.where((transport) {
       if (searchQuery != null && searchQuery.isNotEmpty) {
-        if (!transport.title
-                .toLowerCase()
-                .contains(searchQuery.toLowerCase()) &&
+        if (!transport.name.toLowerCase().contains(searchQuery.toLowerCase()) &&
             !transport.description
                 .toLowerCase()
                 .contains(searchQuery.toLowerCase())) {

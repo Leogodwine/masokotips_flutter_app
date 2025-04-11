@@ -65,7 +65,7 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController(text: widget.transport.title);
+    _titleController = TextEditingController(text: widget.transport.name);
     _descriptionController =
         TextEditingController(text: widget.transport.description);
     _vehicleLocationController =
@@ -121,8 +121,9 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
     try {
       final updatedTransport = Transport(
         id: widget.transport.id,
-        title: _titleController.text,
+        name: _titleController.text,
         description: _descriptionController.text,
+        type: widget.transport.type,
         vehicleLocation: _vehicleLocationController.text,
         vehicleType: _vehicleTypeController.text,
         price: double.parse(_priceController.text),

@@ -41,7 +41,7 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
   void initState() {
     super.initState();
     _titleController =
-        TextEditingController(text: widget.transport?.title ?? '');
+        TextEditingController(text: widget.transport?.name ?? '');
     _vehicleLocationController =
         TextEditingController(text: widget.transport?.vehicleLocation ?? '');
     _priceController =
@@ -88,7 +88,7 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
     try {
       if (widget.transport == null) {
         await context.read<TransportProvider>().addTransport(
-              title: _titleController.text,
+              name: _titleController.text,
               description: _titleController.text,
               vehicleLocation: _vehicleLocationController.text,
               vehicleType: _vehicleTypeController.text,
@@ -106,7 +106,7 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
             );
       } else {
         final updatedTransport = widget.transport!.copyWith(
-          title: _titleController.text,
+          name: _titleController.text,
           vehicleLocation: _vehicleLocationController.text,
           vehicleType: _vehicleTypeController.text,
           price: double.parse(_priceController.text),

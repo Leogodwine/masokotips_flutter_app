@@ -76,7 +76,7 @@ class TransportDetailsScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          transport.title,
+                          transport.name,
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,

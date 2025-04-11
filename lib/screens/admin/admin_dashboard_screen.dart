@@ -64,7 +64,7 @@ class AdminDashboardScreen extends StatelessWidget {
                 () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const UserManagementScreen(),
+                    builder: (context) => const AdminUserManagementScreen(),
                   ),
                 ),
               ),

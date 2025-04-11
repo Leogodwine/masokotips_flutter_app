@@ -21,6 +21,20 @@ class Product {
   final DateTime updatedAt;
   final DateTime? deletedAt;
 
+  // Category name mapping
+  String get categoryName {
+    const categoryMap = {
+      11: 'Vegetables',
+      12: 'Fruits',
+      13: 'Spices',
+      14: 'Cash Crops',
+      15: 'Cereals',
+      16: 'Seeds and Seedling',
+      17: 'Livestock and poultry'
+    };
+    return categoryMap[categoryId] ?? 'Unknown Category';
+  }
+
   Product({
     required this.id,
     required this.name,

@@ -9,11 +9,11 @@ part of 'admin_dashboard_data.dart';
 AdminDashboardData _$AdminDashboardDataFromJson(Map<String, dynamic> json) =>
     AdminDashboardData(
       stats: UserStats.fromJson(json['stats'] as Map<String, dynamic>),
-      recent_activities: RecentActivities.fromJson(
+      recentActivities: RecentActivities.fromJson(
           json['recent_activities'] as Map<String, dynamic>),
-      system_info:
+      systemInfo:
           SystemInfo.fromJson(json['system_info'] as Map<String, dynamic>),
-      quick_links:
+      quickLinks:
           QuickLinks.fromJson(json['quick_links'] as Map<String, dynamic>),
       lastUpdated: json['last_updated'] as String,
     );
@@ -21,9 +21,9 @@ AdminDashboardData _$AdminDashboardDataFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$AdminDashboardDataToJson(AdminDashboardData instance) =>
     <String, dynamic>{
       'stats': instance.stats,
-      'recent_activities': instance.recent_activities,
-      'system_info': instance.system_info,
-      'quick_links': instance.quick_links,
+      'recent_activities': instance.recentActivities,
+      'system_info': instance.systemInfo,
+      'quick_links': instance.quickLinks,
       'last_updated': instance.lastUpdated,
     };
 
@@ -40,7 +40,7 @@ Users _$UsersFromJson(Map<String, dynamic> json) => Users(
       admins: (json['admins'] as num).toInt(),
       sellers: (json['sellers'] as num).toInt(),
       buyers: (json['buyers'] as num).toInt(),
-      service_providers: (json['service_providers'] as num).toInt(),
+      serviceProviders: (json['service_providers'] as num).toInt(),
       newUsersToday: (json['new_users_today'] as num).toInt(),
       activeUsers: (json['active_users'] as num).toInt(),
       verifiedUsers: (json['verified_users'] as num).toInt(),
@@ -51,7 +51,7 @@ Map<String, dynamic> _$UsersToJson(Users instance) => <String, dynamic>{
       'admins': instance.admins,
       'sellers': instance.sellers,
       'buyers': instance.buyers,
-      'service_providers': instance.service_providers,
+      'service_providers': instance.serviceProviders,
       'new_users_today': instance.newUsersToday,
       'active_users': instance.activeUsers,
       'verified_users': instance.verifiedUsers,

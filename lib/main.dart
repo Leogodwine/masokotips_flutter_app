@@ -34,6 +34,11 @@ import 'screens/admin/create_admin_screen.dart';
 import 'screens/admin/admin_login_screen.dart';
 import 'providers/admin_provider.dart';
 import 'screens/admin_dashboard_screen.dart';
+import 'screens/admin/products_management_screen.dart';
+import 'screens/admin/services_management_screen.dart';
+import 'screens/admin/organic_products_management_screen.dart';
+import 'screens/admin/user_management_screen.dart';
+import 'screens/admin/transport_management_screen.dart';
 import 'config/theme_config.dart';
 
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
@@ -162,6 +167,15 @@ class _AppContentState extends State<AppContent> {
             '/admin/create': (context) => const CreateAdminScreen(),
             '/admin/login': (context) => const AdminLoginScreen(),
             '/admin/dashboard': (context) => const AdminDashboardScreen(),
+            '/admin/products': (context) =>
+                const AdminProductsManagementScreen(),
+            '/admin/services': (context) =>
+                const AdminServicesManagementScreen(),
+            '/admin/organic-products': (context) =>
+                const AdminOrganicProductsManagementScreen(),
+            '/admin/users': (context) => const AdminUserManagementScreen(),
+            '/admin/transport': (context) =>
+                const AdminTransportManagementScreen(),
           },
         );
       },

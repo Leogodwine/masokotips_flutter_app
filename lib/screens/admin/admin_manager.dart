@@ -4,7 +4,7 @@ import '../../providers/auth_provider.dart';
 import '../../services/admin_auth_service.dart';
 import './admin_dashboard_screen.dart';
 import './market_info_management_screen.dart';
-import './user_management_screen.dart';
+import './admin_user_management_screen.dart';
 import './review_moderation_screen.dart';
 import './analytics_screen.dart';
 import './create_admin_screen.dart';
@@ -85,7 +85,8 @@ class AdminManager {
     }
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const UserManagementScreen()),
+      MaterialPageRoute(
+          builder: (context) => const AdminUserManagementScreen()),
     );
   }
 

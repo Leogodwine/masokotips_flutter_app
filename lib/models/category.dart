@@ -15,11 +15,11 @@ class Category {
   final String? icon;
   @JsonKey(name: 'parent_id')
   final int? parentId;
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   List<Category>? children;
   @JsonKey(name: 'products_count')
   final int productsCount;
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   final List<dynamic>? services;
 
   Category({
@@ -40,6 +40,7 @@ class Category {
 
   factory Category.fromJson(Map<String, dynamic> json) =>
       _$CategoryFromJson(json);
+
   Map<String, dynamic> toJson() => _$CategoryToJson(this);
 }
 

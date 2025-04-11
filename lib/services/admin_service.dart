@@ -454,111 +454,109 @@ class AdminService {
 
   Future<Product> updateProduct(
       int productId, Map<String, dynamic> productData) async {
-    try {
-      if (_authToken == null) {
-        throw Exception('Authentication token is missing');
-      }
+    if (_authToken == null) {
+      throw Exception('Not authenticated');
+    }
 
-      final formData = FormData();
+    try {
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$baseUrl/admin/products/$productId'),
+      );
+
+      // Add headers
+      request.headers['Authorization'] = 'Bearer $_authToken';
 
       // Add non-file fields
-      formData.fields.addAll([
-        MapEntry('name', productData['name']),
-        MapEntry('description', productData['description']),
-        MapEntry('price', productData['price'].toString()),
-        MapEntry('stock', productData['stock'].toString()),
-        MapEntry('unit', productData['unit']),
-        MapEntry('category_id', productData['category_id'].toString()),
-        MapEntry('is_active', productData['is_active'].toString()),
-        MapEntry('is_featured', productData['is_featured'].toString()),
-        MapEntry('_method', 'PUT'),
-      ]);
+      request.fields.addAll({
+        '_method': 'PUT',
+        'name': productData['name'],
+        'description': productData['description'],
+        'price': productData['price'].toString(),
+        'stock': productData['stock'].toString(),
+        'unit': productData['unit'],
+        'category_id': productData['category_id'].toString(),
+        'is_active': productData['is_active'].toString(),
+        'is_featured': productData['is_featured'].toString(),
+      });
 
       // Handle images
       if (productData['images'] != null) {
-        final List<dynamic> images = productData['images'];
+        final List<XFile> images = productData['images'] as List<XFile>;
         for (var i = 0; i < images.length; i++) {
-          final image = images[i];
           if (kIsWeb) {
-            // For web, use XFile
-            final xFile = image as XFile;
-            formData.files.add(MapEntry(
-              'images[]',
-              await MultipartFile.fromFile(xFile.path,
-                  filename: 'image_$i.jpg'),
-            ));
+            final bytes = await images[i].readAsBytes();
+            request.files.add(
+              http.MultipartFile.fromBytes(
+                'images[]',
+                bytes,
+                filename: 'image_$i.jpg',
+              ),
+            );
           } else {
-            // For mobile, use File
-            final file = File(image.path);
-            formData.files.add(MapEntry(
-              'images[]',
-              await MultipartFile.fromFile(file.path, filename: 'image_$i.jpg'),
-            ));
+            request.files.add(
+              await http.MultipartFile.fromPath(
+                'images[]',
+                images[i].path,
+                filename: 'image_$i.jpg',
+              ),
+            );
           }
         }
       }
 
-      final response = await _dio.post(
-        '/admin/products/$productId',
-        data: formData,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $_authToken',
-            'Accept': 'application/json',
-          },
-        ),
-      );
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
-        return Product.fromJson(response.data['data']);
+        final data = json.decode(response.body);
+        if (data['success'] == true && data['data'] != null) {
+          return Product.fromJson(data['data']);
+        } else {
+          throw Exception('Failed to update product: ${data['message']}');
+        }
       } else {
-        throw Exception('Failed to update product: ${response.data}');
+        throw Exception('Failed to update product: ${response.body}');
       }
     } catch (e) {
-      Log.e('Error updating product: $e');
-      rethrow;
+      throw Exception('Error updating product: $e');
     }
   }
 
   Future<Product> createProduct(Map<String, dynamic> productData) async {
     try {
-      if (_authToken == null) {
-        throw Exception('Authentication token is missing');
-      }
-
       final formData = FormData();
 
-      // Add non-file fields
-      formData.fields.addAll([
-        MapEntry('name', productData['name']),
-        MapEntry('description', productData['description']),
-        MapEntry('price', productData['price'].toString()),
-        MapEntry('stock', productData['stock'].toString()),
-        MapEntry('unit', productData['unit']),
-        MapEntry('category_id', productData['category_id'].toString()),
-        MapEntry('is_active', productData['is_active'].toString()),
-        MapEntry('is_featured', productData['is_featured'].toString()),
-      ]);
+      // Add all product data fields
+      productData.forEach((key, value) {
+        if (key != 'images' && value != null) {
+          formData.fields.add(MapEntry(key, value.toString()));
+        }
+      });
 
-      // Handle images
+      // Handle images differently for web and mobile
       if (productData['images'] != null) {
-        final List<dynamic> images = productData['images'];
+        final List<XFile> images = productData['images'];
         for (var i = 0; i < images.length; i++) {
           final image = images[i];
           if (kIsWeb) {
-            // For web, use XFile
-            final xFile = image as XFile;
+            // For web, read the file bytes
+            final bytes = await image.readAsBytes();
             formData.files.add(MapEntry(
               'images[]',
-              await MultipartFile.fromFile(xFile.path,
-                  filename: 'image_$i.jpg'),
+              MultipartFile.fromBytes(
+                bytes,
+                filename: image.name,
+              ),
             ));
           } else {
-            // For mobile, use File
-            final file = File(image.path);
+            // For mobile, use the file path
             formData.files.add(MapEntry(
               'images[]',
-              await MultipartFile.fromFile(file.path, filename: 'image_$i.jpg'),
+              await MultipartFile.fromFile(
+                image.path,
+                filename: image.name,
+              ),
             ));
           }
         }
@@ -567,12 +565,6 @@ class AdminService {
       final response = await _dio.post(
         '/admin/products',
         data: formData,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $_authToken',
-            'Accept': 'application/json',
-          },
-        ),
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {
