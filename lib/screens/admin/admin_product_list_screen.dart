@@ -152,8 +152,7 @@ class _AdminProductListScreenState extends State<AdminProductListScreen> {
                         Icon(
                           Icons.shopping_bag_outlined,
                           size: 64,
-                          color:
-                              Theme.of(context).primaryColor.withOpacity(0.5),
+                          color: Theme.of(context).primaryColor.withAlpha(26),
                         ),
                         const SizedBox(height: 16),
                         Text(
@@ -325,7 +324,7 @@ class _AdminProductListScreenState extends State<AdminProductListScreen> {
                                     const SizedBox(width: 4),
                                     Expanded(
                                       child: Text(
-                                        'Category: ${product.categoryName ?? 'Uncategorized'}',
+                                        'Category: ${product.categoryName}',
                                         style: const TextStyle(fontSize: 16),
                                         overflow: TextOverflow.ellipsis,
                                       ),

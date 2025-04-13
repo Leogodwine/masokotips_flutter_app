@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../utils/image_upload_helper.dart';
 import '../config/api_config.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ServiceService {
   String? _authToken;
@@ -381,8 +382,9 @@ class ServiceService {
       Log.d('Preparing image for upload...');
 
       try {
+        final xFile = XFile(imageFile.path);
         final multipartFile =
-            await ImageUploadHelper.prepareImageForUpload(imageFile);
+            await ImageUploadHelper.prepareImageForUpload(xFile);
         Log.d(
             'Image prepared successfully, content type: ${multipartFile.contentType}');
         Log.d('Image filename: ${multipartFile.filename}');

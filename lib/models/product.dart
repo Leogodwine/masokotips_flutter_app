@@ -20,17 +20,53 @@ class Product {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
+  final Map<String, dynamic>? category;
 
-  // Category name mapping
+  // Category name getter that uses the category from API response
   String get categoryName {
+    if (category != null && category!['name'] != null) {
+      return category!['name'];
+    }
+    // Fallback to hardcoded map if category is not available
     const categoryMap = {
+      1: 'Products',
+      3: 'Market Information',
+      4: 'Transport',
+      5: 'Organic Products',
+      6: 'Agricultural Services',
       11: 'Vegetables',
       12: 'Fruits',
       13: 'Spices',
       14: 'Cash Crops',
       15: 'Cereals',
       16: 'Seeds and Seedling',
-      17: 'Livestock and poultry'
+      17: 'Livestock and poultry',
+      41: 'Tandem',
+      42: 'Kirikuu',
+      43: 'FlatbedTrucks',
+      44: 'Tanker',
+      45: 'Refrigerator Truck',
+      46: 'Box Truck',
+      47: 'Liftgate Truck',
+      48: 'Van',
+      49: 'Container Hauler',
+      410: 'Pickups Trucks',
+      411: 'Fuso',
+      412: 'Semi Trailers',
+      413: 'Tracker Trailers',
+      51: 'Organic Vegetables',
+      52: 'Organic Fruits',
+      53: 'Organic Spices',
+      54: 'Organic Cash Crops',
+      55: 'Organic Cereals',
+      56: 'Organic Livestock and Poultry',
+      61: 'Packaging Materials',
+      62: 'Hydroponics',
+      63: 'Fertilizer',
+      64: 'Organic Manure',
+      65: 'Machinery',
+      66: 'Behive and Aquatic',
+      67: 'Food and Beverage'
     };
     return categoryMap[categoryId] ?? 'Unknown Category';
   }
@@ -55,6 +91,7 @@ class Product {
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
+    this.category,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -81,7 +118,9 @@ class Product {
           json['stock'] != null ? int.tryParse(json['stock'].toString()) : null,
       unit: json['unit'],
       isActive: json['is_active'] ?? true,
-      isFeatured: json['is_featured'] == 1,
+      isFeatured: json['is_featured'] == true ||
+          json['is_featured'] == 1 ||
+          json['is_featured'] == '1',
       imageUrl: imageUrl,
       categoryId: int.tryParse(json['category_id']?.toString() ?? '0') ?? 0,
       userId: int.tryParse(json['user_id']?.toString() ?? '0') ?? 0,
@@ -96,6 +135,7 @@ class Product {
       deletedAt: json['deleted_at'] != null
           ? DateTime.tryParse(json['deleted_at'])
           : null,
+      category: json['category'],
     );
   }
 
@@ -109,7 +149,7 @@ class Product {
       'stock': stock,
       'unit': unit,
       'is_active': isActive,
-      'is_featured': isFeatured ? 1 : 0,
+      'is_featured': isFeatured,
       'image_url': imageUrl,
       'category_id': categoryId,
       'user_id': userId,
@@ -120,6 +160,7 @@ class Product {
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
       'deleted_at': deletedAt?.toIso8601String(),
+      'category': category,
     };
   }
 
@@ -146,10 +187,15 @@ class Product {
     // Get the base URL without the /api suffix
     final baseUrl = ApiConfig.baseUrl.replaceAll('/api', '');
 
-    // If the path already includes /storage/, don't add it again
-    final storagePath = path.startsWith('/storage/') ? path : '/storage/$path';
+    // If the path already includes /storage/, use it as is
+    if (path.startsWith('/storage/')) {
+      final fullUrl = '$baseUrl$path';
+      print('Storage path detected, constructed full URL: $fullUrl');
+      return fullUrl;
+    }
 
-    // Construct the full URL
+    // For other paths, add /storage/ prefix
+    final storagePath = '/storage/$path';
     final fullUrl = '$baseUrl$storagePath';
     print('Constructed full URL: $fullUrl');
     return fullUrl;
@@ -176,6 +222,7 @@ class Product {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
+    Map<String, dynamic>? category,
   }) {
     return Product(
       id: id ?? this.id,
@@ -197,6 +244,7 @@ class Product {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      category: category ?? this.category,
     );
   }
 }

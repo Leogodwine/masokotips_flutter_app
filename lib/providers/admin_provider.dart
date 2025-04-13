@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import '../models/user.dart';
 import '../models/service.dart';
 import '../models/market_info.dart';
@@ -11,8 +10,6 @@ import '../models/admin_dashboard_data.dart';
 import '../utils/logger.dart';
 import '../models/category.dart' as models;
 import 'package:flutter/material.dart';
-import 'dart:io';
-import 'package:image_picker/image_picker.dart';
 
 class AdminProvider with ChangeNotifier {
   final AdminService _adminService = AdminService();
@@ -27,7 +24,6 @@ class AdminProvider with ChangeNotifier {
   List<Product> _products = [];
   List<OrganicProduct> _organicProducts = [];
   List<Transport> _transports = [];
-  // ignore: unused_field
   List<models.Category> _categories = [];
 
   AdminProvider() {
@@ -39,15 +35,32 @@ class AdminProvider with ChangeNotifier {
       Log.d('Initializing admin auth');
       await _adminAuthService.initializeAuthToken();
       final token = _adminAuthService.authToken;
-      if (token != null) {
+
+      if (token != null && token.isNotEmpty) {
+        Log.d('Auth token found: ${token.substring(0, 10)}...');
         setAuthToken(token);
-        Log.d('Auth token initialized from storage');
-        await loadDashboardData();
+        Log.d('Auth token set in services');
+
+        // Verify the token is valid by making a test request
+        try {
+          await loadDashboardData();
+          Log.d('Auth token verified successfully');
+        } catch (e) {
+          Log.e('Auth token verification failed: $e');
+          // Clear invalid token
+          await _adminAuthService.logout();
+          _isAdmin = false;
+          _dashboardData = null;
+        }
       } else {
-        Log.d('No stored auth token found');
+        Log.d('No valid auth token found');
+        _isAdmin = false;
+        _dashboardData = null;
       }
     } catch (e, stackTrace) {
       Log.e('Error initializing auth: $e\n$stackTrace');
+      _isAdmin = false;
+      _dashboardData = null;
     }
   }
 
@@ -61,6 +74,7 @@ class AdminProvider with ChangeNotifier {
   List<Product> get products => _products;
   List<OrganicProduct> get organicProducts => _organicProducts;
   List<Transport> get transports => _transports;
+  List<models.Category> get categories => _categories;
 
   void setAuthToken(String token) {
     _adminService.setAuthToken(token);
@@ -139,9 +153,12 @@ class AdminProvider with ChangeNotifier {
 
       Log.d('Starting to load dashboard data');
 
-      if (_adminAuthService.authToken == null) {
-        Log.e('No auth token available for dashboard request');
+      if (_adminAuthService.authToken == null ||
+          _adminAuthService.authToken!.isEmpty) {
+        Log.e('No valid auth token available for dashboard request');
         _error = 'Not authenticated. Please login again.';
+        _isAdmin = false;
+        _dashboardData = null;
         return;
       }
 
@@ -180,12 +197,31 @@ class AdminProvider with ChangeNotifier {
           _error = 'Failed to parse dashboard data: $e';
         }
       } else {
-        _error = response['message'] ?? 'Failed to load dashboard data';
-        Log.e('Dashboard load failed: $_error');
+        if (response['message']
+                ?.toString()
+                .toLowerCase()
+                .contains('unauthenticated') ??
+            false) {
+          Log.e('Authentication failed, clearing token');
+          await _adminAuthService.logout();
+          _isAdmin = false;
+          _dashboardData = null;
+          _error = 'Session expired. Please login again.';
+        } else {
+          _error = response['message'] ?? 'Failed to load dashboard data';
+          Log.e('Dashboard load failed: $_error');
+        }
       }
     } catch (e, stackTrace) {
       Log.e('Error loading dashboard data: $e\n$stackTrace');
-      _error = 'Failed to load dashboard data: $e';
+      if (e.toString().toLowerCase().contains('unauthenticated')) {
+        await _adminAuthService.logout();
+        _isAdmin = false;
+        _dashboardData = null;
+        _error = 'Session expired. Please login again.';
+      } else {
+        _error = 'Failed to load dashboard data: $e';
+      }
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -238,17 +274,21 @@ class AdminProvider with ChangeNotifier {
   }
 
   Future<void> loadProducts() async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
     try {
+      _isLoading = true;
+      _error = null;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
+
       _products = await _adminService.getProducts();
     } catch (e) {
       _error = e.toString();
     } finally {
       _isLoading = false;
-      notifyListeners();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
     }
   }
 
@@ -443,16 +483,21 @@ class AdminProvider with ChangeNotifier {
   Future<Product> updateProduct(
       int productId, Map<String, dynamic> productData) async {
     try {
+      Log.d('AdminProvider - updateProduct:');
+      Log.d('- is_active: ${productData['is_active']}');
+      Log.d('- is_featured: ${productData['is_featured']}');
+
       _isLoading = true;
       _error = null;
       notifyListeners();
 
-      final product = await _adminService.updateProduct(productId, productData);
+      final updatedProduct =
+          await _adminService.updateProduct(productId, productData);
       final index = _products.indexWhere((p) => p.id == productId);
       if (index != -1) {
-        _products[index] = product;
+        _products[index] = updatedProduct;
       }
-      return product;
+      return updatedProduct;
     } catch (e) {
       _error = e.toString();
       rethrow;
@@ -468,8 +513,21 @@ class AdminProvider with ChangeNotifier {
       _error = null;
       notifyListeners();
 
-      // Remove the file conversion since we want to keep XFile
-      final product = await _adminService.createProduct(productData);
+      final product = await _adminService.createProduct(
+        name: productData['name'],
+        description: productData['description'],
+        price: productData['price'],
+        stock: productData['stock'],
+        unit: productData['unit'],
+        categoryId: productData['category_id'],
+        isActive: productData['is_active'] is bool
+            ? productData['is_active']
+            : productData['is_active'] == 1,
+        isFeatured: productData['is_featured'] is bool
+            ? productData['is_featured']
+            : productData['is_featured'] == 1,
+        images: productData['images'],
+      );
       _products.add(product);
       return product;
     } catch (e) {
@@ -542,19 +600,28 @@ class AdminProvider with ChangeNotifier {
 
   Future<List<models.Category>> getCategories() async {
     try {
+      Log.d('Starting to load categories');
       _isLoading = true;
       _error = null;
       notifyListeners();
 
+      Log.d('Calling _adminService.getCategories()');
       final categories = await _adminService.getCategories();
+      Log.d(
+          'Categories received from service: ${categories.length} categories');
+
       _categories = categories;
+      Log.d('Categories set in provider: ${_categories.length} categories');
+
       return categories;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      Log.e('Error loading categories: $e\n$stackTrace');
       _error = e.toString();
       return [];
     } finally {
       _isLoading = false;
       notifyListeners();
+      Log.d('Categories loading completed');
     }
   }
 }

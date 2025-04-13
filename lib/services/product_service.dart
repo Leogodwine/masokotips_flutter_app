@@ -106,7 +106,31 @@ class ProductService {
       if (response.statusCode == 201) {
         final data = jsonDecode(responseBody.body);
         print('Successfully created product: ${data['name']}');
-        return Product.fromJson(data);
+
+        // Ensure the response data has all required fields
+        final productData = {
+          'id': data['id'] ?? 0,
+          'name': data['name'] ?? '',
+          'slug': data['slug'] ?? '',
+          'description': data['description'] ?? '',
+          'price': data['price']?.toString() ?? '0',
+          'stock': data['stock']?.toString(),
+          'unit': data['unit'],
+          'is_active': data['is_active'] ?? true,
+          'is_featured': data['is_featured'] ?? false,
+          'image_url': data['image_url'] ?? '',
+          'images': data['images'] ?? [],
+          'category_id': data['category_id']?.toString() ?? '0',
+          'user_id': data['user_id']?.toString() ?? '0',
+          'rating': data['rating']?.toString() ?? '0',
+          'rating_count': data['rating_count']?.toString() ?? '0',
+          'created_at': data['created_at'] ?? DateTime.now().toIso8601String(),
+          'updated_at': data['updated_at'] ?? DateTime.now().toIso8601String(),
+          'deleted_at': data['deleted_at'],
+          'category': data['category'],
+        };
+
+        return Product.fromJson(productData);
       } else {
         final errorBody = jsonDecode(responseBody.body);
         print(

@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:provider/provider.dart';
 import '../../providers/admin_provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:masoko_tips/utils/log.dart';
 
 class AdminProductFormScreen extends StatefulWidget {
   final Product? product;
@@ -49,19 +50,98 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
 
   Future<void> _loadCategories() async {
     try {
+      Log.d('Starting to load categories in form screen');
       final adminProvider = Provider.of<AdminProvider>(context, listen: false);
+      Log.d('AdminProvider obtained, calling getCategories()');
+
       final categories = await adminProvider.getCategories();
+      Log.d(
+          'Categories received from provider: ${categories.length} categories');
+
+      // Find the Products category and ensure it has its subcategories
+      Log.d('Looking for Products category (id: 1)');
+      final productsCategory = categories.firstWhere(
+        (category) => category.id == 1,
+        orElse: () {
+          Log.d('Products category not found, creating default');
+          return models.Category(
+            id: 1,
+            name: 'Products',
+            children: [
+              models.Category(id: 11, name: 'Vegetables'),
+              models.Category(id: 12, name: 'Fruits'),
+              models.Category(id: 13, name: 'Spices'),
+              models.Category(id: 14, name: 'Cash Crops'),
+              models.Category(id: 15, name: 'Cereals'),
+              models.Category(id: 16, name: 'Seeds and Seedling'),
+              models.Category(id: 17, name: 'Livestock and poultry'),
+            ],
+          );
+        },
+      );
+
+      Log.d(
+          'Products category found/created with ${productsCategory.children?.length ?? 0} subcategories');
+
       if (mounted) {
+        Log.d('Setting state with categories');
         setState(() {
-          _categories = categories;
+          _categories = [productsCategory];
+          // If editing a product, ensure the selected category is valid
+          if (widget.product != null) {
+            Log.d('Editing existing product, validating category');
+            final productSubcategories = _getProductSubcategories();
+            if (!productSubcategories
+                .any((c) => c.id == widget.product!.categoryId)) {
+              Log.d(
+                  'Product category not found in subcategories, setting to null');
+              _selectedCategoryId = null;
+            } else {
+              Log.d(
+                  'Product category found, setting to ${widget.product!.categoryId}');
+              _selectedCategoryId = widget.product!.categoryId;
+            }
+          } else {
+            // For new products, select the first category by default
+            Log.d('Creating new product, selecting first category');
+            final subcategories = _getProductSubcategories();
+            if (subcategories.isNotEmpty) {
+              Log.d('Setting default category to ${subcategories.first.id}');
+              _selectedCategoryId = subcategories.first.id;
+            }
+          }
           _isInitialized = true;
+          Log.d('State updated successfully');
         });
+      } else {
+        Log.d('Widget not mounted, skipping state update');
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      Log.e('Error in _loadCategories: $e\n$stackTrace');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to load categories: $e')),
         );
+        // Set default categories if loading fails
+        Log.d('Setting default categories after error');
+        setState(() {
+          _categories = [
+            models.Category(
+              id: 1,
+              name: 'Products',
+              children: [
+                models.Category(id: 11, name: 'Vegetables'),
+                models.Category(id: 12, name: 'Fruits'),
+                models.Category(id: 13, name: 'Spices'),
+                models.Category(id: 14, name: 'Cash Crops'),
+                models.Category(id: 15, name: 'Cereals'),
+                models.Category(id: 16, name: 'Seeds and Seedling'),
+                models.Category(id: 17, name: 'Livestock and poultry'),
+              ],
+            ),
+          ];
+          _isInitialized = true;
+        });
       }
     }
   }
@@ -114,6 +194,11 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
         'images': _selectedImages,
       };
 
+      // Log the form data
+      Log.d('Form Data before submission:');
+      Log.d('- is_active: $_isActive');
+      Log.d('- is_featured: $_isFeatured');
+
       if (widget.product == null) {
         await adminProvider.createProduct(productData);
         if (mounted) {
@@ -147,6 +232,29 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  List<models.Category> _getProductSubcategories() {
+    if (_categories.isEmpty) {
+      return [];
+    }
+    final productsCategory = _categories.firstWhere(
+      (category) => category.id == 1,
+      orElse: () => models.Category(
+        id: 1,
+        name: 'Products',
+        children: [
+          models.Category(id: 11, name: 'Vegetables'),
+          models.Category(id: 12, name: 'Fruits'),
+          models.Category(id: 13, name: 'Spices'),
+          models.Category(id: 14, name: 'Cash Crops'),
+          models.Category(id: 15, name: 'Cereals'),
+          models.Category(id: 16, name: 'Seeds and Seedling'),
+          models.Category(id: 17, name: 'Livestock and poultry'),
+        ],
+      ),
+    );
+    return productsCategory.children ?? [];
   }
 
   @override
@@ -261,7 +369,7 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
                                 border: OutlineInputBorder(),
                                 prefixIcon: Icon(Icons.category),
                               ),
-                              items: _categories.map((category) {
+                              items: _getProductSubcategories().map((category) {
                                 return DropdownMenuItem<int>(
                                   value: category.id,
                                   child: Text(category.name),
@@ -283,25 +391,108 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
                             Row(
                               children: [
                                 Expanded(
-                                  child: SwitchListTile(
-                                    title: const Text('Active'),
-                                    value: _isActive,
-                                    onChanged: (value) {
+                                  child: InkWell(
+                                    onTap: () {
                                       setState(() {
-                                        _isActive = value;
+                                        _isActive = !_isActive;
                                       });
                                     },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 12,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: _isActive
+                                            ? Colors.green.withOpacity(0.1)
+                                            : Colors.grey.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: _isActive
+                                              ? Colors.green
+                                              : Colors.grey,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            _isActive
+                                                ? Icons.check_circle
+                                                : Icons.cancel,
+                                            color: _isActive
+                                                ? Colors.green
+                                                : Colors.grey,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            _isActive ? 'Active' : 'Inactive',
+                                            style: TextStyle(
+                                              color: _isActive
+                                                  ? Colors.green
+                                                  : Colors.grey,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
+                                const SizedBox(width: 16),
                                 Expanded(
-                                  child: SwitchListTile(
-                                    title: const Text('Featured'),
-                                    value: _isFeatured,
-                                    onChanged: (value) {
+                                  child: InkWell(
+                                    onTap: () {
                                       setState(() {
-                                        _isFeatured = value;
+                                        _isFeatured = !_isFeatured;
                                       });
                                     },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 12,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: _isFeatured
+                                            ? Colors.amber.withOpacity(0.1)
+                                            : Colors.grey.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: _isFeatured
+                                              ? Colors.amber
+                                              : Colors.grey,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            _isFeatured
+                                                ? Icons.star
+                                                : Icons.star_border,
+                                            color: _isFeatured
+                                                ? Colors.amber
+                                                : Colors.grey,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            _isFeatured
+                                                ? 'Featured'
+                                                : 'Not Featured',
+                                            style: TextStyle(
+                                              color: _isFeatured
+                                                  ? Colors.amber
+                                                  : Colors.grey,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],

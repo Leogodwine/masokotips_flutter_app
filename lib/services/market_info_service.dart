@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import '../models/market_info.dart';
 import '../utils/logger.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -287,20 +288,19 @@ class MarketInfoService {
       }
 
       final imageFile = File(imagePath);
-
-      try {
-        final multipartFile =
-            await ImageUploadHelper.prepareImageForUpload(imageFile);
-        Log.d(
-            'Image prepared successfully, content type: ${multipartFile.contentType}');
-        Log.d('Image filename: ${multipartFile.filename}');
-
-        request.files.add(multipartFile);
-        request.fields['_method'] = 'POST';
-      } catch (e) {
-        Log.e('Error preparing image: $e');
-        throw Exception('Failed to prepare image for upload: $e');
+      if (!await imageFile.exists()) {
+        throw Exception('Image file does not exist');
       }
+
+      final xFile = XFile(imageFile.path);
+      final multipartFile =
+          await ImageUploadHelper.prepareImageForUpload(xFile);
+      Log.d(
+          'Image prepared successfully, content type: ${multipartFile.contentType}');
+      Log.d('Image filename: ${multipartFile.filename}');
+
+      request.files.add(multipartFile);
+      request.fields['_method'] = 'POST';
 
       Log.d('Uploading image to: ${request.url}');
       Log.d('Request headers: ${request.headers}');

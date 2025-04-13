@@ -10,7 +10,6 @@ import '../utils/logger.dart';
 import '../config/api_config.dart';
 import 'package:dio/dio.dart';
 import '../models/category.dart';
-import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
@@ -468,6 +467,10 @@ class AdminService {
       request.headers['Authorization'] = 'Bearer $_authToken';
 
       // Add non-file fields
+      Log.d('Product update data before sending:');
+      Log.d('- is_active: ${productData['is_active']}');
+      Log.d('- is_featured: ${productData['is_featured']}');
+
       request.fields.addAll({
         '_method': 'PUT',
         'name': productData['name'],
@@ -476,9 +479,18 @@ class AdminService {
         'stock': productData['stock'].toString(),
         'unit': productData['unit'],
         'category_id': productData['category_id'].toString(),
-        'is_active': productData['is_active'].toString(),
-        'is_featured': productData['is_featured'].toString(),
+        'is_active': productData['is_active'] is bool
+            ? (productData['is_active'] ? '1' : '0')
+            : productData['is_active'].toString(),
+        'is_featured': productData['is_featured'] is bool
+            ? (productData['is_featured'] ? '1' : '0')
+            : productData['is_featured'].toString(),
       });
+
+      // Log the request data
+      Log.d('Update Product Request Data:');
+      Log.d('- is_active: ${request.fields['is_active']}');
+      Log.d('- is_featured: ${request.fields['is_featured']}');
 
       // Handle images
       if (productData['images'] != null) {
@@ -510,67 +522,168 @@ class AdminService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        Log.d('Product updated successfully');
+        Log.d('Response data: $data');
         if (data['success'] == true && data['data'] != null) {
-          return Product.fromJson(data['data']);
+          // Ensure is_featured is included in the response data
+          final responseData = data['data'] as Map<String, dynamic>;
+          Log.d('Raw is_featured value: ${responseData['is_featured']}');
+          Log.d(
+              'Raw is_featured type: ${responseData['is_featured'].runtimeType}');
+
+          if (!responseData.containsKey('is_featured')) {
+            responseData['is_featured'] = productData['is_featured'];
+          }
+          // Convert is_featured to boolean if it's a string
+          if (responseData['is_featured'] is String) {
+            responseData['is_featured'] = responseData['is_featured'] == '1';
+          } else if (responseData['is_featured'] is int) {
+            responseData['is_featured'] = responseData['is_featured'] == 1;
+          }
+          Log.d('Processed is_featured value: ${responseData['is_featured']}');
+          Log.d(
+              'Processed is_featured type: ${responseData['is_featured'].runtimeType}');
+
+          return Product.fromJson(responseData);
         } else {
           throw Exception('Failed to update product: ${data['message']}');
         }
       } else {
+        Log.e('Failed to update product: ${response.body}');
         throw Exception('Failed to update product: ${response.body}');
       }
     } catch (e) {
+      Log.e('Error updating product: $e');
       throw Exception('Error updating product: $e');
     }
   }
 
-  Future<Product> createProduct(Map<String, dynamic> productData) async {
+  Future<Product> createProduct({
+    required String name,
+    required String description,
+    required double price,
+    required int stock,
+    required String unit,
+    required int categoryId,
+    required bool isActive,
+    required bool isFeatured,
+    required List<XFile> images,
+  }) async {
     try {
-      final formData = FormData();
+      Log.d('Creating product with data:');
+      Log.d('- name: $name');
+      Log.d('- is_active: $isActive');
+      Log.d('- is_featured: $isFeatured');
+      Log.d('- category_id: $categoryId');
 
-      // Add all product data fields
-      productData.forEach((key, value) {
-        if (key != 'images' && value != null) {
-          formData.fields.add(MapEntry(key, value.toString()));
+      // First, verify the category exists
+      try {
+        final categories = await getCategories();
+        final defaultCategories = [
+          Category(id: 1, name: 'Products', children: [
+            Category(id: 11, name: 'Vegetables'),
+            Category(id: 12, name: 'Livestock and poultry'),
+            Category(id: 13, name: 'Spices'),
+            Category(id: 14, name: 'Cash Crops'),
+            Category(id: 15, name: 'Cereals'),
+            Category(id: 16, name: 'Seeds and Seedling'),
+            Category(id: 17, name: 'Fruits'),
+          ]),
+        ];
+
+        // Check both API categories and default categories
+        final allCategories = [...categories, ...defaultCategories];
+        final categoryExists = allCategories.any((category) {
+          if (category.children != null) {
+            return category.children!.any((child) => child.id == categoryId);
+          }
+          return category.id == categoryId;
+        });
+
+        if (!categoryExists) {
+          throw Exception('Category with ID $categoryId does not exist');
         }
+      } catch (e) {
+        Log.e('Error verifying category: $e');
+        rethrow;
+      }
+
+      // Generate slug from name
+      final slug = name
+          .toLowerCase()
+          .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+          .replaceAll(RegExp(r'^-|-$'), '');
+
+      final formData = FormData.fromMap({
+        'name': name,
+        'slug': slug,
+        'description': description,
+        'price': price.toString(),
+        'stock': stock.toString(),
+        'unit': unit,
+        'category_id': categoryId.toString(),
+        'is_active': isActive ? 1 : 0,
+        'is_featured': isFeatured ? 1 : 0,
       });
 
-      // Handle images differently for web and mobile
-      if (productData['images'] != null) {
-        final List<XFile> images = productData['images'];
-        for (var i = 0; i < images.length; i++) {
-          final image = images[i];
-          if (kIsWeb) {
-            // For web, read the file bytes
-            final bytes = await image.readAsBytes();
-            formData.files.add(MapEntry(
-              'images[]',
-              MultipartFile.fromBytes(
-                bytes,
-                filename: image.name,
-              ),
-            ));
-          } else {
-            // For mobile, use the file path
-            formData.files.add(MapEntry(
-              'images[]',
-              await MultipartFile.fromFile(
-                image.path,
-                filename: image.name,
-              ),
-            ));
-          }
+      // Handle image uploads
+      if (kIsWeb) {
+        // Web platform
+        for (var image in images) {
+          final bytes = await image.readAsBytes();
+          formData.files.add(MapEntry(
+            'images[]',
+            MultipartFile.fromBytes(
+              bytes,
+              filename: image.name,
+            ),
+          ));
+        }
+      } else {
+        // Mobile platform
+        for (var image in images) {
+          formData.files.add(MapEntry(
+            'images[]',
+            await MultipartFile.fromFile(
+              image.path,
+              filename: image.name,
+            ),
+          ));
         }
       }
 
       final response = await _dio.post(
         '/admin/products',
         data: formData,
+        options: Options(
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'multipart/form-data',
+          },
+          validateStatus: (status) => status! < 500,
+        ),
       );
 
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        return Product.fromJson(response.data['data']);
+      if (response.statusCode == 201) {
+        Log.d('Product created successfully');
+        Log.d('Response data: ${response.data}');
+
+        // Ensure is_featured is included in the response data
+        final responseData = response.data['data'] as Map<String, dynamic>;
+        if (!responseData.containsKey('is_featured')) {
+          responseData['is_featured'] = isFeatured;
+        }
+        // Convert is_featured to boolean if it's a string
+        if (responseData['is_featured'] is String) {
+          responseData['is_featured'] = responseData['is_featured'] == '1';
+        }
+
+        return Product.fromJson(responseData);
       } else {
-        throw Exception('Failed to create product: ${response.data}');
+        Log.e('Failed to create product: ${response.statusMessage}');
+        Log.e('Response data: ${response.data}');
+        throw Exception(
+            'Failed to create product: ${response.data['message'] ?? response.statusMessage}');
       }
     } catch (e) {
       Log.e('Error creating product: $e');
@@ -650,14 +763,71 @@ class AdminService {
 
   Future<List<Category>> getCategories() async {
     try {
-      final response = await _dio.get('/categories');
+      Log.d('AdminService: Starting to fetch categories');
+      final response = await _dio.get('/admin/categories');
+      Log.d(
+          'AdminService: Categories response received: ${response.data.toString()}');
+
       if (response.statusCode == 200) {
-        final List<dynamic> data = response.data['data'];
-        return data.map((json) => Category.fromJson(json)).toList();
+        final Map<String, dynamic> responseData = response.data;
+        if (responseData['success'] == true) {
+          final List<dynamic> data = responseData['data'];
+          Log.d('AdminService: Parsing ${data.length} categories');
+
+          final categories =
+              data.map((item) => Category.fromJson(item)).toList();
+          Log.d(
+              'AdminService: Successfully parsed ${categories.length} categories');
+          return categories;
+        } else {
+          Log.e(
+              'AdminService: Failed to fetch categories: ${responseData['message']}');
+          throw Exception(
+              responseData['message'] ?? 'Failed to fetch categories');
+        }
+      } else {
+        Log.e(
+            'AdminService: Failed to fetch categories: HTTP ${response.statusCode}');
+        throw Exception(
+            'Failed to fetch categories: HTTP ${response.statusCode}');
       }
-      throw Exception('Failed to load categories');
-    } catch (e) {
-      throw Exception('Failed to load categories: $e');
+    } catch (e, stackTrace) {
+      Log.e('AdminService: Error fetching categories: $e\n$stackTrace');
+      // Return default categories if API fails
+      Log.d('AdminService: Returning default categories');
+      return [
+        Category(
+          id: 1,
+          name: 'Products',
+          children: [
+            Category(id: 11, name: 'Vegetables'),
+            Category(id: 12, name: 'Livestock and poultry'),
+            Category(id: 13, name: 'Spices'),
+            Category(id: 14, name: 'Cash Crops'),
+            Category(id: 15, name: 'Cereals'),
+            Category(id: 16, name: 'Seeds and Seedling'),
+            Category(id: 17, name: 'Fruits'),
+          ],
+        ),
+        Category(
+          id: 2,
+          name: 'Services',
+          children: [
+            Category(id: 21, name: 'Transport'),
+            Category(id: 22, name: 'Storage'),
+            Category(id: 23, name: 'Processing'),
+          ],
+        ),
+        Category(
+          id: 3,
+          name: 'Transport',
+          children: [
+            Category(id: 31, name: 'Tandem'),
+            Category(id: 32, name: 'Truck'),
+            Category(id: 33, name: 'Motorcycle'),
+          ],
+        ),
+      ];
     }
   }
 }

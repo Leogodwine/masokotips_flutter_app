@@ -75,7 +75,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
 
     if (imageFile != null) {
       setState(() {
-        _imageFile = imageFile;
+        _imageFile = kIsWeb ? null : File(imageFile.path);
       });
     }
   }

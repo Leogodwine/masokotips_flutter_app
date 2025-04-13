@@ -7,6 +7,7 @@ import '../../widgets/error_handler.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../../utils/image_upload_helper.dart';
+import 'package:image_picker/image_picker.dart';
 
 class MarketInfoManagementScreen extends StatefulWidget {
   const MarketInfoManagementScreen({super.key});
@@ -446,7 +447,7 @@ class _AddMarketInfoScreenState extends State<AddMarketInfoScreen> {
   final _contentController = TextEditingController();
   final _locationController = TextEditingController();
   final _categoryController = TextEditingController();
-  File? _imageFile;
+  XFile? _imageFile;
   bool _isLoading = false;
   String? _error;
 
@@ -640,7 +641,7 @@ class _AddMarketInfoScreenState extends State<AddMarketInfoScreen> {
                             },
                           )
                         : Image.file(
-                            _imageFile!,
+                            File(_imageFile!.path),
                             height: 200,
                             width: double.infinity,
                             fit: BoxFit.cover,
@@ -694,7 +695,7 @@ class _EditMarketInfoScreenState extends State<EditMarketInfoScreen> {
   late final TextEditingController _contentController;
   late final TextEditingController _locationController;
   late final TextEditingController _categoryController;
-  File? _imageFile;
+  XFile? _imageFile;
   bool _isLoading = false;
   String? _error;
 
@@ -871,7 +872,7 @@ class _EditMarketInfoScreenState extends State<EditMarketInfoScreen> {
                             },
                           )
                         : Image.file(
-                            _imageFile!,
+                            File(_imageFile!.path),
                             height: 200,
                             width: double.infinity,
                             fit: BoxFit.cover,
