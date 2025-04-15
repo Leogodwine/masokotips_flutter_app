@@ -541,20 +541,21 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
           widget.product == null
               ? 'Add Organic Product'
               : 'Edit Organic Product',
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: theme.colorScheme.onPrimary,
           ),
         ),
         elevation: 0,
         backgroundColor: theme.primaryColor,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: theme.colorScheme.onPrimary),
         actions: [
           if (widget.product != null)
             IconButton(
               icon: const Icon(Icons.delete_outline),
               onPressed: _deleteProduct,
               tooltip: 'Delete Product',
+              color: theme.colorScheme.onPrimary,
             ),
         ],
       ),
@@ -895,7 +896,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                 onPressed: _isLoading ? null : _saveProduct,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: theme.primaryColor,
-                  foregroundColor: Colors.white,
+                  foregroundColor: theme.colorScheme.onPrimary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -903,13 +904,13 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                   elevation: 2,
                 ),
                 child: _isLoading
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              theme.colorScheme.onPrimary),
                         ),
                       )
                     : Row(

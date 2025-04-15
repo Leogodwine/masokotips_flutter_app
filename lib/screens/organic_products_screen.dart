@@ -31,15 +31,24 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Organic Products',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: theme.colorScheme.onPrimary,
           ),
         ),
         backgroundColor: theme.primaryColor,
         elevation: 0,
+        iconTheme: IconThemeData(color: theme.colorScheme.onPrimary),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () =>
+                context.read<OrganicProductProvider>().loadProducts(),
+            color: theme.colorScheme.onPrimary,
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'organic_product_add_button',
@@ -49,7 +58,7 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
         icon: const Icon(Icons.add),
         label: const Text('Add Product'),
         backgroundColor: theme.primaryColor,
-        foregroundColor: Colors.white,
+        foregroundColor: theme.colorScheme.onPrimary,
         elevation: 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
