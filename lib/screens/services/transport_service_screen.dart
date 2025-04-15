@@ -32,12 +32,12 @@ class TransportServiceScreen extends StatelessWidget {
               fit: BoxFit.cover,
               placeholder: (context, url) => Container(
                 height: 200,
-                color: Colors.grey[300],
+                color: Colors.grey.withAlpha(26),
                 child: const Center(child: CircularProgressIndicator()),
               ),
               errorWidget: (context, url, error) => Container(
                 height: 200,
-                color: Colors.grey[300],
+                color: Colors.grey.withAlpha(26),
                 child: const Icon(Icons.error),
               ),
             ),
@@ -54,8 +54,8 @@ class TransportServiceScreen extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: transportDetails['isAvailable'] as bool
-                          ? Colors.green.withOpacity(0.1)
-                          : Colors.red.withOpacity(0.1),
+                          ? Colors.green.withAlpha(26)
+                          : Colors.red.withAlpha(26),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(

@@ -624,4 +624,43 @@ class AdminProvider with ChangeNotifier {
       Log.d('Categories loading completed');
     }
   }
+
+  Future<OrganicProduct> addOrganicProduct(OrganicProduct product) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final response = await _adminService.createOrganicProduct(product);
+      _organicProducts.add(response);
+      return response;
+    } catch (e) {
+      _error = e.toString();
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<OrganicProduct> updateOrganicProduct(OrganicProduct product) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final response = await _adminService.updateOrganicProduct(product);
+      final index = _organicProducts.indexWhere((p) => p.id == product.id);
+      if (index != -1) {
+        _organicProducts[index] = response;
+      }
+      return response;
+    } catch (e) {
+      _error = e.toString();
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

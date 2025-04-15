@@ -82,8 +82,8 @@ class _MarketInfoManagementScreenState
   Future<void> _openAddMarketInfoScreen() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    // Check if user is authenticated and is an admin
-    if (!authProvider.isAuthenticated) {
+    // Check if user is authenticated
+    if (!authProvider.isAuthenticated || authProvider.token == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -98,7 +98,8 @@ class _MarketInfoManagementScreenState
     }
 
     // Check if user has admin role
-    if (!authProvider.user!.roles.contains('admin')) {
+    if (authProvider.user == null ||
+        !authProvider.user!.roles.contains('admin')) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -444,9 +445,9 @@ class AddMarketInfoScreen extends StatefulWidget {
 class _AddMarketInfoScreenState extends State<AddMarketInfoScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
-  final _contentController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _contactController = TextEditingController();
   final _locationController = TextEditingController();
-  final _categoryController = TextEditingController();
   XFile? _imageFile;
   bool _isLoading = false;
   String? _error;
@@ -454,9 +455,9 @@ class _AddMarketInfoScreenState extends State<AddMarketInfoScreen> {
   @override
   void dispose() {
     _titleController.dispose();
-    _contentController.dispose();
+    _descriptionController.dispose();
+    _contactController.dispose();
     _locationController.dispose();
-    _categoryController.dispose();
     super.dispose();
   }
 
@@ -483,12 +484,10 @@ class _AddMarketInfoScreenState extends State<AddMarketInfoScreen> {
           // Create a temporary market info to get an ID
           final tempMarketInfo = await widget.marketInfoService.addMarketInfo(
             title: _titleController.text,
-            content: _contentController.text,
+            description: _descriptionController.text,
+            contact: _contactController.text,
             location: _locationController.text.isNotEmpty
                 ? _locationController.text
-                : null,
-            category: _categoryController.text.isNotEmpty
-                ? _categoryController.text
                 : null,
           );
 
@@ -497,39 +496,20 @@ class _AddMarketInfoScreenState extends State<AddMarketInfoScreen> {
             tempMarketInfo.id.toString(),
             _imageFile!.path,
           );
-
-          // Update the market info with the image URL
-          final updatedMarketInfo =
-              await widget.marketInfoService.updateMarketInfo(
-            id: tempMarketInfo.id.toString(),
-            title: _titleController.text,
-            content: _contentController.text,
-            imageUrl: imageUrl,
-            location: _locationController.text.isNotEmpty
-                ? _locationController.text
-                : null,
-            category: _categoryController.text.isNotEmpty
-                ? _categoryController.text
-                : null,
-          );
-
-          widget.onMarketInfoAdded(updatedMarketInfo);
-        } else {
-          // Create market info without image
-          final marketInfo = await widget.marketInfoService.addMarketInfo(
-            title: _titleController.text,
-            content: _contentController.text,
-            location: _locationController.text.isNotEmpty
-                ? _locationController.text
-                : null,
-            category: _categoryController.text.isNotEmpty
-                ? _categoryController.text
-                : null,
-          );
-
-          widget.onMarketInfoAdded(marketInfo);
         }
 
+        // Create the final market info with the image URL
+        final marketInfo = await widget.marketInfoService.addMarketInfo(
+          title: _titleController.text,
+          description: _descriptionController.text,
+          contact: _contactController.text,
+          location: _locationController.text.isNotEmpty
+              ? _locationController.text
+              : null,
+          imageUrl: imageUrl,
+        );
+
+        widget.onMarketInfoAdded(marketInfo);
         if (mounted) {
           Navigator.pop(context);
         }
@@ -552,123 +532,131 @@ class _AddMarketInfoScreenState extends State<AddMarketInfoScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add Market Information'),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (_error != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Text(
-                    _error!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ),
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Title',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a title';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _contentController,
-                decoration: const InputDecoration(
-                  labelText: 'Content',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 5,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter content';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _locationController,
-                decoration: const InputDecoration(
-                  labelText: 'Location (Optional)',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _categoryController,
-                decoration: const InputDecoration(
-                  labelText: 'Category (Optional)',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: _pickImage,
-                icon: const Icon(Icons.image),
-                label: const Text('Add Image'),
-              ),
-              if (_imageFile != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 16),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: kIsWeb
-                        ? Image.network(
-                            _imageFile!.path,
-                            height: 200,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              print('Error loading image: $error');
-                              return Container(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextFormField(
+                      controller: _titleController,
+                      decoration: const InputDecoration(
+                        labelText: 'Title',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a title';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _descriptionController,
+                      decoration: const InputDecoration(
+                        labelText: 'Description',
+                        border: OutlineInputBorder(),
+                      ),
+                      maxLines: 3,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a description';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _contactController,
+                      decoration: const InputDecoration(
+                        labelText: 'Contact Information',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter contact information';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _locationController,
+                      decoration: const InputDecoration(
+                        labelText: 'Location (Optional)',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    if (_imageFile != null)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: kIsWeb
+                            ? Image.network(
+                                _imageFile!.path,
                                 height: 200,
-                                color: Colors.grey[300],
-                                child: const Center(
-                                  child: Icon(Icons.error_outline, size: 48),
-                                ),
-                              );
-                            },
-                          )
-                        : Image.file(
-                            File(_imageFile!.path),
-                            height: 200,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              print('Error loading image: $error');
-                              return Container(
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  print('Error loading image: $error');
+                                  return Container(
+                                    height: 200,
+                                    color: Colors.grey[300],
+                                    child: const Center(
+                                      child:
+                                          Icon(Icons.error_outline, size: 48),
+                                    ),
+                                  );
+                                },
+                              )
+                            : Image.file(
+                                File(_imageFile!.path),
                                 height: 200,
-                                color: Colors.grey[300],
-                                child: const Center(
-                                  child: Icon(Icons.error_outline, size: 48),
-                                ),
-                              );
-                            },
-                          ),
-                  ),
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  print('Error loading image: $error');
+                                  return Container(
+                                    height: 200,
+                                    color: Colors.grey[300],
+                                    child: const Center(
+                                      child:
+                                          Icon(Icons.error_outline, size: 48),
+                                    ),
+                                  );
+                                },
+                              ),
+                      ),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: _pickImage,
+                      icon: const Icon(Icons.image),
+                      label: const Text('Pick Image'),
+                    ),
+                    const SizedBox(height: 16),
+                    if (_error != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Text(
+                          _error!,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ElevatedButton(
+                      onPressed: _submitForm,
+                      child: const Text('Add Market Information'),
+                    ),
+                  ],
                 ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _submitForm,
-                child: _isLoading
-                    ? const CircularProgressIndicator()
-                    : const Text('Add Market Information'),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 }

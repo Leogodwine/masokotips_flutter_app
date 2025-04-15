@@ -35,6 +35,11 @@ class ProductProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
+  // Set auth token
+  void setAuthToken(String token) {
+    _apiService.setAuthToken(token);
+  }
+
   // Get featured products
   Future<void> getFeaturedProducts() async {
     try {

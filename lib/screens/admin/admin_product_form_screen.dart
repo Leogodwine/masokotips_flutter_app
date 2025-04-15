@@ -404,8 +404,8 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
                                       ),
                                       decoration: BoxDecoration(
                                         color: _isActive
-                                            ? Colors.green.withOpacity(0.1)
-                                            : Colors.grey.withOpacity(0.1),
+                                            ? Colors.green.withAlpha(26)
+                                            : Colors.grey.withAlpha(26),
                                         borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
                                           color: _isActive
@@ -456,8 +456,8 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
                                       ),
                                       decoration: BoxDecoration(
                                         color: _isFeatured
-                                            ? Colors.amber.withOpacity(0.1)
-                                            : Colors.grey.withOpacity(0.1),
+                                            ? Colors.amber.withAlpha(26)
+                                            : Colors.grey.withAlpha(26),
                                         borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
                                           color: _isFeatured

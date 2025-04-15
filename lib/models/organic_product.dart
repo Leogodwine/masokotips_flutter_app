@@ -18,6 +18,8 @@ class OrganicProduct {
   final String? shelfLife;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final Map<String, dynamic>? seller;
+  final Map<String, dynamic>? category;
 
   OrganicProduct({
     required this.id,
@@ -39,6 +41,8 @@ class OrganicProduct {
     this.shelfLife,
     required this.createdAt,
     required this.updatedAt,
+    this.seller,
+    this.category,
   });
 
   factory OrganicProduct.fromJson(Map<String, dynamic> json) {
@@ -64,6 +68,8 @@ class OrganicProduct {
       shelfLife: json['shelf_life'],
       createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
       updatedAt: DateTime.tryParse(json['updated_at'] ?? '') ?? DateTime.now(),
+      seller: json['seller'],
+      category: json['category'],
     );
   }
 
@@ -111,6 +117,8 @@ class OrganicProduct {
     String? shelfLife,
     DateTime? createdAt,
     DateTime? updatedAt,
+    Map<String, dynamic>? seller,
+    Map<String, dynamic>? category,
   }) {
     return OrganicProduct(
       id: id ?? this.id,
@@ -132,6 +140,8 @@ class OrganicProduct {
       shelfLife: shelfLife ?? this.shelfLife,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      seller: seller ?? this.seller,
+      category: category ?? this.category,
     );
   }
 }

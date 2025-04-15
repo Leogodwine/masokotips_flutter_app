@@ -17,18 +17,22 @@ class EditTransportScreen extends StatefulWidget {
 
 class _EditTransportScreenState extends State<EditTransportScreen> {
   final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
+  late TextEditingController _capacityController;
+  late TextEditingController _priceController;
   late TextEditingController _vehicleLocationController;
   late TextEditingController _vehicleTypeController;
-  late TextEditingController _priceController;
-  late TextEditingController _capacityController;
   late TextEditingController _ownerNameController;
   late TextEditingController _driverNameController;
   late TextEditingController _driverPhoneController;
   late TextEditingController _pricePerKgController;
   late TextEditingController _insuranceDetailsController;
   late TextEditingController _temperatureRangeController;
+  late TextEditingController _productNameController;
+  late TextEditingController _productTypeController;
+  late TextEditingController _amountController;
 
   bool _isTemperatureControlled = false;
   bool _hasInsurance = false;
@@ -65,17 +69,17 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController(text: widget.transport.name);
+    _titleController = TextEditingController(text: widget.transport.title);
     _descriptionController =
         TextEditingController(text: widget.transport.description);
+    _capacityController =
+        TextEditingController(text: widget.transport.capacity.toString());
+    _priceController =
+        TextEditingController(text: widget.transport.price.toString());
     _vehicleLocationController =
         TextEditingController(text: widget.transport.vehicleLocation);
     _vehicleTypeController =
         TextEditingController(text: widget.transport.vehicleType);
-    _priceController =
-        TextEditingController(text: widget.transport.price.toString());
-    _capacityController =
-        TextEditingController(text: widget.transport.capacity.toString());
     _ownerNameController =
         TextEditingController(text: widget.transport.ownerName);
     _driverNameController =
@@ -88,6 +92,12 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
         TextEditingController(text: widget.transport.insuranceDetails ?? '');
     _temperatureRangeController = TextEditingController(
         text: widget.transport.temperatureRange?.toString() ?? '');
+    _productNameController =
+        TextEditingController(text: widget.transport.productName ?? '');
+    _productTypeController =
+        TextEditingController(text: widget.transport.productType ?? '');
+    _amountController =
+        TextEditingController(text: widget.transport.amount?.toString() ?? '');
 
     _isTemperatureControlled = widget.transport.isTemperatureControlled;
     _hasInsurance = widget.transport.hasInsurance;
@@ -102,46 +112,51 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
+    _capacityController.dispose();
+    _priceController.dispose();
     _vehicleLocationController.dispose();
     _vehicleTypeController.dispose();
-    _priceController.dispose();
-    _capacityController.dispose();
     _ownerNameController.dispose();
     _driverNameController.dispose();
     _driverPhoneController.dispose();
     _pricePerKgController.dispose();
     _insuranceDetailsController.dispose();
     _temperatureRangeController.dispose();
+    _productNameController.dispose();
+    _productTypeController.dispose();
+    _amountController.dispose();
     super.dispose();
   }
 
   Future<void> _saveTransport() async {
     if (!_formKey.currentState!.validate()) return;
 
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
       final updatedTransport = Transport(
         id: widget.transport.id,
-        name: _titleController.text,
+        title: _titleController.text,
         description: _descriptionController.text,
-        type: widget.transport.type,
         vehicleLocation: _vehicleLocationController.text,
         vehicleType: _vehicleTypeController.text,
         price: double.parse(_priceController.text),
         capacity: double.parse(_capacityController.text),
-        isTemperatureControlled: _isTemperatureControlled,
+        isTemperatureControlled: widget.transport.isTemperatureControlled,
         temperatureRange: _temperatureRangeController.text.isEmpty
             ? null
             : double.tryParse(_temperatureRangeController.text),
-        supportedProductTypes: _selectedProductTypes,
+        supportedProductTypes: widget.transport.supportedProductTypes,
         driverId: widget.transport.driverId,
         driverRating: widget.transport.driverRating,
-        hasInsurance: _hasInsurance,
+        hasInsurance: widget.transport.hasInsurance,
         insuranceDetails: _insuranceDetailsController.text.isEmpty
             ? null
             : _insuranceDetailsController.text,
-        certifications:
-            _selectedCertifications.isEmpty ? null : _selectedCertifications,
-        amenities: _selectedAmenities.isEmpty ? null : _selectedAmenities,
+        certifications: widget.transport.certifications,
+        amenities: widget.transport.amenities,
         status: widget.transport.status,
         imageUrl: widget.transport.imageUrl,
         ownerName: _ownerNameController.text,
@@ -152,27 +167,36 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
         driverPhone: _driverPhoneController.text,
         createdAt: widget.transport.createdAt,
         updatedAt: DateTime.now(),
+        productName: _productNameController.text.isEmpty
+            ? null
+            : _productNameController.text,
+        productType: _productTypeController.text.isEmpty
+            ? null
+            : _productTypeController.text,
+        amount: _amountController.text.isEmpty
+            ? null
+            : double.parse(_amountController.text),
       );
 
       await context.read<TransportProvider>().updateTransport(updatedTransport);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Transport updated successfully'),
-            backgroundColor: Colors.green,
-          ),
+          const SnackBar(content: Text('Transport updated successfully')),
         );
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error updating transport: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Error updating transport: $e')),
         );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }
@@ -449,13 +473,22 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _saveTransport,
+                  onPressed: _isLoading ? null : _saveTransport,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).primaryColor,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: const Text('Save Changes'),
+                  child: _isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text('Save Changes'),
                 ),
               ),
             ],

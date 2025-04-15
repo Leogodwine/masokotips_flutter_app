@@ -83,9 +83,9 @@ class _AdminTransportManagementScreenState
                           fit: BoxFit.cover,
                         )
                       : const Icon(Icons.image_not_supported),
-                  title: Text(transport.name),
+                  title: Text(transport.title),
                   subtitle: Text(
-                    'Type: ${transport.type}\n'
+                    'Type: ${transport.vehicleType}\n'
                     'Capacity: ${transport.capacity}',
                   ),
                   trailing: PopupMenuButton<String>(
@@ -124,7 +124,7 @@ class _AdminTransportManagementScreenState
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Transport'),
-        content: Text('Are you sure you want to delete ${transport.name}?'),
+        content: Text('Are you sure you want to delete ${transport.title}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

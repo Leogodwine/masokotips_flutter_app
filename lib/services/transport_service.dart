@@ -18,13 +18,11 @@ class TransportService {
   }
 
   Future<List<Transport>> getTransports() async {
-    _checkAuthToken();
     try {
       print('Fetching transports from API...');
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/transports'),
+        Uri.parse('${ApiConfig.baseUrl}/public/transports'),
         headers: {
-          'Authorization': 'Bearer $_authToken',
           'Accept': 'application/json',
         },
       );
@@ -33,9 +31,25 @@ class TransportService {
       print('API Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body)['data'];
-        print('Parsed ${data.length} transports from response');
-        return data.map((transport) => Transport.fromJson(transport)).toList();
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        if (responseData.containsKey('data')) {
+          final List<dynamic> data = responseData['data'];
+          print('Parsed ${data.length} transports from response');
+          return data.map((transport) {
+            try {
+              print('Transport data before parsing: $transport');
+              print(
+                  'Supported product types: ${transport['supported_product_types']}');
+              return Transport.fromJson(transport);
+            } catch (e) {
+              print('Error parsing transport: $e');
+              print('Transport data: $transport');
+              rethrow;
+            }
+          }).toList();
+        } else {
+          throw Exception('Response does not contain data field');
+        }
       } else {
         throw Exception(
             'Failed to fetch transports. Status code: ${response.statusCode}');
@@ -47,7 +61,7 @@ class TransportService {
   }
 
   Future<Transport> addTransport({
-    required String name,
+    required String title,
     required String description,
     required String vehicleLocation,
     required String vehicleType,
@@ -79,7 +93,7 @@ class TransportService {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          'name': name,
+          'title': title,
           'description': description,
           'vehicle_location': vehicleLocation,
           'vehicle_type': vehicleType,

@@ -84,39 +84,35 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadCategories();
-    _loadFeaturedProducts();
-  }
-
-  Future<void> _loadCategories() async {
-    try {
-      await context.read<CategoryProvider>().loadMainCategories();
-    } catch (e) {
+    // Initialize data after the widget is mounted
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error loading categories: $e'),
-            action: SnackBarAction(
-              label: 'RETRY',
-              onPressed: _loadCategories,
-            ),
-          ),
-        );
+        _initializeData();
       }
-    }
+    });
   }
 
-  Future<void> _loadFeaturedProducts() async {
+  Future<void> _initializeData() async {
     try {
-      await context.read<ProductProvider>().getFeaturedProducts();
+      final categoryProvider = context.read<CategoryProvider>();
+      final productProvider = context.read<ProductProvider>();
+
+      // Load categories first
+      await categoryProvider.loadMainCategories();
+
+      // Then load featured products if still mounted
+      if (mounted) {
+        await productProvider.getFeaturedProducts();
+      }
     } catch (e) {
+      Log.e('Error initializing data: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error loading featured products: $e'),
+            content: Text('Error initializing data: $e'),
             action: SnackBarAction(
               label: 'RETRY',
-              onPressed: _loadFeaturedProducts,
+              onPressed: _initializeData,
             ),
           ),
         );

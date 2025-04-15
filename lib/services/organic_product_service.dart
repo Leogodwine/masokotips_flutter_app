@@ -23,7 +23,7 @@ class OrganicProductService {
     _checkAuthToken();
     try {
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/organic-products'),
+        Uri.parse('${ApiConfig.baseUrl}/public/organic-products'),
         headers: {
           'Authorization': 'Bearer $_authToken',
           'Accept': 'application/json',
@@ -202,9 +202,6 @@ class OrganicProductService {
               ),
             );
           }
-        } else {
-          // For existing HTTP URLs, add them as fields
-          request.fields['images[$i]'] = imagePath;
         }
       }
 

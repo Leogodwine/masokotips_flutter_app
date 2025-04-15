@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/category_provider.dart';
+import '../../providers/market_info_provider.dart';
 import '../products/product_list_screen.dart';
 import '../products/product_details_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -11,6 +12,8 @@ import '../../utils/logger.dart';
 import '../categories/subcategories_screen.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../market_info_screen.dart';
+import '../market_info/market_info_detail_screen.dart';
+import '../../models/market_info.dart';
 
 class HomeContentScreen extends StatefulWidget {
   const HomeContentScreen({Key? key}) : super(key: key);
@@ -22,11 +25,13 @@ class HomeContentScreen extends StatefulWidget {
 class _HomeContentScreenState extends State<HomeContentScreen> {
   bool _isLoading = false;
   final TextEditingController _searchController = TextEditingController();
+  List<MarketInfo> _marketInfoList = [];
 
   @override
   void initState() {
     super.initState();
     _loadData();
+    _loadMarketInfo();
     // Load categories
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Log.e('HomeContentScreen: Starting to load categories...');
@@ -91,6 +96,22 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
       }
+    }
+  }
+
+  Future<void> _loadMarketInfo() async {
+    if (!mounted) return;
+
+    try {
+      final marketInfoProvider = context.read<MarketInfoProvider>();
+      await marketInfoProvider.loadMarketInfo();
+      if (mounted) {
+        setState(() {
+          _marketInfoList = marketInfoProvider.marketInfoList;
+        });
+      }
+    } catch (e) {
+      Log.e('HomeContentScreen: Error loading market info: $e');
     }
   }
 
@@ -460,7 +481,8 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const MarketInfoScreen(),
+                              builder: (context) =>
+                                  const MarketInfoListScreen(),
                             ),
                           );
                         },
@@ -469,20 +491,12 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const MarketInfoScreen(),
-                          ),
-                        );
-                      },
+                  if (_marketInfoList.isEmpty)
+                    Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -545,8 +559,119 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                           ],
                         ),
                       ),
+                    )
+                  else
+                    SizedBox(
+                      height: 200,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _marketInfoList.length,
+                        itemBuilder: (context, index) {
+                          final marketInfo = _marketInfoList[index];
+                          return Container(
+                            width: 300,
+                            margin: const EdgeInsets.only(right: 16),
+                            child: Card(
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          MarketInfoDetailScreen(
+                                        marketInfo: marketInfo,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (marketInfo.imageUrl != null)
+                                      ClipRRect(
+                                        borderRadius:
+                                            const BorderRadius.vertical(
+                                          top: Radius.circular(16),
+                                        ),
+                                        child: Image.network(
+                                          marketInfo.imageUrl!,
+                                          height: 120,
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Container(
+                                              height: 120,
+                                              color: Colors.grey[200],
+                                              child: const Center(
+                                                child: Icon(
+                                                  Icons.broken_image,
+                                                  size: 48,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(12),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            marketInfo.title,
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            marketInfo.content,
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey[600],
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.location_on,
+                                                size: 14,
+                                                color: Colors.grey[600],
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                marketInfo.location ?? '',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.grey[600],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),

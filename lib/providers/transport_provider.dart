@@ -80,10 +80,11 @@ class TransportProvider with ChangeNotifier {
       }
 
       if (_vehicleLocation != null && _vehicleLocation!.isNotEmpty) {
-        matches = matches &&
-            transport.vehicleLocation
-                .toLowerCase()
-                .contains(_vehicleLocation!.toLowerCase());
+        final locationMatch = transport.vehicleLocation
+                ?.toLowerCase()
+                .contains(_vehicleLocation!.toLowerCase()) ??
+            false;
+        matches = matches && locationMatch;
       }
 
       return matches;
@@ -128,7 +129,7 @@ class TransportProvider with ChangeNotifier {
   }
 
   Future<Transport> addTransport({
-    required String name,
+    required String title,
     required String description,
     required String vehicleLocation,
     required String vehicleType,
@@ -156,7 +157,7 @@ class TransportProvider with ChangeNotifier {
 
     try {
       final transport = await _transportService.addTransport(
-        name: name,
+        title: title,
         description: description,
         vehicleLocation: vehicleLocation,
         vehicleType: vehicleType,
@@ -261,9 +262,10 @@ class TransportProvider with ChangeNotifier {
   }) {
     return _transports.where((transport) {
       if (searchQuery != null && searchQuery.isNotEmpty) {
-        if (!transport.name.toLowerCase().contains(searchQuery.toLowerCase()) &&
-            !transport.description
+        if (!transport.title
                 .toLowerCase()
+                .contains(searchQuery.toLowerCase()) &&
+            !(transport.description?.toLowerCase() ?? '')
                 .contains(searchQuery.toLowerCase())) {
           return false;
         }
@@ -273,11 +275,12 @@ class TransportProvider with ChangeNotifier {
         return false;
       }
 
-      if (vehicleLocation != null &&
-          !transport.vehicleLocation
-              .toLowerCase()
-              .contains(vehicleLocation.toLowerCase())) {
-        return false;
+      if (vehicleLocation != null) {
+        final locationMatch = transport.vehicleLocation
+                ?.toLowerCase()
+                .contains(vehicleLocation.toLowerCase()) ??
+            false;
+        if (!locationMatch) return false;
       }
 
       if (minPrice != null && transport.price < minPrice) {

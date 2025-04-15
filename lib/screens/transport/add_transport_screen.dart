@@ -178,7 +178,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
 
       // First create the transport
       final transport = await transportProvider.addTransport(
-        name: _titleController.text,
+        title: _titleController.text,
         description: _descriptionController.text.trim(),
         vehicleLocation: _vehicleLocationController.text,
         vehicleType: _selectedVehicleType ?? '',
@@ -490,9 +490,9 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
                             });
                           },
                           backgroundColor:
-                              Theme.of(context).primaryColor.withAlpha(26),
+                              Theme.of(context).primaryColor.withAlpha(51),
                           selectedColor:
-                              Theme.of(context).primaryColor.withOpacity(0.2),
+                              Theme.of(context).primaryColor.withAlpha(51),
                           labelStyle: TextStyle(
                             color: _selectedProductTypes.contains(type)
                                 ? Theme.of(context).primaryColor
@@ -614,7 +614,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
-                            Theme.of(context).primaryColor.withOpacity(0.1),
+                            Theme.of(context).primaryColor.withAlpha(51),
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(

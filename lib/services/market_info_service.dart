@@ -2,11 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart';
 import '../models/market_info.dart';
 import '../utils/logger.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import '../utils/image_upload_helper.dart';
 import '../config/api_config.dart';
 
 class MarketInfoService {
@@ -21,7 +19,7 @@ class MarketInfoService {
   Future<List<MarketInfo>> getAllMarketInfo() async {
     try {
       final apiBaseUrl = baseUrl.replaceAll('/api', '');
-      final endpoint = '${apiBaseUrl}/api/admin/market-info-list';
+      final endpoint = '$apiBaseUrl/api/admin/market-info-list';
 
       Log.d('Base URL: $baseUrl');
       Log.d('API Base URL: $apiBaseUrl');
@@ -53,34 +51,37 @@ class MarketInfoService {
           final data = json.decode(response.body);
           Log.d('Decoded response data: $data');
 
-          if (data is Map<String, dynamic>) {
-            if (data.containsKey('data')) {
-              final dynamic dataField = data['data'];
-              if (dataField is List) {
-                Log.d('Market info JSON array length: ${dataField.length}');
-                final List<MarketInfo> result = [];
-                for (var item in dataField) {
-                  try {
-                    if (item is Map<String, dynamic>) {
-                      result.add(MarketInfo.fromJson(item));
-                    } else {
-                      Log.e('Invalid item format: $item');
-                    }
-                  } catch (e) {
-                    Log.e('Error parsing market info item: $e');
-                  }
+          if (data is List) {
+            Log.d('Market info JSON array length: ${data.length}');
+            final List<MarketInfo> result = [];
+            for (var item in data) {
+              try {
+                if (item is Map<String, dynamic>) {
+                  // Map the API response fields to the MarketInfo model fields
+                  final marketInfoData = {
+                    'id': item['id'],
+                    'title': item['title'],
+                    'content':
+                        item['description'], // Map description to content
+                    'imageUrl': item['image_url'],
+                    'location': item['location'],
+                    'createdAt': item['created_at'],
+                    'updatedAt': item['updated_at'],
+                    'userId': item['user_id'],
+                    'isActive': item['is_active'],
+                    'isFeatured': item['is_featured'],
+                  };
+                  result.add(MarketInfo.fromJson(marketInfoData));
+                } else {
+                  Log.e('Invalid item format: $item');
                 }
-                return result;
-              } else {
-                Log.d('Data field is not a list, returning empty array');
-                return [];
+              } catch (e) {
+                Log.e('Error parsing market info item: $e');
               }
-            } else {
-              Log.d('Response missing data field, returning empty array');
-              return [];
             }
+            return result;
           } else {
-            Log.d('Response is not a map, returning empty array');
+            Log.d('Response is not a list, returning empty array');
             return [];
           }
         } catch (e) {
@@ -108,10 +109,10 @@ class MarketInfoService {
 
   Future<MarketInfo> addMarketInfo({
     required String title,
-    required String content,
+    required String description,
+    required String contact,
     String? imageUrl,
     String? location,
-    String? category,
     bool isActive = true,
     bool isFeatured = false,
   }) async {
@@ -120,10 +121,10 @@ class MarketInfoService {
 
       final requestBody = {
         'title': title,
-        'content': content,
-        if (imageUrl != null) 'image_url': imageUrl,
+        'description': description,
+        'contact': contact,
+        if (imageUrl != null) 'image': imageUrl,
         if (location != null) 'location': location,
-        if (category != null) 'category': category,
         'is_active': isActive,
         'is_featured': isFeatured,
       };
@@ -131,7 +132,7 @@ class MarketInfoService {
       Log.d('Request body: ${json.encode(requestBody)}');
 
       final apiBaseUrl = baseUrl.replaceAll('/api', '');
-      final endpoint = '${apiBaseUrl}/api/admin/market-info';
+      final endpoint = '$apiBaseUrl/api/admin/market-info';
 
       Log.d('Adding market info at endpoint: $endpoint');
 
@@ -151,25 +152,23 @@ class MarketInfoService {
       if (response.statusCode == 201 || response.statusCode == 200) {
         final responseData = json.decode(response.body);
         if (responseData is Map<String, dynamic>) {
-          if (responseData.containsKey('data')) {
-            Log.d('Successfully created market information');
-            return MarketInfo.fromJson(responseData['data']);
-          } else if (responseData.containsKey('id')) {
-            Log.d('Successfully created market information (direct response)');
-            return MarketInfo(
-              id: responseData['id'],
-              title: responseData['title'] ?? title,
-              content: responseData['content'] ?? content,
-              imageUrl: responseData['image_url'] ?? imageUrl,
-              location: responseData['location'] ?? location,
-              category: responseData['category'] ?? category,
-              createdAt: DateTime.now(),
-              updatedAt: DateTime.now(),
-              userId: responseData['user_id'] ?? 0,
-              isActive: responseData['is_active'] ?? isActive,
-              isFeatured: responseData['is_featured'] ?? isFeatured,
-            );
-          }
+          // Create a proper MarketInfo object from the response
+          final marketInfoData = {
+            'id': responseData['id'],
+            'title': responseData['title'] ?? title,
+            'content': responseData['description'] ?? description,
+            'imageUrl': responseData['image'] ?? imageUrl,
+            'location': responseData['location'] ?? location,
+            'createdAt':
+                responseData['created_at'] ?? DateTime.now().toIso8601String(),
+            'updatedAt':
+                responseData['updated_at'] ?? DateTime.now().toIso8601String(),
+            'userId': responseData['user_id'] ?? 0,
+            'isActive': responseData['is_active'] ?? isActive,
+            'isFeatured': responseData['is_featured'] ?? isFeatured,
+          };
+          Log.d('Successfully created market information (direct response)');
+          return MarketInfo.fromJson(marketInfoData);
         }
         Log.e('Unexpected API response format: $responseData');
         throw Exception('Unexpected API response format');
@@ -207,7 +206,7 @@ class MarketInfoService {
     };
 
     final response = await http.put(
-      Uri.parse('${apiBaseUrl}/api/admin/market-info-update/$id'),
+      Uri.parse('$apiBaseUrl/api/admin/market-info-update/$id'),
       headers: {
         'Authorization': 'Bearer $_authToken',
         'Accept': 'application/json',
@@ -227,7 +226,7 @@ class MarketInfoService {
     final apiBaseUrl = baseUrl.replaceAll('/api', '');
 
     final response = await http.delete(
-      Uri.parse('${apiBaseUrl}/api/admin/market-info-delete/$id'),
+      Uri.parse('$apiBaseUrl/api/admin/market-info-delete/$id'),
       headers: {
         'Authorization': 'Bearer $_authToken',
         'Accept': 'application/json',
@@ -245,105 +244,59 @@ class MarketInfoService {
       Log.d('Uploading market info image for ID: $marketInfoId');
       Log.d('Image path: $imagePath');
 
-      if (imagePath.startsWith('blob:') && kIsWeb) {
-        Log.d(
-            'Blob URL detected in web environment - special handling required');
-      }
-
       final apiBaseUrl = baseUrl.replaceAll('/api', '');
-      final endpoint = '${apiBaseUrl}/api/admin/market-info-upload-image';
+      final endpoint = '$apiBaseUrl/api/admin/market-info/$marketInfoId/image';
 
-      Log.d('Uploading image to endpoint: $endpoint');
+      Log.d('Upload endpoint: $endpoint');
 
-      final request = http.MultipartRequest(
-        'POST',
-        Uri.parse(endpoint),
-      );
+      if (kIsWeb) {
+        // For web platform, we need to convert the image path to a File object
+        final bytes = await http.get(Uri.parse(imagePath));
+        final file = http.MultipartFile.fromBytes(
+          'image',
+          bytes.bodyBytes,
+          filename: 'market_info_$marketInfoId.jpg',
+        );
 
-      request.headers.addAll({
-        'Authorization': 'Bearer $_authToken',
-        'Accept': 'application/json',
-      });
+        final request = http.MultipartRequest('POST', Uri.parse(endpoint))
+          ..headers.addAll({
+            'Authorization': 'Bearer $_authToken',
+            'Accept': 'application/json',
+          })
+          ..files.add(file);
 
-      if (marketInfoId.isEmpty || marketInfoId == 'null') {
-        throw Exception('Invalid market info ID: Cannot be empty or null');
-      }
+        final response = await request.send();
+        final responseBody = await response.stream.bytesToString();
 
-      if (marketInfoId == 'temp' ||
-          marketInfoId == '0' ||
-          marketInfoId == '-1') {
-        Log.d(
-            'Using default market info ID as placeholder for temporary upload');
-        request.fields['market_info_id'] = '1';
-        request.fields['is_temp'] = 'true';
+        if (response.statusCode == 200) {
+          final data = json.decode(responseBody);
+          return data['image_url'] ?? data['image'];
+        } else {
+          throw Exception('Failed to upload image: $responseBody');
+        }
       } else {
-        try {
-          int.parse(marketInfoId);
-          request.fields['market_info_id'] = marketInfoId;
-          Log.d('Using market info ID: $marketInfoId');
-        } catch (e) {
-          Log.e('Invalid market info ID format: $marketInfoId, error: $e');
-          throw Exception('Invalid market info ID format: $marketInfoId');
+        // For non-web platforms
+        final file = File(imagePath);
+        final request = http.MultipartRequest('POST', Uri.parse(endpoint))
+          ..headers.addAll({
+            'Authorization': 'Bearer $_authToken',
+            'Accept': 'application/json',
+          })
+          ..files.add(await http.MultipartFile.fromPath('image', file.path));
+
+        final response = await request.send();
+        final responseBody = await response.stream.bytesToString();
+
+        if (response.statusCode == 200) {
+          final data = json.decode(responseBody);
+          return data['image_url'] ?? data['image'];
+        } else {
+          throw Exception('Failed to upload image: $responseBody');
         }
       }
-
-      final imageFile = File(imagePath);
-      if (!await imageFile.exists()) {
-        throw Exception('Image file does not exist');
-      }
-
-      final xFile = XFile(imageFile.path);
-      final multipartFile =
-          await ImageUploadHelper.prepareImageForUpload(xFile);
-      Log.d(
-          'Image prepared successfully, content type: ${multipartFile.contentType}');
-      Log.d('Image filename: ${multipartFile.filename}');
-
-      request.files.add(multipartFile);
-      request.fields['_method'] = 'POST';
-
-      Log.d('Uploading image to: ${request.url}');
-      Log.d('Request headers: ${request.headers}');
-
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
-
-      Log.d('Upload response status: ${response.statusCode}');
-      Log.d('Upload response headers: ${response.headers}');
-      Log.d('Upload response body: ${response.body}');
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = json.decode(response.body);
-
-        if (data is Map<String, dynamic>) {
-          if (data.containsKey('image_url')) {
-            Log.d('Image uploaded successfully, URL: ${data['image_url']}');
-            return data['image_url'];
-          } else if (data.containsKey('data') &&
-              data['data'] is Map<String, dynamic>) {
-            final imageData = data['data'];
-            if (imageData.containsKey('image_url')) {
-              Log.d(
-                  'Image uploaded successfully, URL: ${imageData['image_url']}');
-              return imageData['image_url'];
-            }
-          } else if (data.containsKey('url')) {
-            Log.d('Image uploaded successfully, URL: ${data['url']}');
-            return data['url'];
-          }
-        }
-
-        Log.e('Unexpected response format: $data');
-        throw Exception('Unexpected response format: missing image URL');
-      } else {
-        Log.e(
-            'Failed to upload image. Status code: ${response.statusCode}, Body: ${response.body}');
-        throw Exception('Failed to upload image: ${response.body}');
-      }
-    } catch (e, stackTrace) {
+    } catch (e) {
       Log.e('Error uploading market info image: $e');
-      Log.e('Stack trace: $stackTrace');
-      throw Exception('Error uploading market info image: $e');
+      throw Exception('Failed to upload market info image: $e');
     }
   }
 }

@@ -216,7 +216,7 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
                                         decoration: BoxDecoration(
                                           color: Theme.of(context)
                                               .primaryColor
-                                              .withOpacity(0.1),
+                                              .withAlpha(26),
                                           borderRadius:
                                               BorderRadius.circular(4),
                                         ),

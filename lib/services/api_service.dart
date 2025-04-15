@@ -385,38 +385,54 @@ class ApiService {
   Future<List<Product>> getProductsByCategory(
       int categoryId, String subcategory) async {
     try {
-      final uri = Uri.parse('$baseUrl/products').replace(
-        queryParameters: {
-          'category_id': categoryId.toString(),
-          if (subcategory.isNotEmpty) 'subcategory': subcategory,
-        },
-      );
+      final uri = Uri.parse('$baseUrl/categories/$categoryId/products');
       Log.e('Fetching products for category: $categoryId');
       Log.e('Request URL: $uri');
 
       final response = await http.get(uri, headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        if (_authToken != null) 'Authorization': 'Bearer $_authToken',
       });
+
       Log.e('Response status: ${response.statusCode}');
       Log.e('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
-        final List<dynamic> data = responseData['data'] ?? [];
-        Log.e('Received ${data.length} products');
+        final dynamic responseData = json.decode(response.body);
 
-        final products = data.map((json) => Product.fromJson(json)).toList();
+        // Handle different response formats
+        List<dynamic> productsData;
+        if (responseData is Map<String, dynamic>) {
+          if (responseData.containsKey('data')) {
+            productsData = List<dynamic>.from(responseData['data']);
+          } else if (responseData.containsKey('products')) {
+            productsData = List<dynamic>.from(responseData['products']);
+          } else {
+            productsData = [];
+          }
+        } else if (responseData is List) {
+          productsData = responseData;
+        } else {
+          productsData = [];
+        }
+
+        Log.e('Received ${productsData.length} products');
+        final products =
+            productsData.map((json) => Product.fromJson(json)).toList();
         Log.e('Parsed ${products.length} products');
-
         return products;
+      } else if (response.statusCode == 404) {
+        Log.e('No products found for category: $categoryId');
+        return [];
       } else {
         Log.e('Error response: ${response.body}');
-        throw Exception('Failed to load products: ${response.statusCode}');
+        throw Exception(
+            'Failed to load products: ${response.statusCode} - ${response.body}');
       }
-    } catch (e) {
-      Log.e('Error in getProductsByCategory: $e');
-      rethrow;
+    } catch (e, stackTrace) {
+      Log.e('Error in getProductsByCategory: $e\n$stackTrace');
+      throw Exception('Failed to load products: $e');
     }
   }
 
@@ -488,25 +504,46 @@ class ApiService {
       final response = await http.get(uri, headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        if (_authToken != null) 'Authorization': 'Bearer $_authToken',
       });
       Log.e('Response status: ${response.statusCode}');
+      Log.e('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
-        final List<dynamic> data = responseData['data'] ?? [];
-        Log.e('Received ${data.length} featured products');
+        final dynamic responseData = json.decode(response.body);
+        List<dynamic> productsData;
 
-        final products = data.map((json) => Product.fromJson(json)).toList();
+        // Handle different response formats
+        if (responseData is Map<String, dynamic>) {
+          if (responseData.containsKey('data')) {
+            productsData = List<dynamic>.from(responseData['data']);
+          } else if (responseData.containsKey('products')) {
+            productsData = List<dynamic>.from(responseData['products']);
+          } else {
+            productsData = [];
+          }
+        } else if (responseData is List) {
+          productsData = responseData;
+        } else {
+          productsData = [];
+        }
+
+        Log.e('Received ${productsData.length} featured products');
+        final products =
+            productsData.map((json) => Product.fromJson(json)).toList();
         Log.e('Parsed ${products.length} featured products');
-
         return products;
+      } else if (response.statusCode == 401) {
+        Log.e('Authentication required for featured products');
+        throw Exception('Authentication required');
       } else {
+        Log.e('Error response: ${response.body}');
         throw Exception(
-            'Failed to load featured products: ${response.statusCode}');
+            'Failed to load featured products: ${response.statusCode} - ${response.body}');
       }
-    } catch (e) {
-      Log.e('Error in getFeaturedProducts: $e');
-      rethrow;
+    } catch (e, stackTrace) {
+      Log.e('Error in getFeaturedProducts: $e\n$stackTrace');
+      throw Exception('Failed to load featured products: $e');
     }
   }
 

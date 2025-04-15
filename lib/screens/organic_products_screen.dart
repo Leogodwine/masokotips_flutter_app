@@ -42,15 +42,9 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
         elevation: 0,
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'organic_product_add_button',
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const EditOrganicProductScreen(),
-            ),
-          ).then((_) {
-            context.read<OrganicProductProvider>().loadProducts();
-          });
+          Navigator.pushNamed(context, '/organic-products/add');
         },
         icon: const Icon(Icons.add),
         label: const Text('Add Product'),

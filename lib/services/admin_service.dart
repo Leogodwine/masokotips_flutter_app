@@ -738,25 +738,58 @@ class AdminService {
 
   Future<List<OrganicProduct>> getOrganicProducts() async {
     try {
-      final response = await _dio.get('/api/admin/organic-products');
+      final response = await http.get(
+        Uri.parse('$baseUrl/admin/organic-products'),
+        headers: {
+          'Authorization': 'Bearer $_authToken',
+          'Accept': 'application/json',
+        },
+      );
+
+      Log.d('Organic Products API Response: ${response.body}');
+
       if (response.statusCode == 200) {
-        final List<dynamic> data = response.data['data'];
-        return data.map((json) => OrganicProduct.fromJson(json)).toList();
+        final data = json.decode(response.body);
+        Log.d('Decoded API Response: $data');
+
+        if (data['data'] is Map) {
+          final paginatedData = data['data'];
+          final productsList = paginatedData['data'] as List;
+          Log.d('Products List: $productsList');
+          return productsList
+              .map((json) => OrganicProduct.fromJson(json))
+              .toList();
+        } else {
+          final productsList = data['data'] as List;
+          Log.d('Products List: $productsList');
+          return productsList
+              .map((json) => OrganicProduct.fromJson(json))
+              .toList();
+        }
+      } else {
+        throw Exception('Failed to load organic products: ${response.body}');
       }
-      throw Exception('Failed to load organic products');
     } catch (e) {
+      Log.e('Error loading organic products: $e');
       throw Exception('Error loading organic products: $e');
     }
   }
 
   Future<void> deleteOrganicProduct(int productId) async {
     try {
-      final response =
-          await _dio.delete('/api/admin/organic-products/$productId');
+      final response = await http.delete(
+        Uri.parse('$baseUrl/admin/organic-products/$productId'),
+        headers: {
+          'Authorization': 'Bearer $_authToken',
+          'Accept': 'application/json',
+        },
+      );
+
       if (response.statusCode != 200) {
-        throw Exception('Failed to delete organic product');
+        throw Exception('Failed to delete organic product: ${response.body}');
       }
     } catch (e) {
+      Log.e('Error deleting organic product: $e');
       throw Exception('Error deleting organic product: $e');
     }
   }
@@ -828,6 +861,54 @@ class AdminService {
           ],
         ),
       ];
+    }
+  }
+
+  Future<OrganicProduct> createOrganicProduct(OrganicProduct product) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/admin/organic-products'),
+        headers: {
+          'Authorization': 'Bearer $_authToken',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(product.toJson()),
+      );
+
+      if (response.statusCode == 201) {
+        final data = json.decode(response.body);
+        return OrganicProduct.fromJson(data['data']);
+      } else {
+        throw Exception('Failed to create organic product: ${response.body}');
+      }
+    } catch (e) {
+      Log.e('Error creating organic product: $e');
+      throw Exception('Error creating organic product: $e');
+    }
+  }
+
+  Future<OrganicProduct> updateOrganicProduct(OrganicProduct product) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/admin/organic-products/${product.id}'),
+        headers: {
+          'Authorization': 'Bearer $_authToken',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(product.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return OrganicProduct.fromJson(data['data']);
+      } else {
+        throw Exception('Failed to update organic product: ${response.body}');
+      }
+    } catch (e) {
+      Log.e('Error updating organic product: $e');
+      throw Exception('Error updating organic product: $e');
     }
   }
 }

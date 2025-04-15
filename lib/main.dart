@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'config/theme_config.dart';
+import 'config/api_config.dart';
 import 'providers/auth_provider.dart';
 import 'providers/cart_provider.dart';
 import 'providers/wishlist_provider.dart';
@@ -8,6 +10,8 @@ import 'providers/category_provider.dart';
 import 'providers/reviews_provider.dart';
 import 'providers/transport_provider.dart';
 import 'providers/organic_product_provider.dart';
+import 'providers/admin_provider.dart';
+import 'services/api_service.dart';
 import 'services/organic_product_service.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home/home_screen.dart';
@@ -32,14 +36,12 @@ import 'screens/admin/market_info_management_screen.dart';
 import 'screens/market_info_screen.dart';
 import 'screens/admin/create_admin_screen.dart';
 import 'screens/admin/admin_login_screen.dart';
-import 'providers/admin_provider.dart';
 import 'screens/admin_dashboard_screen.dart';
 import 'screens/admin/products_management_screen.dart';
 import 'screens/admin/services_management_screen.dart';
 import 'screens/admin/organic_products_management_screen.dart';
 import 'screens/admin/user_management_screen.dart';
 import 'screens/admin/transport_management_screen.dart';
-import 'config/theme_config.dart';
 
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -57,12 +59,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize ApiService
+    final apiService = ApiService(
+      baseUrl: ApiConfig.baseUrl,
+      apiKey: ApiConfig.apiKey,
+    );
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => WishlistProvider()),
-        ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(
+            create: (_) => ProductProvider(apiService: apiService)),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
         ChangeNotifierProvider(create: (_) => ReviewsProvider()),
         ChangeNotifierProvider(create: (_) => TransportProvider()),
@@ -106,12 +115,12 @@ class _AppContentState extends State<AppContent> {
       builder: (context, authProvider, child) {
         // Initialize providers with auth token when available
         if (authProvider.token != null) {
+          // Initialize other providers
           context.read<TransportProvider>().initialize(authProvider.token!);
           context
               .read<OrganicProductProvider>()
               .service
               .setAuthToken(authProvider.token!);
-          // Initialize admin provider with auth token
           context.read<AdminProvider>().setAuthToken(authProvider.token!);
         }
 
@@ -120,6 +129,7 @@ class _AppContentState extends State<AppContent> {
           title: 'maSOKOtips',
           debugShowCheckedModeBanner: false,
           theme: ThemeConfig.getThemeData(),
+          home: const HomeScreen(),
           initialRoute: '/home',
           routes: {
             '/login': (context) => const LoginScreen(),
@@ -157,11 +167,13 @@ class _AppContentState extends State<AppContent> {
               return EditTransportScreen(transport: transport);
             },
             '/organic-products': (context) => const OrganicProductsScreen(),
+            '/organic-products/add': (context) =>
+                const EditOrganicProductScreen(),
             '/organic-products/edit': (context) =>
                 const EditOrganicProductScreen(),
             '/services': (context) => const ServiceCategoriesScreen(),
             '/services/search': (context) => const ServiceSearchScreen(),
-            '/market-info': (context) => const MarketInfoScreen(),
+            '/market-info': (context) => const MarketInfoListScreen(),
             '/admin/market-info': (context) =>
                 const MarketInfoManagementScreen(),
             '/admin/create': (context) => const CreateAdminScreen(),
