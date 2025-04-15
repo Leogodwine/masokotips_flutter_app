@@ -4,7 +4,6 @@ import 'package:masoko_tips/providers/admin_provider.dart';
 import 'package:masoko_tips/theme/app_theme.dart';
 import 'package:masoko_tips/widgets/custom_app_bar.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 
 class EditOrganicProductScreen extends StatefulWidget {
   final OrganicProduct? product;

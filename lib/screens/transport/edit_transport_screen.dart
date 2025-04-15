@@ -102,7 +102,7 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
     _isTemperatureControlled = widget.transport.isTemperatureControlled;
     _hasInsurance = widget.transport.hasInsurance;
     _selectedProductTypes =
-        List<String>.from(widget.transport.supportedProductTypes);
+        List<String>.from(widget.transport.supportedProductTypes ?? []);
     _selectedAmenities = List<String>.from(widget.transport.amenities ?? []);
     _selectedCertifications =
         List<String>.from(widget.transport.certifications ?? []);

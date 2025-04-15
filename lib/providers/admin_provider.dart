@@ -663,4 +663,64 @@ class AdminProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<bool> createTransport(Transport transport) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final success = await _adminService.createTransport(transport);
+      if (success) {
+        await loadTransports();
+      }
+      return success;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> updateTransport(Transport transport) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final success = await _adminService.updateTransport(transport);
+      if (success) {
+        await loadTransports();
+      }
+      return success;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> removeTransport(int id) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final success = await _adminService.deleteTransport(id);
+      if (success) {
+        await loadTransports();
+      }
+      return success;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

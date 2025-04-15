@@ -36,10 +36,10 @@ import 'screens/admin/market_info_management_screen.dart';
 import 'screens/market_info_screen.dart';
 import 'screens/admin/create_admin_screen.dart';
 import 'screens/admin/admin_login_screen.dart';
-import 'screens/admin_dashboard_screen.dart';
+import 'screens/admin/admin_dashboard_screen.dart';
 import 'screens/admin/products_management_screen.dart';
 import 'screens/admin/services_management_screen.dart';
-import 'screens/admin/organic_products_management_screen.dart';
+import 'screens/admin/organic_products_management.dart';
 import 'screens/admin/user_management_screen.dart';
 import 'screens/admin/transport_management_screen.dart';
 
@@ -184,7 +184,7 @@ class _AppContentState extends State<AppContent> {
             '/admin/services': (context) =>
                 const AdminServicesManagementScreen(),
             '/admin/organic-products': (context) =>
-                const AdminOrganicProductsManagementScreen(),
+                const OrganicProductsManagement(),
             '/admin/users': (context) => const AdminUserManagementScreen(),
             '/admin/transport': (context) =>
                 const AdminTransportManagementScreen(),

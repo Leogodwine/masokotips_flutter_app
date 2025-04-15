@@ -39,7 +39,6 @@ class _TransportListScreenState extends State<TransportListScreen> {
   @override
   void initState() {
     super.initState();
-    // Load transports when the screen is mounted
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _initializeAndLoadTransports();
@@ -112,6 +111,10 @@ class _TransportListScreenState extends State<TransportListScreen> {
   Widget _buildFilterPanel() {
     return Card(
       margin: const EdgeInsets.all(16),
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -121,17 +124,23 @@ class _TransportListScreenState extends State<TransportListScreen> {
             children: [
               TextFormField(
                 controller: _locationController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Vehicle Location',
-                  prefixIcon: Icon(Icons.location_on),
+                  prefixIcon: const Icon(Icons.location_on),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: _selectedProductType,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Product Type',
-                  prefixIcon: Icon(Icons.inventory),
+                  prefixIcon: const Icon(Icons.inventory),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 items: _productTypes.map((type) {
                   return DropdownMenuItem(
@@ -147,9 +156,12 @@ class _TransportListScreenState extends State<TransportListScreen> {
               ),
               const SizedBox(height: 16),
               TextFormField(
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Min Capacity (tons)',
-                  prefixIcon: Icon(Icons.scale),
+                  prefixIcon: const Icon(Icons.scale),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 keyboardType: TextInputType.number,
                 onChanged: (value) {
@@ -158,9 +170,12 @@ class _TransportListScreenState extends State<TransportListScreen> {
               ),
               const SizedBox(height: 16),
               TextFormField(
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Max Price',
-                  prefixIcon: Icon(Icons.attach_money),
+                  prefixIcon: const Icon(Icons.attach_money),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 keyboardType: TextInputType.number,
                 onChanged: (value) {
@@ -176,6 +191,7 @@ class _TransportListScreenState extends State<TransportListScreen> {
                     _temperatureControlled = value;
                   });
                 },
+                activeColor: Theme.of(context).primaryColor,
               ),
               const SizedBox(height: 16),
               Row(
@@ -185,6 +201,9 @@ class _TransportListScreenState extends State<TransportListScreen> {
                     onPressed: _clearFilters,
                     icon: const Icon(Icons.clear),
                     label: const Text('Clear Filters'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.red,
+                    ),
                   ),
                 ],
               ),
@@ -193,6 +212,12 @@ class _TransportListScreenState extends State<TransportListScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _applyFilters,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                   child: const Text('Apply Filters'),
                 ),
               ),
@@ -274,6 +299,13 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                   backgroundColor:
                                       Theme.of(context).primaryColor,
                                   foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
                                 ),
                               ),
                             ],
@@ -659,17 +691,19 @@ class _TransportListScreenState extends State<TransportListScreen> {
                       // Disable buttons while deleting
                     });
                     try {
-                      await context
-                          .read<TransportProvider>()
-                          .deleteTransport(transport.id);
-                      if (mounted) {
-                        Navigator.of(context).pop(); // Close dialog
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Transport deleted successfully'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
+                      if (transport.id != null) {
+                        await context
+                            .read<TransportProvider>()
+                            .deleteTransport(transport.id!);
+                        if (mounted) {
+                          Navigator.of(context).pop(); // Close dialog
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Transport deleted successfully'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        }
                       }
                     } catch (e) {
                       if (mounted) {

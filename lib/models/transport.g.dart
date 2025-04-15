@@ -7,11 +7,11 @@ part of 'transport.dart';
 // **************************************************************************
 
 Transport _$TransportFromJson(Map<String, dynamic> json) => Transport(
-      id: (json['id'] as num).toInt(),
+      id: (json['id'] as num?)?.toInt(),
       title: json['title'] as String,
       description: json['description'] as String?,
-      vehicleLocation: json['vehicle_location'] as String?,
-      vehicleType: json['vehicle_type'] as String?,
+      vehicleLocation: json['vehicle_location'] as String,
+      vehicleType: json['vehicle_type'] as String,
       price: Transport._stringToDouble(json['price'] as String?),
       capacity: Transport._stringToDouble(json['capacity'] as String?),
       isTemperatureControlled: json['is_temperature_controlled'] as bool,
@@ -32,13 +32,17 @@ Transport _$TransportFromJson(Map<String, dynamic> json) => Transport(
           .toList(),
       status: json['status'] as String,
       imageUrl: json['image_url'] as String?,
-      ownerName: json['owner_name'] as String?,
+      ownerName: json['owner_name'] as String,
       pricePerKg:
           Transport._stringToDoubleNullable(json['price_per_kg'] as String?),
       driverName: json['driver_name'] as String?,
       driverPhone: json['driver_phone'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: json['created_at'] == null
+          ? null
+          : DateTime.parse(json['created_at'] as String),
+      updatedAt: json['updated_at'] == null
+          ? null
+          : DateTime.parse(json['updated_at'] as String),
       productName: json['product_name'] as String?,
       productType:
           Transport._standardizeProductType(json['product_type'] as String?),
@@ -68,8 +72,8 @@ Map<String, dynamic> _$TransportToJson(Transport instance) => <String, dynamic>{
       'price_per_kg': instance.pricePerKg,
       'driver_name': instance.driverName,
       'driver_phone': instance.driverPhone,
-      'created_at': instance.createdAt.toIso8601String(),
-      'updated_at': instance.updatedAt.toIso8601String(),
+      'created_at': instance.createdAt?.toIso8601String(),
+      'updated_at': instance.updatedAt?.toIso8601String(),
       'product_name': instance.productName,
       'product_type': instance.productType,
       'amount': instance.amount,

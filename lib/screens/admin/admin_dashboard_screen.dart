@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/reviews_provider.dart';
-import 'review_moderation_screen.dart';
-import 'service_management_screen.dart';
-import 'user_management_screen.dart';
-import 'analytics_screen.dart';
+import '../../providers/admin_provider.dart';
+import '../../models/admin_dashboard_data.dart';
 
-class AdminDashboardScreen extends StatelessWidget {
+class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
+
+  @override
+  State<AdminDashboardScreen> createState() => AdminDashboardScreenState();
+}
+
+class AdminDashboardScreenState extends State<AdminDashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      if (!mounted) return;
+      context.read<AdminProvider>().loadDashboardData();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,220 +26,366 @@ class AdminDashboardScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Admin Dashboard'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: Consumer<AdminProvider>(
+        builder: (context, adminProvider, child) {
+          if (adminProvider.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (adminProvider.error != null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Error: ${adminProvider.error}',
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      adminProvider.loadDashboardData();
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          final dashboardData = adminProvider.dashboardData;
+          if (dashboardData == null) {
+            return const Center(child: Text('No dashboard data available'));
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildStatsSection(dashboardData),
+                const SizedBox(height: 24),
+                _buildManagementSection(),
+                const SizedBox(height: 24),
+                _buildRecentUsersSection(dashboardData),
+                const SizedBox(height: 24),
+                _buildSystemInfoSection(dashboardData),
+                const SizedBox(height: 24),
+                _buildQuickLinksSection(dashboardData),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildStatsSection(AdminDashboardData data) {
+    final users = data.stats.users;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'User Statistics',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              children: [
+                _buildStatCard(
+                    'Total Users', users.total.toString(), Icons.people),
+                _buildStatCard('Admins', users.admins.toString(),
+                    Icons.admin_panel_settings),
+                _buildStatCard(
+                    'Sellers', users.sellers.toString(), Icons.store),
+                _buildStatCard(
+                    'Buyers', users.buyers.toString(), Icons.shopping_cart),
+                _buildStatCard('Service Providers',
+                    users.serviceProviders.toString(), Icons.handyman),
+                _buildStatCard('New Users Today',
+                    users.newUsersToday.toString(), Icons.person_add),
+                _buildStatCard(
+                    'Active Users', users.activeUsers.toString(), Icons.person),
+                _buildStatCard('Verified Users', users.verifiedUsers.toString(),
+                    Icons.verified_user),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildManagementSection() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Management',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              children: [
+                _buildManagementCard(
+                  'Products',
+                  Icons.shopping_bag,
+                  () => Navigator.pushNamed(context, '/admin/products'),
+                ),
+                _buildManagementCard(
+                  'Services',
+                  Icons.miscellaneous_services,
+                  () => Navigator.pushNamed(context, '/admin/services'),
+                ),
+                _buildManagementCard(
+                  'Organic Products',
+                  Icons.eco,
+                  () => Navigator.pushNamed(context, '/admin/organic-products'),
+                ),
+                _buildManagementCard(
+                  'Market Info',
+                  Icons.info,
+                  () => Navigator.pushNamed(context, '/admin/market-info'),
+                ),
+                _buildManagementCard(
+                  'Users',
+                  Icons.people,
+                  () => Navigator.pushNamed(context, '/admin/users'),
+                ),
+                _buildManagementCard(
+                  'Transport',
+                  Icons.local_shipping,
+                  () => Navigator.pushNamed(context, '/admin/transport'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRecentUsersSection(AdminDashboardData data) {
+    final latestUsers = data.recentActivities.latestUsers;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Recent Users',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: latestUsers.length,
+              itemBuilder: (context, index) {
+                final user = latestUsers[index];
+                return ListTile(
+                  leading: CircleAvatar(
+                    child: Text(user.name[0]),
+                  ),
+                  title: Text(user.name),
+                  subtitle: Text(user.email),
+                  trailing: Text(
+                    user.role,
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSystemInfoSection(AdminDashboardData data) {
+    final systemInfo = data.systemInfo;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'System Information',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildInfoRow('PHP Version', systemInfo.phpVersion),
+            _buildInfoRow('Laravel Version', systemInfo.laravelVersion),
+            _buildInfoRow('Server Software', systemInfo.serverSoftware),
+            _buildInfoRow('Database', systemInfo.databaseConnection),
+            _buildInfoRow('Timezone', systemInfo.timezone),
+            _buildInfoRow('Memory Usage', systemInfo.memoryUsage),
+            _buildInfoRow('Disk Space', systemInfo.diskFreeSpace),
+            _buildInfoRow('Upload Limit', systemInfo.uploadMaxFilesize),
+            _buildInfoRow(
+                'Max Execution Time', '${systemInfo.maxExecutionTime}s'),
+            _buildInfoRow('Server Time', systemInfo.serverTime),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickLinksSection(AdminDashboardData data) {
+    final userLinks = data.quickLinks.users;
+    final reportLinks = data.quickLinks.reports;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Quick Links',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildQuickLinksGroup('Users', userLinks),
+            const SizedBox(height: 16),
+            _buildQuickLinksGroup('Reports', reportLinks),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatCard(String title, String value, IconData icon) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 32, color: Theme.of(context).primaryColor),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildManagementCard(String title, IconData icon, VoidCallback onTap) {
+    return Card(
+      elevation: 2,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 32, color: Theme.of(context).primaryColor),
+              const SizedBox(height: 8),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildAdminSection(
-            context,
-            'Content Management',
-            [
-              _buildActionCard(
-                context,
-                'Review Moderation',
-                'Manage user reviews and ratings',
-                Icons.rate_review,
-                Colors.orange,
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ReviewModerationScreen(),
-                  ),
-                ),
-              ),
-              _buildActionCard(
-                context,
-                'Service Management',
-                'Add, edit, or remove services',
-                Icons.miscellaneous_services,
-                Colors.blue,
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ServiceManagementScreen(),
-                  ),
-                ),
-              ),
-            ],
+          Text(
+            label,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          const SizedBox(height: 24),
-          _buildAdminSection(
-            context,
-            'User Management',
-            [
-              _buildActionCard(
-                context,
-                'Users',
-                'Manage user accounts and roles',
-                Icons.people,
-                Colors.green,
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AdminUserManagementScreen(),
-                  ),
-                ),
-              ),
-              _buildActionCard(
-                context,
-                'Analytics',
-                'View platform statistics',
-                Icons.analytics,
-                Colors.purple,
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AnalyticsScreen(),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          _buildReviewStats(context),
+          Text(value),
         ],
       ),
     );
   }
 
-  Widget _buildAdminSection(
-    BuildContext context,
-    String title,
-    List<Widget> children,
-  ) {
+  Widget _buildQuickLinksGroup(String title, List<Link> links) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 16),
-        GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: 2,
-          mainAxisSpacing: 16,
-          crossAxisSpacing: 16,
-          childAspectRatio: 1.2,
-          children: children,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionCard(
-    BuildContext context,
-    String title,
-    String subtitle,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
-    return Card(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 40,
-                color: color,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleMedium,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: Theme.of(context).textTheme.bodySmall,
-                textAlign: TextAlign.center,
-              ),
-            ],
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildReviewStats(BuildContext context) {
-    return Consumer<ReviewsProvider>(
-      builder: (context, reviewsProvider, child) {
-        final allReviews = reviewsProvider.getUserReviews('all');
-        final pendingCount = allReviews
-            .where((review) => review.status == ReviewStatus.pending)
-            .length;
-        final approvedCount = allReviews
-            .where((review) => review.status == ReviewStatus.approved)
-            .length;
-        final rejectedCount = allReviews
-            .where((review) => review.status == ReviewStatus.rejected)
-            .length;
-
-        return Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Review Statistics',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildStatItem(
-                      context,
-                      'Pending',
-                      pendingCount,
-                      Colors.orange,
-                    ),
-                    _buildStatItem(
-                      context,
-                      'Approved',
-                      approvedCount,
-                      Colors.green,
-                    ),
-                    _buildStatItem(
-                      context,
-                      'Rejected',
-                      rejectedCount,
-                      Colors.red,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildStatItem(
-    BuildContext context,
-    String label,
-    int count,
-    Color color,
-  ) {
-    return Column(
-      children: [
-        Text(
-          count.toString(),
-          style: Theme.of(context)
-              .textTheme
-              .headlineMedium
-              ?.copyWith(color: color),
-        ),
-        Text(label),
+        const SizedBox(height: 8),
+        ...links.map((link) => ListTile(
+              leading: const Icon(Icons.link),
+              title: Text(link.title),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.pushNamed(context, link.route);
+              },
+            )),
       ],
     );
   }

@@ -4,13 +4,13 @@ part 'transport.g.dart';
 
 @JsonSerializable()
 class Transport {
-  final int id;
+  final int? id;
   final String title;
   final String? description;
   @JsonKey(name: 'vehicle_location')
-  final String? vehicleLocation;
+  final String vehicleLocation;
   @JsonKey(name: 'vehicle_type')
-  final String? vehicleType;
+  final String vehicleType;
   @JsonKey(fromJson: _stringToDouble)
   final double price;
   @JsonKey(fromJson: _stringToDouble)
@@ -20,7 +20,7 @@ class Transport {
   @JsonKey(name: 'temperature_range', fromJson: _stringToDoubleNullable)
   final double? temperatureRange;
   @JsonKey(name: 'supported_product_types', fromJson: _ensureStringList)
-  final List<String> supportedProductTypes;
+  final List<String>? supportedProductTypes;
   @JsonKey(name: 'driver_id')
   final String? driverId;
   @JsonKey(name: 'driver_rating', fromJson: _stringToDoubleNullable)
@@ -35,7 +35,7 @@ class Transport {
   @JsonKey(name: 'image_url')
   final String? imageUrl;
   @JsonKey(name: 'owner_name')
-  final String? ownerName;
+  final String ownerName;
   @JsonKey(name: 'price_per_kg', fromJson: _stringToDoubleNullable)
   final double? pricePerKg;
   @JsonKey(name: 'driver_name')
@@ -43,9 +43,9 @@ class Transport {
   @JsonKey(name: 'driver_phone')
   final String? driverPhone;
   @JsonKey(name: 'created_at')
-  final DateTime createdAt;
+  final DateTime? createdAt;
   @JsonKey(name: 'updated_at')
-  final DateTime updatedAt;
+  final DateTime? updatedAt;
   @JsonKey(name: 'product_name')
   final String? productName;
   @JsonKey(name: 'product_type', fromJson: _standardizeProductType)
@@ -77,16 +77,16 @@ class Transport {
   }
 
   Transport({
-    required this.id,
+    this.id,
     required this.title,
     this.description,
-    this.vehicleLocation,
-    this.vehicleType,
+    required this.vehicleLocation,
+    required this.vehicleType,
     required this.price,
     required this.capacity,
     required this.isTemperatureControlled,
     this.temperatureRange,
-    required this.supportedProductTypes,
+    this.supportedProductTypes,
     this.driverId,
     this.driverRating,
     required this.hasInsurance,
@@ -95,12 +95,12 @@ class Transport {
     this.amenities,
     required this.status,
     this.imageUrl,
-    this.ownerName,
+    required this.ownerName,
     this.pricePerKg,
     this.driverName,
     this.driverPhone,
-    required this.createdAt,
-    required this.updatedAt,
+    this.createdAt,
+    this.updatedAt,
     this.productName,
     this.productType,
     this.amount,

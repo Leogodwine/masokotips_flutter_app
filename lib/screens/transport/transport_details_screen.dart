@@ -221,7 +221,7 @@ class TransportDetailsScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  if (transport.supportedProductTypes.isNotEmpty) ...[
+                  if (transport.supportedProductTypes?.isNotEmpty == true) ...[
                     const SizedBox(height: 24),
                     _buildSection(
                       context,
@@ -229,16 +229,18 @@ class TransportDetailsScreen extends StatelessWidget {
                       child: Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: transport.supportedProductTypes.map((type) {
-                          return Chip(
-                            label: Text(type),
-                            backgroundColor:
-                                Theme.of(context).primaryColor.withOpacity(0.1),
-                            labelStyle: TextStyle(
-                              color: Theme.of(context).primaryColor,
-                            ),
-                          );
-                        }).toList(),
+                        children: transport.supportedProductTypes?.map((type) {
+                              return Chip(
+                                label: Text(type),
+                                backgroundColor: Theme.of(context)
+                                    .primaryColor
+                                    .withOpacity(0.1),
+                                labelStyle: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              );
+                            }).toList() ??
+                            [],
                       ),
                     ),
                   ],

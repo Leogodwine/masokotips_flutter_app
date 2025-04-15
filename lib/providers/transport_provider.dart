@@ -63,7 +63,8 @@ class TransportProvider with ChangeNotifier {
 
       if (_selectedProductType != null) {
         matches = matches &&
-            transport.supportedProductTypes.contains(_selectedProductType);
+            (transport.supportedProductTypes?.contains(_selectedProductType) ??
+                false);
       }
 
       if (_minCapacity != null) {
@@ -297,8 +298,8 @@ class TransportProvider with ChangeNotifier {
       }
 
       if (productTypes != null && productTypes.isNotEmpty) {
-        if (!productTypes
-            .any((type) => transport.supportedProductTypes.contains(type))) {
+        if (!productTypes.any((type) =>
+            transport.supportedProductTypes?.contains(type) ?? false)) {
           return false;
         }
       }

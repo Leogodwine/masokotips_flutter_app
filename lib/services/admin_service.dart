@@ -712,7 +712,7 @@ class AdminService {
 
   Future<List<Transport>> getTransports() async {
     try {
-      final response = await _dio.get('/api/admin/transports');
+      final response = await _dio.get('/admin/transports');
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data['data'];
         return data.map((json) => Transport.fromJson(json)).toList();
@@ -724,15 +724,38 @@ class AdminService {
     }
   }
 
-  Future<void> deleteTransport(int transportId) async {
+  Future<bool> createTransport(Transport transport) async {
     try {
-      final response = await _dio.delete('/api/admin/transports/$transportId');
-      if (response.statusCode != 200) {
-        throw Exception('Failed to delete transport');
-      }
+      final response = await _dio.post(
+        '$baseUrl/api/admin/transports',
+        data: transport.toJson(),
+      );
+      return response.statusCode == 201;
     } catch (e) {
-      Log.e('Error deleting transport: $e');
-      rethrow;
+      throw Exception('Failed to create transport: $e');
+    }
+  }
+
+  Future<bool> updateTransport(Transport transport) async {
+    try {
+      final response = await _dio.put(
+        '$baseUrl/api/admin/transports/${transport.id}',
+        data: transport.toJson(),
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      throw Exception('Failed to update transport: $e');
+    }
+  }
+
+  Future<bool> deleteTransport(int id) async {
+    try {
+      final response = await _dio.delete(
+        '$baseUrl/api/admin/transports/$id',
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      throw Exception('Failed to delete transport: $e');
     }
   }
 

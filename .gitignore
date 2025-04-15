@@ -78,3 +78,37 @@ app.*.map.json
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Laravel
+/vendor/
+/node_modules/
+/public/storage
+/storage/*.key
+/.env
+/.env.backup
+/.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+/.idea
+/.vscode
+/.vagrant
+*.log
+
+# Flutter
+/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+*.iml
+*.iws
+*.ipr
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
