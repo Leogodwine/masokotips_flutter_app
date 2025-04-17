@@ -422,8 +422,7 @@ class _AdminTransportManagementScreenState
                                             const SizedBox(width: 4),
                                             Expanded(
                                               child: Text(
-                                                transport.vehicleLocation ??
-                                                    'N/A',
+                                                transport.vehicleLocation,
                                                 style: const TextStyle(
                                                   fontSize: 14,
                                                   color: Colors.grey,
@@ -444,7 +443,7 @@ class _AdminTransportManagementScreenState
                                             const SizedBox(width: 4),
                                             Expanded(
                                               child: Text(
-                                                transport.vehicleType ?? 'N/A',
+                                                transport.vehicleType,
                                                 style: const TextStyle(
                                                   fontSize: 14,
                                                   color: Colors.grey,

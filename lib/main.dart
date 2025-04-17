@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'config/theme_config.dart';
-import 'config/api_config.dart';
 import 'providers/auth_provider.dart';
 import 'providers/cart_provider.dart';
 import 'providers/wishlist_provider.dart';
 import 'providers/product_provider.dart';
 import 'providers/category_provider.dart';
-import 'providers/reviews_provider.dart';
 import 'providers/transport_provider.dart';
-import 'providers/organic_product_provider.dart';
-import 'providers/admin_provider.dart';
 import 'providers/market_info_provider.dart';
-import 'services/api_service.dart';
-import 'services/organic_product_service.dart';
+import 'providers/admin_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/cart/cart_screen.dart';
@@ -61,12 +56,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Initialize ApiService
-    final apiService = ApiService(
-      baseUrl: ApiConfig.baseUrl,
-      apiKey: ApiConfig.apiKey,
-    );
-
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
@@ -76,6 +65,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => WishlistProvider()),
         ChangeNotifierProvider(create: (_) => TransportProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
+        ChangeNotifierProvider(create: (_) => AdminProvider()),
       ],
       child: Consumer<AuthProvider>(
         builder: (context, authProvider, _) {
@@ -96,6 +86,10 @@ class MyApp extends StatelessWidget {
             final categoryProvider =
                 Provider.of<CategoryProvider>(context, listen: false);
             categoryProvider.loadMainCategories();
+
+            final adminProvider =
+                Provider.of<AdminProvider>(context, listen: false);
+            adminProvider.setAuthToken(authProvider.token!);
           }
 
           return MaterialApp(

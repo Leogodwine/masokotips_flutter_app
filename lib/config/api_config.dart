@@ -1,16 +1,7 @@
-import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart' show kIsWeb;
-
 class ApiConfig {
   // Base URL for API requests
   static String get baseUrl {
-    if (kIsWeb) {
-      return 'http://localhost:8000/api'; // Web
-    } else if (Platform.isAndroid) {
-      return 'http://10.0.2.2:8000/api'; // Android emulator
-    } else {
-      return 'http://localhost:8000/api'; // iOS simulator or other platforms
-    }
+    return 'https://api.wegazi.com/api';
   }
 
   // Timeout duration for API requests
@@ -26,7 +17,7 @@ class ApiConfig {
   static const List<String> alternativeBaseUrls = [
     'http://10.0.2.2:8000/api', // Android emulator
     'http://localhost:8000/api', // Local development
-    'https://api.yourdomain.com/api', // Production
+    'https://api.wegazi.com/api', // Production
   ];
 
   // Placeholder images

@@ -6,6 +6,7 @@ import 'developer_settings_screen.dart';
 import 'edit_profile_screen.dart';
 import './address_management_screen.dart';
 import '../seller/seller_dashboard_screen.dart';
+import '../admin/admin_login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -24,6 +25,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Profile'),
+        actions: [
+          if (isLoggedIn)
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () async {
+                await authProvider.logout();
+                if (mounted) {
+                  Navigator.pushReplacementNamed(context, '/');
+                }
+              },
+            ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -31,6 +44,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Divider(),
+
               // Profile header
               if (isLoggedIn && user != null) ...[
                 Center(
@@ -218,30 +233,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(height: 8),
                       ElevatedButton(
-                        onPressed: () async {
-                          final result = await showDialog<bool>(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text('Login Required'),
-                              content: const Text(
-                                  'You need to login to access this feature. Would you like to login now?'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.pop(context, false),
-                                  child: const Text('LATER'),
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  child: const Text('LOGIN'),
-                                ),
-                              ],
-                            ),
-                          );
-                          if (!mounted) return;
-                          if (result == true) {
-                            Navigator.pushNamed(context, '/login');
-                          }
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/login');
                         },
                         child: const Text('Login / Register'),
                       ),
@@ -281,18 +274,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           : () => _showLoginDialog(context),
                     ),
                     const Divider(height: 1),
-                    // Admin login button - only visible when not logged in
-                    if (!isLoggedIn) ...[
-                      ListTile(
-                        leading: const Icon(Icons.admin_panel_settings),
-                        title: const Text('Admin Login'),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () {
-                          Navigator.pushNamed(context, '/admin/login');
-                        },
-                      ),
-                      const Divider(height: 1),
-                    ],
                     // Add Seller Dashboard for users with seller role
                     if (isLoggedIn &&
                         user != null &&

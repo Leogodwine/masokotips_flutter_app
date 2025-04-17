@@ -23,7 +23,7 @@ class AppScaffold extends StatelessWidget {
 
   void _handleProtectedRoute(BuildContext context, int index) {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    if (!authProvider.isAuthenticated && (index == 2 || index == 3)) {
+    if (!authProvider.isAuthenticated && index == 2) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -60,20 +60,31 @@ class AppScaffold extends StatelessWidget {
           ...?actions,
           Consumer<AuthProvider>(
             builder: (context, authProvider, child) {
-              return IconButton(
-                icon: Icon(
-                  authProvider.isAuthenticated ? Icons.logout : Icons.login,
-                ),
-                onPressed: () async {
-                  if (authProvider.isAuthenticated) {
-                    authProvider.logout();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Logged out successfully')),
-                    );
-                  } else {
-                    Navigator.pushNamed(context, '/login');
-                  }
-                },
+              return Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.admin_panel_settings),
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/admin/login');
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      authProvider.isAuthenticated ? Icons.logout : Icons.login,
+                    ),
+                    onPressed: () async {
+                      if (authProvider.isAuthenticated) {
+                        authProvider.logout();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Logged out successfully')),
+                        );
+                      } else {
+                        Navigator.pushNamed(context, '/login');
+                      }
+                    },
+                  ),
+                ],
               );
             },
           ),

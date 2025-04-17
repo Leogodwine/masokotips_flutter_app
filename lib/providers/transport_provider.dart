@@ -82,9 +82,8 @@ class TransportProvider with ChangeNotifier {
 
       if (_vehicleLocation != null && _vehicleLocation!.isNotEmpty) {
         final locationMatch = transport.vehicleLocation
-                ?.toLowerCase()
-                .contains(_vehicleLocation!.toLowerCase()) ??
-            false;
+            .toLowerCase()
+            .contains(_vehicleLocation!.toLowerCase());
         matches = matches && locationMatch;
       }
 
@@ -278,9 +277,8 @@ class TransportProvider with ChangeNotifier {
 
       if (vehicleLocation != null) {
         final locationMatch = transport.vehicleLocation
-                ?.toLowerCase()
-                .contains(vehicleLocation.toLowerCase()) ??
-            false;
+            .toLowerCase()
+            .contains(vehicleLocation.toLowerCase());
         if (!locationMatch) return false;
       }
 

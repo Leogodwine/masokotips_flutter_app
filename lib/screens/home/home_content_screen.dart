@@ -3,8 +3,6 @@ import 'package:provider/provider.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/category_provider.dart';
 import '../../providers/market_info_provider.dart';
-import '../../providers/transport_provider.dart';
-import '../../providers/auth_provider.dart';
 import '../../models/category.dart';
 import '../products/product_list_screen.dart';
 import '../products/product_details_screen.dart';
@@ -17,9 +15,6 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../market_info_screen.dart';
 import '../market_info/market_info_detail_screen.dart';
 import '../../models/market_info.dart';
-import '../../widgets/error_message.dart';
-import '../../widgets/loading_indicator.dart';
-import '../../widgets/custom_drawer.dart';
 
 class HomeContentScreen extends StatefulWidget {
   const HomeContentScreen({Key? key}) : super(key: key);
@@ -32,7 +27,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
   bool _isLoading = false;
   final TextEditingController _searchController = TextEditingController();
   List<MarketInfo> _marketInfoList = [];
-  int _currentIndex = 0;
+  //int _currentIndex = 0;
 
   @override
   void initState() {
@@ -141,13 +136,13 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
             Container(
               padding: const EdgeInsets.all(24.0),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    const Color(0xFF1B5E20), // Deep forest green
-                    const Color(0xFF2E7D32), // Green
-                    const Color(0xFF4CAF50), // Light green
+                    Color(0xFF1B5E20), // Deep forest green
+                    Color(0xFF2E7D32), // Green
+                    Color(0xFF4CAF50), // Light green
                   ],
                 ),
                 borderRadius: const BorderRadius.only(
@@ -192,16 +187,16 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Text(
+                      const Text(
                         'maSOKO',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
                       Text(
-                        'tips',
+                        'Tips',
                         style: TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,

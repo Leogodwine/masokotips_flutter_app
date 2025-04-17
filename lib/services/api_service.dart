@@ -6,7 +6,6 @@ import '../models/category.dart'; // Ensure this file contains the Category clas
 import '../models/service.dart'; // Ensure this file contains the Service class definition
 import '../models/transport.dart'; // Ensure this file contains the Transport class definition
 import '../utils/logger.dart';
-import '../config/api_config.dart';
 
 class ApiService {
   final String baseUrl;
