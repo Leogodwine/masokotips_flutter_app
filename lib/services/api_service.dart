@@ -6,6 +6,7 @@ import '../models/category.dart'; // Ensure this file contains the Category clas
 import '../models/service.dart'; // Ensure this file contains the Service class definition
 import '../models/transport.dart'; // Ensure this file contains the Transport class definition
 import '../utils/logger.dart';
+import '../config/api_config.dart';
 
 class ApiService {
   final String baseUrl;
@@ -674,6 +675,80 @@ class ApiService {
       }
     } catch (e) {
       throw Exception('Error deleting transport: $e');
+    }
+  }
+
+  Future<dynamic> get(String endpoint, {Map<String, String>? headers}) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl$endpoint'),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-API-Key': apiKey,
+        ...?headers,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to load data: ${response.statusCode}');
+    }
+  }
+
+  Future<dynamic> post(String endpoint,
+      {Map<String, String>? headers, Map<String, dynamic>? body}) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl$endpoint'),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-API-Key': apiKey,
+        ...?headers,
+      },
+      body: json.encode(body),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to post data: ${response.statusCode}');
+    }
+  }
+
+  Future<dynamic> put(String endpoint,
+      {Map<String, String>? headers, Map<String, dynamic>? body}) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl$endpoint'),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-API-Key': apiKey,
+        ...?headers,
+      },
+      body: json.encode(body),
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to update data: ${response.statusCode}');
+    }
+  }
+
+  Future<void> delete(String endpoint, {Map<String, String>? headers}) async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl$endpoint'),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-API-Key': apiKey,
+        ...?headers,
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to delete data: ${response.statusCode}');
     }
   }
 }

@@ -11,6 +11,7 @@ import 'providers/reviews_provider.dart';
 import 'providers/transport_provider.dart';
 import 'providers/organic_product_provider.dart';
 import 'providers/admin_provider.dart';
+import 'providers/market_info_provider.dart';
 import 'services/api_service.dart';
 import 'services/organic_product_service.dart';
 import 'screens/auth/login_screen.dart';
@@ -42,6 +43,7 @@ import 'screens/admin/services_management_screen.dart';
 import 'screens/admin/organic_products_management.dart';
 import 'screens/admin/user_management_screen.dart';
 import 'screens/admin/transport_management_screen.dart';
+import 'screens/categories/main_categories_screen.dart';
 
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -68,129 +70,104 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => MarketInfoProvider()),
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => WishlistProvider()),
-        ChangeNotifierProvider(
-            create: (_) => ProductProvider(apiService: apiService)),
-        ChangeNotifierProvider(create: (_) => CategoryProvider()),
-        ChangeNotifierProvider(create: (_) => ReviewsProvider()),
         ChangeNotifierProvider(create: (_) => TransportProvider()),
-        ChangeNotifierProvider(
-          create: (context) => OrganicProductProvider(
-            OrganicProductService(),
-          ),
-        ),
-        ChangeNotifierProvider(create: (_) => AdminProvider()),
+        ChangeNotifierProvider(create: (_) => CategoryProvider()),
       ],
-      child: const AppContent(),
-    );
-  }
-}
+      child: Consumer<AuthProvider>(
+        builder: (context, authProvider, _) {
+          // Initialize providers with auth token if available
+          if (authProvider.isAuthenticated) {
+            final marketInfoProvider =
+                Provider.of<MarketInfoProvider>(context, listen: false);
+            marketInfoProvider.setAuthToken(authProvider.token!);
 
-class AppContent extends StatefulWidget {
-  const AppContent({super.key});
+            final productProvider =
+                Provider.of<ProductProvider>(context, listen: false);
+            productProvider.setAuthToken(authProvider.token!);
 
-  @override
-  State<AppContent> createState() => _AppContentState();
-}
+            final transportProvider =
+                Provider.of<TransportProvider>(context, listen: false);
+            transportProvider.initialize(authProvider.token!);
 
-class _AppContentState extends State<AppContent> {
-  bool _tokenLoaded = false;
+            final categoryProvider =
+                Provider.of<CategoryProvider>(context, listen: false);
+            categoryProvider.loadMainCategories();
+          }
 
-  @override
-  void initState() {
-    super.initState();
-    // Load the auth token when the app starts
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_tokenLoaded) {
-        context.read<AuthProvider>().loadToken();
-        _tokenLoaded = true;
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<AuthProvider>(
-      builder: (context, authProvider, child) {
-        // Initialize providers with auth token when available
-        if (authProvider.token != null) {
-          // Initialize other providers
-          context.read<TransportProvider>().initialize(authProvider.token!);
-          context
-              .read<OrganicProductProvider>()
-              .service
-              .setAuthToken(authProvider.token!);
-          context.read<AdminProvider>().setAuthToken(authProvider.token!);
-        }
-
-        return MaterialApp(
-          scaffoldMessengerKey: scaffoldMessengerKey,
-          title: 'maSOKOtips',
-          debugShowCheckedModeBanner: false,
-          theme: ThemeConfig.getThemeData(),
-          home: const HomeScreen(),
-          initialRoute: '/home',
-          routes: {
-            '/login': (context) => const LoginScreen(),
-            '/home': (context) => const HomeScreen(),
-            '/cart': (context) => const CartScreen(),
-            '/wishlist': (context) => const WishlistScreen(),
-            '/orders': (context) => const OrdersScreen(),
-            '/profile_test': (context) => const ProfileTestWidget(),
-            '/profile': (context) => const ProfileScreen(),
-            '/developer_settings': (context) => const DeveloperSettingsScreen(),
-            '/seller/dashboard': (context) => const SellerDashboardScreen(),
-            '/provider/add-service': (context) {
-              final serviceService = ServiceService();
-              final authProvider =
-                  Provider.of<AuthProvider>(context, listen: false);
-              if (authProvider.token != null) {
-                serviceService.setAuthToken(authProvider.token!);
-              }
-              final args = ModalRoute.of(context)!.settings.arguments
-                  as Map<String, dynamic>;
-              final category = args['category'];
-              final onServiceAdded = args['onServiceAdded'];
-              return AddServiceScreen(
-                onServiceAdded: onServiceAdded,
-                serviceService: serviceService,
-                category: category,
-              );
+          return MaterialApp(
+            scaffoldMessengerKey: scaffoldMessengerKey,
+            title: 'maSOKOtips',
+            debugShowCheckedModeBanner: false,
+            theme: ThemeConfig.getThemeData(),
+            home: const HomeScreen(),
+            initialRoute: '/home',
+            routes: {
+              '/login': (context) => const LoginScreen(),
+              '/home': (context) => const HomeScreen(),
+              '/categories': (context) => const MainCategoriesScreen(),
+              '/cart': (context) => const CartScreen(),
+              '/wishlist': (context) => const WishlistScreen(),
+              '/orders': (context) => const OrdersScreen(),
+              '/profile_test': (context) => const ProfileTestWidget(),
+              '/profile': (context) => const ProfileScreen(),
+              '/developer_settings': (context) =>
+                  const DeveloperSettingsScreen(),
+              '/seller/dashboard': (context) => const SellerDashboardScreen(),
+              '/provider/add-service': (context) {
+                final serviceService = ServiceService();
+                final authProvider =
+                    Provider.of<AuthProvider>(context, listen: false);
+                if (authProvider.token != null) {
+                  serviceService.setAuthToken(authProvider.token!);
+                }
+                final args = ModalRoute.of(context)!.settings.arguments
+                    as Map<String, dynamic>;
+                final category = args['category'];
+                final onServiceAdded = args['onServiceAdded'];
+                return AddServiceScreen(
+                  onServiceAdded: onServiceAdded,
+                  serviceService: serviceService,
+                  category: category,
+                );
+              },
+              '/transport/list': (context) =>
+                  const TransportListScreen(category: 'all'),
+              '/transport/add': (context) => const AddTransportScreen(),
+              '/transport/edit': (context) {
+                final transport =
+                    ModalRoute.of(context)!.settings.arguments as Transport;
+                return EditTransportScreen(transport: transport);
+              },
+              '/organic-products': (context) => const OrganicProductsScreen(),
+              '/organic-products/add': (context) =>
+                  const EditOrganicProductScreen(),
+              '/organic-products/edit': (context) =>
+                  const EditOrganicProductScreen(),
+              '/services': (context) => const ServiceCategoriesScreen(),
+              '/services/search': (context) => const ServiceSearchScreen(),
+              '/market-info': (context) => const MarketInfoListScreen(),
+              '/admin/market-info': (context) =>
+                  const MarketInfoManagementScreen(),
+              '/admin/create': (context) => const CreateAdminScreen(),
+              '/admin/login': (context) => const AdminLoginScreen(),
+              '/admin/dashboard': (context) => const AdminDashboardScreen(),
+              '/admin/products': (context) =>
+                  const AdminProductsManagementScreen(),
+              '/admin/services': (context) =>
+                  const AdminServicesManagementScreen(),
+              '/admin/organic-products': (context) =>
+                  const OrganicProductsManagement(),
+              '/admin/users': (context) => const AdminUserManagementScreen(),
+              '/admin/transport': (context) =>
+                  const AdminTransportManagementScreen(),
             },
-            '/transport/list': (context) =>
-                const TransportListScreen(category: 'all'),
-            '/transport/add': (context) => const AddTransportScreen(),
-            '/transport/edit': (context) {
-              final transport =
-                  ModalRoute.of(context)!.settings.arguments as Transport;
-              return EditTransportScreen(transport: transport);
-            },
-            '/organic-products': (context) => const OrganicProductsScreen(),
-            '/organic-products/add': (context) =>
-                const EditOrganicProductScreen(),
-            '/organic-products/edit': (context) =>
-                const EditOrganicProductScreen(),
-            '/services': (context) => const ServiceCategoriesScreen(),
-            '/services/search': (context) => const ServiceSearchScreen(),
-            '/market-info': (context) => const MarketInfoListScreen(),
-            '/admin/market-info': (context) =>
-                const MarketInfoManagementScreen(),
-            '/admin/create': (context) => const CreateAdminScreen(),
-            '/admin/login': (context) => const AdminLoginScreen(),
-            '/admin/dashboard': (context) => const AdminDashboardScreen(),
-            '/admin/products': (context) =>
-                const AdminProductsManagementScreen(),
-            '/admin/services': (context) =>
-                const AdminServicesManagementScreen(),
-            '/admin/organic-products': (context) =>
-                const OrganicProductsManagement(),
-            '/admin/users': (context) => const AdminUserManagementScreen(),
-            '/admin/transport': (context) =>
-                const AdminTransportManagementScreen(),
-          },
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

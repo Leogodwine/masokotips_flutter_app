@@ -485,6 +485,7 @@ class _AddMarketInfoScreenState extends State<AddMarketInfoScreen> {
           final tempMarketInfo = await widget.marketInfoService.addMarketInfo(
             title: _titleController.text,
             description: _descriptionController.text,
+            content: _descriptionController.text,
             contact: _contactController.text,
             location: _locationController.text.isNotEmpty
                 ? _locationController.text
@@ -502,6 +503,7 @@ class _AddMarketInfoScreenState extends State<AddMarketInfoScreen> {
         final marketInfo = await widget.marketInfoService.addMarketInfo(
           title: _titleController.text,
           description: _descriptionController.text,
+          content: _descriptionController.text,
           contact: _contactController.text,
           location: _locationController.text.isNotEmpty
               ? _locationController.text
@@ -738,6 +740,7 @@ class _EditMarketInfoScreenState extends State<EditMarketInfoScreen> {
           id: widget.marketInfo.id.toString(),
           title: _titleController.text,
           content: _contentController.text,
+          description: _contentController.text,
           imageUrl: imageUrl ?? widget.marketInfo.imageUrl,
           location: _locationController.text.isNotEmpty
               ? _locationController.text

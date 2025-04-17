@@ -2,11 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:masoko_tips/models/market_info.dart';
 import 'package:masoko_tips/services/market_info_service.dart';
 
-class MarketInfoProvider with ChangeNotifier {
-  final MarketInfoService _marketInfoService = MarketInfoService();
+class MarketInfoProvider extends ChangeNotifier {
+  final MarketInfoService _marketInfoService;
   List<MarketInfo> _marketInfoList = [];
   bool _isLoading = false;
   String? _error;
+
+  MarketInfoProvider({MarketInfoService? marketInfoService})
+      : _marketInfoService = marketInfoService ?? MarketInfoService();
 
   List<MarketInfo> get marketInfoList => _marketInfoList;
   bool get isLoading => _isLoading;
@@ -19,6 +22,7 @@ class MarketInfoProvider with ChangeNotifier {
 
     try {
       _marketInfoList = await _marketInfoService.getAllMarketInfo();
+      _error = null;
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -29,18 +33,24 @@ class MarketInfoProvider with ChangeNotifier {
 
   Future<void> addMarketInfo({
     required String title,
+    required String description,
     required String content,
     String? imageUrl,
     String? location,
     String? category,
+    String? contact,
   }) async {
     try {
-      final newMarketInfo = await _marketInfoService.addMarketInfo(
+      final marketInfo = await _marketInfoService.addMarketInfo(
         title: title,
-        description: content,
-        contact: location ?? '',
+        description: description,
+        content: content,
+        imageUrl: imageUrl,
+        location: location,
+        category: category,
+        contact: contact,
       );
-      _marketInfoList.add(newMarketInfo);
+      _marketInfoList.add(marketInfo);
       notifyListeners();
     } catch (e) {
       _error = e.toString();
@@ -50,21 +60,25 @@ class MarketInfoProvider with ChangeNotifier {
   }
 
   Future<void> updateMarketInfo({
-    required int id,
+    required String id,
     required String title,
+    required String description,
     required String content,
     String? imageUrl,
     String? location,
     String? category,
+    String? contact,
   }) async {
     try {
       final updatedMarketInfo = await _marketInfoService.updateMarketInfo(
-        id: id.toString(),
+        id: id,
         title: title,
+        description: description,
         content: content,
         imageUrl: imageUrl,
         location: location,
         category: category,
+        contact: contact,
       );
       final index = _marketInfoList.indexWhere((info) => info.id == id);
       if (index != -1) {
@@ -78,15 +92,17 @@ class MarketInfoProvider with ChangeNotifier {
     }
   }
 
-  Future<void> deleteMarketInfo(int id) async {
+  Future<void> deleteMarketInfo(String id) async {
     try {
-      await _marketInfoService.deleteMarketInfo(id.toString());
-      _marketInfoList.removeWhere((info) => info.id == id);
-      notifyListeners();
+      await _marketInfoService.deleteMarketInfo(id);
+      await loadMarketInfo();
     } catch (e) {
       _error = e.toString();
       notifyListeners();
-      rethrow;
     }
+  }
+
+  void setAuthToken(String token) {
+    _marketInfoService.setAuthToken(token);
   }
 }

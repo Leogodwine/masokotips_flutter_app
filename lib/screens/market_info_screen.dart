@@ -145,8 +145,10 @@ class _MarketInfoListScreenState extends State<MarketInfoListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
-        title: 'Market Information',
+      appBar: AppBar(
+        title: const Text('Market Information'),
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Colors.white,
         actions: [
           IconButton(
             icon:
@@ -173,54 +175,56 @@ class _MarketInfoListScreenState extends State<MarketInfoListScreen> {
       drawer: const CustomDrawer(),
       body: Column(
         children: [
-          if (_showFilters) ...[
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: _searchController,
-                    decoration: const InputDecoration(
-                      labelText: 'Search',
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(),
-                    ),
-                    onChanged: (_) => _applyFilters(),
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _locationController,
-                    decoration: const InputDecoration(
-                      labelText: 'Location',
-                      prefixIcon: Icon(Icons.location_on),
-                      border: OutlineInputBorder(),
-                    ),
-                    onChanged: (_) => _applyFilters(),
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _categoryController,
-                    decoration: const InputDecoration(
-                      labelText: 'Category',
-                      prefixIcon: Icon(Icons.category),
-                      border: OutlineInputBorder(),
-                    ),
-                    onChanged: (_) => _applyFilters(),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: _clearFilters,
-                        child: const Text('Clear Filters'),
+          if (_showFilters)
+            Card(
+              margin: const EdgeInsets.all(16),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _searchController,
+                      decoration: const InputDecoration(
+                        labelText: 'Search',
+                        prefixIcon: Icon(Icons.search),
+                        border: OutlineInputBorder(),
                       ),
-                    ],
-                  ),
-                ],
+                      onChanged: (_) => _applyFilters(),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _locationController,
+                      decoration: const InputDecoration(
+                        labelText: 'Location',
+                        prefixIcon: Icon(Icons.location_on),
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (_) => _applyFilters(),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _categoryController,
+                      decoration: const InputDecoration(
+                        labelText: 'Category',
+                        prefixIcon: Icon(Icons.category),
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (_) => _applyFilters(),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: _clearFilters,
+                          child: const Text('Clear Filters'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ],
           Expanded(
             child: _isLoading
                 ? const LoadingIndicator()
@@ -320,7 +324,8 @@ class _MarketInfoListScreenState extends State<MarketInfoListScreen> {
                                                       ),
                                                     ),
                                                   ),
-                                                  if (marketInfo.isFeatured)
+                                                  if (marketInfo.isActive ||
+                                                      marketInfo.isFeatured)
                                                     Container(
                                                       padding: const EdgeInsets
                                                           .symmetric(
@@ -328,17 +333,30 @@ class _MarketInfoListScreenState extends State<MarketInfoListScreen> {
                                                         vertical: 4,
                                                       ),
                                                       decoration: BoxDecoration(
-                                                        color: AppTheme
-                                                            .primaryColor,
+                                                        color: marketInfo
+                                                                .isActive
+                                                            ? Colors.green
+                                                                .withOpacity(
+                                                                    0.1)
+                                                            : Colors.grey
+                                                                .withOpacity(
+                                                                    0.1),
                                                         borderRadius:
                                                             BorderRadius
                                                                 .circular(12),
                                                       ),
-                                                      child: const Text(
-                                                        'Featured',
+                                                      child: Text(
+                                                        marketInfo.isActive
+                                                            ? 'ACTIVE'
+                                                            : 'FEATURED',
                                                         style: TextStyle(
-                                                          color: Colors.white,
+                                                          color: marketInfo
+                                                                  .isActive
+                                                              ? Colors.green
+                                                              : Colors.grey,
                                                           fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.bold,
                                                         ),
                                                       ),
                                                     ),
@@ -383,53 +401,37 @@ class _MarketInfoListScreenState extends State<MarketInfoListScreen> {
                                                   ),
                                                 ],
                                               ),
-                                              const SizedBox(height: 8),
+                                              const SizedBox(height: 16),
                                               Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
                                                 children: [
-                                                  Icon(
-                                                    Icons.calendar_today,
-                                                    size: 16,
-                                                    color: Colors.grey[600],
+                                                  IconButton(
+                                                    icon:
+                                                        const Icon(Icons.edit),
+                                                    color: Theme.of(context)
+                                                        .primaryColor,
+                                                    onPressed: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              EditMarketInfoScreen(
+                                                            marketInfo:
+                                                                marketInfo,
+                                                          ),
+                                                        ),
+                                                      ).then((_) =>
+                                                          _loadMarketInfo());
+                                                    },
                                                   ),
-                                                  const SizedBox(width: 4),
-                                                  Text(
-                                                    formatDate(
-                                                        marketInfo.createdAt),
-                                                    style: TextStyle(
-                                                      color: Colors.grey[600],
-                                                    ),
-                                                  ),
-                                                  const Spacer(),
-                                                  Row(
-                                                    children: [
-                                                      IconButton(
-                                                        icon: const Icon(
-                                                            Icons.edit),
-                                                        color: AppTheme
-                                                            .primaryColor,
-                                                        onPressed: () {
-                                                          Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                              builder: (context) =>
-                                                                  EditMarketInfoScreen(
-                                                                marketInfo:
-                                                                    marketInfo,
-                                                              ),
-                                                            ),
-                                                          ).then((_) =>
-                                                              _loadMarketInfo());
-                                                        },
-                                                      ),
-                                                      IconButton(
-                                                        icon: const Icon(
-                                                            Icons.delete),
-                                                        color: Colors.red,
-                                                        onPressed: () =>
-                                                            _deleteMarketInfo(
-                                                                marketInfo),
-                                                      ),
-                                                    ],
+                                                  IconButton(
+                                                    icon: const Icon(
+                                                        Icons.delete),
+                                                    color: Colors.red,
+                                                    onPressed: () =>
+                                                        _deleteMarketInfo(
+                                                            marketInfo),
                                                   ),
                                                 ],
                                               ),
