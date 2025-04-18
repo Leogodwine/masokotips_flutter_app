@@ -429,18 +429,16 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                                 vertical: 6,
                                               ),
                                               decoration: BoxDecoration(
-                                                color:
-                                                    transport.status == 'active'
-                                                        ? Colors.green
-                                                            .withOpacity(0.9)
-                                                        : Colors.grey
-                                                            .withOpacity(0.9),
+                                                color: transport.status ==
+                                                        'active'
+                                                    ? Colors.green.withValues()
+                                                    : Colors.grey.withValues(),
                                                 borderRadius:
                                                     BorderRadius.circular(20),
                                                 boxShadow: [
                                                   BoxShadow(
                                                     color: Colors.black
-                                                        .withOpacity(0.2),
+                                                        .withValues(),
                                                     blurRadius: 4,
                                                     offset: const Offset(0, 2),
                                                   ),
@@ -467,8 +465,7 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                                   begin: Alignment.bottomCenter,
                                                   end: Alignment.topCenter,
                                                   colors: [
-                                                    Colors.black
-                                                        .withOpacity(0.7),
+                                                    Colors.black.withValues(),
                                                     Colors.transparent,
                                                   ],
                                                 ),
@@ -511,14 +508,14 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                                   decoration: BoxDecoration(
                                                     color: Theme.of(context)
                                                         .primaryColor
-                                                        .withOpacity(0.9),
+                                                        .withValues(),
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             20),
                                                     boxShadow: [
                                                       BoxShadow(
                                                         color: Colors.black
-                                                            .withOpacity(0.2),
+                                                            .withValues(),
                                                         blurRadius: 4,
                                                         offset:
                                                             const Offset(0, 2),
@@ -526,7 +523,7 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                                     ],
                                                   ),
                                                   child: Text(
-                                                    '\$${transport.price.toStringAsFixed(2)}',
+                                                    'TZS ${transport.price.toStringAsFixed(2)}',
                                                     style: const TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 16,
@@ -557,8 +554,7 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                                 const SizedBox(width: 4),
                                                 Expanded(
                                                   child: Text(
-                                                    transport.vehicleLocation ??
-                                                        'N/A',
+                                                    transport.vehicleLocation,
                                                     style: const TextStyle(
                                                       fontSize: 14,
                                                       color: Colors.grey,
@@ -579,8 +575,7 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                                 const SizedBox(width: 4),
                                                 Expanded(
                                                   child: Text(
-                                                    transport.vehicleType ??
-                                                        'N/A',
+                                                    transport.vehicleType,
                                                     style: const TextStyle(
                                                       fontSize: 14,
                                                       color: Colors.grey,

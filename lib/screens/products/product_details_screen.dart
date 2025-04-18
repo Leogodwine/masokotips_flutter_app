@@ -232,7 +232,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         ),
                       ),
                       Text(
-                        '\$${widget.product.price.toStringAsFixed(2)}',
+                        'TZS ${widget.product.price.toStringAsFixed(2)}',
                         style:
                             Theme.of(context).textTheme.headlineSmall?.copyWith(
                                   color: Theme.of(context).primaryColor,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:masoko_tips/utils/theme.dart';
 import 'package:masoko_tips/providers/auth_provider.dart';
 
 class CustomDrawer extends StatelessWidget {
@@ -19,7 +18,7 @@ class CustomDrawer extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Theme.of(context).primaryColor.withOpacity(0.1),
+              Theme.of(context).primaryColor.withValues(),
               Colors.white,
             ],
           ),
@@ -36,7 +35,7 @@ class CustomDrawer extends StatelessWidget {
                   end: Alignment.bottomRight,
                   colors: [
                     Theme.of(context).primaryColor,
-                    Theme.of(context).primaryColor.withOpacity(0.8),
+                    Theme.of(context).primaryColor.withValues(),
                   ],
                 ),
                 borderRadius: const BorderRadius.only(
@@ -272,7 +271,7 @@ class CustomDrawer extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Theme.of(context).primaryColor.withOpacity(0.1),
+          color: Theme.of(context).primaryColor.withValues(),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(

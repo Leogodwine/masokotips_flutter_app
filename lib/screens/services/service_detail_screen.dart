@@ -95,7 +95,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                         ),
                       ),
                       Text(
-                        '\$${widget.service.price.toStringAsFixed(2)}',
+                        'TZS ${widget.service.price.toStringAsFixed(2)}',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: Theme.of(context).primaryColor,
                               fontWeight: FontWeight.bold,

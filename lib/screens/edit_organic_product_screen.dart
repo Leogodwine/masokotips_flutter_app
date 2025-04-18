@@ -644,7 +644,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         prefixIcon: const Icon(Icons.attach_money),
-                        prefixText: '\$',
+                        prefixText: 'TZS',
                       ),
                       keyboardType: TextInputType.number,
                       validator: (value) {

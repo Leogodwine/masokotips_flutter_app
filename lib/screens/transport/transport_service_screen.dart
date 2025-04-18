@@ -127,7 +127,7 @@ class TransportServiceScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Base Rate: \$${transportDetails['baseRate']}/km',
+                            'Base Rate: TZS ${transportDetails['baseRate']}/km',
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,

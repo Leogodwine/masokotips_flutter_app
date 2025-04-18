@@ -85,7 +85,7 @@ class FeaturedProducts extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '\$${product.price.toStringAsFixed(2)}',
+                      'TZS ${product.price.toStringAsFixed(2)}',
                       style: TextStyle(
                         color: Theme.of(context).primaryColor,
                         fontSize: 18,

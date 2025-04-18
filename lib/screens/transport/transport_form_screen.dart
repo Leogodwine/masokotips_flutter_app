@@ -102,7 +102,7 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
               status: _status,
               ownerName: _titleController.text,
               driverName: _titleController.text,
-              driverPhone: '1234567890',
+              driverPhone: '+255715000000',
             );
       } else {
         final updatedTransport = widget.transport!.copyWith(
@@ -180,7 +180,7 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
               decoration: const InputDecoration(
                 labelText: 'Price',
                 border: OutlineInputBorder(),
-                prefixText: '\$',
+                prefixText: 'TZS',
               ),
               keyboardType: TextInputType.number,
               validator: (value) {

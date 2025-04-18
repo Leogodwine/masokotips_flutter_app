@@ -19,6 +19,7 @@ class ConnectivityService with ChangeNotifier {
     try {
       final result = await _connectivity.checkConnectivity();
       _isConnected = result != ConnectivityResult.none;
+
       notifyListeners();
     } catch (e) {
       debugPrint('Couldn\'t check connectivity status: $e');

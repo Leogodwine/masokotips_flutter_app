@@ -115,7 +115,7 @@ class TransportDetailsScreen extends StatelessWidget {
                           context,
                           icon: Icons.directions_car,
                           label: 'Vehicle Type',
-                          value: transport.vehicleType ?? 'N/A',
+                          value: transport.vehicleType,
                         ),
                         const SizedBox(height: 8),
                         _buildInfoRow(
@@ -154,14 +154,14 @@ class TransportDetailsScreen extends StatelessWidget {
                           context,
                           icon: Icons.location_on,
                           label: 'Location',
-                          value: transport.vehicleLocation ?? 'N/A',
+                          value: transport.vehicleLocation,
                         ),
                         const SizedBox(height: 8),
                         _buildInfoRow(
                           context,
                           icon: Icons.person,
                           label: 'Owner',
-                          value: transport.ownerName ?? 'N/A',
+                          value: transport.ownerName,
                         ),
                         const SizedBox(height: 8),
                         _buildInfoRow(
@@ -199,7 +199,7 @@ class TransportDetailsScreen extends StatelessWidget {
                             icon: Icons.monetization_on,
                             label: 'Price per Kg',
                             value:
-                                '\$${transport.pricePerKg!.toStringAsFixed(2)}',
+                                'TZS ${transport.pricePerKg!.toStringAsFixed(2)}',
                           ),
                         ],
                         const SizedBox(height: 8),
@@ -232,9 +232,8 @@ class TransportDetailsScreen extends StatelessWidget {
                         children: transport.supportedProductTypes?.map((type) {
                               return Chip(
                                 label: Text(type),
-                                backgroundColor: Theme.of(context)
-                                    .primaryColor
-                                    .withOpacity(0.1),
+                                backgroundColor:
+                                    Theme.of(context).primaryColor.withValues(),
                                 labelStyle: TextStyle(
                                   color: Theme.of(context).primaryColor,
                                 ),
@@ -257,7 +256,7 @@ class TransportDetailsScreen extends StatelessWidget {
                           return Chip(
                             label: Text(amenity),
                             backgroundColor:
-                                Theme.of(context).primaryColor.withOpacity(0.1),
+                                Theme.of(context).primaryColor.withValues(),
                             labelStyle: TextStyle(
                               color: Theme.of(context).primaryColor,
                             ),
@@ -279,7 +278,7 @@ class TransportDetailsScreen extends StatelessWidget {
                           return Chip(
                             label: Text(cert),
                             backgroundColor:
-                                Theme.of(context).primaryColor.withOpacity(0.1),
+                                Theme.of(context).primaryColor.withValues(),
                             labelStyle: TextStyle(
                               color: Theme.of(context).primaryColor,
                             ),

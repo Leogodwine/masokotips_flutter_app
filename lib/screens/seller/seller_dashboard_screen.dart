@@ -354,7 +354,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
-                                            '\$${product.price.toStringAsFixed(2)}',
+                                            'TZS ${product.price.toStringAsFixed(2)}',
                                             style: TextStyle(
                                               color: Theme.of(context)
                                                   .primaryColor,

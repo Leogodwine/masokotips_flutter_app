@@ -347,7 +347,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
                         ),
                         prefixIcon: Icon(Icons.attach_money,
                             color: Theme.of(context).primaryColor),
-                        prefixText: '\$',
+                        prefixText: 'TZS',
                       ),
                       keyboardType: TextInputType.number,
                       validator: (value) {
@@ -370,7 +370,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
                         ),
                         prefixIcon: Icon(Icons.monetization_on,
                             color: Theme.of(context).primaryColor),
-                        prefixText: '\$',
+                        prefixText: 'TZS',
                       ),
                       keyboardType: TextInputType.number,
                     ),

@@ -812,7 +812,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                               ),
                                               const SizedBox(height: 8),
                                               Text(
-                                                '\$${product.price.toStringAsFixed(2)}',
+                                                'TZS ${product.price.toStringAsFixed(2)}',
                                                 style: TextStyle(
                                                   color: Theme.of(context)
                                                       .primaryColor,

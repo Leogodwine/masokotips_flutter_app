@@ -326,7 +326,7 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      '\$${product.price.toStringAsFixed(2)}',
+                                      'TZS ${product.price.toStringAsFixed(2)}',
                                       style: TextStyle(
                                         color: Theme.of(context).primaryColor,
                                         fontWeight: FontWeight.bold,

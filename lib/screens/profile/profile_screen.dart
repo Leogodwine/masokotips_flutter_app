@@ -6,7 +6,6 @@ import 'developer_settings_screen.dart';
 import 'edit_profile_screen.dart';
 import './address_management_screen.dart';
 import '../seller/seller_dashboard_screen.dart';
-import '../admin/admin_login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

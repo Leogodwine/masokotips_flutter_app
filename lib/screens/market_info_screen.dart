@@ -4,13 +4,10 @@ import 'package:masoko_tips/providers/market_info_provider.dart';
 import 'package:masoko_tips/models/market_info.dart';
 import 'package:masoko_tips/screens/market_info/edit_market_info_screen.dart';
 import 'package:masoko_tips/screens/market_info/market_info_detail_screen.dart';
-import 'package:masoko_tips/widgets/custom_app_bar.dart';
 import 'package:masoko_tips/widgets/custom_drawer.dart';
 import 'package:masoko_tips/widgets/loading_indicator.dart';
 import 'package:masoko_tips/widgets/error_message.dart';
 import 'package:masoko_tips/widgets/empty_state.dart';
-import 'package:masoko_tips/utils/date_utils.dart';
-import 'package:masoko_tips/utils/theme.dart';
 
 class MarketInfoListScreen extends StatefulWidget {
   const MarketInfoListScreen({super.key});
@@ -336,11 +333,9 @@ class _MarketInfoListScreenState extends State<MarketInfoListScreen> {
                                                         color: marketInfo
                                                                 .isActive
                                                             ? Colors.green
-                                                                .withOpacity(
-                                                                    0.1)
+                                                                .withValues()
                                                             : Colors.grey
-                                                                .withOpacity(
-                                                                    0.1),
+                                                                .withValues(),
                                                         borderRadius:
                                                             BorderRadius
                                                                 .circular(12),

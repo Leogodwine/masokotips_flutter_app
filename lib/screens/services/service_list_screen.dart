@@ -241,8 +241,8 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                       max: 1000,
                       divisions: 20,
                       labels: RangeLabels(
-                        '\$${_priceRange.start.round()}',
-                        '\$${_priceRange.end.round()}',
+                        'TZS ${_priceRange.start.round()}',
+                        'TZS ${_priceRange.end.round()}',
                       ),
                       onChanged: (values) {
                         setState(() => _priceRange = values);
@@ -568,7 +568,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                                         ],
                                       ),
                                       trailing: Text(
-                                        '\$${service.price.toStringAsFixed(2)}',
+                                        'TZS ${service.price.toStringAsFixed(2)}',
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16,

@@ -1,5 +1,5 @@
 class AppConstants {
-  static const String appName = 'Masoko Tips';
+  static const String appName = 'maSOKOtips';
   static const String appVersion = '1.0.0';
   static const String appDescription = 'Market Information App';
 

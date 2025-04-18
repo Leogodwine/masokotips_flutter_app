@@ -430,7 +430,8 @@ class AdminProvider with ChangeNotifier {
     try {
       final updatedMarketInfo =
           await _adminService.updateMarketInfo(marketInfoId, marketInfoData);
-      final index = _marketInfo.indexWhere((info) => info.id == marketInfoId);
+      final index =
+          _marketInfo.indexWhere((info) => info.id == marketInfoId.toString());
       if (index != -1) {
         _marketInfo[index] = updatedMarketInfo;
       }
