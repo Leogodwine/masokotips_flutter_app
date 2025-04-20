@@ -146,7 +146,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               CachedNetworkImageWithCors(
-                                imageUrl: product.imageUrl,
+                                //imageUrl: product.imageUrl,
+                                imageUrl: product.firstImageUrl,
                                 height: 160,
                                 width: double.infinity,
                                 fit: BoxFit.cover,
@@ -184,7 +185,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      '\$${product.price.toStringAsFixed(2)}',
+                                      'TZS ${product.price.toStringAsFixed(2)}',
                                       style: TextStyle(
                                         color: Theme.of(context).primaryColor,
                                         fontSize: 16,

@@ -49,6 +49,13 @@ class ProductProvider with ChangeNotifier {
 
       Log.e('ProductProvider: Fetching featured products...');
       _featuredProducts = await _apiService.getFeaturedProducts();
+
+      // Log each product's image URL
+      for (var product in _featuredProducts) {
+        Log.e(
+            'ProductProvider: Featured product image URL: ${product.imageUrl}');
+      }
+
       Log.e(
           'ProductProvider: Successfully fetched ${_featuredProducts.length} featured products');
     } catch (e, stackTrace) {

@@ -6,7 +6,6 @@ import '../../providers/market_info_provider.dart';
 import '../../models/category.dart';
 import '../products/product_list_screen.dart';
 import '../products/product_details_screen.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../search/search_screen.dart';
 import 'dart:async';
 import '../../utils/logger.dart';
@@ -772,27 +771,32 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                       children: [
                                         Hero(
                                           tag: 'home-featured-${product.id}',
-                                          child: CachedNetworkImage(
-                                            imageUrl: product.imageUrl,
+                                          child: Image.network(
+                                            //product.imageUrl,
+                                            product.firstImageUrl,
                                             height: 160,
                                             width: double.infinity,
                                             fit: BoxFit.cover,
-                                            placeholder: (context, url) =>
-                                                Container(
-                                              height: 160,
-                                              color: Colors.grey[100],
-                                              child: const Center(
-                                                child:
-                                                    CircularProgressIndicator(),
-                                              ),
-                                            ),
-                                            errorWidget:
-                                                (context, url, error) =>
-                                                    Container(
-                                              height: 160,
-                                              color: Colors.grey[100],
-                                              child: const Icon(Icons.error),
-                                            ),
+                                            loadingBuilder: (context, child,
+                                                loadingProgress) {
+                                              if (loadingProgress == null)
+                                                return child;
+                                              return Container(
+                                                height: 160,
+                                                color: Colors.grey[100],
+                                                child: const Center(
+                                                    child:
+                                                        CircularProgressIndicator()),
+                                              );
+                                            },
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                              return Container(
+                                                height: 160,
+                                                color: Colors.grey[100],
+                                                child: const Icon(Icons.error),
+                                              );
+                                            },
                                           ),
                                         ),
                                         Padding(

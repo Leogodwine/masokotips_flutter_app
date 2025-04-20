@@ -22,12 +22,11 @@ class Product {
   final DateTime? deletedAt;
   final Map<String, dynamic>? category;
 
-  // Category name getter that uses the category from API response
+  // Category name from category map or fallback
   String get categoryName {
     if (category != null && category!['name'] != null) {
       return category!['name'];
     }
-    // Fallback to hardcoded map if category is not available
     const categoryMap = {
       1: 'Products',
       3: 'Market Information',
@@ -71,6 +70,14 @@ class Product {
     return categoryMap[categoryId] ?? 'Unknown Category';
   }
 
+  // Getter to safely access and process first image
+  String get firstImageUrl {
+    if (images != null && images!.isNotEmpty) {
+      return _processImageUrl(images!.first);
+    }
+    return imageUrl;
+  }
+
   Product({
     required this.id,
     required this.name,
@@ -95,7 +102,7 @@ class Product {
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
-    // Handle image URL - use image_url if available, otherwise use first image from images array
+    // Handle image URL - use image_url if available, otherwise first from images[]
     String imageUrl = json['image_url'] ?? '';
     if (imageUrl.isEmpty &&
         json['images'] != null &&
@@ -103,10 +110,8 @@ class Product {
       imageUrl = json['images'][0];
     }
 
-    // Process the image URL if it's not empty
-    if (imageUrl.isNotEmpty) {
-      imageUrl = _processImageUrl(imageUrl);
-    }
+    imageUrl = _processImageUrl(imageUrl);
+    print('✅ Final processed image URL: $imageUrl');
 
     return Product(
       id: json['id'] ?? 0,
@@ -124,9 +129,7 @@ class Product {
       imageUrl: imageUrl,
       categoryId: int.tryParse(json['category_id']?.toString() ?? '0') ?? 0,
       userId: int.tryParse(json['user_id']?.toString() ?? '0') ?? 0,
-      images: json['images'] != null
-          ? (json['images'] as List).cast<String>()
-          : null,
+      images: json['images'] != null ? List<String>.from(json['images']) : null,
       specifications: json['specifications'],
       rating: double.tryParse(json['rating']?.toString() ?? '0') ?? 0.0,
       ratingCount: int.tryParse(json['rating_count']?.toString() ?? '0') ?? 0,
@@ -164,44 +167,29 @@ class Product {
     };
   }
 
-  // Helper method to process image URLs
   static String _processImageUrl(String path) {
-    print('Processing image URL: $path');
-    print('Base URL: ${ApiConfig.baseUrl}');
-
-    if (path.isEmpty) {
-      print('Empty path detected, returning empty string');
-      return '';
-    }
-
-    // Remove any backslashes and trim whitespace
     path = path.replaceAll('\\', '/').trim();
-    print('Cleaned path: $path');
 
-    // If it's already a full URL, return it as is
+    if (path.isEmpty) return '';
+
     if (path.startsWith('http://') || path.startsWith('https://')) {
-      print('Full URL detected, returning as is: $path');
       return path;
     }
 
-    // Get the base URL without the /api suffix
-    final baseUrl = ApiConfig.baseUrl.replaceAll('/api', '');
+    final base = Uri.parse(ApiConfig.baseUrl);
+    final cleanBase = '${base.scheme}://${base.host}';
 
-    // If the path already includes /storage/, use it as is
-    if (path.startsWith('/storage/')) {
-      final fullUrl = '$baseUrl$path';
-      print('Storage path detected, constructed full URL: $fullUrl');
-      return fullUrl;
+    if (path.startsWith('/')) {
+      path = path.substring(1);
     }
 
-    // For other paths, add /storage/ prefix
-    final storagePath = '/storage/$path';
-    final fullUrl = '$baseUrl$storagePath';
-    print('Constructed full URL: $fullUrl');
-    return fullUrl;
+    if (!path.startsWith('storage/')) {
+      path = 'storage/$path';
+    }
+
+    return '$cleanBase/$path';
   }
 
-  // Add the copyWith method
   Product copyWith({
     int? id,
     String? name,

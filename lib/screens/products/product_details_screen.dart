@@ -132,8 +132,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             Hero(
               tag: 'home-featured-${widget.product.id}',
               child: CachedNetworkImage(
-                imageUrl: widget.product.imageUrl.isNotEmpty
-                    ? widget.product.imageUrl
+                imageUrl: widget.product.firstImageUrl.isNotEmpty
+                    ? widget.product.firstImageUrl
                     : 'https://via.placeholder.com/300',
                 height: 300,
                 width: double.infinity,
@@ -199,7 +199,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 fadeOutDuration: const Duration(milliseconds: 300),
                 imageBuilder: (context, imageProvider) {
                   print(
-                      'Image loaded successfully: ${widget.product.imageUrl}');
+                      'Image loaded successfully: ${widget.product.firstImageUrl}');
                   return Container(
                     decoration: BoxDecoration(
                       image: DecorationImage(
@@ -211,6 +211,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 },
               ),
             ),
+
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
