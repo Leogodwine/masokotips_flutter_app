@@ -139,7 +139,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 width: double.infinity,
                 fit: BoxFit.cover,
                 placeholder: (context, url) {
-                  print('Loading placeholder for URL: $url');
                   return Container(
                     height: 300,
                     color: Colors.grey[300],
@@ -149,63 +148,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   );
                 },
                 errorWidget: (context, url, error) {
-                  print('Error loading image: $error');
-                  print('Image URL: $url');
-                  print('Product imageUrl: ${widget.product.imageUrl}');
-                  print('Product images: ${widget.product.images}');
-                  print('Error type: ${error.runtimeType}');
-                  print('Error toString: ${error.toString()}');
                   return Container(
                     height: 300,
                     color: Colors.grey[300],
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.error_outline,
-                          color: Colors.grey,
-                          size: 48,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Failed to load image',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          error.toString(),
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 12,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  );
-                },
-                httpHeaders: const {
-                  'Accept': 'image/*',
-                  'Cache-Control': 'no-cache',
-                  'User-Agent': 'Flutter/1.0',
-                },
-                memCacheWidth: 800,
-                memCacheHeight: 800,
-                maxWidthDiskCache: 800,
-                maxHeightDiskCache: 800,
-                fadeInDuration: const Duration(milliseconds: 300),
-                fadeOutDuration: const Duration(milliseconds: 300),
-                imageBuilder: (context, imageProvider) {
-                  print(
-                      'Image loaded successfully: ${widget.product.firstImageUrl}');
-                  return Container(
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: imageProvider,
-                        fit: BoxFit.cover,
-                      ),
+                    child: const Icon(
+                      Icons.error_outline,
+                      color: Colors.grey,
+                      size: 48,
                     ),
                   );
                 },
@@ -221,7 +170,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
+                      Flexible(
                         child: Text(
                           widget.product.name,
                           style: Theme.of(context)
@@ -230,8 +179,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               ?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
+                          maxLines: 2, // Limit to 2 lines
+                          overflow: TextOverflow
+                              .ellipsis, // Add ellipsis if text overflows
                         ),
                       ),
+                      const SizedBox(
+                          width: 8), // Add spacing between name and price
                       Text(
                         'TZS ${widget.product.price.toStringAsFixed(2)}',
                         style:
@@ -310,85 +264,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Specifications Section (if available)
-                  if (widget.product.specifications != null &&
-                      widget.product.specifications!.isNotEmpty)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Specifications',
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                        ),
-                        const SizedBox(height: 8),
-                        ...widget.product.specifications!.entries.map(
-                          (spec) => Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${spec.key}: ',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(spec.value),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-                    ),
-
-                  // Add to Cart Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: Consumer<CartProvider>(
-                      builder: (context, cartProvider, child) {
-                        final isInCart =
-                            cartProvider.isInCart(widget.product.id);
-                        return ElevatedButton(
-                          onPressed: (widget.product.stock ?? 0) > 0
-                              ? () {
-                                  if (isInCart) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Already in cart'),
-                                      ),
-                                    );
-                                  } else {
-                                    cartProvider.addToCart(widget.product);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Added to cart'),
-                                      ),
-                                    );
-                                  }
-                                }
-                              : null,
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: Text(
-                            isInCart ? 'In Cart' : 'Add to Cart',
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
                   // Related Products Section
                   if (_isLoadingRelated)
                     const Center(
@@ -411,108 +286,102 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       ),
                     )
                   else
-                    Container(
-                      height: 220,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Related Products',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                          const SizedBox(height: 4),
-                          SizedBox(
-                            height: 180,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: _relatedProducts.length,
-                              itemBuilder: (context, index) {
-                                final product = _relatedProducts[index];
-                                return SizedBox(
-                                  width: 160,
-                                  child: Card(
-                                    clipBehavior: Clip.antiAlias,
-                                    child: InkWell(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                ProductDetailsScreen(
-                                                    product: product),
-                                          ),
-                                        );
-                                      },
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          AspectRatio(
-                                            aspectRatio: 1,
-                                            child: CachedNetworkImage(
-                                              imageUrl: product.imageUrl,
-                                              fit: BoxFit.cover,
-                                              placeholder: (context, url) =>
-                                                  Container(
-                                                color: Colors.grey[200],
-                                                child: const Center(
-                                                  child:
-                                                      CircularProgressIndicator(),
-                                                ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Related Products',
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                        ),
+                        const SizedBox(height: 4),
+                        SizedBox(
+                          height: 220, // Constrain the height of the ListView
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: _relatedProducts.length,
+                            itemBuilder: (context, index) {
+                              final product = _relatedProducts[index];
+                              return SizedBox(
+                                width: 160,
+                                child: Card(
+                                  clipBehavior: Clip.antiAlias,
+                                  child: InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              ProductDetailsScreen(
+                                                  product: product),
+                                        ),
+                                      );
+                                    },
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        AspectRatio(
+                                          aspectRatio: 1,
+                                          child: CachedNetworkImage(
+                                            imageUrl: product.imageUrl,
+                                            fit: BoxFit.cover,
+                                            placeholder: (context, url) =>
+                                                Container(
+                                              color: Colors.grey[200],
+                                              child: const Center(
+                                                child:
+                                                    CircularProgressIndicator(),
                                               ),
-                                              errorWidget:
-                                                  (context, url, error) =>
-                                                      Container(
-                                                color: Colors.grey[200],
-                                                child: const Icon(
-                                                  Icons.error_outline,
-                                                  color: Colors.grey,
-                                                ),
+                                            ),
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    Container(
+                                              color: Colors.grey[200],
+                                              child: const Icon(
+                                                Icons.error_outline,
+                                                color: Colors.grey,
                                               ),
                                             ),
                                           ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  product.name,
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                product.name,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
                                                 ),
-                                                const SizedBox(height: 4),
-                                                Text(
-                                                  '\$${product.price.toStringAsFixed(2)}',
-                                                  style: TextStyle(
-                                                    color: Theme.of(context)
-                                                        .primaryColor,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                'TZS ${product.price.toStringAsFixed(2)}',
+                                                style: TextStyle(
+                                                  color: Theme.of(context)
+                                                      .primaryColor,
+                                                  fontWeight: FontWeight.bold,
                                                 ),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                );
-                              },
-                            ),
+                                ),
+                              );
+                            },
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                 ],
               ),

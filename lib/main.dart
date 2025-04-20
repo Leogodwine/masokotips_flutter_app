@@ -51,8 +51,47 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      try {
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        if (authProvider.isAuthenticated) {
+          final marketInfoProvider =
+              Provider.of<MarketInfoProvider>(context, listen: false);
+          marketInfoProvider.setAuthToken(authProvider.token!);
+
+          final productProvider =
+              Provider.of<ProductProvider>(context, listen: false);
+          productProvider.setAuthToken(authProvider.token!);
+
+          final transportProvider =
+              Provider.of<TransportProvider>(context, listen: false);
+          transportProvider.initialize(authProvider.token!);
+
+          final categoryProvider =
+              Provider.of<CategoryProvider>(context, listen: false);
+          categoryProvider.loadMainCategories();
+
+          final adminProvider =
+              Provider.of<AdminProvider>(context, listen: false);
+          adminProvider.setAuthToken(authProvider.token!);
+        }
+      } catch (e, stackTrace) {
+        debugPrint('Error in Future.microtask: $e');
+        debugPrint('StackTrace: $stackTrace');
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,29 +108,6 @@ class MyApp extends StatelessWidget {
       ],
       child: Consumer<AuthProvider>(
         builder: (context, authProvider, _) {
-          // Initialize providers with auth token if available
-          if (authProvider.isAuthenticated) {
-            final marketInfoProvider =
-                Provider.of<MarketInfoProvider>(context, listen: false);
-            marketInfoProvider.setAuthToken(authProvider.token!);
-
-            final productProvider =
-                Provider.of<ProductProvider>(context, listen: false);
-            productProvider.setAuthToken(authProvider.token!);
-
-            final transportProvider =
-                Provider.of<TransportProvider>(context, listen: false);
-            transportProvider.initialize(authProvider.token!);
-
-            final categoryProvider =
-                Provider.of<CategoryProvider>(context, listen: false);
-            categoryProvider.loadMainCategories();
-
-            final adminProvider =
-                Provider.of<AdminProvider>(context, listen: false);
-            adminProvider.setAuthToken(authProvider.token!);
-          }
-
           return MaterialApp(
             scaffoldMessengerKey: scaffoldMessengerKey,
             title: 'maSOKOtips',

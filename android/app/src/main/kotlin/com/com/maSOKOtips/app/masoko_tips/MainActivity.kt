@@ -1,4 +1,4 @@
-package com.example.masoko_tips
+package com.maSOKOtips.app
 
 import io.flutter.embedding.android.FlutterActivity
 
