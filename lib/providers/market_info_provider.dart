@@ -16,18 +16,15 @@ class MarketInfoProvider extends ChangeNotifier {
   String? get error => _error;
 
   Future<void> loadMarketInfo() async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
+    _setLoadingState(true);
 
     try {
       _marketInfoList = await _marketInfoService.getAllMarketInfo();
-      _error = null;
+      _setErrorState(null);
     } catch (e) {
-      _error = e.toString();
+      _setErrorState(e.toString());
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _setLoadingState(false);
     }
   }
 
@@ -51,10 +48,9 @@ class MarketInfoProvider extends ChangeNotifier {
         contact: contact,
       );
       _marketInfoList.add(marketInfo);
-      notifyListeners();
+      _notifySafely();
     } catch (e) {
-      _error = e.toString();
-      notifyListeners();
+      _setErrorState(e.toString());
       rethrow;
     }
   }
@@ -83,11 +79,10 @@ class MarketInfoProvider extends ChangeNotifier {
       final index = _marketInfoList.indexWhere((info) => info.id == id);
       if (index != -1) {
         _marketInfoList[index] = updatedMarketInfo;
-        notifyListeners();
+        _notifySafely();
       }
     } catch (e) {
-      _error = e.toString();
-      notifyListeners();
+      _setErrorState(e.toString());
       rethrow;
     }
   }
@@ -97,12 +92,32 @@ class MarketInfoProvider extends ChangeNotifier {
       await _marketInfoService.deleteMarketInfo(id);
       await loadMarketInfo();
     } catch (e) {
-      _error = e.toString();
-      notifyListeners();
+      _setErrorState(e.toString());
     }
   }
 
   void setAuthToken(String token) {
     _marketInfoService.setAuthToken(token);
+  }
+
+  // Helper to set loading state
+  void _setLoadingState(bool isLoading) {
+    _isLoading = isLoading;
+    _notifySafely();
+  }
+
+  // Helper to set error state
+  void _setErrorState(String? error) {
+    _error = error;
+    _notifySafely();
+  }
+
+  // Safely call notifyListeners
+  void _notifySafely() {
+    if (!kDebugMode) {
+      notifyListeners();
+    } else {
+      Future.microtask(() => notifyListeners());
+    }
   }
 }

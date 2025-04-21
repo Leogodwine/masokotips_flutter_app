@@ -43,9 +43,7 @@ class ProductProvider with ChangeNotifier {
   // Get featured products
   Future<void> getFeaturedProducts() async {
     try {
-      _isLoading = true;
-      _error = null;
-      notifyListeners();
+      _setLoadingState(true);
 
       Log.e('ProductProvider: Fetching featured products...');
       _featuredProducts = await _apiService.getFeaturedProducts();
@@ -61,10 +59,9 @@ class ProductProvider with ChangeNotifier {
     } catch (e, stackTrace) {
       Log.e('ProductProvider: Error loading featured products: $e');
       Log.e('ProductProvider: Stack trace: $stackTrace');
-      _error = 'Failed to load featured products: $e';
+      _setErrorState('Failed to load featured products: $e');
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _setLoadingState(false);
     }
   }
 
@@ -73,9 +70,7 @@ class ProductProvider with ChangeNotifier {
     try {
       Log.e(
           'ProductProvider: Starting to fetch related products for product: $productId');
-      _isLoading = true;
-      _error = null;
-      notifyListeners();
+      _setLoadingState(true);
 
       _relatedProducts = await _apiService.getRelatedProducts(productId);
       Log.e(
@@ -91,20 +86,17 @@ class ProductProvider with ChangeNotifier {
     } catch (e, stackTrace) {
       Log.e('ProductProvider: Error fetching related products: $e');
       Log.e('ProductProvider: Stack trace: $stackTrace');
-      _error = e.toString();
+      _setErrorState(e.toString());
       throw Exception('Failed to fetch related products: $e');
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _setLoadingState(false);
     }
   }
 
   // Load products by category
   Future<void> loadProductsByCategory(
       int categoryId, String subcategory) async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
+    _setLoadingState(true);
 
     try {
       Log.e(
@@ -115,28 +107,44 @@ class ProductProvider with ChangeNotifier {
       Log.e('Loaded ${products.length} products');
     } catch (e) {
       Log.e('Error loading products: $e');
-      _error = e.toString();
+      _setErrorState(e.toString());
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _setLoadingState(false);
     }
   }
 
   // Load all products
   Future<void> loadProducts() async {
     try {
-      _isLoading = true;
-      _error = null;
-      notifyListeners();
+      _setLoadingState(true);
 
       _products = await _apiService.getProducts();
       await _cacheProducts();
     } catch (e) {
-      _error = 'Failed to load products: $e';
+      _setErrorState('Failed to load products: $e');
       print(_error);
     } finally {
-      _isLoading = false;
+      _setLoadingState(false);
+    }
+  }
+
+  // Helper to set loading state
+  void _setLoadingState(bool isLoading) {
+    _isLoading = isLoading;
+    if (!kDebugMode) {
       notifyListeners();
+    } else {
+      Future.microtask(() => notifyListeners());
+    }
+  }
+
+  // Helper to set error state
+  void _setErrorState(String error) {
+    _error = error;
+    if (!kDebugMode) {
+      notifyListeners();
+    } else {
+      Future.microtask(() => notifyListeners());
     }
   }
 

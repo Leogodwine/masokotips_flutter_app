@@ -195,7 +195,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                         ),
                       ),
                       Text(
-                        'Tips',
+                        'tips',
                         style: TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
@@ -408,11 +408,10 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                     'HomeContentScreen: Building category grid with ${categories.length} items');
                 return AnimationLimiter(
                   child: SizedBox(
-                    height: 400,
+                    //height: 400,
                     child: GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
@@ -450,13 +449,17 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Market Information',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                      Expanded(
+                        // 👈 Allows the title to truncate if needed
+                        child: Text(
+                          'Market Information',
+                          style:
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                       TextButton(
                         onPressed: () {
@@ -491,6 +494,8 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                         },
                         borderRadius: BorderRadius.circular(16),
                         child: Container(
+                          height:
+                              150, // or use constraints if you want dynamic sizing
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
@@ -678,13 +683,17 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Featured Products',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                      Expanded(
+                        // 👈 This prevents overflow by wrapping long titles
+                        child: Text(
+                          'Featured Products',
+                          style:
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                       TextButton(
                         onPressed: () {
@@ -768,6 +777,8 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize
+                                          .min, // 👈 Prevent overflow!
                                       children: [
                                         Hero(
                                           tag: 'home-featured-${product.id}',
@@ -800,8 +811,11 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                           ),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.all(12.0),
+                                          padding: const EdgeInsets.only(
+                                              bottom:
+                                                  2), // ✅ this tiny patch prevents overflow
                                           child: Column(
+                                            mainAxisSize: MainAxisSize.min,
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
@@ -913,6 +927,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           );
         },
         child: Container(
+          height: 150, // or use constraints if you want dynamic sizing
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(
@@ -941,6 +956,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                 top: 0,
                 right: 0,
                 child: Container(
+                  height: 150, // or use constraints if you want dynamic sizing
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
                     vertical: 4,
@@ -967,6 +983,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min, // 👈 Add this
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(

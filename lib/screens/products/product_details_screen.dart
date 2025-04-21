@@ -319,61 +319,64 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                         ),
                                       );
                                     },
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        AspectRatio(
-                                          aspectRatio: 1,
-                                          child: CachedNetworkImage(
-                                            imageUrl: product.imageUrl,
-                                            fit: BoxFit.cover,
-                                            placeholder: (context, url) =>
-                                                Container(
-                                              color: Colors.grey[200],
-                                              child: const Center(
-                                                child:
-                                                    CircularProgressIndicator(),
+                                    child: SingleChildScrollView(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          AspectRatio(
+                                            aspectRatio: 1,
+                                            child: CachedNetworkImage(
+                                              imageUrl: product.imageUrl,
+                                              fit: BoxFit.cover,
+                                              placeholder: (context, url) =>
+                                                  Container(
+                                                color: Colors.grey[200],
+                                                child: const Center(
+                                                  child:
+                                                      CircularProgressIndicator(),
+                                                ),
                                               ),
-                                            ),
-                                            errorWidget:
-                                                (context, url, error) =>
-                                                    Container(
-                                              color: Colors.grey[200],
-                                              child: const Icon(
-                                                Icons.error_outline,
-                                                color: Colors.grey,
+                                              errorWidget:
+                                                  (context, url, error) =>
+                                                      Container(
+                                                color: Colors.grey[200],
+                                                child: const Icon(
+                                                  Icons.error_outline,
+                                                  color: Colors.grey,
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                product.name,
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  product.name,
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                                 ),
-                                              ),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                'TZS ${product.price.toStringAsFixed(2)}',
-                                                style: TextStyle(
-                                                  color: Theme.of(context)
-                                                      .primaryColor,
-                                                  fontWeight: FontWeight.bold,
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  'TZS ${product.price.toStringAsFixed(2)}',
+                                                  style: TextStyle(
+                                                    color: Theme.of(context)
+                                                        .primaryColor,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
