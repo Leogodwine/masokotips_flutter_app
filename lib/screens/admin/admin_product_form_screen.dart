@@ -350,7 +350,7 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
                                   return 'Please enter a valid quantity';
                                 }
                                 return null;
-                              },
+                              }, //I ended here
                             ),
                             const SizedBox(height: 16),
                             TextFormField(

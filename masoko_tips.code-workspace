@@ -7,7 +7,5 @@
 			"path": "../../wamp64/www/masoko_tips_api"
 		}
 	],
-	"settings": {
-		"java.configuration.updateBuildConfiguration": "disabled"
-	}
+	"settings": {}
 }

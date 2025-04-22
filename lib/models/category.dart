@@ -38,10 +38,28 @@ class Category {
     this.services,
   });
 
-  factory Category.fromJson(Map<String, dynamic> json) =>
-      _$CategoryFromJson(json);
-
-  Map<String, dynamic> toJson() => _$CategoryToJson(this);
+  factory Category.fromJson(Map<String, dynamic> json) {
+    return Category(
+      id: json['id'] != null ? int.parse(json['id'].toString()) : 0,
+      name: json['name'] ?? '',
+      description: json['description']?.toString(),
+      imageUrl: json['image_url']?.toString(),
+      subcategories: json['subcategories'] != null
+          ? List<String>.from(json['subcategories'])
+          : null,
+      slug: json['slug']?.toString(),
+      isActive: json['is_active'] ?? true,
+      sortOrder: json['sort_order'] ?? 0,
+      icon: json['icon']?.toString(),
+      parentId: json['parent_id'] != null
+          ? int.parse(json['parent_id'].toString())
+          : null,
+      productsCount: json['products_count'] ?? 0,
+      services: json['services'] != null
+          ? List<dynamic>.from(json['services'])
+          : null,
+    );
+  }
 }
 
 // Predefined categories and subcategories

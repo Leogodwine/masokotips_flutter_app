@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../models/product.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/wishlist_provider.dart';
-import '../../providers/cart_provider.dart';
+//import '../../providers/cart_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../utils/logger.dart';
 

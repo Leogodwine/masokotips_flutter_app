@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-
+import '../../widgets/string_to_int_converter.dart';
 part 'admin_dashboard_data.g.dart';
 
 @JsonSerializable()
@@ -42,17 +42,25 @@ class UserStats {
 
 @JsonSerializable()
 class Users {
+  @StringToIntConverter()
   final int total;
+  @StringToIntConverter()
   final int admins;
+  @StringToIntConverter()
   final int sellers;
+  @StringToIntConverter()
   final int buyers;
   @JsonKey(name: 'service_providers')
+  @StringToIntConverter()
   final int serviceProviders;
   @JsonKey(name: 'new_users_today')
+  @StringToIntConverter()
   final int newUsersToday;
   @JsonKey(name: 'active_users')
+  @StringToIntConverter()
   final int activeUsers;
   @JsonKey(name: 'verified_users')
+  @StringToIntConverter()
   final int verifiedUsers;
 
   Users({
