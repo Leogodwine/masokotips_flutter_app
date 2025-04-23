@@ -69,7 +69,6 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 const SizedBox(height: 24),
                 _buildRecentUsersSection(dashboardData),
                 const SizedBox(height: 24),
-                _buildSystemInfoSection(dashboardData),
                 const SizedBox(height: 24),
                 _buildQuickLinksSection(dashboardData),
               ],
@@ -231,39 +230,6 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildSystemInfoSection(AdminDashboardData data) {
-    final systemInfo = data.systemInfo;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'System Information',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildInfoRow('PHP Version', systemInfo.phpVersion),
-            _buildInfoRow('Laravel Version', systemInfo.laravelVersion),
-            _buildInfoRow('Server Software', systemInfo.serverSoftware),
-            _buildInfoRow('Database', systemInfo.databaseConnection),
-            _buildInfoRow('Timezone', systemInfo.timezone),
-            _buildInfoRow('Memory Usage', systemInfo.memoryUsage),
-            _buildInfoRow('Disk Space', systemInfo.diskFreeSpace),
-            _buildInfoRow('Upload Limit', systemInfo.uploadMaxFilesize),
-            _buildInfoRow(
-                'Max Execution Time', '${systemInfo.maxExecutionTime}s'),
-            _buildInfoRow('Server Time', systemInfo.serverTime),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildQuickLinksSection(AdminDashboardData data) {
     final userLinks = data.quickLinks.users;
     final reportLinks = data.quickLinks.reports;
@@ -294,30 +260,31 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Widget _buildStatCard(String title, String value, IconData icon) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 32, color: Theme.of(context).primaryColor),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 32, color: Theme.of(context).primaryColor),
+                const SizedBox(height: 8),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
             ),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
-            ),
-          ],
-        ),
-      ),
+          )),
     );
   }
 
@@ -344,24 +311,6 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(value),
-        ],
       ),
     );
   }

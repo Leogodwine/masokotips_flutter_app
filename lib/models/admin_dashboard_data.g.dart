@@ -36,31 +36,25 @@ Map<String, dynamic> _$UserStatsToJson(UserStats instance) => <String, dynamic>{
     };
 
 Users _$UsersFromJson(Map<String, dynamic> json) => Users(
-      total: const StringToIntConverter().fromJson(json['total']),
-      admins: const StringToIntConverter().fromJson(json['admins']),
-      sellers: const StringToIntConverter().fromJson(json['sellers']),
-      buyers: const StringToIntConverter().fromJson(json['buyers']),
-      serviceProviders:
-          const StringToIntConverter().fromJson(json['service_providers']),
-      newUsersToday:
-          const StringToIntConverter().fromJson(json['new_users_today']),
-      activeUsers: const StringToIntConverter().fromJson(json['active_users']),
-      verifiedUsers:
-          const StringToIntConverter().fromJson(json['verified_users']),
+      total: (json['total'] as num).toInt(),
+      admins: (json['admins'] as num).toInt(),
+      sellers: (json['sellers'] as num).toInt(),
+      buyers: (json['buyers'] as num).toInt(),
+      serviceProviders: (json['service_providers'] as num).toInt(),
+      newUsersToday: (json['new_users_today'] as num).toInt(),
+      activeUsers: (json['active_users'] as num).toInt(),
+      verifiedUsers: (json['verified_users'] as num).toInt(),
     );
 
 Map<String, dynamic> _$UsersToJson(Users instance) => <String, dynamic>{
-      'total': const StringToIntConverter().toJson(instance.total),
-      'admins': const StringToIntConverter().toJson(instance.admins),
-      'sellers': const StringToIntConverter().toJson(instance.sellers),
-      'buyers': const StringToIntConverter().toJson(instance.buyers),
-      'service_providers':
-          const StringToIntConverter().toJson(instance.serviceProviders),
-      'new_users_today':
-          const StringToIntConverter().toJson(instance.newUsersToday),
-      'active_users': const StringToIntConverter().toJson(instance.activeUsers),
-      'verified_users':
-          const StringToIntConverter().toJson(instance.verifiedUsers),
+      'total': instance.total,
+      'admins': instance.admins,
+      'sellers': instance.sellers,
+      'buyers': instance.buyers,
+      'service_providers': instance.serviceProviders,
+      'new_users_today': instance.newUsersToday,
+      'active_users': instance.activeUsers,
+      'verified_users': instance.verifiedUsers,
     };
 
 RecentActivities _$RecentActivitiesFromJson(Map<String, dynamic> json) =>
