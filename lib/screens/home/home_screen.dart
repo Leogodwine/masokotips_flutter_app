@@ -35,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      title: 'maSOKOtips',
+      title: 'Home',
       body: const HomeContentScreen(),
       currentIndex: _currentIndex,
       onBottomNavItemTapped: _onBottomNavItemTapped,

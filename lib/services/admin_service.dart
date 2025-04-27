@@ -580,7 +580,7 @@ class AdminService {
       try {
         final categories = await getCategories();
         final defaultCategories = [
-          Category(id: 1, name: 'Products', children: [
+          Category(id: 1, name: 'Products', subcategories: [
             Category(id: 11, name: 'Vegetables'),
             Category(id: 12, name: 'Livestock and poultry'),
             Category(id: 13, name: 'Spices'),
@@ -594,8 +594,9 @@ class AdminService {
         // Check both API categories and default categories
         final allCategories = [...categories, ...defaultCategories];
         final categoryExists = allCategories.any((category) {
-          if (category.children != null) {
-            return category.children!.any((child) => child.id == categoryId);
+          if (category.subcategories != null) {
+            return category.subcategories!
+                .any((child) => child.id == categoryId);
           }
           return category.id == categoryId;
         });
@@ -855,7 +856,7 @@ class AdminService {
         Category(
           id: 1,
           name: 'Products',
-          children: [
+          subcategories: [
             Category(id: 11, name: 'Vegetables'),
             Category(id: 12, name: 'Livestock and poultry'),
             Category(id: 13, name: 'Spices'),
@@ -868,7 +869,7 @@ class AdminService {
         Category(
           id: 2,
           name: 'Services',
-          children: [
+          subcategories: [
             Category(id: 21, name: 'Transport'),
             Category(id: 22, name: 'Storage'),
             Category(id: 23, name: 'Processing'),
@@ -877,7 +878,7 @@ class AdminService {
         Category(
           id: 3,
           name: 'Transport',
-          children: [
+          subcategories: [
             Category(id: 31, name: 'Tandem'),
             Category(id: 32, name: 'Truck'),
             Category(id: 33, name: 'Motorcycle'),

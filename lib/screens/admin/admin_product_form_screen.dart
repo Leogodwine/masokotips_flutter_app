@@ -67,7 +67,7 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
           return models.Category(
             id: 1,
             name: 'Products',
-            children: [
+            subcategories: [
               models.Category(id: 11, name: 'Vegetables'),
               models.Category(id: 12, name: 'Fruits'),
               models.Category(id: 13, name: 'Spices'),
@@ -81,7 +81,7 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
       );
 
       Log.d(
-          'Products category found/created with ${productsCategory.children?.length ?? 0} subcategories');
+          'Products category found/created with ${productsCategory.subcategories?.length ?? 0} subcategories');
 
       if (mounted) {
         Log.d('Setting state with categories');
@@ -129,7 +129,7 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
             models.Category(
               id: 1,
               name: 'Products',
-              children: [
+              subcategories: [
                 models.Category(id: 11, name: 'Vegetables'),
                 models.Category(id: 12, name: 'Fruits'),
                 models.Category(id: 13, name: 'Spices'),
@@ -243,7 +243,7 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
       orElse: () => models.Category(
         id: 1,
         name: 'Products',
-        children: [
+        subcategories: [
           models.Category(id: 11, name: 'Vegetables'),
           models.Category(id: 12, name: 'Fruits'),
           models.Category(id: 13, name: 'Spices'),
@@ -254,7 +254,7 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
         ],
       ),
     );
-    return productsCategory.children ?? [];
+    return productsCategory.subcategories ?? [];
   }
 
   @override

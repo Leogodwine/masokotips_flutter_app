@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+//import 'package:http/http.dart' as http;
+//import 'dart:convert';
 import '../models/category.dart' as models;
 import '../config/api_config.dart';
 import '../utils/logger.dart';
@@ -29,13 +29,12 @@ class CategoryProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  // Load categories
+  // Load main categories
   Future<void> loadMainCategories() async {
     Log.i('CategoryProvider: Starting to load categories...');
 
-    // Don't reload if already loading
     if (_isLoading) {
-      Log.i('CategoryProvider: Already loading categories, skipping');
+      Log.i('CategoryProvider: Already loading, skipping duplicate request');
       return;
     }
 
@@ -44,73 +43,45 @@ class CategoryProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      // Get the authentication token
       final token = await _authService.getToken();
-      Log.i('CategoryProvider: Auth token available: ${token != null}');
+      Log.i('CategoryProvider: Token available: ${token != null}');
 
-      if (token != null) {
-        _apiService.setAuthToken(token);
-        Log.i('CategoryProvider: Set auth token in API service');
-      } else {
-        Log.i(
-            'CategoryProvider: No auth token available, proceeding without authentication');
-      }
-
-      // Try to load categories from API
-      Log.i('CategoryProvider: Fetching categories from API...');
       final response = await _apiService.getCategories();
-      Log.i(
-          'CategoryProvider: API Response: ${response.length} categories received');
+      Log.i('CategoryProvider: ${response.length} categories fetched');
 
       if (response.isEmpty) {
-        Log.w('CategoryProvider: No categories received from API');
+        Log.w('CategoryProvider: No categories returned');
         _error = 'No categories available from the server';
         _mainCategories = [];
-        notifyListeners();
-        return;
-      }
+      } else {
+        final Map<int, models.Category> categoryMap = {
+          for (var category in response) category.id: category
+        };
 
-      // Create a map of all categories
-      final Map<int, models.Category> categoryMap = {};
-      for (var category in response) {
-        categoryMap[category.id] = category;
-        Log.d(
-            'CategoryProvider: Category: ${category.name} (ID: ${category.id}, Parent: ${category.parentId})');
-      }
-
-      // Build the hierarchy
-      for (var category in response) {
-        if (category.parentId != null) {
-          final parent = categoryMap[category.parentId];
-          if (parent != null) {
-            parent.children ??= [];
-            parent.children!.add(category);
-            Log.d(
-                'CategoryProvider: Added ${category.name} as child to ${parent.name}');
+        for (var category in response) {
+          if (category.parentId != null) {
+            final parent = categoryMap[category.parentId];
+            if (parent != null) {
+              parent.subcategories ??= [];
+              parent.subcategories!.add(category);
+              Log.d('Added subcategory ${category.name} under ${parent.name}');
+            }
           }
         }
-      }
 
-      // Get only main categories (those without parent)
-      _mainCategories =
-          response.where((category) => category.parentId == null).toList();
-      Log.i(
-          'CategoryProvider: Main categories count: ${_mainCategories.length}');
+        _mainCategories = response.where((c) => c.parentId == null).toList()
+          ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 
-      // Sort main categories by sortOrder
-      _mainCategories.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
-
-      // Sort children of each category by sortOrder
-      for (var category in _mainCategories) {
-        if (category.children != null) {
-          category.children!.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+        for (var category in _mainCategories) {
+          category.subcategories
+              ?.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
         }
-      }
 
-      _error = null;
+        _error = null;
+      }
     } catch (e, stackTrace) {
-      Log.e('CategoryProvider: Error loading categories from API: $e');
-      Log.e('CategoryProvider: Stack trace: $stackTrace');
+      Log.e('CategoryProvider: Error loading categories: $e');
+      Log.e('Stack trace: $stackTrace');
       _error = 'Error loading categories: $e';
       _mainCategories = [];
     } finally {
@@ -119,6 +90,7 @@ class CategoryProvider with ChangeNotifier {
     }
   }
 
+  // Load subcategories for a specific category
   Future<void> loadSubcategories(int categoryId) async {
     Log.i(
         'CategoryProvider: Starting to load subcategories for category: $categoryId');
@@ -138,7 +110,7 @@ class CategoryProvider with ChangeNotifier {
       Log.i('CategoryProvider: Found category: ${category?.name ?? 'null'}');
 
       if (category != null) {
-        _subcategories = category.children ?? [];
+        _subcategories = category.subcategories ?? [];
         Log.i(
             'CategoryProvider: Loaded ${_subcategories.length} subcategories');
         for (var subcategory in _subcategories) {
@@ -161,40 +133,12 @@ class CategoryProvider with ChangeNotifier {
     }
   }
 
-  Future<void> loadCategoryDetails(int categoryId) async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
-    try {
-      final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/categories/$categoryId'),
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final category = models.Category.fromJson(data);
-        if (category.children != null) {
-          _subcategories = category.children!;
-        }
-      } else {
-        _error = 'Failed to load category details';
-      }
-    } catch (e) {
-      _error = 'Error: $e';
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
   // Get subcategories for a specific category
   List<models.Category> getSubcategories(int parentId) {
     try {
       final parentCategory =
           _mainCategories.firstWhere((category) => category.id == parentId);
-      return parentCategory.children ?? [];
+      return parentCategory.subcategories ?? [];
     } catch (e) {
       Log.e('CategoryProvider: Error getting subcategories: $e');
       return [];
@@ -217,6 +161,7 @@ class CategoryProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // Clear subcategories
   void clearSubcategories() {
     _subcategories = [];
     notifyListeners();

@@ -77,7 +77,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
       isActive: true,
       sortOrder: 5,
       icon: 'eco',
-      children: [
+      subcategories: [
         models.Category(
             id: 1,
             name: 'Organic Vegetables',
@@ -117,7 +117,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
       ],
     );
     setState(() {
-      _subcategories = organicCategory.children ?? [];
+      _subcategories = organicCategory.subcategories ?? [];
       // If we're editing and no category is selected, select the first one
       if (widget.product != null &&
           _selectedCategoryId == null &&

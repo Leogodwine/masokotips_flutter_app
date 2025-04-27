@@ -1,65 +1,55 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../widgets/int_converter.dart';
 
 part 'category.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class Category {
   final int id;
   final String name;
   final String? description;
+
+  @JsonKey(name: 'image')
   final String? imageUrl;
-  final List<String>? subcategories;
+
   final String? slug;
+
+  @JsonKey(name: 'is_active')
   final bool isActive;
+
+  @JsonKey(name: 'sort_order')
   final int sortOrder;
+
   final String? icon;
+
+  @NullableIntConverter()
   @JsonKey(name: 'parent_id')
   final int? parentId;
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  List<Category>? children;
+
   @JsonKey(name: 'products_count')
   final int productsCount;
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  final List<dynamic>? services;
+
+  @JsonKey(name: 'subcategories')
+  List<Category>? subcategories;
 
   Category({
     required this.id,
     required this.name,
     this.description,
     this.imageUrl,
-    this.subcategories,
     this.slug,
     this.isActive = true,
     this.sortOrder = 0,
     this.icon,
-    this.children,
     this.parentId,
     this.productsCount = 0,
-    this.services,
+    this.subcategories,
   });
 
-  factory Category.fromJson(Map<String, dynamic> json) {
-    return Category(
-      id: json['id'] != null ? int.parse(json['id'].toString()) : 0,
-      name: json['name'] ?? '',
-      description: json['description']?.toString(),
-      imageUrl: json['image_url']?.toString(),
-      subcategories: json['subcategories'] != null
-          ? List<String>.from(json['subcategories'])
-          : null,
-      slug: json['slug']?.toString(),
-      isActive: json['is_active'] ?? true,
-      sortOrder: json['sort_order'] ?? 0,
-      icon: json['icon']?.toString(),
-      parentId: json['parent_id'] != null
-          ? int.parse(json['parent_id'].toString())
-          : null,
-      productsCount: json['products_count'] ?? 0,
-      services: json['services'] != null
-          ? List<dynamic>.from(json['services'])
-          : null,
-    );
-  }
+  factory Category.fromJson(Map<String, dynamic> json) =>
+      _$CategoryFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CategoryToJson(this);
 }
 
 // Predefined categories and subcategories
@@ -71,7 +61,7 @@ final mainCategories = [
     isActive: true,
     sortOrder: 1,
     icon: 'shopping_basket',
-    children: [
+    subcategories: [
       Category(
           id: 11,
           name: 'Vegetables',
@@ -115,6 +105,7 @@ final mainCategories = [
     isActive: true,
     sortOrder: 3,
     icon: 'trending_up',
+    subcategories: null,
   ),
   Category(
     id: 4,
@@ -123,7 +114,7 @@ final mainCategories = [
     isActive: true,
     sortOrder: 4,
     icon: 'local_shipping',
-    children: [
+    subcategories: [
       Category(
           id: 41, name: 'Tandem', slug: 'tandem', isActive: true, sortOrder: 1),
       Category(
@@ -134,7 +125,7 @@ final mainCategories = [
           sortOrder: 2),
       Category(
           id: 43,
-          name: 'FlatbedTrucks',
+          name: 'Flatbed Trucks',
           slug: 'flatbed-trucks',
           isActive: true,
           sortOrder: 3),
@@ -194,7 +185,7 @@ final mainCategories = [
     isActive: true,
     sortOrder: 5,
     icon: 'eco',
-    children: [
+    subcategories: [
       Category(
           id: 51,
           name: 'Organic Vegetables',
@@ -240,7 +231,7 @@ final mainCategories = [
     isActive: true,
     sortOrder: 6,
     icon: 'agriculture',
-    children: [
+    subcategories: [
       Category(
           id: 61,
           name: 'Packaging Materials',
@@ -273,8 +264,8 @@ final mainCategories = [
           sortOrder: 5),
       Category(
           id: 66,
-          name: 'Behive and Aquatic',
-          slug: 'behive-and-aquatic',
+          name: 'Beehive and Aquatic',
+          slug: 'beehive-and-aquatic',
           isActive: true,
           sortOrder: 6),
       Category(

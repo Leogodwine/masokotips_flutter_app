@@ -14,6 +14,8 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../market_info_screen.dart';
 import '../market_info/market_info_detail_screen.dart';
 import '../../models/market_info.dart';
+import '../../widgets/friendly_error_display.dart';
+import '../../widgets/friendly_empty_state.dart';
 
 class HomeContentScreen extends StatefulWidget {
   const HomeContentScreen({Key? key}) : super(key: key);
@@ -31,34 +33,42 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
   @override
   void initState() {
     super.initState();
-    _loadData();
-    _loadMarketInfo();
-    // Load categories
+
+    // Start async calls
+    _loadData(); // Load featured products
+    _loadMarketInfo(); // Load market info
+
+    // Load categories after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Log.e('HomeContentScreen: Starting to load categories...');
       if (!mounted) return;
-      context.read<CategoryProvider>().loadMainCategories().then((_) {
+
+      final provider = context.read<CategoryProvider>();
+
+      provider.loadMainCategories().whenComplete(() {
         if (!mounted) return;
-        Log.e('HomeContentScreen: Categories loaded successfully');
-        Log.e(
-            'HomeContentScreen: Categories count: ${context.read<CategoryProvider>().mainCategories.length}');
-      }).catchError((error) {
-        if (!mounted) return;
-        Log.e('HomeContentScreen: Error loading categories: $error');
-        if (mounted) {
+
+        final error = provider.error;
+        final count = provider.mainCategories.length;
+
+        if (error != null) {
+          Log.e('HomeContentScreen: Failed to load categories: $error');
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error loading categories: $error'),
               action: SnackBarAction(
                 label: 'RETRY',
                 onPressed: () {
-                  Log.e(
-                      'HomeContentScreen: Retrying category load after error');
-                  context.read<CategoryProvider>().loadMainCategories();
+                  Log.e('HomeContentScreen: Retrying category load');
+                  provider.loadMainCategories();
                 },
               ),
             ),
           );
+        } else {
+          Log.e('HomeContentScreen: Categories loaded successfully');
+          Log.e('HomeContentScreen: Categories count: $count');
         }
       });
     });
@@ -336,38 +346,17 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                   );
                 }
 
+                /// A user-friendly error display widget with retry support.
+                /// This widget is designed to replace technical error messages
+                /// with clear, helpful text for end users. It also provides
+                /// a retry button for easy recovery from errors like failed API calls.
                 if (categoryProvider.error != null) {
-                  Log.e(
-                      'HomeContentScreen: Showing error: ${categoryProvider.error}');
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          size: 48,
-                          color: Colors.red[300],
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          categoryProvider.error!,
-                          style: TextStyle(
-                            color: Colors.red[700],
-                            fontSize: 16,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            Log.e('HomeContentScreen: Retrying category load');
-                            categoryProvider.loadMainCategories();
-                          },
-                          icon: const Icon(Icons.refresh),
-                          label: const Text('Retry'),
-                        ),
-                      ],
-                    ),
+                  return FriendlyErrorDisplay(
+                    error: categoryProvider.error,
+                    onRetry: () {
+                      Log.e('HomeContentScreen: Retrying category load');
+                      categoryProvider.loadMainCategories();
+                    },
                   );
                 }
 
@@ -685,7 +674,6 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                   Row(
                     children: [
                       Expanded(
-                        // 👈 This prevents overflow by wrapping long titles
                         child: Text(
                           'Featured Products',
                           style:
@@ -713,109 +701,105 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  if (_isLoading)
-                    const Center(child: CircularProgressIndicator())
-                  else
-                    Consumer<ProductProvider>(
-                      builder: (context, productProvider, child) {
-                        final featuredProducts =
-                            productProvider.featuredProducts;
+                  Consumer<ProductProvider>(
+                    builder: (context, productProvider, child) {
+                      final featuredProducts = productProvider.featuredProducts;
 
-                        if (featuredProducts.isEmpty) {
-                          return Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(24.0),
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    Icons.inventory_2_outlined,
-                                    size: 64,
-                                    color: Colors.grey[400],
+                      if (featuredProducts.isEmpty) {
+                        return Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.inventory_2_outlined,
+                                  size: 64,
+                                  color: Colors.grey[400],
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'No featured products available',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[600],
                                   ),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    'No featured products available',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          );
-                        }
+                          ),
+                        );
+                      }
 
-                        return SizedBox(
-                          height: 280,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            itemCount: featuredProducts.length,
-                            itemBuilder: (context, index) {
-                              final product = featuredProducts[index];
-                              return Container(
-                                width: 200,
-                                margin: const EdgeInsets.only(right: 16),
-                                child: Card(
-                                  elevation: 2,
-                                  clipBehavior: Clip.antiAlias,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              ProductDetailsScreen(
-                                                  product: product),
+                      return SizedBox(
+                        height: 280, // 🚀 Fixed height for horizontal ListView
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          itemCount: featuredProducts.length,
+                          itemBuilder: (context, index) {
+                            final product = featuredProducts[index];
+
+                            return Container(
+                              width: 200,
+                              margin: const EdgeInsets.symmetric(horizontal: 8),
+                              child: Card(
+                                elevation: 2,
+                                clipBehavior: Clip.antiAlias,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ProductDetailsScreen(
+                                                product: product),
+                                      ),
+                                    );
+                                  },
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Hero(
+                                        tag: 'home-featured-${product.id}',
+                                        child: Image.network(
+                                          product.firstImageUrl,
+                                          height: 160,
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
+                                          loadingBuilder: (context, child,
+                                              loadingProgress) {
+                                            if (loadingProgress == null)
+                                              return child;
+                                            return Container(
+                                              height: 160,
+                                              color: Colors.grey[100],
+                                              child: const Center(
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              ),
+                                            );
+                                          },
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Container(
+                                              height: 160,
+                                              color: Colors.grey[100],
+                                              child: const Icon(Icons.error),
+                                            );
+                                          },
                                         ),
-                                      );
-                                    },
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize
-                                          .min, // 👈 Prevent overflow!
-                                      children: [
-                                        Hero(
-                                          tag: 'home-featured-${product.id}',
-                                          child: Image.network(
-                                            //product.imageUrl,
-                                            product.firstImageUrl,
-                                            height: 160,
-                                            width: double.infinity,
-                                            fit: BoxFit.cover,
-                                            loadingBuilder: (context, child,
-                                                loadingProgress) {
-                                              if (loadingProgress == null)
-                                                return child;
-                                              return Container(
-                                                height: 160,
-                                                color: Colors.grey[100],
-                                                child: const Center(
-                                                    child:
-                                                        CircularProgressIndicator()),
-                                              );
-                                            },
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                              return Container(
-                                                height: 160,
-                                                color: Colors.grey[100],
-                                                child: const Icon(Icons.error),
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                              bottom:
-                                                  2), // ✅ this tiny patch prevents overflow
+                                      ),
+                                      Expanded(
+                                        // 👈 Fix overflow here
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
                                           child: Column(
-                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
@@ -828,7 +812,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                                   fontSize: 16,
                                                 ),
                                               ),
-                                              const SizedBox(height: 8),
+                                              const SizedBox(height: 4),
                                               Text(
                                                 'TZS ${product.price.toStringAsFixed(2)}',
                                                 style: TextStyle(
@@ -841,19 +825,21 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                             ],
                                           ),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              );
-                            },
-                          ),
-                        );
-                      },
-                    ),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
+
             const SizedBox(height: 24),
           ],
         ),
@@ -907,103 +893,59 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
         return Icons.agriculture;
     }
   }
+  // This method builds a category card with a gradient background, icon, and text.
+  // It uses the Category model to populate the card with relevant data.
+  // The card is wrapped in an InkWell widget to make it tappable, leading to a
 
   Widget _buildCategoryCard(Category category) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SubcategoriesScreen(
-                category: category,
-              ),
-            ),
-          );
-        },
-        child: Container(
-          height: 150, // or use constraints if you want dynamic sizing
-          decoration: BoxDecoration(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double iconSize =
+            constraints.maxWidth * 0.25; // Icon is 25% of card width
+        double fontSizeTitle = constraints.maxWidth > 200 ? 18 : 14;
+        double fontSizeDescription = constraints.maxWidth > 200 ? 14 : 12;
+
+        return Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Theme.of(context).primaryColor.withOpacity(0.1),
-                Theme.of(context).primaryColor.withOpacity(0.05),
-              ],
-            ),
           ),
-          child: Stack(
-            children: [
-              // Background decorative elements
-              Positioned(
-                right: -20,
-                bottom: -20,
-                child: Icon(
-                  _getCategoryIcon(category.name),
-                  size: 80,
-                  color: Theme.of(context).primaryColor.withOpacity(0.1),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SubcategoriesScreen(category: category),
                 ),
-              ),
-              // Top-right category count badge
-              Positioned(
-                top: 0,
-                right: 0,
-                child: Container(
-                  height: 150, // or use constraints if you want dynamic sizing
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor.withOpacity(0.1),
-                    borderRadius: const BorderRadius.only(
-                      topRight: Radius.circular(16),
-                      bottomLeft: Radius.circular(16),
-                    ),
-                  ),
-                  child: Text(
-                    '${category.children?.length ?? 0}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                ),
-              ),
-              // Main content
-              Padding(
-                padding: const EdgeInsets.all(16),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: SingleChildScrollView(
+                // 👈 **Fix the overflow!**
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min, // 👈 Add this
+                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      width: 48,
-                      height: 48,
+                      width: iconSize,
+                      height: iconSize,
                       decoration: BoxDecoration(
                         color: Theme.of(context).primaryColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
                         _getCategoryIcon(category.name),
-                        size: 24,
+                        size: iconSize * 0.8,
                         color: Theme.of(context).primaryColor,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       category.name,
-                      style: const TextStyle(
-                        fontSize: 14,
+                      style: TextStyle(
+                        fontSize: fontSizeTitle,
                         fontWeight: FontWeight.bold,
                       ),
                       maxLines: 1,
@@ -1015,20 +957,20 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                       Text(
                         category.description!,
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: fontSizeDescription,
                           color: Colors.grey[600],
                         ),
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ],
                 ),
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
