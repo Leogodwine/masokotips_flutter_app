@@ -15,7 +15,6 @@ import '../market_info_screen.dart';
 import '../market_info/market_info_detail_screen.dart';
 import '../../models/market_info.dart';
 import '../../widgets/friendly_error_display.dart';
-import '../../widgets/friendly_empty_state.dart';
 
 class HomeContentScreen extends StatefulWidget {
   const HomeContentScreen({Key? key}) : super(key: key);
