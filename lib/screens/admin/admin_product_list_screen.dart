@@ -351,10 +351,15 @@ class _AdminProductListScreenState extends State<AdminProductListScreen> {
                                   children: [
                                     Row(
                                       children: [
-                                        Icon(Icons.attach_money,
-                                            size: 16,
+                                        Text(
+                                          'TZS',
+                                          style: TextStyle(
                                             color:
-                                                Theme.of(context).primaryColor),
+                                                Theme.of(context).primaryColor,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                         const SizedBox(width: 4),
                                         Text(
                                           product.price.toStringAsFixed(2),

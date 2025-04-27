@@ -316,23 +316,26 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
                             ),
                             const SizedBox(height: 16),
                             TextFormField(
-                              controller: _priceController,
-                              decoration: const InputDecoration(
-                                labelText: 'Price',
-                                border: OutlineInputBorder(),
-                                prefixIcon: Icon(Icons.attach_money),
-                              ),
-                              keyboardType: TextInputType.number,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter a price';
-                                }
-                                if (double.tryParse(value) == null) {
-                                  return 'Please enter a valid price';
-                                }
-                                return null;
-                              },
-                            ),
+  controller: _priceController,
+  decoration: const InputDecoration(
+    labelText: 'Price',
+    border: OutlineInputBorder(),
+    prefix: Padding(
+      padding: EdgeInsets.symmetric(horizontal: 8.0),
+      child: Text('TZS', style: TextStyle(fontWeight: FontWeight.bold)),
+    ),
+  ),
+  keyboardType: TextInputType.number,
+  validator: (value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a price';
+    }
+    if (double.tryParse(value) == null) {
+      return 'Please enter a valid price';
+    }
+    return null;
+  },
+),
                             const SizedBox(height: 16),
                             TextFormField(
                               controller: _stockController,

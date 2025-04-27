@@ -604,7 +604,11 @@ class AdminProvider with ChangeNotifier {
       Log.d('Starting to load categories');
       _isLoading = true;
       _error = null;
-      notifyListeners();
+
+      // Delay notifying listeners until after the current frame
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
 
       Log.d('Calling _adminService.getCategories()');
       final categories = await _adminService.getCategories();
@@ -621,7 +625,12 @@ class AdminProvider with ChangeNotifier {
       return [];
     } finally {
       _isLoading = false;
-      notifyListeners();
+
+      // Delay notifying listeners until after the current frame
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
+
       Log.d('Categories loading completed');
     }
   }
