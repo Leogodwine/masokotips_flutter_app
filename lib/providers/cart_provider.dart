@@ -103,6 +103,28 @@ class CartProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void addToCartWithQuantity(Product product, int quantity) {
+    if (_items.containsKey(product.id)) {
+      _items.update(
+        product.id,
+        (existingItem) => CartItem(
+          product: existingItem.product,
+          quantity: existingItem.quantity + quantity,
+        ),
+      );
+    } else {
+      _items.putIfAbsent(
+        product.id,
+        () => CartItem(
+          product: product,
+          quantity: quantity,
+        ),
+      );
+    }
+    _saveToPrefs();
+    notifyListeners();
+  }
+
   void removeFromCart(int productId) {
     _items.remove(productId);
     _saveToPrefs();

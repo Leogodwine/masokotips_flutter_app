@@ -9,8 +9,6 @@ class AdminDashboardData {
   final UserStats stats;
   @JsonKey(name: 'recent_activities')
   final RecentActivities recentActivities;
-  @JsonKey(name: 'system_info')
-  final SystemInfo systemInfo;
   @JsonKey(name: 'quick_links')
   final QuickLinks quickLinks;
   @JsonKey(name: 'last_updated')
@@ -19,7 +17,6 @@ class AdminDashboardData {
   AdminDashboardData({
     required this.stats,
     required this.recentActivities,
-    required this.systemInfo,
     required this.quickLinks,
     required this.lastUpdated,
   });
@@ -29,8 +26,6 @@ class AdminDashboardData {
         stats: UserStats.fromJson(json['stats'] as Map<String, dynamic>),
         recentActivities: RecentActivities.fromJson(
             json['recent_activities'] as Map<String, dynamic>),
-        systemInfo:
-            SystemInfo.fromJson(json['system_info'] as Map<String, dynamic>),
         quickLinks:
             QuickLinks.fromJson(json['quick_links'] as Map<String, dynamic>),
         lastUpdated: json['last_updated'] as String? ?? '',
@@ -43,7 +38,6 @@ class AdminDashboardData {
 @JsonSerializable()
 class UserStats {
   final Users users;
-
   UserStats({required this.users});
 
   factory UserStats.fromJson(Map<String, dynamic> json) => UserStats(
@@ -140,58 +134,6 @@ class LatestUser {
       );
 
   Map<String, dynamic> toJson() => _$LatestUserToJson(this);
-}
-
-// SystemInfo class
-@JsonSerializable()
-class SystemInfo {
-  @JsonKey(name: 'php_version')
-  final String phpVersion;
-  @JsonKey(name: 'laravel_version')
-  final String laravelVersion;
-  @JsonKey(name: 'server_software')
-  final String serverSoftware;
-  @JsonKey(name: 'database_connection')
-  final String databaseConnection;
-  final String timezone;
-  @JsonKey(name: 'memory_usage')
-  final String memoryUsage;
-  @JsonKey(name: 'disk_free_space')
-  final String diskFreeSpace;
-  @JsonKey(name: 'upload_max_filesize')
-  final String uploadMaxFilesize;
-  @JsonKey(name: 'max_execution_time')
-  final String maxExecutionTime;
-  @JsonKey(name: 'server_time')
-  final String serverTime;
-
-  SystemInfo({
-    required this.phpVersion,
-    required this.laravelVersion,
-    required this.serverSoftware,
-    required this.databaseConnection,
-    required this.timezone,
-    required this.memoryUsage,
-    required this.diskFreeSpace,
-    required this.uploadMaxFilesize,
-    required this.maxExecutionTime,
-    required this.serverTime,
-  });
-
-  factory SystemInfo.fromJson(Map<String, dynamic> json) => SystemInfo(
-        phpVersion: json['php_version'] as String? ?? '',
-        laravelVersion: json['laravel_version'] as String? ?? '',
-        serverSoftware: json['server_software'] as String? ?? '',
-        databaseConnection: json['database_connection'] as String? ?? '',
-        timezone: json['timezone'] as String? ?? '',
-        memoryUsage: json['memory_usage'] as String? ?? '',
-        diskFreeSpace: json['disk_free_space'] as String? ?? '',
-        uploadMaxFilesize: json['upload_max_filesize'] as String? ?? '',
-        maxExecutionTime: json['max_execution_time'] as String? ?? '',
-        serverTime: json['server_time'] as String? ?? '',
-      );
-
-  Map<String, dynamic> toJson() => _$SystemInfoToJson(this);
 }
 
 // QuickLinks class

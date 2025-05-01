@@ -206,23 +206,6 @@ class _MarketInfoManagementScreenState
                   onRefresh: _loadMarketInfo,
                   child: Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Market Information',
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            ElevatedButton.icon(
-                              onPressed: _openAddMarketInfoScreen,
-                              icon: const Icon(Icons.add),
-                              label: const Text('Add New'),
-                            ),
-                          ],
-                        ),
-                      ),
                       Expanded(
                         child: _marketInfoList.isEmpty
                             ? Center(
@@ -267,30 +250,15 @@ class _MarketInfoManagementScreenState
                                   return Card(
                                     margin: const EdgeInsets.only(bottom: 16),
                                     child: ListTile(
-                                      leading: marketInfo.imageUrl != null
-                                          ? ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(4),
-                                              child: Image.network(
-                                                marketInfo.imageUrl!,
-                                                width: 56,
-                                                height: 56,
-                                                fit: BoxFit.cover,
-                                              ),
-                                            )
-                                          : Container(
-                                              width: 56,
-                                              height: 56,
-                                              decoration: BoxDecoration(
-                                                color: Colors.grey[200],
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
-                                              ),
-                                              child: const Icon(
-                                                Icons.info,
-                                                color: Colors.grey,
-                                              ),
-                                            ),
+                                      leading: ClipRRect(
+                                        borderRadius: BorderRadius.circular(4),
+                                        child: Image.network(
+                                          marketInfo.imageUrl,
+                                          width: 56,
+                                          height: 56,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
                                       title: Text(marketInfo.title),
                                       subtitle: Column(
                                         crossAxisAlignment:
@@ -301,40 +269,37 @@ class _MarketInfoManagementScreenState
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
                                           ),
-                                          if (marketInfo.location != null)
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.only(top: 4),
-                                              child: Chip(
-                                                label: Text(
-                                                  marketInfo.location!,
-                                                  style: const TextStyle(
-                                                      fontSize: 12),
-                                                ),
-                                                backgroundColor:
-                                                    Colors.blue[100],
-                                                labelStyle: TextStyle(
-                                                  color: Colors.blue[800],
-                                                ),
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(top: 4),
+                                            child: Chip(
+                                              label: Text(
+                                                marketInfo.location,
+                                                style: const TextStyle(
+                                                    fontSize: 12),
+                                              ),
+                                              backgroundColor: Colors.blue[100],
+                                              labelStyle: TextStyle(
+                                                color: Colors.blue[800],
                                               ),
                                             ),
-                                          if (marketInfo.category != null)
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.only(top: 4),
-                                              child: Chip(
-                                                label: Text(
-                                                  marketInfo.category!,
-                                                  style: const TextStyle(
-                                                      fontSize: 12),
-                                                ),
-                                                backgroundColor:
-                                                    Colors.green[100],
-                                                labelStyle: TextStyle(
-                                                  color: Colors.green[800],
-                                                ),
+                                          ),
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(top: 4),
+                                            child: Chip(
+                                              label: Text(
+                                                marketInfo.category,
+                                                style: const TextStyle(
+                                                    fontSize: 12),
+                                              ),
+                                              backgroundColor:
+                                                  Colors.green[100],
+                                              labelStyle: TextStyle(
+                                                color: Colors.green[800],
                                               ),
                                             ),
+                                          ),
                                         ],
                                       ),
                                       trailing: PopupMenuButton(
@@ -533,7 +498,7 @@ class _AddMarketInfoScreenState extends State<AddMarketInfoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Market Information'),
+        title: const Text('Add Market News'),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
       ),
@@ -695,9 +660,9 @@ class _EditMarketInfoScreenState extends State<EditMarketInfoScreen> {
     _titleController = TextEditingController(text: widget.marketInfo.title);
     _contentController = TextEditingController(text: widget.marketInfo.content);
     _locationController =
-        TextEditingController(text: widget.marketInfo.location ?? '');
+        TextEditingController(text: widget.marketInfo.location);
     _categoryController =
-        TextEditingController(text: widget.marketInfo.category ?? '');
+        TextEditingController(text: widget.marketInfo.category);
   }
 
   @override
@@ -879,30 +844,26 @@ class _EditMarketInfoScreenState extends State<EditMarketInfoScreen> {
                             },
                           ),
                   ),
-                )
-              else if (widget.marketInfo.imageUrl != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 16),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      widget.marketInfo.imageUrl!,
-                      height: 200,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        print('Error loading image: $error');
-                        return Container(
-                          height: 200,
-                          color: Colors.grey[300],
-                          child: const Center(
-                            child: Icon(Icons.error_outline, size: 48),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
                 ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  widget.marketInfo.imageUrl,
+                  height: 200,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    print('Error loading image: $error');
+                    return Container(
+                      height: 200,
+                      color: Colors.grey[300],
+                      child: const Center(
+                        child: Icon(Icons.error_outline, size: 48),
+                      ),
+                    );
+                  },
+                ),
+              ),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _isLoading ? null : _submitForm,

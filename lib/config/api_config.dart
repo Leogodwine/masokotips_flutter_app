@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'dev_config.dart'; // 👈 Import it
 
 class ApiConfig {
-  static const bool isProduction = false;
+  static const bool isProduction = false; // Set to true for production
 
   static String get baseUrl {
     if (isProduction) {

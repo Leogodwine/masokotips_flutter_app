@@ -4,7 +4,6 @@ import 'package:masoko_tips/providers/market_info_provider.dart';
 import 'package:masoko_tips/models/market_info.dart';
 import 'package:masoko_tips/screens/market_info/edit_market_info_screen.dart';
 import 'package:masoko_tips/screens/market_info/market_info_detail_screen.dart';
-import 'package:masoko_tips/widgets/custom_drawer.dart';
 import 'package:masoko_tips/widgets/loading_indicator.dart';
 import 'package:masoko_tips/widgets/error_message.dart';
 import 'package:masoko_tips/widgets/empty_state.dart';
@@ -76,9 +75,9 @@ class _MarketInfoListScreenState extends State<MarketInfoListScreen> {
             marketInfo.title.toLowerCase().contains(searchQuery) ||
                 marketInfo.content.toLowerCase().contains(searchQuery);
         final matchesLocation = locationQuery.isEmpty ||
-            (marketInfo.location?.toLowerCase() ?? '').contains(locationQuery);
+            marketInfo.location.toLowerCase().contains(locationQuery);
         final matchesCategory = categoryQuery.isEmpty ||
-            (marketInfo.category?.toLowerCase() ?? '').contains(categoryQuery);
+            marketInfo.category.toLowerCase().contains(categoryQuery);
 
         return matchesSearch && matchesLocation && matchesCategory;
       }).toList();
@@ -119,7 +118,7 @@ class _MarketInfoListScreenState extends State<MarketInfoListScreen> {
         setState(() => _isLoading = true);
         final marketInfoProvider =
             Provider.of<MarketInfoProvider>(context, listen: false);
-        await marketInfoProvider.deleteMarketInfo(marketInfo.id);
+        await marketInfoProvider.deleteMarketInfo(marketInfo.id.toString());
         await _loadMarketInfo();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -169,7 +168,6 @@ class _MarketInfoListScreenState extends State<MarketInfoListScreen> {
           ),
         ],
       ),
-      drawer: const CustomDrawer(),
       body: Column(
         children: [
           if (_showFilters)
@@ -276,33 +274,32 @@ class _MarketInfoListScreenState extends State<MarketInfoListScreen> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        if (marketInfo.imageUrl != null)
-                                          ClipRRect(
-                                            borderRadius:
-                                                const BorderRadius.vertical(
-                                              top: Radius.circular(12),
-                                            ),
-                                            child: Image.network(
-                                              marketInfo.imageUrl!,
-                                              height: 200,
-                                              width: double.infinity,
-                                              fit: BoxFit.cover,
-                                              errorBuilder:
-                                                  (context, error, stackTrace) {
-                                                return Container(
-                                                  height: 200,
-                                                  color: Colors.grey[200],
-                                                  child: const Center(
-                                                    child: Icon(
-                                                      Icons.broken_image,
-                                                      size: 48,
-                                                      color: Colors.grey,
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            ),
+                                        ClipRRect(
+                                          borderRadius:
+                                              const BorderRadius.vertical(
+                                            top: Radius.circular(12),
                                           ),
+                                          child: Image.network(
+                                            marketInfo.imageUrl,
+                                            height: 200,
+                                            width: double.infinity,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                              return Container(
+                                                height: 200,
+                                                color: Colors.grey[200],
+                                                child: const Center(
+                                                  child: Icon(
+                                                    Icons.broken_image,
+                                                    size: 48,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
                                         Padding(
                                           padding: const EdgeInsets.all(16),
                                           child: Column(
@@ -376,7 +373,7 @@ class _MarketInfoListScreenState extends State<MarketInfoListScreen> {
                                                   ),
                                                   const SizedBox(width: 4),
                                                   Text(
-                                                    marketInfo.location ?? '',
+                                                    marketInfo.location,
                                                     style: TextStyle(
                                                       color: Colors.grey[600],
                                                     ),
@@ -389,7 +386,7 @@ class _MarketInfoListScreenState extends State<MarketInfoListScreen> {
                                                   ),
                                                   const SizedBox(width: 4),
                                                   Text(
-                                                    marketInfo.category ?? '',
+                                                    marketInfo.category,
                                                     style: TextStyle(
                                                       color: Colors.grey[600],
                                                     ),

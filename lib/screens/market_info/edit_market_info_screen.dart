@@ -61,7 +61,7 @@ class _EditMarketInfoScreenState extends State<EditMarketInfoScreen> {
         );
       } else {
         await marketInfoProvider.updateMarketInfo(
-          id: widget.marketInfo!.id,
+          id: widget.marketInfo?.id.toString() ?? '',
           title: _titleController.text,
           description: _descriptionController.text,
           content: _descriptionController.text,

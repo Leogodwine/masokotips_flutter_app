@@ -39,6 +39,7 @@ import 'screens/admin/organic_products_management.dart';
 import 'screens/admin/user_management_screen.dart';
 import 'screens/admin/transport_management_screen.dart';
 import 'screens/categories/main_categories_screen.dart';
+import '../../providers/orders_provider.dart';
 
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -105,6 +106,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => TransportProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
         ChangeNotifierProvider(create: (_) => AdminProvider()),
+        ChangeNotifierProvider(create: (_) => OrdersProvider()), // ✅ Add this
       ],
       child: Consumer<AuthProvider>(
         builder: (context, authProvider, _) {

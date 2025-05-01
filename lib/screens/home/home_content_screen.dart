@@ -112,6 +112,10 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
   Future<void> _loadMarketInfo() async {
     if (!mounted) return;
 
+    setState(() {
+      _isLoading = true; // Start showing loading spinner
+    });
+
     try {
       final marketInfoProvider = context.read<MarketInfoProvider>();
       await marketInfoProvider.loadMarketInfo();
@@ -122,6 +126,19 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
       }
     } catch (e) {
       Log.e('HomeContentScreen: Error loading market info: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to load market information.'),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false; // Stop showing loading spinner
+        });
+      }
     }
   }
 
@@ -439,9 +456,8 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                   Row(
                     children: [
                       Expanded(
-                        // 👈 Allows the title to truncate if needed
                         child: Text(
-                          'Market Information',
+                          'Market News',
                           style:
                               Theme.of(context).textTheme.titleLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
@@ -464,7 +480,11 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  if (_marketInfoList.isEmpty)
+                  if (_isLoading)
+                    const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  else if (_marketInfoList.isEmpty)
                     Card(
                       elevation: 2,
                       shape: RoundedRectangleBorder(
@@ -482,8 +502,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                         },
                         borderRadius: BorderRadius.circular(16),
                         child: Container(
-                          height:
-                              150, // or use constraints if you want dynamic sizing
+                          height: 150,
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
@@ -517,6 +536,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
                                       'Stay Updated',
@@ -549,7 +569,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                     )
                   else
                     SizedBox(
-                      height: 200,
+                      height: 220,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: _marketInfoList.length,
@@ -570,41 +590,38 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                     MaterialPageRoute(
                                       builder: (context) =>
                                           MarketInfoDetailScreen(
-                                        marketInfo: marketInfo,
-                                      ),
+                                              marketInfo: marketInfo),
                                     ),
                                   );
                                 },
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    if (marketInfo.imageUrl != null)
-                                      ClipRRect(
-                                        borderRadius:
-                                            const BorderRadius.vertical(
-                                          top: Radius.circular(16),
-                                        ),
-                                        child: Image.network(
-                                          marketInfo.imageUrl!,
-                                          height: 120,
-                                          width: double.infinity,
-                                          fit: BoxFit.cover,
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                            return Container(
-                                              height: 120,
-                                              color: Colors.grey[200],
-                                              child: const Center(
-                                                child: Icon(
-                                                  Icons.broken_image,
-                                                  size: 48,
-                                                  color: Colors.grey,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
+                                    ClipRRect(
+                                      borderRadius: const BorderRadius.vertical(
+                                        top: Radius.circular(16),
                                       ),
+                                      child: Image.network(
+                                        marketInfo.imageUrl,
+                                        height: 120,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                          return Container(
+                                            height: 120,
+                                            color: Colors.grey[200],
+                                            child: const Center(
+                                              child: Icon(
+                                                Icons.broken_image,
+                                                size: 48,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
                                     Padding(
                                       padding: const EdgeInsets.all(12),
                                       child: Column(
@@ -639,11 +656,15 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                                 color: Colors.grey[600],
                                               ),
                                               const SizedBox(width: 4),
-                                              Text(
-                                                marketInfo.location ?? '',
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.grey[600],
+                                              Expanded(
+                                                child: Text(
+                                                  marketInfo.location,
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey[600],
+                                                  ),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                 ),
                                               ),
                                             ],
@@ -663,7 +684,6 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
               ),
             ),
             const SizedBox(height: 24),
-
             // Featured Products Section
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),

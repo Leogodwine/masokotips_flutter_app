@@ -4,5 +4,5 @@
 
 class DevConfig {
   // Ngrok temporary URL
-  static const String ngrokUrl = 'https://52e5-41-59-43-211.ngrok-free.app';
+  static const String ngrokUrl = 'https://8f70-41-59-43-147.ngrok-free.app';
 }

@@ -22,29 +22,28 @@ class MarketInfoDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (marketInfo.imageUrl != null)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  marketInfo.imageUrl!,
-                  height: 200,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 200,
-                      color: Colors.grey[200],
-                      child: const Center(
-                        child: Icon(
-                          Icons.broken_image,
-                          size: 48,
-                          color: Colors.grey,
-                        ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(
+                marketInfo.imageUrl,
+                height: 200,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    height: 200,
+                    color: Colors.grey[200],
+                    child: const Center(
+                      child: Icon(
+                        Icons.broken_image,
+                        size: 48,
+                        color: Colors.grey,
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
+            ),
             const SizedBox(height: 16),
             Text(
               marketInfo.content,
@@ -60,7 +59,7 @@ class MarketInfoDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  marketInfo.location ?? '',
+                  marketInfo.location,
                   style: TextStyle(color: Colors.grey[600]),
                 ),
                 const Spacer(),
@@ -71,7 +70,7 @@ class MarketInfoDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  marketInfo.category ?? '',
+                  marketInfo.category,
                   style: TextStyle(color: Colors.grey[600]),
                 ),
               ],
