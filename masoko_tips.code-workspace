@@ -7,5 +7,7 @@
 			"path": "../../wamp64/www/masoko_tips_api"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"postman.settings.dotenv-detection-notification-visibility": false
+	}
 }

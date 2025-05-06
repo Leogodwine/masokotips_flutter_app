@@ -10,7 +10,7 @@ class CategoryService {
 
   CategoryService() {
     _apiService = ApiService(
-      baseUrl: 'http://localhost:8000', // This should be configurable
+      baseUrl: 'https://masokotips.com', // This should be configurable
       apiKey: 'your-api-key', // This should be configurable
     );
   }
