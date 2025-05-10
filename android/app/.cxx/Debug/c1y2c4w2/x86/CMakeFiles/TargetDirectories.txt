@@ -1,2 +1,0 @@
-D:/flutterProjects/masoko_tips/android/app/.cxx/Debug/c1y2c4w2/x86/CMakeFiles/edit_cache.dir
-D:/flutterProjects/masoko_tips/android/app/.cxx/Debug/c1y2c4w2/x86/CMakeFiles/rebuild_cache.dir
