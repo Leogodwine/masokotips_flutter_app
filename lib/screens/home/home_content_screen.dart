@@ -27,7 +27,6 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
   bool _isLoading = false;
   final TextEditingController _searchController = TextEditingController();
   List<MarketInfo> _marketInfoList = [];
-  //int _currentIndex = 0;
 
   @override
   void initState() {
@@ -866,52 +865,53 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
     );
   }
 
-  IconData _getCategoryIcon(String categoryName) {
+  String _getCategoryImage(String categoryName) {
     switch (categoryName.toLowerCase()) {
       case 'products':
-        return Icons.shopping_basket;
+        return 'assets/images/cereals.png';
       case 'services':
-        return Icons.agriculture;
+        return 'assets/images/financial.png';
       case 'market information':
-        return Icons.analytics;
+        return 'assets/images/market_information.png';
       case 'transport':
-        return Icons.local_shipping;
+        return 'assets/images/transport.png';
       case 'organic products':
-        return Icons.eco;
+        return 'assets/images/vegetables.png';
       case 'agricultural services':
-        return Icons.engineering;
+        return 'assets/images/consultation.png';
       case 'fruits':
-        return Icons.apple;
+        return 'assets/images/fruits.png';
       case 'vegetables':
-        return Icons.grass;
+        return 'assets/images/vegetables.png';
       case 'grains':
-        return Icons.grain;
+        return 'assets/images/grains.png';
       case 'livestock':
-        return Icons.pets;
+        return 'assets/images/livestock.png';
       case 'dairy':
-        return Icons.water_drop;
+        return 'assets/images/dairy.png';
       case 'equipment':
-        return Icons.construction;
+        return 'assets/images/equipment.png';
       case 'seeds':
-        return Icons.spa;
+        return 'assets/images/seeds.png';
       case 'fertilizers':
-        return Icons.science;
+        return 'assets/images/fertilizers.png';
       case 'pesticides':
-        return Icons.bug_report;
+        return 'assets/images/pesticides.png';
       case 'irrigation':
-        return Icons.water;
+        return 'assets/images/irrigation.png';
       case 'storage':
-        return Icons.warehouse;
+        return 'assets/images/storage.png';
       case 'processing':
-        return Icons.factory;
+        return 'assets/images/processing.png';
       case 'packaging':
-        return Icons.inventory;
+        return 'assets/images/packaging.png';
       case 'distribution':
-        return Icons.delivery_dining;
+        return 'assets/images/distribution.png';
       default:
-        return Icons.agriculture;
+        return 'assets/images/default.png'; // fallback image
     }
   }
+
   // This method builds a category card with a gradient background, icon, and text.
   // It uses the Category model to populate the card with relevant data.
   // The card is wrapped in an InkWell widget to make it tappable, leading to a
@@ -919,10 +919,8 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
   Widget _buildCategoryCard(Category category) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        double iconSize =
-            constraints.maxWidth * 0.25; // Icon is 25% of card width
-        double fontSizeTitle = constraints.maxWidth > 200 ? 18 : 14;
-        double fontSizeDescription = constraints.maxWidth > 200 ? 14 : 12;
+        double imageSize =
+            constraints.maxWidth * 0.35; // Increased from 0.25 to 0.5
 
         return Card(
           elevation: 4,
@@ -940,51 +938,43 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
               );
             },
             child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: SingleChildScrollView(
-                // 👈 **Fix the overflow!**
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: iconSize,
-                      height: iconSize,
+              padding: const EdgeInsets.all(12), // Only one padding
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Center(
+                    child: Container(
+                      width: imageSize, // Adjusted size
+                      height: imageSize,
+
                       decoration: BoxDecoration(
                         color: Theme.of(context).primaryColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(
-                        _getCategoryIcon(category.name),
-                        size: iconSize * 0.8,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      category.name,
-                      style: TextStyle(
-                        fontSize: fontSizeTitle,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (category.description != null &&
-                        category.description!.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        category.description!,
-                        style: TextStyle(
-                          fontSize: fontSizeDescription,
-                          color: Colors.grey[600],
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.asset(
+                          _getCategoryImage(category.name),
+                          fit: BoxFit.cover,
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ],
-                  ],
-                ),
+                    ),
+                  ),
+                  const SizedBox(height: 8), // Less space
+                  Text(
+                    category.name,
+                    style: TextStyle(
+                      fontSize: constraints.maxWidth > 200 ? 16 : 14,
+                      fontWeight: FontWeight.bold,
+                      height: 1.2, // Add line height for better readability
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
             ),
           ),

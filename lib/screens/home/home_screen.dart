@@ -37,6 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return AppScaffold(
       title: 'Home',
       body: const HomeContentScreen(),
+
       currentIndex: _currentIndex,
       onBottomNavItemTapped: _onBottomNavItemTapped,
     );

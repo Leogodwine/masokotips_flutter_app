@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class ThemeConfig {
   // Primary colors
-  static const Color primaryColor = Color(0xFF4CAF50); // Green
+  static const Color primaryColor = Color(0xFF1C592B); // dark green
   static const Color primaryLightColor = Color(0xFF81C784);
   static const Color primaryDarkColor = Color(0xFF388E3C);
 
@@ -28,7 +28,7 @@ class ThemeConfig {
 
   // AppBar theme
   static AppBarTheme appBarTheme = const AppBarTheme(
-    backgroundColor: primaryColor,
+    backgroundColor:  Color(0xFF1C592B), // dark green
     foregroundColor: Colors.white,
     elevation: 0,
     centerTitle: true,
@@ -39,9 +39,9 @@ class ThemeConfig {
   static ThemeData getThemeData({bool isDarkMode = false}) {
     return ThemeData(
       colorScheme: ColorScheme.fromSeed(
-        seedColor: primaryColor,
+        seedColor: const Color(0xFF1C592B),
         brightness: isDarkMode ? Brightness.dark : Brightness.light,
-        primary: primaryColor,
+        primary: const Color(0xFF1C592B),
         secondary: secondaryColor,
         error: errorColor,
         surface: backgroundColor,
@@ -51,8 +51,8 @@ class ThemeConfig {
       appBarTheme: appBarTheme,
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: primaryColor,
-          foregroundColor: Colors.white,
+          backgroundColor: const Color(0xFF1C592B),
+          foregroundColor: const Color(0xFFF2F2F2),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),

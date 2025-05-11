@@ -270,26 +270,31 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: latestUsers.length,
-              itemBuilder: (context, index) {
+            ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxHeight: 300, // Adjust this height as needed
+              ),
+              child: ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: latestUsers.length,
+                itemBuilder: (context, index) {
                 final user = latestUsers[index];
                 return ListTile(
                   leading: CircleAvatar(
-                    child: Text(user.name[0]),
-                  ),
-                  title: Text(user.name),
-                  subtitle: Text(user.email),
-                  trailing: Chip(
-                    label: Text(
-                      user.role.toUpperCase(),
-                      style: const TextStyle(fontSize: 12),
+                    child: Text(user.name.substring(0,1).toUpperCase()), // Display user initial
+                ),
+                    title: Text(user.name),
+                    subtitle: Text(user.email),
+                    trailing: Chip(
+                      label: Text(
+                        user.role.toUpperCase(),
+                        style: const TextStyle(fontSize: 12),
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -336,14 +341,23 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        ...links.map((link) => ListTile(
+        ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxHeight: 200, // Adjust this height as needed
+          ),
+          child: ListView(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            children: links.map((link) => ListTile(
               leading: const Icon(Icons.link),
               title: Text(link.title),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
                 Navigator.pushNamed(context, link.route);
               },
-            )),
+            )).toList(),
+          ),
+        ),
       ],
     );
   }

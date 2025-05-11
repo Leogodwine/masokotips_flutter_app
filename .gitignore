@@ -111,3 +111,12 @@ yarn-error.log
 *.swo
 .DS_Store
 Thumbs.db
+
+# Flutter/Android build artifacts
+/build/
+/.android/
+/android/.cxx/
+/android/app/.cxx/
+/*.iml
+/.idea
+

@@ -92,23 +92,21 @@ class AdminService {
 
   // Admin Dashboard
   Future<Map<String, dynamic>> getDashboardData() async {
-    try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/admin/dashboard'),
-        headers: {
-          'Authorization': 'Bearer $_authToken',
-          'Accept': 'application/json',
-        },
-      );
+    if (!isAuthenticated()) {
+      throw Exception('Not authenticated');
+    }
 
+    try {
+      final response = await _dio.get('/admin/dashboard');
+      Log.d('Dashboard data response status: ${response.statusCode}');
+      
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return data;
+        return response.data;
       } else {
-        throw Exception('Failed to get dashboard data: ${response.body}');
+        throw Exception('Failed to get dashboard data: ${response.statusCode} - ${response.data['message'] ?? 'Unknown error'}');
       }
     } catch (e) {
-      Log.e('Error getting dashboard data: $e');
+      Log.e('Error fetching dashboard data: $e');
       throw Exception('Failed to get dashboard data: $e');
     }
   }

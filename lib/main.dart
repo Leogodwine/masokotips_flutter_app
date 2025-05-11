@@ -32,7 +32,7 @@ import 'screens/admin/market_info_management_screen.dart';
 import 'screens/market_info_screen.dart';
 import 'screens/admin/create_admin_screen.dart';
 import 'screens/admin/admin_login_screen.dart';
-import 'screens/admin/admin_dashboard_screen.dart';
+import 'screens/admin_dashboard_screen.dart';
 import 'screens/admin/products_management_screen.dart';
 import 'screens/admin/services_management_screen.dart';
 import 'screens/admin/organic_products_management.dart';
@@ -166,7 +166,7 @@ class _MyAppState extends State<MyApp> {
                   const MarketInfoManagementScreen(),
               '/admin/create': (context) => const CreateAdminScreen(),
               '/admin/login': (context) => const AdminLoginScreen(),
-              '/admin/dashboard': (context) => const AdminDashboardScreen(),
+              'servicdashboard': (context) => const AdminDashboardScreen(),
               '/admin/products': (context) =>
                   const AdminProductsManagementScreen(),
               '/admin/services': (context) =>
@@ -176,6 +176,7 @@ class _MyAppState extends State<MyApp> {
               '/admin/users': (context) => const AdminUserManagementScreen(),
               '/admin/transport': (context) =>
                   const AdminTransportManagementScreen(),
+              '/admin/dashboard': (context) => const AdminDashboardScreen(),
             },
           );
         },

@@ -283,46 +283,63 @@ class AdminAuthService {
   }
 
   Future<Map<String, dynamic>> getDashboardData() async {
-    if (_authToken == null) {
-      Log.e('No auth token available for dashboard request');
-      throw Exception('Not authenticated. Please login again.');
-    }
-
-    try {
-      Log.d(
-          'Fetching dashboard data with token: ${_authToken!.substring(0, 10)}...');
-
-      final response = await http.get(
-        Uri.parse('$baseUrl/admin/dashboard'),
-        headers: {
-          'Authorization': 'Bearer $_authToken',
-          'Accept': 'application/json',
-        },
-      );
-
-      Log.d('Dashboard response status: ${response.statusCode}');
-      Log.d('Dashboard response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data is! Map<String, dynamic>) {
-          Log.e('Invalid response format: ${data.runtimeType}');
-          throw Exception('Invalid response format');
-        }
-        return data;
-      } else if (response.statusCode == 401) {
-        _authToken = null; // Clear invalid token
-        Log.e('Session expired, clearing auth token');
-        throw Exception('Session expired. Please login again.');
-      } else {
-        Log.e('Dashboard request failed with status: ${response.statusCode}');
-        throw Exception('Failed to get dashboard data: ${response.statusCode}');
-      }
-    } catch (e, stackTrace) {
-      Log.e('Error fetching dashboard data: $e\n$stackTrace');
-      throw Exception('Failed to get dashboard data: $e');
-    }
+  if (_authToken == null) {
+    Log.e('No auth token available for dashboard request');
+    throw Exception('Not authenticated. Please login again.');
   }
+
+  try {
+    Log.d('Fetching dashboard data with token: ${_authToken!.substring(0, 10)}...');
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/admin/dashboard'),
+      headers: {
+        'Authorization': 'Bearer $_authToken',
+        'Accept': 'application/json',
+      },
+    );
+
+    Log.d('Dashboard response status: ${response.statusCode}');
+    Log.d('Dashboard response headers: ${response.headers}');
+    Log.d('Dashboard response body: ${response.body}');
+    Log.d('Dashboard response content-type: ${response.headers['content-type']}');
+ Log.d('🟢 Raw response: ${response.body}');
+
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> decoded = jsonDecode(response.body);
+      Log.d('Decoded dashboard data: $decoded');
+
+      if (decoded.containsKey('success') && decoded['success'] == true && decoded.containsKey('data')) {
+        final data = decoded['data'] as Map<String, dynamic>;
+        return data;
+      } else {
+        final message = decoded['message'] ?? 'Unexpected response format';
+        throw Exception(message);
+      }
+    } else if (response.statusCode == 401) {
+      _authToken = null; // Clear invalid token
+      Log.e('Session expired, clearing auth token');
+      throw Exception('Session expired. Please login again.');
+    } else {
+      Log.e('Dashboard request failed with status: ${response.statusCode}');
+      String errorMessage = 'Failed to get dashboard data: ${response.statusCode}';
+      try {
+        final errorData = jsonDecode(response.body);
+        if (errorData is Map<String, dynamic> && errorData.containsKey('message')) {
+          errorMessage = errorData['message'] ?? errorMessage;
+        }
+      } catch (e) {
+        Log.e('Error parsing error response: $e');
+      }
+      throw Exception(errorMessage);
+    }
+  } catch (e, stackTrace) {
+    final errorMessage = 'Failed to get dashboard data: $e';
+    Log.e('Error fetching dashboard data: $errorMessage\nStack trace: $stackTrace');
+    rethrow; // Allow the original error to bubble up for now
+  }
+}
 
   Future<void> logout() async {
     if (_authToken == null) {

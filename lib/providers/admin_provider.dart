@@ -165,52 +165,27 @@ class AdminProvider with ChangeNotifier {
       final response = await _adminAuthService.getDashboardData();
       Log.d('Dashboard response received: ${response.toString()}');
 
-      if (response['success'] == true) {
-        final data = response['data'];
-        if (data == null) {
-          Log.e('Dashboard data is null');
-          _error = 'Failed to load dashboard data: No data received';
+      if (response is Map<String, dynamic>) {
+        final dashboardData = response;
+        Log.d('Parsing dashboard data: ${dashboardData.toString()}');
+
+        // Ensure all required fields are present
+        if (!dashboardData.containsKey('stats') ||
+            !dashboardData.containsKey('recent_activities') ||
+            !dashboardData.containsKey('quick_links') ||
+            !dashboardData.containsKey('last_updated')) {
+          Log.e('Invalid dashboard data structure: Missing required fields');
+          _error = 'Invalid dashboard data structure';
           return;
         }
 
-        try {
-          final dashboardData = data as Map<String, dynamic>;
-          Log.d('Parsing dashboard data: ${dashboardData.toString()}');
-
-          // Ensure all required fields are present
-          if (!dashboardData.containsKey('stats') ||
-              !dashboardData.containsKey('recent_activities') ||
-              !dashboardData.containsKey('system_info') ||
-              !dashboardData.containsKey('quick_links') ||
-              !dashboardData.containsKey('last_updated')) {
-            Log.e('Invalid dashboard data structure: Missing required fields');
-            _error = 'Invalid dashboard data structure';
-            return;
-          }
-
-          _dashboardData = AdminDashboardData.fromJson(dashboardData);
-          _error = null;
-          _isAdmin = true;
-          Log.d('Dashboard data loaded and parsed successfully');
-        } catch (e, stackTrace) {
-          Log.e('Error parsing dashboard data: $e\n$stackTrace');
-          _error = 'Failed to parse dashboard data: $e';
-        }
+        _dashboardData = AdminDashboardData.fromJson(dashboardData);
+        _error = null;
+        _isAdmin = true;
+        Log.d('Dashboard data loaded and parsed successfully');
       } else {
-        if (response['message']
-                ?.toString()
-                .toLowerCase()
-                .contains('unauthenticated') ??
-            false) {
-          Log.e('Authentication failed, clearing token');
-          await _adminAuthService.logout();
-          _isAdmin = false;
-          _dashboardData = null;
-          _error = 'Session expired. Please login again.';
-        } else {
-          _error = response['message'] ?? 'Failed to load dashboard data';
-          Log.e('Dashboard load failed: $_error');
-        }
+        Log.e('Invalid response type: Expected Map<String, dynamic>, got ${response.runtimeType}');
+        _error = 'Failed to load dashboard data: Invalid response format';
       }
     } catch (e, stackTrace) {
       Log.e('Error loading dashboard data: $e\n$stackTrace');
@@ -430,8 +405,7 @@ class AdminProvider with ChangeNotifier {
     try {
       final updatedMarketInfo =
           await _adminService.updateMarketInfo(marketInfoId, marketInfoData);
-      final index =
-          _marketInfo.indexWhere((info) => info.id == marketInfoId.toString());
+      final index = _marketInfo.indexWhere((info) => info.id == marketInfoId);
       if (index != -1) {
         _marketInfo[index] = updatedMarketInfo;
       }
