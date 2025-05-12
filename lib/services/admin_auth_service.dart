@@ -332,6 +332,7 @@ class AdminAuthService {
       } catch (e) {
         Log.e('Error parsing error response: $e');
       }
+
       throw Exception(errorMessage);
     }
   } catch (e, stackTrace) {

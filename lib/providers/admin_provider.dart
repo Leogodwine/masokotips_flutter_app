@@ -146,62 +146,58 @@ class AdminProvider with ChangeNotifier {
   }
 
   Future<void> loadDashboardData() async {
-    try {
-      _isLoading = true;
-      _error = null;
-      notifyListeners();
+  try {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
 
-      Log.d('Starting to load dashboard data');
+    Log.d('Starting to load dashboard data');
 
-      if (_adminAuthService.authToken == null ||
-          _adminAuthService.authToken!.isEmpty) {
-        Log.e('No valid auth token available for dashboard request');
-        _error = 'Not authenticated. Please login again.';
-        _isAdmin = false;
-        _dashboardData = null;
-        return;
-      }
-
-      final response = await _adminAuthService.getDashboardData();
-      Log.d('Dashboard response received: ${response.toString()}');
-
-      if (response is Map<String, dynamic>) {
-        final dashboardData = response;
-        Log.d('Parsing dashboard data: ${dashboardData.toString()}');
-
-        // Ensure all required fields are present
-        if (!dashboardData.containsKey('stats') ||
-            !dashboardData.containsKey('recent_activities') ||
-            !dashboardData.containsKey('quick_links') ||
-            !dashboardData.containsKey('last_updated')) {
-          Log.e('Invalid dashboard data structure: Missing required fields');
-          _error = 'Invalid dashboard data structure';
-          return;
-        }
-
-        _dashboardData = AdminDashboardData.fromJson(dashboardData);
-        _error = null;
-        _isAdmin = true;
-        Log.d('Dashboard data loaded and parsed successfully');
-      } else {
-        Log.e('Invalid response type: Expected Map<String, dynamic>, got ${response.runtimeType}');
-        _error = 'Failed to load dashboard data: Invalid response format';
-      }
-    } catch (e, stackTrace) {
-      Log.e('Error loading dashboard data: $e\n$stackTrace');
-      if (e.toString().toLowerCase().contains('unauthenticated')) {
-        await _adminAuthService.logout();
-        _isAdmin = false;
-        _dashboardData = null;
-        _error = 'Session expired. Please login again.';
-      } else {
-        _error = 'Failed to load dashboard data: $e';
-      }
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+    if (_adminAuthService.authToken == null ||
+        _adminAuthService.authToken!.isEmpty) {
+      Log.e('No valid auth token available for dashboard request');
+      _error = 'Not authenticated. Please login again.';
+      _isAdmin = false;
+      _dashboardData = null;
+      return;
     }
+
+    final response = await _adminAuthService.getDashboardData();
+    Log.d('Dashboard response received: ${response.toString()}');
+
+    final dashboardData = response; // Already a Map<String, dynamic>
+    Log.d('Parsing dashboard data: ${dashboardData.toString()}');
+
+    // Ensure all required fields are present
+    if (!dashboardData.containsKey('stats') ||
+        !dashboardData.containsKey('recent_activities') ||
+        !dashboardData.containsKey('quick_links') ||
+        !dashboardData.containsKey('last_updated')) {
+      Log.e('Invalid dashboard data structure: Missing required fields');
+      _error = 'Invalid dashboard data structure';
+      return;
+    }
+
+    _dashboardData = AdminDashboardData.fromJson(dashboardData);
+    _error = null;
+    _isAdmin = true;
+    Log.d('Dashboard data loaded and parsed successfully');
+  } catch (e, stackTrace) {
+    Log.e('Error loading dashboard data: $e\n$stackTrace');
+    if (e.toString().toLowerCase().contains('unauthenticated')) {
+      await _adminAuthService.logout();
+      _isAdmin = false;
+      _dashboardData = null;
+      _error = 'Session expired. Please login again.';
+    } else {
+      _error = 'Failed to load dashboard data: $e';
+    }
+  } finally {
+    _isLoading = false;
+    notifyListeners();
   }
+}
+
 
   Future<void> loadUsers() async {
     _isLoading = true;
