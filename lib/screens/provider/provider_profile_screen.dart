@@ -199,7 +199,7 @@ class ProviderProfileScreen extends StatelessWidget {
                 : const Icon(Icons.image),
             title: Text(service.title),
             subtitle: Text(
-              '\$${service.price.toStringAsFixed(2)}',
+              'TZS ${service.price.toStringAsFixed(2)}',
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
               ),

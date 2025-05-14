@@ -85,7 +85,7 @@ class _AdminServicesManagementScreenState
                       : const Icon(Icons.image_not_supported),
                   title: Text(service.title),
                   subtitle: Text(
-                    'Price: \$${service.price.toStringAsFixed(2)}\n'
+                    'Price: TZS ${service.price.toStringAsFixed(2)}\n'
                     'Category: ${service.subcategory ?? 'Uncategorized'}',
                   ),
                   trailing: PopupMenuButton<String>(

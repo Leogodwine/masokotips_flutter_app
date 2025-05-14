@@ -40,7 +40,7 @@ class FavoritesScreen extends StatelessWidget {
                       : const Icon(Icons.image),
                   title: Text(service.title),
                   subtitle: Text(
-                    '\$${service.price.toStringAsFixed(2)} - Category ${service.categoryId}',
+                    'TZS ${service.price.toStringAsFixed(2)} - Category ${service.categoryId}',
                   ),
                   trailing: IconButton(
                     icon: const Icon(

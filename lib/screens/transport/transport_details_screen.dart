@@ -12,6 +12,9 @@ class TransportDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isActive = transport.status.toLowerCase() == 'active';
+    
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -19,8 +22,12 @@ class TransportDetailsScreen extends StatelessWidget {
             expandedHeight: 300,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
-              background: transport.imageUrl != null
-                  ? Hero(
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  // Main Image
+                  if (transport.imageUrl != null)
+                    Hero(
                       tag: 'transport-image-${transport.id}',
                       child: CachedNetworkImageWithCors(
                         imageUrl: transport.imageUrl!,
@@ -28,12 +35,11 @@ class TransportDetailsScreen extends StatelessWidget {
                         height: 300,
                         width: double.infinity,
                         placeholder: (context, url) => Container(
-                          color: Colors.grey[300],
-                          child:
-                              const Center(child: CircularProgressIndicator()),
+                          color: Colors.grey[200],
+                          child: const Center(child: CircularProgressIndicator()),
                         ),
                         errorWidget: (context, url, error) => Container(
-                          color: Colors.grey[300],
+                          color: Colors.grey[200],
                           child: const Icon(
                             Icons.directions_car,
                             size: 64,
@@ -42,185 +48,327 @@ class TransportDetailsScreen extends StatelessWidget {
                         ),
                       ),
                     )
-                  : Container(
-                      color: Colors.grey[300],
+                  else
+                    Container(
+                      color: Colors.grey[200],
                       child: const Icon(
                         Icons.directions_car,
                         size: 64,
                         color: Colors.grey,
                       ),
                     ),
+                  
+                  // Gradient Overlay
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.7),
+                          Colors.transparent,
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.7),
+                        ],
+                      ),
+                    ),
+                  ),
+                  
+                  // Status Badge
+                  Positioned(
+                    top: 16,
+                    right: 16,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isActive ? Colors.green : Colors.orange,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        transport.status.toUpperCase(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            leading: Container(
+              margin: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.black54,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
             ),
             actions: [
-              IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () {
-                  Navigator.pushNamed(
-                    context,
-                    '/transport/edit',
-                    arguments: transport,
-                  );
-                },
+              Container(
+                margin: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.white),
+                  onPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/transport/edit',
+                      arguments: transport,
+                    );
+                  },
+                ),
               ),
             ],
           ),
+          
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Title and Price Row
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: Text(
-                          transport.title,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              transport.title,
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                height: 1.2,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              transport.vehicleType,
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: theme.hintColor,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
+                          horizontal: 16,
+                          vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: transport.status == 'active'
-                              ? Colors.green[100]
-                              : Colors.grey[100],
-                          borderRadius: BorderRadius.circular(20),
+                          color: theme.primaryColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Text(
-                          transport.status.toUpperCase(),
-                          style: TextStyle(
-                            color: transport.status == 'active'
-                                ? Colors.green[700]
-                                : Colors.grey[700],
-                            fontWeight: FontWeight.bold,
-                          ),
+                        child: Column(
+                          children: [
+                            Text(
+                              'TZS ${transport.price.toStringAsFixed(2)}',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: theme.primaryColor,
+                              ),
+                            ),
+                            if (transport.pricePerKg != null) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                '${transport.pricePerKg!.toStringAsFixed(2)}/kg',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: theme.hintColor,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Key Features
                   _buildSection(
                     context,
-                    title: 'Vehicle Information',
+                    title: 'Key Features',
                     child: Column(
                       children: [
-                        _buildInfoRow(
-                          context,
-                          icon: Icons.directions_car,
-                          label: 'Vehicle Type',
-                          value: transport.vehicleType,
-                        ),
-                        const SizedBox(height: 8),
-                        _buildInfoRow(
-                          context,
-                          icon: Icons.scale,
-                          label: 'Capacity',
-                          value: '${transport.capacity} tons',
-                        ),
-                        const SizedBox(height: 8),
-                        _buildInfoRow(
-                          context,
-                          icon: Icons.thermostat,
-                          label: 'Temperature Control',
-                          value:
-                              transport.isTemperatureControlled ? 'Yes' : 'No',
+                        Row(
+                          children: [
+                            _buildFeatureChip(
+                              context,
+                              icon: Icons.scale,
+                              label: '${transport.capacity} tons',
+                            ),
+                            const SizedBox(width: 8),
+                            _buildFeatureChip(
+                              context,
+                              icon: Icons.thermostat,
+                              label: transport.isTemperatureControlled 
+                                  ? 'Temperature Controlled' 
+                                  : 'No Temp Control',
+                            ),
+                          ],
                         ),
                         if (transport.temperatureRange != null) ...[
                           const SizedBox(height: 8),
-                          _buildInfoRow(
+                          _buildFeatureChip(
                             context,
-                            icon: Icons.thermostat,
-                            label: 'Temperature Range',
-                            value: '${transport.temperatureRange}°C',
+                            icon: Icons.thermostat_outlined,
+                            label: 'Range: ${transport.temperatureRange}°C',
+                            fullWidth: true,
                           ),
                         ],
+                        const SizedBox(height: 8),
+                        _buildFeatureChip(
+                          context,
+                          icon: Icons.location_on,
+                          label: transport.vehicleLocation,
+                          fullWidth: true,
+                        ),
                       ],
                     ),
                   ),
+                  
                   const SizedBox(height: 24),
+                  
+                  // Contact Information
                   _buildSection(
                     context,
-                    title: 'Location & Contact',
+                    title: 'Contact Information',
                     child: Column(
                       children: [
-                        _buildInfoRow(
-                          context,
-                          icon: Icons.location_on,
-                          label: 'Location',
-                          value: transport.vehicleLocation,
-                        ),
-                        const SizedBox(height: 8),
-                        _buildInfoRow(
+                        _buildContactInfoRow(
                           context,
                           icon: Icons.person,
                           label: 'Owner',
                           value: transport.ownerName,
                         ),
-                        const SizedBox(height: 8),
-                        _buildInfoRow(
+                        const SizedBox(height: 12),
+                        _buildContactInfoRow(
                           context,
                           icon: Icons.drive_eta,
                           label: 'Driver',
-                          value: transport.driverName ?? 'N/A',
+                          value: transport.driverName ?? 'Not assigned',
                         ),
-                        const SizedBox(height: 8),
-                        _buildInfoRow(
-                          context,
-                          icon: Icons.phone,
-                          label: 'Driver Contact',
-                          value: transport.driverPhone ?? 'N/A',
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  _buildSection(
-                    context,
-                    title: 'Pricing & Insurance',
-                    child: Column(
-                      children: [
-                        _buildInfoRow(
-                          context,
-                          icon: Icons.attach_money,
-                          label: 'Base Price',
-                          value: '\$${transport.price.toStringAsFixed(2)}',
-                        ),
-                        if (transport.pricePerKg != null) ...[
-                          const SizedBox(height: 8),
-                          _buildInfoRow(
+                        if (transport.driverPhone != null) ...[
+                          const SizedBox(height: 12),
+                          _buildContactInfoRow(
                             context,
-                            icon: Icons.monetization_on,
-                            label: 'Price per Kg',
-                            value:
-                                'TZS ${transport.pricePerKg!.toStringAsFixed(2)}',
-                          ),
-                        ],
-                        const SizedBox(height: 8),
-                        _buildInfoRow(
-                          context,
-                          icon: Icons.security,
-                          label: 'Insurance',
-                          value: transport.hasInsurance ? 'Yes' : 'No',
-                        ),
-                        if (transport.insuranceDetails != null) ...[
-                          const SizedBox(height: 8),
-                          _buildInfoRow(
-                            context,
-                            icon: Icons.description,
-                            label: 'Insurance Details',
-                            value: transport.insuranceDetails!,
+                            icon: Icons.phone,
+                            label: 'Contact',
+                            value: transport.driverPhone!,
+                            isPhone: true,
                           ),
                         ],
                       ],
                     ),
                   ),
+                  
+                  // Insurance Information
+                  if (transport.hasInsurance) ...[
+                    const SizedBox(height: 24),
+                    _buildSection(
+                      context,
+                      title: 'Insurance',
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.verified_user,
+                                color: Colors.green,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Fully Insured',
+                                style: TextStyle(
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (transport.insuranceDetails != null) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              transport.insuranceDetails!,
+                              style: TextStyle(
+                                color: theme.hintColor,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                  
+                  // Amenities
+                  if (transport.amenities != null && transport.amenities!.isNotEmpty) ...[
+                    const SizedBox(height: 24),
+                    _buildSection(
+                      context,
+                      title: 'Amenities',
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: transport.amenities!.map((amenity) => Chip(
+                          label: Text(amenity),
+                          backgroundColor: theme.primaryColor.withOpacity(0.1),
+                          labelStyle: TextStyle(color: theme.primaryColor),
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        )).toList(),
+                      ),
+                    ),
+                  ],
+                  
+                  // Certifications
+                  if (transport.certifications != null && transport.certifications!.isNotEmpty) ...[
+                    const SizedBox(height: 24),
+                    _buildSection(
+                      context,
+                      title: 'Certifications',
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: transport.certifications!.map((cert) => Chip(
+                          label: Text(cert),
+                          backgroundColor: Colors.green.withOpacity(0.1),
+                          labelStyle: const TextStyle(color: Colors.green),
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        )).toList(),
+                      ),
+                    ),
+                  ],
+                  
+                  // Supported Products
                   if (transport.supportedProductTypes?.isNotEmpty == true) ...[
                     const SizedBox(height: 24),
                     _buildSection(
@@ -229,83 +377,70 @@ class TransportDetailsScreen extends StatelessWidget {
                       child: Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: transport.supportedProductTypes?.map((type) {
-                              return Chip(
-                                label: Text(type),
-                                backgroundColor:
-                                    Theme.of(context).primaryColor.withValues(),
-                                labelStyle: TextStyle(
-                                  color: Theme.of(context).primaryColor,
-                                ),
-                              );
-                            }).toList() ??
-                            [],
+                        children: transport.supportedProductTypes!.map((type) => Chip(
+                          label: Text(type),
+                          backgroundColor: Colors.blue.withOpacity(0.1),
+                          labelStyle: const TextStyle(color: Colors.blue),
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        )).toList(),
                       ),
                     ),
                   ],
-                  if (transport.amenities != null &&
-                      transport.amenities!.isNotEmpty) ...[
-                    const SizedBox(height: 24),
-                    _buildSection(
-                      context,
-                      title: 'Amenities',
-                      child: Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: transport.amenities!.map((amenity) {
-                          return Chip(
-                            label: Text(amenity),
-                            backgroundColor:
-                                Theme.of(context).primaryColor.withValues(),
-                            labelStyle: TextStyle(
-                              color: Theme.of(context).primaryColor,
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Action Buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            // TODO: Implement contact functionality
+                          },
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            side: BorderSide(color: theme.primaryColor),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ],
-                  if (transport.certifications != null &&
-                      transport.certifications!.isNotEmpty) ...[
-                    const SizedBox(height: 24),
-                    _buildSection(
-                      context,
-                      title: 'Certifications',
-                      child: Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: transport.certifications!.map((cert) {
-                          return Chip(
-                            label: Text(cert),
-                            backgroundColor:
-                                Theme.of(context).primaryColor.withValues(),
-                            labelStyle: TextStyle(
-                              color: Theme.of(context).primaryColor,
+                          ),
+                          icon: Icon(Icons.message, color: theme.primaryColor),
+                          label: Text(
+                            'Message',
+                            style: TextStyle(
+                              color: theme.primaryColor,
+                              fontWeight: FontWeight.bold,
                             ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 32),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // TODO: Implement booking functionality
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
-                      child: const Text(
-                        'Book Now',
-                        style: TextStyle(fontSize: 18),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: isActive ? () {
+                            // TODO: Implement booking functionality
+                          } : null,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: isActive ? theme.primaryColor : Colors.grey,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            'Book Now',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
+                  
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
@@ -326,15 +461,19 @@ class TransportDetailsScreen extends StatelessWidget {
         Text(
           title,
           style: const TextStyle(
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         Card(
-          elevation: 2,
+          elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(
+              color: Colors.grey.withOpacity(0.2),
+              width: 1,
+            ),
           ),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -345,32 +484,111 @@ class TransportDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(
+  Widget _buildContactInfoRow(
     BuildContext context, {
     required IconData icon,
     required String label,
     required String value,
+    bool isPhone = false,
   }) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: Theme.of(context).primaryColor),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: Theme.of(context).primaryColor,
+            ),
           ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          if (isPhone)
+            IconButton(
+              icon: const Icon(Icons.phone, color: Colors.green),
+              onPressed: () {
+                // TODO: Implement phone call
+              },
+            ),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildFeatureChip(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    bool fullWidth = false,
+  }) {
+    return Container(
+      width: fullWidth ? double.infinity : null,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 8,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.grey[200]!,
+          width: 1,
         ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            value,
-            style: const TextStyle(fontSize: 16),
+      ),
+      child: Row(
+        mainAxisSize: fullWidth ? MainAxisSize.max : MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 16,
+            color: Theme.of(context).primaryColor,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+            maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

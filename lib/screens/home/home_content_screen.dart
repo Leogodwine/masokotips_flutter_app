@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/category_provider.dart';
 import '../../providers/market_info_provider.dart';
+import '../../providers/cart_provider.dart';
+import '../../providers/wishlist_provider.dart';
+import '../../screens/cart/cart_screen.dart';
 import '../../models/category.dart';
 import '../products/product_list_screen.dart';
 import '../products/product_details_screen.dart';
@@ -748,110 +751,177 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                         );
                       }
 
-                      return SizedBox(
-                        height: 280, // 🚀 Fixed height for horizontal ListView
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          itemCount: featuredProducts.length,
-                          itemBuilder: (context, index) {
-                            final product = featuredProducts[index];
+                     return SizedBox(
+  height: 350,
+  child: ListView.builder(
+    scrollDirection: Axis.horizontal,
+    padding: const EdgeInsets.symmetric(horizontal: 8),
+    itemCount: featuredProducts.length,
+    itemBuilder: (context, index) {
+      final product = featuredProducts[index];
 
-                            return Container(
-                              width: 200,
-                              margin: const EdgeInsets.symmetric(horizontal: 8),
-                              child: Card(
-                                elevation: 2,
-                                clipBehavior: Clip.antiAlias,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            ProductDetailsScreen(
-                                                product: product),
-                                      ),
-                                    );
-                                  },
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Hero(
-                                        tag: 'home-featured-${product.id}',
-                                        child: Image.network(
-                                          product.firstImageUrl,
-                                          height: 160,
-                                          width: double.infinity,
-                                          fit: BoxFit.cover,
-                                          loadingBuilder: (context, child,
-                                              loadingProgress) {
-                                            if (loadingProgress == null)
-                                              return child;
-                                            return Container(
-                                              height: 160,
-                                              color: Colors.grey[100],
-                                              child: const Center(
-                                                child:
-                                                    CircularProgressIndicator(),
-                                              ),
-                                            );
-                                          },
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                            return Container(
-                                              height: 160,
-                                              color: Colors.grey[100],
-                                              child: const Icon(Icons.error),
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                      Expanded(
-                                        // 👈 Fix overflow here
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                product.name,
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                'TZS ${product.price.toStringAsFixed(2)}',
-                                                style: TextStyle(
-                                                  color: Theme.of(context)
-                                                      .primaryColor,
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+      return Container(
+        width: 200,
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        child: Card(
+          elevation: 2,
+          clipBehavior: Clip.antiAlias,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProductDetailsScreen(product: product),
+                ),
+              );
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Stack(
+                  children: [
+                    Hero(
+                      tag: 'home-featured-${product.id}',
+                      child: Image.network(
+                        product.firstImageUrl,
+                        height: 160,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            height: 160,
+                            color: Colors.grey[200],
+                            child: const Center(child: CircularProgressIndicator()),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: 160,
+                            color: Colors.grey[200],
+                            child: const Icon(Icons.broken_image, size: 40),
+                          );
+                        },
+                      ),
+                    ),
+                    Consumer<WishlistProvider>(
+                      builder: (context, wishlistProvider, _) {
+                        final isInWishlist = wishlistProvider.isInWishlist(product.id);
+                        return Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () {
+                                wishlistProvider.toggleWishlist(product);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      isInWishlist 
+                                          ? 'Removed from wishlist' 
+                                          : 'Added to wishlist',
+                                    ),
+                                    duration: const Duration(seconds: 2),
                                   ),
+                                );
+                              },
+                              borderRadius: BorderRadius.circular(20),
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.9),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  isInWishlist
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  color: isInWishlist ? Colors.red : Colors.grey[700],
+                                  size: 20,
                                 ),
                               ),
-                            );
-                          },
-                        ),
-                      );
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text(
+                    product.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text(
+                    'TZS ${product.price.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
+                  child: Align(
+                    alignment: Alignment.bottomRight,
+                    child: FloatingActionButton.small(
+                      heroTag: 'add-to-cart-${product.id}',
+                      onPressed: () {
+                        final cartProvider = context.read<CartProvider>();
+                        cartProvider.addToCart(product);
+                        
+                        // Show success message
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('${product.name} added to cart'),
+                            duration: const Duration(seconds: 2),
+                            action: SnackBarAction(
+                              label: 'View Cart',
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const CartScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                      backgroundColor: Theme.of(context).primaryColor,
+                      foregroundColor: Colors.white,
+                      elevation: 2,
+                      child: const Icon(Icons.add_shopping_cart, size: 20),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  ),
+);
+
                     },
                   ),
                 ],
@@ -869,8 +939,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
     switch (categoryName.toLowerCase()) {
       case 'products':
         return 'assets/images/cereals.png';
-      case 'services':
-        return 'assets/images/financial.png';
+    
       case 'market information':
         return 'assets/images/market_information.png';
       case 'transport':
@@ -879,36 +948,9 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
         return 'assets/images/vegetables.png';
       case 'agricultural services':
         return 'assets/images/consultation.png';
-      case 'fruits':
-        return 'assets/images/fruits.png';
-      case 'vegetables':
-        return 'assets/images/vegetables.png';
-      case 'grains':
-        return 'assets/images/grains.png';
-      case 'livestock':
-        return 'assets/images/livestock.png';
-      case 'dairy':
-        return 'assets/images/dairy.png';
-      case 'equipment':
-        return 'assets/images/equipment.png';
-      case 'seeds':
-        return 'assets/images/seeds.png';
-      case 'fertilizers':
-        return 'assets/images/fertilizers.png';
-      case 'pesticides':
-        return 'assets/images/pesticides.png';
-      case 'irrigation':
-        return 'assets/images/irrigation.png';
-      case 'storage':
-        return 'assets/images/storage.png';
-      case 'processing':
-        return 'assets/images/processing.png';
-      case 'packaging':
-        return 'assets/images/packaging.png';
-      case 'distribution':
-        return 'assets/images/distribution.png';
+      
       default:
-        return 'assets/images/default.png'; // fallback image
+        return 'assets/images/consultation.png'; // fallback image
     }
   }
 

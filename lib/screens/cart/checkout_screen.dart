@@ -202,13 +202,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ...cart.items.values.map((item) => ListTile(
                     title: Text(item.product.name),
                     subtitle: Text('Qty: ${item.quantity}'),
-                    trailing: Text('\$${item.total.toStringAsFixed(2)}'),
+                    trailing: Text('TZS${item.total.toStringAsFixed(2)}'),
                   )),
               const Divider(),
               ListTile(
                 title: const Text('Total',
                     style: TextStyle(fontWeight: FontWeight.bold)),
-                trailing: Text('\$${cart.total.toStringAsFixed(2)}',
+                trailing: Text('TZS${cart.total.toStringAsFixed(2)}',
                     style: const TextStyle(fontWeight: FontWeight.bold)),
               ),
               const SizedBox(height: 24),

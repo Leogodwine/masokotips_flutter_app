@@ -60,7 +60,7 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
                   : const Icon(Icons.image),
               title: Text(service.title),
               subtitle: Text(
-                '\$${service.price.toStringAsFixed(2)} - Category ${service.categoryId}',
+                'TZS ${service.price.toStringAsFixed(2)} - Category ${service.categoryId}',
               ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,

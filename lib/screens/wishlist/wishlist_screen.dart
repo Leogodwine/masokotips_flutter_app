@@ -96,7 +96,7 @@ class WishlistScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'KES ${product.price.toStringAsFixed(2)}',
+                        'TZS ${product.price.toStringAsFixed(2)}',
                         style: const TextStyle(
                           color: Colors.green,
                           fontWeight: FontWeight.bold,

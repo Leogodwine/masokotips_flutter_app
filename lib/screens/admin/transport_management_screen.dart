@@ -392,7 +392,7 @@ class _AdminTransportManagementScreenState
                                                 ],
                                               ),
                                               child: Text(
-                                                '\$${transport.price.toStringAsFixed(2)}',
+                                                'TZS ${transport.price.toStringAsFixed(2)}',
                                                 style: const TextStyle(
                                                   color: Colors.white,
                                                   fontSize: 16,

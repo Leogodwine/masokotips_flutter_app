@@ -101,14 +101,14 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
       case 'packaging materials':
         return 'assets/images/packaging.png';
 
-      case 'hydropanics':
-        return 'assets/images/hydroponics.png';
+      case 'hydroponics':
+        return 'assets/images/irrigation.png';
 
       case 'fertilizer':
         return 'assets/images/fertilizer.png';
 
       case 'organic manure':
-        return 'assets/images/pesticides.png';
+        return 'assets/images/organic_manure.png';
 
       case 'irrigation services':
         return 'assets/images/irrigation.png';
@@ -116,8 +116,8 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
       case 'machinery':
         return 'assets/images/tanker.png';
 
-      case 'behive and aquatic':
-        return 'assets/images/behive_and_aquatic.png';
+      case 'beehive and aquatic':
+        return 'assets/images/beehive.png';
 
       case 'food and beverage':
         return 'assets/images/fruits.png';
@@ -125,14 +125,19 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
       case 'cold rooms services':
         return 'assets/images/cold_rooms.png';
 
-      case 'Machinery and Rental Services':
-        return 'assets/images/others.png';
+      case 'machinery and rental services':
+        return 'assets/images/machinery_rental.jpg';
 
       case 'financial services':
         return 'assets/images/financial.png';
 
-      case 'Branding and Consultation Services':
+      case 'branding and consultation services':
         return 'assets/images/branding.png';
+
+      case 'agronomist services':
+        return 'assets/images/vegetables.png';
+
+      
 
           default:
         return 'assets/images/default.png';

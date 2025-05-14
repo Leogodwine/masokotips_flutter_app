@@ -266,7 +266,7 @@ class _ServiceSearchScreenState extends State<ServiceSearchScreen> {
                                 ],
                               ),
                               trailing: Text(
-                                '\$${service.price.toStringAsFixed(2)}',
+                                'TZS ${service.price.toStringAsFixed(2)}',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
