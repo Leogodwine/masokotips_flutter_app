@@ -231,10 +231,10 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                                                   color: product.isActive
                                                       ? theme
                                                           .colorScheme.primary
-                                                          .withOpacity(0.1)
+                                                          .withValues(alpha: 0.1)
                                                       : theme
                                                           .colorScheme.error
-                                                          .withOpacity(0.1),
+                                                          .withValues(alpha: 0.1),
                                                   borderRadius:
                                                       BorderRadius.circular(12),
                                                 ),
@@ -265,7 +265,7 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                                                   decoration: BoxDecoration(
                                                     color: theme
                                                         .colorScheme.secondary
-                                                        .withOpacity(0.1),
+                                                        .withValues(alpha: 0.1),
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             12),

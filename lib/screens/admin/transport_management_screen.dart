@@ -231,17 +231,6 @@ class _AdminTransportManagementScreenState
 
   Widget _buildTransportCard(BuildContext context, Transport transport) {
     final theme = Theme.of(context);
-    final filteredTransports = _transports.where((t) {
-      final matchesSearch = t.title
-              .toLowerCase()
-              .contains(_searchQuery.toLowerCase()) ||
-          t.vehicleLocation
-              .toLowerCase()
-              .contains(_searchQuery.toLowerCase());
-      final matchesStatus = _selectedStatus == null ||
-          t.status.toLowerCase() == _selectedStatus!.toLowerCase();
-      return matchesSearch && matchesStatus;
-    }).toList();
 
     return Card(
       margin: const EdgeInsets.all(8),
