@@ -4,6 +4,7 @@ import '../../models/transport.dart';
 import '../../providers/admin_provider.dart';
 import 'transport_form_screen.dart';
 import 'package:masoko_tips/widgets/cached_network_image_with_cors.dart';
+import 'package:lottie/lottie.dart';
 
 class AdminTransportManagementScreen extends StatefulWidget {
   const AdminTransportManagementScreen({super.key});
@@ -16,26 +17,36 @@ class AdminTransportManagementScreen extends StatefulWidget {
 class _AdminTransportManagementScreenState
     extends State<AdminTransportManagementScreen> {
   bool _isLoading = false;
+  bool _isPaginating = false;
   String? _error;
   List<Transport> _transports = [];
+  String _searchQuery = '';
+  String? _selectedStatus;
+  String _sortBy = 'nameAsc'; // nameAsc, nameDesc, priceAsc, priceDesc, dateAsc
+  final int _pageSize = 10;
+  bool _hasMore = true;
 
-  @override
-  void initState() {
-    super.initState();
-    _loadTransports();
-  }
-
-  Future<void> _loadTransports() async {
+  Future<void> _loadTransports({bool reset = true}) async {
+    if (_isLoading) return;
     setState(() {
       _isLoading = true;
       _error = null;
+      if (reset) {
+        _transports = [];
+        _hasMore = true;
+      }
     });
-
     try {
       final adminProvider = Provider.of<AdminProvider>(context, listen: false);
-      await adminProvider.loadTransports();
+      final newTransports = await adminProvider.loadTransports(
+          offset: 0, limit: _pageSize);
+      if (newTransports.isEmpty && reset) {
+        setState(() {
+          _hasMore = false;
+        });
+      }
       setState(() {
-        _transports = adminProvider.transports;
+        _transports = newTransports;
         _isLoading = false;
       });
     } catch (e) {
@@ -46,22 +57,142 @@ class _AdminTransportManagementScreenState
     }
   }
 
+  Future<void> _loadMoreTransports() async {
+    if (_isPaginating || !_hasMore || _isLoading) return;
+    setState(() => _isPaginating = true);
+    try {
+      final adminProvider = Provider.of<AdminProvider>(context, listen: false);
+      final newTransports = await adminProvider.loadTransports(
+          offset: _transports.length, limit: _pageSize);
+      setState(() {
+        _isPaginating = false;
+        if (newTransports.isEmpty) {
+          _hasMore = false;
+        } else {
+          _transports.addAll(newTransports);
+        }
+      });
+    } catch (e) {
+      setState(() => _isPaginating = false);
+    }
+  }
+
+  void _applySort() {
+    final sortedList = List<Transport>.from(_transports);
+
+    switch (_sortBy) {
+      case 'nameAsc':
+        sortedList.sort((a, b) => a.title.compareTo(b.title));
+        break;
+      case 'nameDesc':
+        sortedList.sort((a, b) => b.title.compareTo(a.title));
+        break;
+      case 'priceAsc':
+        sortedList.sort((a, b) => a.price.compareTo(b.price));
+        break;
+      case 'priceDesc':
+        sortedList.sort((a, b) => b.price.compareTo(a.price));
+        break;
+      case 'dateAsc':
+        sortedList.sort((a, b) => a.createdAt!.compareTo(b.createdAt!));
+        break;
+    }
+
+    setState(() {
+      _transports = sortedList;
+    });
+  }
+
+  Widget buildFilterAndSearch(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search by name or location...',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value;
+                    });
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              DropdownButton<String>(
+                value: _sortBy,
+                items: const [
+                  DropdownMenuItem(value: 'nameAsc', child: Text('Name ↑')),
+                  DropdownMenuItem(value: 'nameDesc', child: Text('Name ↓')),
+                  DropdownMenuItem(value: 'priceAsc', child: Text('Price ↑')),
+                  DropdownMenuItem(value: 'priceDesc', child: Text('Price ↓')),
+                  DropdownMenuItem(value: 'dateAsc', child: Text('Date ↑')),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _sortBy = value!;
+                    _applySort();
+                  });
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () => setState(() => _selectedStatus = null),
+                child: const Text('All'),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: () => setState(() => _selectedStatus = 'active'),
+                child: const Text('Active'),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: () => setState(() => _selectedStatus = 'inactive'),
+                child: const Text('Inactive'),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTransports();
+  }
+
   Future<void> _deleteTransport(Transport transport) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Transport'),
-        content: Text('Are you sure you want to delete ${transport.title}?'),
+        content:
+            Text('Are you sure you want to delete ${transport.title}?'),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: Navigator.of(context).pop,
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => Navigator.of(context).pop(true),
             child: const Text(
               'Delete',
               style: TextStyle(color: Colors.red),
@@ -98,17 +229,181 @@ class _AdminTransportManagementScreenState
     }
   }
 
+  Widget _buildTransportCard(BuildContext context, Transport transport) {
+    final theme = Theme.of(context);
+    final filteredTransports = _transports.where((t) {
+      final matchesSearch = t.title
+              .toLowerCase()
+              .contains(_searchQuery.toLowerCase()) ||
+          t.vehicleLocation
+              .toLowerCase()
+              .contains(_searchQuery.toLowerCase());
+      final matchesStatus = _selectedStatus == null ||
+          t.status.toLowerCase() == _selectedStatus!.toLowerCase();
+      return matchesSearch && matchesStatus;
+    }).toList();
+
+    return Card(
+      margin: const EdgeInsets.all(8),
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TransportFormScreen(transport: transport),
+              ),
+            ).then((_) => _loadTransports());
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: transport.imageUrl != null &&
+                              transport.imageUrl!.isNotEmpty
+                          ? CachedNetworkImageWithCors(
+                              imageUrl: transport.imageUrl!,
+                              height: 140,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                              errorWidget: (context, url, error) {
+                                return Container(
+                                  height: 140,
+                                  color: Colors.grey[200],
+                                  alignment: Alignment.center,
+                                  child: const Icon(Icons.error_outline),
+                                );
+                              },
+                            )
+                          : Container(
+                              height: 140,
+                              color: Colors.grey[200],
+                              alignment: Alignment.center,
+                              child: const Icon(Icons.directions_car,
+                                  size: 50, color: Colors.grey),
+                            ),
+                    ),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Chip(
+                        label: Text(
+                          transport.status.toUpperCase(),
+                          style: const TextStyle(fontSize: 10, color: Colors.white),
+                        ),
+                        backgroundColor: transport.status == 'active'
+                            ? Colors.green
+                            : Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  transport.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Icon(Icons.location_on,
+                        size: 14, color: theme.primaryColor),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        transport.vehicleLocation,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            fontSize: 13, color: Colors.grey),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(Icons.directions_car,
+                        size: 14, color: theme.primaryColor),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        transport.vehicleType,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            fontSize: 13, color: Colors.grey),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(Icons.scale,
+                        size: 14, color: theme.primaryColor),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${transport.capacity} tons',
+                      style: const TextStyle(
+                          fontSize: 13, color: Colors.grey),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      iconSize: 18,
+                      icon: const Icon(Icons.delete),
+                      color: Colors.redAccent,
+                      onPressed: () => _deleteTransport(transport),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final filteredTransports = _transports.where((t) {
+      final matchesSearch = t.title
+              .toLowerCase()
+              .contains(_searchQuery.toLowerCase()) ||
+          t.vehicleLocation
+              .toLowerCase()
+              .contains(_searchQuery.toLowerCase());
+      final matchesStatus = _selectedStatus == null ||
+          t.status.toLowerCase() == _selectedStatus!.toLowerCase();
+      return matchesSearch && matchesStatus;
+    }).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Transport Management'),
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: theme.primaryColor,
         foregroundColor: Colors.white,
         elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh list',
             onPressed: _loadTransports,
           ),
         ],
@@ -124,399 +419,152 @@ class _AdminTransportManagementScreenState
         },
         icon: const Icon(Icons.add),
         label: const Text('Add Transport'),
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: theme.primaryColor,
         foregroundColor: Colors.white,
         elevation: 4,
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.error_outline,
-                        size: 64,
-                        color: Colors.red[300],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Error: $_error',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.red[700],
+      body: RefreshIndicator(
+        onRefresh: _loadTransports,
+        child: _isLoading
+            ? Center(
+                child: Lottie.asset(
+                  'assets/animations/loading.json',
+                  width: 200,
+                  height: 200,
+                  fit: BoxFit.contain,
+                ),
+              )
+            : _error != null
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Lottie.asset(
+                          'assets/animations/error.json',
+                          width: 200,
+                          height: 200,
+                          fit: BoxFit.contain,
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 24),
-                      ElevatedButton.icon(
-                        onPressed: _loadTransports,
-                        icon: const Icon(Icons.refresh),
-                        label: const Text('Retry'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).primaryColor,
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              : _transports.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.directions_car_outlined,
-                            size: 64,
-                            color: Theme.of(context).primaryColor.withAlpha(26),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Error: $_error',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.red[700],
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'No transports available',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.grey[600],
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton.icon(
+                          onPressed: _loadTransports,
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Retry'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: theme.primaryColor,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : _transports.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Lottie.asset(
+                              'assets/animations/empty.json',
+                              width: 200,
+                              height: 200,
+                              fit: BoxFit.contain,
                             ),
-                          ),
-                          const SizedBox(height: 24),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const TransportFormScreen(),
-                                ),
-                              ).then((_) => _loadTransports());
-                            },
-                            icon: const Icon(Icons.add),
-                            label: const Text('Add Transport'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).primaryColor,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 12,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No transports available',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.grey[600],
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: _transports.length,
-                      itemBuilder: (context, index) {
-                        final transport = _transports[index];
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 16),
-                          elevation: 4,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(16),
-                              onTap: () {
+                            const SizedBox(height: 24),
+                            ElevatedButton.icon(
+                              onPressed: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => TransportFormScreen(
-                                      transport: transport,
-                                    ),
+                                    builder: (context) =>
+                                        const TransportFormScreen(),
                                   ),
                                 ).then((_) => _loadTransports());
                               },
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Stack(
-                                    children: [
-                                      if (transport.imageUrl != null)
-                                        ClipRRect(
-                                          borderRadius:
-                                              const BorderRadius.vertical(
-                                            top: Radius.circular(16),
-                                          ),
-                                          child: CachedNetworkImageWithCors(
-                                            imageUrl: transport.imageUrl!,
-                                            height: 200,
-                                            width: double.infinity,
-                                            fit: BoxFit.cover,
-                                            errorWidget: (context, url, error) {
-                                              return Container(
-                                                height: 200,
-                                                color: Colors.grey[300],
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Icon(
-                                                      Icons.error_outline,
-                                                      size: 48,
-                                                      color: Colors.grey[600],
-                                                    ),
-                                                    const SizedBox(height: 8),
-                                                    Text(
-                                                      'Failed to load image',
-                                                      style: TextStyle(
-                                                        color: Colors.grey[600],
-                                                        fontSize: 14,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        )
-                                      else
-                                        Container(
-                                          height: 200,
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey[300],
-                                            borderRadius:
-                                                const BorderRadius.vertical(
-                                              top: Radius.circular(16),
-                                            ),
-                                          ),
-                                          child: const Center(
-                                            child: Icon(
-                                              Icons.directions_car,
-                                              size: 64,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                        ),
-                                      Positioned(
-                                        top: 8,
-                                        right: 8,
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 6,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: transport.status == 'active'
-                                                ? Colors.green.withOpacity(0.9)
-                                                : Colors.grey.withOpacity(0.9),
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black
-                                                    .withOpacity(0.2),
-                                                blurRadius: 4,
-                                                offset: const Offset(0, 2),
-                                              ),
-                                            ],
-                                          ),
-                                          child: Text(
-                                            transport.status.toUpperCase(),
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Positioned(
-                                        bottom: 0,
-                                        left: 0,
-                                        right: 0,
-                                        child: Container(
-                                          height: 60,
-                                          decoration: BoxDecoration(
-                                            gradient: LinearGradient(
-                                              begin: Alignment.bottomCenter,
-                                              end: Alignment.topCenter,
-                                              colors: [
-                                                Colors.black.withOpacity(0.7),
-                                                Colors.transparent,
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Positioned(
-                                        bottom: 16,
-                                        left: 16,
-                                        right: 16,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                transport.title,
-                                                style: const TextStyle(
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.white,
-                                                  shadows: [
-                                                    Shadow(
-                                                      color: Colors.black,
-                                                      blurRadius: 4,
-                                                      offset: Offset(0, 2),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                horizontal: 12,
-                                                vertical: 6,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: Theme.of(context)
-                                                    .primaryColor
-                                                    .withOpacity(0.9),
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black
-                                                        .withOpacity(0.2),
-                                                    blurRadius: 4,
-                                                    offset: const Offset(0, 2),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: Text(
-                                                'TZS ${transport.price.toStringAsFixed(2)}',
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(16),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Icon(
-                                              Icons.location_on,
-                                              size: 16,
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Expanded(
-                                              child: Text(
-                                                transport.vehicleLocation,
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.grey,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Row(
-                                          children: [
-                                            Icon(
-                                              Icons.directions_car,
-                                              size: 16,
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Expanded(
-                                              child: Text(
-                                                transport.vehicleType,
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.grey,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Row(
-                                          children: [
-                                            Icon(
-                                              Icons.scale,
-                                              size: 16,
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              '${transport.capacity} tons',
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.grey,
-                                              ),
-                                            ),
-                                            const Spacer(),
-                                            IconButton(
-                                              icon: const Icon(Icons.delete),
-                                              color: Colors.red,
-                                              onPressed: () =>
-                                                  _deleteTransport(transport),
-                                            ),
-                                          ],
-                                        ),
-                                        if (transport.amenities != null &&
-                                            transport
-                                                .amenities!.isNotEmpty) ...[
-                                          const SizedBox(height: 8),
-                                          Wrap(
-                                            spacing: 8,
-                                            runSpacing: 8,
-                                            children: transport.amenities!
-                                                .map((amenity) => Chip(
-                                                      label: Text(
-                                                        amenity,
-                                                        style: TextStyle(
-                                                          fontSize: 12,
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .primaryColor,
-                                                        ),
-                                                      ),
-                                                      materialTapTargetSize:
-                                                          MaterialTapTargetSize
-                                                              .shrinkWrap,
-                                                      backgroundColor:
-                                                          Theme.of(context)
-                                                              .primaryColor
-                                                              .withAlpha(26),
-                                                    ))
-                                                .toList(),
-                                          ),
-                                        ],
-                                      ],
-                                    ),
-                                  ),
-                                ],
+                              icon: const Icon(Icons.add),
+                              label: const Text('Add Transport'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: theme.primaryColor,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 12,
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
+                          ],
+                        ),
+                      )
+                    : SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            buildFilterAndSearch(context),
+                            MediaQuery.of(context).size.width > 600
+                                ? GridView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    gridDelegate:
+                                        const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      crossAxisSpacing: 16,
+                                      mainAxisSpacing: 16,
+                                      childAspectRatio: 1.4,
+                                    ),
+                                    itemCount: filteredTransports.length,
+                                    itemBuilder: (context, index) {
+                                      final transport =
+                                          filteredTransports[index];
+                                      return _buildTransportCard(
+                                          context, transport);
+                                    },
+                                  )
+                                : ListView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: filteredTransports.length,
+                                    itemBuilder: (context, index) {
+                                      final transport =
+                                          filteredTransports[index];
+                                      return _buildTransportCard(
+                                          context, transport);
+                                    },
+                                  ),
+                            if (_hasMore)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                child: Center(
+                                  child: _isPaginating
+                                      ? const CircularProgressIndicator()
+                                      : TextButton(
+                                          onPressed: _loadMoreTransports,
+                                          child: const Text('Load More'),
+                                        ),
+                                ),
+                              ),
+                            const SizedBox(height: 24),
+                          ],
+                        ),
+                      ),
+      ),
     );
   }
 }

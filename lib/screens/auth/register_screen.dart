@@ -115,7 +115,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 children: [
                   // Header
                   Text(
-                    'Join Masoko Tips',
+                    'Join maSOKOtips',
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -319,7 +319,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Padding(
                         padding: const EdgeInsets.only(left: 8),
                         child: Text(
-                          'Select your role',
+                          'Register as...',
                           style: theme.textTheme.titleMedium,
                         ),
                       ),

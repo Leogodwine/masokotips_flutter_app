@@ -178,7 +178,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withValues(),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   ),
@@ -192,7 +192,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(
@@ -206,7 +206,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                         'Welcome to',
                         style: TextStyle(
                           fontSize: 24,
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(),
                         ),
                       ),
                     ],
@@ -227,7 +227,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                         style: TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(),
                         ),
                       ),
                     ],
@@ -235,11 +235,11 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                   const SizedBox(height: 16),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(),
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(),
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
@@ -250,13 +250,13 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                       decoration: InputDecoration(
                         hintText: 'Search products...',
                         hintStyle:
-                            TextStyle(color: Colors.white.withOpacity(0.7)),
+                            TextStyle(color: Colors.white.withValues()),
                         prefixIcon:
                             const Icon(Icons.search, color: Colors.white),
                         suffixIcon: Container(
                           margin: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Icon(
@@ -304,7 +304,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color:
-                              Theme.of(context).primaryColor.withOpacity(0.1),
+                              Theme.of(context).primaryColor.withValues(),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
@@ -833,7 +833,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                               child: Container(
                                 padding: const EdgeInsets.all(6),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.9),
+                                  color: Colors.white.withValues(),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
@@ -992,7 +992,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                       height: imageSize,
 
                       decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor.withOpacity(0.1),
+                        color: Theme.of(context).primaryColor.withValues(),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: ClipRRect(

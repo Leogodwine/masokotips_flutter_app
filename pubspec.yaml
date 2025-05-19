@@ -54,6 +54,9 @@ dependencies:
   crypto: ^3.0.3
   flutter_launcher_icons: ^0.14.3
   flutter_svg: ^2.0.7
+  lottie: ^2.7.0
+  flutter_native_splash: ^2.4.4
+  
   
 dev_dependencies:
   flutter_test:
@@ -73,12 +76,16 @@ dev_dependencies:
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
-# The following section is specific to Flutter packages.
-flutter:
+flutter_native_splash:
+  android: false
+  ios: false
+  web: false
+  image: assets/images/logo.png
+  color: "#ffffff"
+  android_12:
+    
 
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
+flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
@@ -86,8 +93,11 @@ flutter:
     - assets/images/
     - assets/images/default_avatar.png
     - assets/images/logo.png
-    
-    
+    - assets/animations/
+    - assets/animations/loading.json
+    - assets/animations/error.json
+    - assets/animations/empty.json
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

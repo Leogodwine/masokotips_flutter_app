@@ -278,20 +278,33 @@ class AdminProvider with ChangeNotifier {
     }
   }
 
-  Future<void> loadTransports() async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
+  Future<List<Transport>> loadTransports({int offset = 0, int limit = 10}) async {
+  _isLoading = true;
+  _error = null;
+  notifyListeners();
 
-    try {
-      _transports = await _adminService.getTransports();
-    } catch (e) {
-      _error = e.toString();
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+  try {
+    final allTransports = await _adminService.getTransports();
+
+    // Simulate server-side pagination by slicing the list
+    final paginatedList = allTransports.skip(offset).take(limit).toList();
+
+    if (offset == 0) {
+      _transports = paginatedList; // Reset list on first load
+    } else {
+      _transports.addAll(paginatedList); // Append for infinite scroll
     }
+
+    notifyListeners();
+    return paginatedList;
+  } catch (e) {
+    _error = e.toString();
+    notifyListeners();
+    return [];
+  } finally {
+    _isLoading = false;
   }
+}
 
   Future<bool> updateUser(int userId, Map<String, dynamic> userData) async {
     _isLoading = true;

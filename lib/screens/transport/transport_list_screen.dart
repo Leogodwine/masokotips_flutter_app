@@ -72,66 +72,150 @@ class _TransportListScreenState extends State<TransportListScreen> {
 
   Widget _buildTransportItem(Transport transport) {
     final theme = Theme.of(context);
+    final isAvailable = transport.status.toLowerCase() == 'available';
     
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 2,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      elevation: 3,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: InkWell(
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => TransportDetailsScreen(transport: transport),
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => 
+                  TransportDetailsScreen(transport: transport),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                const begin = Offset(0.0, 0.5);
+                const end = Offset.zero;
+                const curve = Curves.easeInOut;
+                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                var offsetAnimation = animation.drive(tween);
+                return SlideTransition(position: offsetAnimation, child: child);
+              },
             ),
           );
         },
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Vehicle Image
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-              child: CachedNetworkImage(
-                imageUrl: transport.imageUrl ?? 'https://via.placeholder.com/300',
-                height: 180,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  height: 180,
-                  color: Colors.grey[200],
-                  child: const Center(child: CircularProgressIndicator()),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  height: 180,
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.error_outline),
-                ),
-              ),
-            ),
-            // Status Badge
-            Positioned(
-              top: 12,
-              right: 12,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: transport.status.toLowerCase() == 'available'
-                      ? Colors.green
-                      : Colors.orange,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  transport.status.toUpperCase(),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
+            // Vehicle Image with Gradient Overlay
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  child: CachedNetworkImage(
+                    imageUrl: transport.imageUrl ?? 'https://via.placeholder.com/600x400?text=No+Image',
+                    height: 180,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      height: 180,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Colors.grey[200]!, Colors.grey[400]!],
+                        ),
+                      ),
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      height: 180,
+                      color: Colors.grey[200],
+                      child: const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.error_outline, size: 40, color: Colors.grey),
+                          SizedBox(height: 8),
+                          Text('Failed to load image', style: TextStyle(color: Colors.grey)),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                // Gradient overlay
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withValues(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                // Status Badge
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isAvailable ? Colors.green : Colors.orange,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          isAvailable ? Icons.check_circle : Icons.access_time,
+                          size: 14,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          transport.status.toUpperCase(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Title on image
+                Positioned(
+                  left: 16,
+                  right: 16,
+                  bottom: 16,
+                  child: Text(
+                    transport.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      shadows: [
+                        Shadow(
+                          offset: Offset(0, 2),
+                          blurRadius: 4,
+                          color: Colors.black54,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
             // Content
             Padding(
@@ -139,62 +223,72 @@ class _TransportListScreenState extends State<TransportListScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title and Price
+                  // Location and Price
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: Text(
-                          transport.title,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.location_on_outlined,
+                              size: 18,
+                              color: theme.primaryColor,
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                transport.vehicleLocation,
+                                style: TextStyle(
+                                  color: Colors.grey[800],
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 12,
-                          vertical: 6,
+                          vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: theme.primaryColor.withOpacity(0.1),
+                          gradient: LinearGradient(
+                            colors: [
+                              theme.primaryColor,
+                              theme.primaryColorDark,
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
                           borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: theme.primaryColor.withValues(),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: Text(
                           'TZS ${transport.price.toStringAsFixed(0)}',
-                          style: TextStyle(
-                            color: theme.primaryColor,
+                          style: const TextStyle(
+                            color: Colors.white,
                             fontWeight: FontWeight.bold,
+                            fontSize: 16,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  // Location
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.location_on_outlined,
-                        size: 16,
-                        color: Colors.grey[600],
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        transport.vehicleLocation,
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   // Features
                   Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
+                    spacing: 10,
+                    runSpacing: 10,
                     children: [
                       _buildFeatureChip(
                         context,
@@ -228,22 +322,32 @@ class _TransportListScreenState extends State<TransportListScreen> {
     required IconData icon,
     required String label,
   }) {
+    final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
+        color: theme.primaryColor.withValues(),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: theme.primaryColor.withValues(),
+          width: 1,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: Theme.of(context).primaryColor),
-          const SizedBox(width: 4),
+          Icon(
+            icon,
+            size: 14,
+            color: theme.primaryColor,
+          ),
+          const SizedBox(width: 6),
           Text(
             label,
             style: TextStyle(
               fontSize: 12,
-              color: Theme.of(context).primaryColor,
+              fontWeight: FontWeight.w500,
+              color: theme.primaryColor,
             ),
           ),
         ],
@@ -319,45 +423,103 @@ class _TransportListScreenState extends State<TransportListScreen> {
           if (_showFilters) _buildFilterPanel(),
           Expanded(
             child: isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(),
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const CircularProgressIndicator(),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Loading transports...',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
                   )
                 : transports.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-Icons.directions_car,
-                              size: 64,
-                              color: Colors.grey[400],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No transports available',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey[600],
+                    ? RefreshIndicator(
+                        onRefresh: _loadTransports,
+                        child: SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.7,
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.directions_car,
+                                    size: 80,
+                                    color: Colors.grey[300],
+                                  ),
+                                  const SizedBox(height: 20),
+                                  Text(
+                                    'No transports found',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                                    child: Text(
+                                      'We couldn\'t find any transports matching your criteria. Try adjusting your filters or check back later.',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey[600],
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  ElevatedButton.icon(
+                                    onPressed: _loadTransports,
+                                    icon: const Icon(Icons.refresh, size: 18),
+                                    label: const Text('Refresh'),
+                                    style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(25),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Check back later or try adjusting your filters',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[500],
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       )
                     : RefreshIndicator(
                         onRefresh: _loadTransports,
+                        color: theme.primaryColor,
+                        backgroundColor: Colors.white,
+                        strokeWidth: 2.5,
                         child: ListView.builder(
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                           itemCount: transports.length,
                           itemBuilder: (context, index) {
-                            return _buildTransportItem(transports[index]);
+                            // Add animation to list items
+                            return TweenAnimationBuilder<double>(
+                              tween: Tween(begin: 0.0, end: 1.0),
+                              duration: Duration(milliseconds: 300 + (index * 100)),
+                              curve: Curves.easeOut,
+                              builder: (context, value, child) {
+                                return Opacity(
+                                  opacity: value,
+                                  child: Transform.translate(
+                                    offset: Offset(0, 20 * (1 - value)),
+                                    child: child,
+                                  ),
+                                );
+                              },
+                              child: _buildTransportItem(transports[index]),
+                            );
                           },
                         ),
                       ),
@@ -396,7 +558,7 @@ class FeatureChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor.withOpacity(0.1),
+        color: Theme.of(context).primaryColor.withValues(),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(

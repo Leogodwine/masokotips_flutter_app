@@ -65,10 +65,10 @@ class TransportDetailsScreen extends StatelessWidget {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.black.withOpacity(0.7),
+                          Colors.black.withValues(),
                           Colors.transparent,
                           Colors.transparent,
-                          Colors.black.withOpacity(0.7),
+                          Colors.black.withValues(),
                         ],
                       ),
                     ),
@@ -88,7 +88,7 @@ class TransportDetailsScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: Colors.black.withValues(),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -178,7 +178,7 @@ class TransportDetailsScreen extends StatelessWidget {
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: theme.primaryColor.withOpacity(0.1),
+                          color: theme.primaryColor.withValues(),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Column(
@@ -296,14 +296,14 @@ class TransportDetailsScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
+                         const  Row(
                             children: [
                               Icon(
                                 Icons.verified_user,
                                 color: Colors.green,
                                 size: 20,
                               ),
-                              const SizedBox(width: 8),
+                               SizedBox(width: 8),
                               Text(
                                 'Fully Insured',
                                 style: TextStyle(
@@ -339,7 +339,7 @@ class TransportDetailsScreen extends StatelessWidget {
                         runSpacing: 8,
                         children: transport.amenities!.map((amenity) => Chip(
                           label: Text(amenity),
-                          backgroundColor: theme.primaryColor.withOpacity(0.1),
+                          backgroundColor: theme.primaryColor.withValues(),
                           labelStyle: TextStyle(color: theme.primaryColor),
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -359,7 +359,7 @@ class TransportDetailsScreen extends StatelessWidget {
                         runSpacing: 8,
                         children: transport.certifications!.map((cert) => Chip(
                           label: Text(cert),
-                          backgroundColor: Colors.green.withOpacity(0.1),
+                          backgroundColor: Colors.green.withValues(),
                           labelStyle: const TextStyle(color: Colors.green),
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -379,7 +379,7 @@ class TransportDetailsScreen extends StatelessWidget {
                         runSpacing: 8,
                         children: transport.supportedProductTypes!.map((type) => Chip(
                           label: Text(type),
-                          backgroundColor: Colors.blue.withOpacity(0.1),
+                          backgroundColor: Colors.blue.withValues(),
                           labelStyle: const TextStyle(color: Colors.blue),
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -471,7 +471,7 @@ class TransportDetailsScreen extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(
-              color: Colors.grey.withOpacity(0.2),
+              color: Colors.grey.withValues(),
               width: 1,
             ),
           ),
@@ -502,7 +502,7 @@ class TransportDetailsScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor.withOpacity(0.1),
+              color: Theme.of(context).primaryColor.withValues(),
               shape: BoxShape.circle,
             ),
             child: Icon(

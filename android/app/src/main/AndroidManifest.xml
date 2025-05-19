@@ -2,26 +2,27 @@
 
     <uses-permission android:name="android.permission.INTERNET"/>
 
-    <!-- 👇 Required for internet access -->
+    <!-- Required for internet access -->
     <uses-permission android:name="android.permission.INTERNET" />
     
-    <!-- 👇 Required for picking images/files from gallery -->
+    <!-- Required for picking images/files from gallery -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32"/>
 
-    <!-- 👇 Required for saving/uploading images (on older Android versions) -->
+    <!-- Required for saving/uploading images (on older Android versions) -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
 
-    <!-- 👇 Required for accessing the camera -->
+    <!-- Required for accessing the camera -->
     <uses-permission android:name="android.permission.CAMERA" />
     
     <application
         android:label="maSOKOtips"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:enableOnBackInvokedCallback="true">
         <activity
-            android:name=".MainActivity"
+             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:taskAffinity=""

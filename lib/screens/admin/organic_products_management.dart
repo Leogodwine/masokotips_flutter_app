@@ -41,6 +41,59 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
     }
   }
 
+  void _navigateToEditProduct(BuildContext context,
+      {OrganicProduct? product}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditOrganicProductScreen(product: product),
+      ),
+    ).then((_) => _loadProducts());
+  }
+
+  void _showDeleteConfirmation(BuildContext context, OrganicProduct product) {
+    final theme = Theme.of(context);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Organic Product'),
+        content: Text('Are you sure you want to delete ${product.name}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              final success = await context
+                  .read<AdminProvider>()
+                  .deleteOrganicProduct(product.id);
+              if (success && mounted) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content:
+                        const Text('Organic product deleted successfully'),
+                    backgroundColor: theme.primaryColor,
+                  ),
+                );
+                _loadProducts();
+              }
+            },
+            child: Text(
+              'Delete',
+              style: TextStyle(color: theme.colorScheme.error),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -77,63 +130,60 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
               : error != null
                   ? Center(
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.error_outline,
-                            color: theme.colorScheme.error,
-                            size: 48,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 48,
+                          color: theme.colorScheme.error,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          error,
+                          style: TextStyle(color: theme.colorScheme.error),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _loadProducts,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: theme.primaryColor,
+                            foregroundColor: theme.colorScheme.onPrimary,
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            error,
-                            style: TextStyle(color: theme.colorScheme.error),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: _loadProducts,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: theme.primaryColor,
-                              foregroundColor: theme.colorScheme.onPrimary,
-                            ),
-                            child: const Text('Retry'),
-                          ),
-                        ],
-                      ),
-                    )
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ))
                   : products.isEmpty
                       ? Center(
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.eco_outlined,
-                                size: 64,
-                                color: theme.primaryColor.withAlpha(128),
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.eco_outlined,
+                              size: 64,
+                              color: theme.primaryColor.withAlpha(128),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No organic products available',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: theme.colorScheme.onSurfaceVariant,
                               ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'No organic products available',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                ),
+                            ),
+                            const SizedBox(height: 24),
+                            ElevatedButton.icon(
+                              onPressed: () => _navigateToEditProduct(context),
+                              icon: const Icon(Icons.add),
+                              label: const Text('Add Product'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: theme.primaryColor,
+                                foregroundColor: theme.colorScheme.onPrimary,
                               ),
-                              const SizedBox(height: 24),
-                              ElevatedButton.icon(
-                                onPressed: () =>
-                                    _navigateToEditProduct(context),
-                                icon: const Icon(Icons.add),
-                                label: const Text('Add Product'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: theme.primaryColor,
-                                  foregroundColor: theme.colorScheme.onPrimary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
+                            ),
+                          ],
+                        ))
                       : RefreshIndicator(
                           onRefresh: _loadProducts,
                           child: ListView.builder(
@@ -182,7 +232,8 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                                                       ? theme
                                                           .colorScheme.primary
                                                           .withOpacity(0.1)
-                                                      : theme.colorScheme.error
+                                                      : theme
+                                                          .colorScheme.error
                                                           .withOpacity(0.1),
                                                   borderRadius:
                                                       BorderRadius.circular(12),
@@ -193,21 +244,21 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                                                       : 'INACTIVE',
                                                   style: TextStyle(
                                                     color: product.isActive
-                                                        ? theme
-                                                            .colorScheme.primary
-                                                        : theme
-                                                            .colorScheme.error,
+                                                        ? theme.colorScheme.primary
+                                                        : theme.colorScheme.error,
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.bold,
                                                   ),
                                                 ),
                                               ),
+                                              // ✅ Use collection-if here
                                               if (product.isFeatured)
                                                 Container(
-                                                  margin: const EdgeInsets.only(
-                                                      left: 8),
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
+                                                  margin:
+                                                      const EdgeInsets.only(
+                                                          left: 8),
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
                                                     horizontal: 8,
                                                     vertical: 4,
                                                   ),
@@ -222,8 +273,8 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                                                   child: Text(
                                                     'FEATURED',
                                                     style: TextStyle(
-                                                      color: theme.colorScheme
-                                                          .secondary,
+                                                      color: theme
+                                                          .colorScheme.secondary,
                                                       fontSize: 12,
                                                       fontWeight:
                                                           FontWeight.bold,
@@ -233,59 +284,136 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                                             ],
                                           ),
                                           const SizedBox(height: 8),
-                                          if (product.imageUrl != null)
-                                            ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              child: CachedNetworkImageWithCors(
-                                                imageUrl: product.imageUrl!,
-                                                height: 200,
-                                                width: double.infinity,
-                                                fit: BoxFit.cover,
-                                                errorWidget:
-                                                    (context, url, error) {
-                                                  return Container(
-                                                    height: 200,
-                                                    color: theme.colorScheme
-                                                        .surfaceVariant,
-                                                    child: Column(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        Icon(
-                                                          Icons.error_outline,
-                                                          size: 48,
-                                                          color: theme
-                                                              .colorScheme
-                                                              .onSurfaceVariant,
-                                                        ),
-                                                        const SizedBox(
-                                                            height: 8),
-                                                        Text(
-                                                          'Failed to load image',
-                                                          style: TextStyle(
+
+                                          // 🧱 Image Section with Badges
+                                          Stack(
+                                            children: [
+                                              ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                child: CachedNetworkImageWithCors(
+                                                  imageUrl: product.imageUrl ??
+                                                      'https://via.placeholder.com/300x300 ',
+                                                  height: 200,
+                                                  width: double.infinity,
+                                                  fit: BoxFit.cover,
+                                                  errorWidget:
+                                                      (context, url, error) {
+                                                    return Container(
+                                                      height: 200,
+                                                      color: theme.colorScheme
+                                                          .surfaceContainerHighest,
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Icon(
+                                                            Icons
+                                                                .image_not_supported,
+                                                            size: 48,
                                                             color: theme
                                                                 .colorScheme
                                                                 .onSurfaceVariant,
-                                                            fontSize: 14,
                                                           ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  );
-                                                },
+                                                          const SizedBox(
+                                                              height: 8),
+                                                          Text(
+                                                            'Failed to load image',
+                                                            style: TextStyle(
+                                                              fontSize: 14,
+                                                              color: theme
+                                                                  .colorScheme
+                                                                  .onSurfaceVariant,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
                                               ),
-                                            ),
+
+                                              // ✅ Status Badge - Top Right
+                                              Positioned(
+                                                top: 8,
+                                                right: 8,
+                                                child: Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                    horizontal: 8,
+                                                    vertical: 4,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: product.isActive
+                                                        ? theme.colorScheme
+                                                            .primary
+                                                        : theme.colorScheme
+                                                            .error,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12),
+                                                  ),
+                                                  child: Text(
+                                                    product.isActive
+                                                        ? 'ACTIVE'
+                                                        : 'INACTIVE',
+                                                    style: const TextStyle(
+                                                      fontSize: 10,
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+
+                                              // ✅ Featured Badge - Bottom Right
+                                              if (product.isFeatured)
+                                                Positioned(
+                                                  bottom: 8,
+                                                  right: 8,
+                                                  child: Container(
+                                                    padding:
+                                                        const EdgeInsets
+                                                            .symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 4,
+                                                    ),
+                                                    decoration: BoxDecoration(
+                                                      color: theme.colorScheme
+                                                          .secondary,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12),
+                                                    ),
+                                                    child: const Text(
+                                                      'FEATURED',
+                                                      style: TextStyle(
+                                                        fontSize: 10,
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+
                                           const SizedBox(height: 16),
+
+                                          // Description
                                           Text(
                                             product.description ?? '',
-                                            style:
-                                                const TextStyle(fontSize: 16),
+                                            style: const TextStyle(
+                                                fontSize: 16),
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                           const SizedBox(height: 16),
+
+                                          // Category
                                           Row(
                                             children: [
                                               Icon(Icons.category,
@@ -304,6 +432,8 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                                             ],
                                           ),
                                           const SizedBox(height: 8),
+
+                                          // Stock
                                           Row(
                                             children: [
                                               Icon(Icons.inventory,
@@ -318,9 +448,12 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                                             ],
                                           ),
                                           const SizedBox(height: 8),
+
+                                          // Price + Actions
                                           Row(
                                             mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
+                                                MainAxisAlignment
+                                                    .spaceBetween,
                                             children: [
                                               Row(
                                                 children: [
@@ -344,19 +477,19 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                                               Row(
                                                 children: [
                                                   IconButton(
-                                                    icon:
-                                                        const Icon(Icons.edit),
+                                                    icon: const Icon(
+                                                        Icons.edit),
                                                     color: theme.primaryColor,
                                                     onPressed: () =>
                                                         _navigateToEditProduct(
-                                                            context,
-                                                            product: product),
+                                                      context,
+                                                      product: product,
+                                                    ),
                                                   ),
                                                   IconButton(
-                                                    icon: const Icon(
-                                                        Icons.delete),
-                                                    color:
-                                                        theme.colorScheme.error,
+                                                    icon: const Icon(Icons.delete),
+                                                    color: theme.colorScheme
+                                                        .error,
                                                     onPressed: () =>
                                                         _showDeleteConfirmation(
                                                             context, product),
@@ -373,59 +506,7 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                               );
                             },
                           ),
-                        ),
-    );
-  }
-
-  void _navigateToEditProduct(BuildContext context, {OrganicProduct? product}) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EditOrganicProductScreen(
-          product: product,
-        ),
-      ),
-    ).then((_) => _loadProducts());
-  }
-
-  void _showDeleteConfirmation(BuildContext context, OrganicProduct product) {
-    final theme = Theme.of(context);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Organic Product'),
-        content: Text('Are you sure you want to delete ${product.name}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
-            ),
-          ),
-          TextButton(
-            onPressed: () async {
-              final success = await context
-                  .read<AdminProvider>()
-                  .deleteOrganicProduct(product.id);
-              if (success && mounted) {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text('Organic product deleted successfully'),
-                    backgroundColor: theme.primaryColor,
-                  ),
-                );
-                _loadProducts();
-              }
-            },
-            child: Text(
-              'Delete',
-              style: TextStyle(color: theme.colorScheme.error),
-            ),
-          ),
-        ],
-      ),
+                      ),
     );
   }
 }

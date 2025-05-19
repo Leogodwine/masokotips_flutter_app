@@ -231,7 +231,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(color: Colors.grey[700]),
                         children: [
                           TextSpan(
-                            text: 'Sign Up',
+                            text: 'REGISTER',
                             style: TextStyle(
                               color: theme.colorScheme.primary,
                               fontWeight: FontWeight.bold,
