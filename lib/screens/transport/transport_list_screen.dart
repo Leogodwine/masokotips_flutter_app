@@ -388,8 +388,9 @@ class _TransportListScreenState extends State<TransportListScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // TODO: Apply filters
-                  _toggleFilters();
+                  final locationFilter = _locationController.text;
+                  context.read<TransportProvider>().setVehicleLocationFilter(locationFilter.isNotEmpty ? locationFilter : null);
+                  _toggleFilters(); // Close the filter panel after applying
                 },
                 child: const Text('Apply Filters'),
               ),
@@ -402,10 +403,11 @@ class _TransportListScreenState extends State<TransportListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final transportProvider = Provider.of<TransportProvider>(context);
+    final transports = transportProvider.transports;
     final theme = Theme.of(context);
-    final transports = context.watch<TransportProvider>().transports;
-    final isLoading = context.watch<TransportProvider>().isLoading;
 
+    // Determine if it's loading based on the local state
     return Scaffold(
       appBar: AppBar(
         title: const Text('Available Transport'),
@@ -422,76 +424,55 @@ class _TransportListScreenState extends State<TransportListScreen> {
         children: [
           if (_showFilters) _buildFilterPanel(),
           Expanded(
-            child: isLoading
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const CircularProgressIndicator(),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Loading transports...',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
                 : transports.isEmpty
-                    ? RefreshIndicator(
-                        onRefresh: _loadTransports,
-                        child: SingleChildScrollView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          child: SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.7,
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.directions_car,
-                                    size: 80,
-                                    color: Colors.grey[300],
-                                  ),
-                                  const SizedBox(height: 20),
-                                  Text(
-                                    'No transports found',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.grey[700],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                                    child: Text(
-                                      'We couldn\'t find any transports matching your criteria. Try adjusting your filters or check back later.',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey[600],
-                                        height: 1.5,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 20),
-                                  ElevatedButton.icon(
-                                    onPressed: _loadTransports,
-                                    icon: const Icon(Icons.refresh, size: 18),
-                                    label: const Text('Refresh'),
-                                    style: ElevatedButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(25),
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.sentiment_dissatisfied_outlined,
+                                size: 80,
+                                color: Colors.grey[400],
                               ),
-                            ),
+                              const SizedBox(height: 20),
+                              Text(
+                                'No transports found',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                                child: Text(
+                                  'There are currently no transports available for this category or matching your filters. Try adjusting your search or check back later.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                    height: 1.5,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              ElevatedButton.icon(
+                                onPressed: _loadTransports,
+                                icon: const Icon(Icons.refresh, size: 18),
+                                label: const Text('Refresh'),
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       )
