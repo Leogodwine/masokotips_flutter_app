@@ -30,7 +30,7 @@ import 'screens/transport/edit_transport_screen.dart';
 import 'screens/provider/add_service_screen.dart';
 import 'screens/services/service_categories_screen.dart';
 import 'screens/services/service_search_screen.dart';
-import 'screens/market_info_screen.dart';
+import 'package:masoko_tips/screens/market_info/market_info_screen.dart';
 import 'screens/admin_dashboard_screen.dart';
 import 'screens/admin/market_info_management_screen.dart';
 import 'screens/admin/create_admin_screen.dart';
@@ -97,7 +97,7 @@ class MyApp extends StatelessWidget {
           },
           '/services': (context) => const ServiceCategoriesScreen(),
           '/services/search': (context) => const ServiceSearchScreen(),
-          '/market-info': (context) => const MarketInfoListScreen(),
+          '/market-info': (context) => const MarketInfoScreen(),
           '/admin/dashboard': (context) => const AdminDashboardScreen(),
           '/admin/market-info': (context) => const MarketInfoManagementScreen(),
           '/admin/create': (context) => const CreateAdminScreen(),

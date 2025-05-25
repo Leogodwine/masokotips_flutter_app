@@ -15,7 +15,6 @@ class _MainCategoriesScreenState extends State<MainCategoriesScreen> {
   @override
   void initState() {
     super.initState();
-    // Load categories when the screen is mounted
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CategoryProvider>().loadMainCategories();
     });
@@ -23,59 +22,42 @@ class _MainCategoriesScreenState extends State<MainCategoriesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Categories'),
-        elevation: 0,
-        backgroundColor: Theme.of(context).primaryColor,
+        title: const Text('Explore Categories'),
+        elevation: 1,
+        backgroundColor: theme.primaryColor,
         foregroundColor: Colors.white,
       ),
       body: Consumer<CategoryProvider>(
-        builder: (context, categoryProvider, child) {
-          if (categoryProvider.isLoading) {
+        builder: (context, provider, child) {
+          if (provider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (categoryProvider.error != null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    categoryProvider.error!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      categoryProvider.loadMainCategories();
-                    },
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            );
+          if (provider.error != null) {
+            return _buildErrorState(provider.error!, provider.loadMainCategories);
           }
 
-          final categories = categoryProvider.mainCategories;
+          final categories = provider.mainCategories;
           if (categories.isEmpty) {
-            return const Center(
-              child: Text('No categories found'),
-            );
+            return const Center(child: Text('No categories available.'));
           }
 
           return GridView.builder(
             padding: const EdgeInsets.all(16),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 1.5,
+              childAspectRatio: 0.95,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
             ),
             itemCount: categories.length,
             itemBuilder: (context, index) {
-              final category = categories[index];
-              return _buildCategoryCard(context, category);
+              return _buildCategoryCard(context, categories[index]);
             },
           );
         },
@@ -83,56 +65,95 @@ class _MainCategoriesScreenState extends State<MainCategoriesScreen> {
     );
   }
 
-  Widget _buildCategoryCard(BuildContext context, Category category) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+  Widget _buildErrorState(String error, VoidCallback onRetry) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
+            const SizedBox(height: 16),
+            Text(
+              error,
+              style: const TextStyle(color: Colors.red, fontSize: 16),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Retry'),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildCategoryCard(BuildContext context, Category category) {
+    final theme = Theme.of(context);
+    final iconData = category.icon != null
+        ? IconData(int.tryParse(category.icon!) ?? 0xe3e6, fontFamily: 'MaterialIcons')
+        : Icons.category;
+
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(16),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         onTap: () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => SubcategoriesScreen(category: category),
+              builder: (_) => SubcategoriesScreen(category: category),
             ),
           );
         },
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (category.icon != null)
-                Icon(
-                  IconData(
-                    int.parse(category.icon!),
-                    fontFamily: 'MaterialIcons',
-                  ),
-                  size: 48,
-                  color: Theme.of(context).primaryColor,
-                ),
-              const SizedBox(height: 8),
-              Text(
-                category.name,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
+        child: Ink(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 6,
+                offset: const Offset(0, 3),
               ),
-              if (category.productsCount > 0) ...[
-                const SizedBox(height: 4),
-                Text(
-                  '${category.productsCount} products',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  iconData,
+                  size: 48,
+                  color: theme.primaryColor,
+                ),
+                const SizedBox(height: 12),
+                Flexible(
+                  child: Text(
+                    category.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
+                if (category.productsCount > 0) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    '${category.productsCount} products',
+                    style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

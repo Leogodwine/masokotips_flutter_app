@@ -17,72 +17,80 @@ class MarketInfoDetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: CustomAppBar(title: marketInfo.title),
       drawer: const CustomDrawer(),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Image Section with fallback
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                marketInfo.imageUrl,
-                height: 200,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    height: 200,
-                    color: Colors.grey[200],
-                    child: const Center(
-                      child: Icon(
-                        Icons.broken_image,
-                        size: 48,
-                        color: Colors.grey,
-                      ),
+              child: marketInfo.imageUrl.isNotEmpty
+                  ? Image.network(
+                      marketInfo.imageUrl,
+                      height: 200,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: 200,
+                          color: Colors.grey[200],
+                          alignment: Alignment.center,
+                          child: const Icon(
+                            Icons.broken_image,
+                            size: 48,
+                            color: Colors.grey,
+                          ),
+                        );
+                      },
+                    )
+                  : Container(
+                      height: 200,
+                      color: Colors.grey[300],
+                      alignment: Alignment.center,
+                      child: const Icon(Icons.image_not_supported, size: 48, color: Colors.grey),
                     ),
-                  );
-                },
-              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
+
+            // Content Section
             Text(
               marketInfo.content,
-              style: const TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16, height: 1.5),
             ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Icon(
-                  Icons.location_on,
-                  size: 16,
-                  color: Colors.grey[600],
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  marketInfo.location,
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
-                const Spacer(),
-                Icon(
-                  Icons.category,
-                  size: 16,
-                  color: Colors.grey[600],
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  marketInfo.category,
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
-              ],
-            ),
+
+            const SizedBox(height: 24),
+
+            // Meta Info
+            if (marketInfo.location.isNotEmpty)
+              Row(
+                children: [
+                  Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
+                  const SizedBox(width: 4),
+                  Text(
+                    marketInfo.location,
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
+                ],
+              ),
             const SizedBox(height: 8),
+
+            if (marketInfo.category.isNotEmpty)
+              Row(
+                children: [
+                  Icon(Icons.category, size: 16, color: Colors.grey[600]),
+                  const SizedBox(width: 4),
+                  Text(
+                    marketInfo.category,
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
+                ],
+              ),
+            const SizedBox(height: 8),
+
             Row(
               children: [
-                Icon(
-                  Icons.calendar_today,
-                  size: 16,
-                  color: Colors.grey[600],
-                ),
+                Icon(Icons.calendar_today, size: 16, color: Colors.grey[600]),
                 const SizedBox(width: 4),
                 Text(
                   formatDate(marketInfo.createdAt),

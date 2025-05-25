@@ -21,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
         // Already on home
         break;
       case 1:
-        Navigator.pushNamed(context, '/categories');
+        Navigator.pushNamed(context, '/wishlist');
         break;
       case 2:
         Navigator.pushNamed(context, '/orders');

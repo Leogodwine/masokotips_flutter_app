@@ -105,8 +105,8 @@ class AppScaffold extends StatelessWidget {
                   label: 'Home',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.category),
-                  label: 'Categories',
+                  icon: Icon(Icons.favorite),
+                  label: 'Wishlist',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.shopping_bag),
