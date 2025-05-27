@@ -122,16 +122,35 @@ class AdminService {
         },
       );
 
+      Log.d('Users API response: ${response.body}');
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        if (data is Map<String, dynamic> && data.containsKey('data')) {
-          final List<dynamic> usersJson = data['data'];
-          return usersJson.map((json) => User.fromJson(json)).toList();
-        } else {
-          Log.e('Unexpected API response structure: $data');
-          return [];
+        
+        // Check for different possible response structures
+        if (data is Map<String, dynamic>) {
+          // Check if response has 'data' field
+          if (data.containsKey('data')) {
+            final List<dynamic> usersJson = data['data'];
+            return usersJson.map((json) => User.fromJson(json)).toList();
+          } 
+          // Check if response has 'users' field (as in the UserController.index method)
+          else if (data.containsKey('users') && data['users'] is Map<String, dynamic> && 
+                  data['users'].containsKey('data')) {
+            final List<dynamic> usersJson = data['users']['data'];
+            return usersJson.map((json) => User.fromJson(json)).toList();
+          }
+          // If we have a direct users array
+          else if (data.containsKey('users') && data['users'] is List) {
+            final List<dynamic> usersJson = data['users'];
+            return usersJson.map((json) => User.fromJson(json)).toList();
+          }
         }
+        
+        Log.e('Unexpected API response structure: $data');
+        return [];
       } else {
+        Log.e('Failed API call with status: ${response.statusCode}, body: ${response.body}');
         throw Exception('Failed to get users: ${response.body}');
       }
     } catch (e) {
@@ -168,8 +187,13 @@ class AdminService {
 
   Future<User> updateUser(int userId, Map<String, dynamic> userData) async {
     try {
+      final url = '$baseUrl/admin/users/$userId';
+      Log.d('🔵 Updating user $userId at URL: $url');
+      Log.d('🔵 Request data: ${json.encode(userData)}');
+      Log.d('🔵 Auth token: ${_authToken?.substring(0, 10)}...');
+      
       final response = await http.put(
-        Uri.parse('$baseUrl/admin/users/$userId'),
+        Uri.parse(url),
         headers: {
           'Authorization': 'Bearer $_authToken',
           'Accept': 'application/json',
@@ -178,18 +202,32 @@ class AdminService {
         body: json.encode(userData),
       );
 
+      Log.d('🔵 Response status code: ${response.statusCode}');
+      Log.d('🔵 Response body: ${response.body}');
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        Log.d('🔵 Decoded response data: $data');
+        
         if (data is Map<String, dynamic> && data.containsKey('data')) {
-          return User.fromJson(data['data']);
+          final userData = data['data'];
+          Log.d('🔵 User data from response: $userData');
+          return User.fromJson(userData);
+        } else if (data is Map<String, dynamic> && data.containsKey('user')) {
+          // Alternative response format
+          final userData = data['user'];
+          Log.d('🔵 User data from response (alternative format): $userData');
+          return User.fromJson(userData);
         } else {
+          Log.e('🔵 Unexpected API response structure: $data');
           throw Exception('Unexpected API response structure: $data');
         }
       } else {
+        Log.e('🔵 Failed API call with status: ${response.statusCode}, body: ${response.body}');
         throw Exception('Failed to update user: ${response.body}');
       }
     } catch (e) {
-      Log.e('Error updating user: $e');
+      Log.e('🔵 Error updating user: $e');
       throw Exception('Failed to update user: $e');
     }
   }

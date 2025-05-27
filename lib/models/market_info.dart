@@ -2,8 +2,24 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'market_info.g.dart';
 
+// Custom converter for handling both string and numeric IDs
+class NumericConverter {
+  static int fromJson(dynamic value) {
+    if (value is int) return value;
+    if (value is String) return int.parse(value);
+    if (value is num) return value.toInt();
+    throw ArgumentError('Cannot convert $value to int');
+  }
+
+  static int? fromJsonNullable(dynamic value) {
+    if (value == null) return null;
+    return fromJson(value);
+  }
+}
+
 @JsonSerializable()
 class MarketInfo {
+  @JsonKey(fromJson: NumericConverter.fromJson)
   final int id;
   final String title;
   final String description;
@@ -13,7 +29,7 @@ class MarketInfo {
   final String location;
   final String category;
   final String contact;
-  @JsonKey(name: 'user_id')
+  @JsonKey(name: 'user_id', fromJson: NumericConverter.fromJson)
   final int userId;
   @JsonKey(name: 'is_active')
   final bool isActive;
@@ -40,23 +56,12 @@ class MarketInfo {
     required this.updatedAt,
   });
 
-  factory MarketInfo.fromJson(Map<String, dynamic> json) {
-    return MarketInfo(
-      id: json['id'],
-      title: json['title'] ?? '',
-      description: json['description'] ?? '',
-      content: json['content'] ?? '',
-      imageUrl: json['image_url'] ?? '',
-      location: json['location'] ?? '',
-      category: json['category'] ?? '',
-      contact: json['contact'] ?? '',
-      userId: json['user_id'] ?? 0,
-      isActive: json['is_active'] ?? true,
-      isFeatured: json['is_featured'] ?? false,
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'])
-          : DateTime.now(),
-    );
-  }
+  /// ✅ Use the generated function here
+  factory MarketInfo.fromJson(Map<String, dynamic> json) =>
+      _$MarketInfoFromJson(json);
+
+  Map<String, dynamic> toJson() => _$MarketInfoToJson(this);
 }
+
+
+

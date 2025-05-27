@@ -75,7 +75,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                     onSelected: (value) {
                       switch (value) {
                         case 'edit':
-                          // TODO: Navigate to edit user screen
+                          _showEditUserDialog(context, user);
                           break;
                         case 'delete':
                           _showDeleteConfirmation(context, user);
@@ -130,6 +130,131 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
             child: const Text('Delete'),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showEditUserDialog(BuildContext context, User user) {
+    final nameController = TextEditingController(text: user.name);
+    final emailController = TextEditingController(text: user.email);
+    final phoneController = TextEditingController(text: user.phoneNumber ?? '');
+    // Get the primary role from the user's roles list
+    String selectedRole = user.roles.isNotEmpty ? user.roles.first : 'buyer';
+    // We don't have an isActive field, so we'll default to true
+    bool isActive = true;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Edit User'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: 'Name'),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: emailController,
+                  decoration: const InputDecoration(labelText: 'Email'),
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: phoneController,
+                  decoration: const InputDecoration(labelText: 'Phone Number'),
+                  keyboardType: TextInputType.phone,
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: selectedRole,
+                  decoration: const InputDecoration(labelText: 'Role'),
+                  items: const [
+                    DropdownMenuItem(value: 'admin', child: Text('Admin')),
+                    DropdownMenuItem(value: 'buyer', child: Text('Buyer')),
+                    DropdownMenuItem(value: 'seller', child: Text('Seller')),
+                    DropdownMenuItem(
+                        value: 'service_provider',
+                        child: Text('Service Provider')),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        selectedRole = value;
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+                SwitchListTile(
+                  title: const Text('Active'),
+                  value: isActive,
+                  onChanged: (value) {
+                    setState(() {
+                      isActive = value;
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                // Prepare user data for update
+                final userData = {
+                  'name': nameController.text,
+                  'email': emailController.text,
+                  'phone': phoneController.text.isNotEmpty
+                      ? phoneController.text
+                      : null,
+                  'role': selectedRole,
+                  'is_active': isActive,
+                };
+
+                // Close the dialog
+                Navigator.pop(context);
+
+                // Show loading indicator
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Updating user...')),
+                );
+
+                // Update the user
+                final adminProvider = context.read<AdminProvider>();
+                final success =
+                    await adminProvider.updateUser(user.id, userData);
+
+                if (mounted) {
+                  // Show result message
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        success
+                            ? 'User updated successfully'
+                            : 'Failed to update user: ${adminProvider.error}',
+                      ),
+                      backgroundColor: success ? Colors.green : Colors.red,
+                    ),
+                  );
+
+                  // Refresh the users list if update was successful
+                  if (success) {
+                    adminProvider.loadUsers();
+                  }
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
       ),
     );
   }

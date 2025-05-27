@@ -249,97 +249,246 @@ class _MarketInfoManagementScreenState
                                   final marketInfo = _marketInfoList[index];
                                   return Card(
                                     margin: const EdgeInsets.only(bottom: 16),
-                                    child: ListTile(
-                                      leading: ClipRRect(
-                                        borderRadius: BorderRadius.circular(4),
-                                        child: Image.network(
-                                          marketInfo.imageUrl,
-                                          width: 56,
-                                          height: 56,
-                                          fit: BoxFit.cover,
+                                    elevation: 2,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        // Image section
+                                        ClipRRect(
+                                          borderRadius: const BorderRadius.only(
+                                            topLeft: Radius.circular(12),
+                                            topRight: Radius.circular(12),
+                                          ),
+                                          child: Image.network(
+                                            marketInfo.imageUrl,
+                                            height: 180,
+                                            width: double.infinity,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (context, error, stackTrace) =>
+                                                    Container(
+                                              height: 180,
+                                              color: Colors.grey[300],
+                                              child: const Center(
+                                                child: Icon(
+                                                  Icons.image_not_supported,
+                                                  size: 48,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                      title: Text(marketInfo.title),
-                                      subtitle: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            marketInfo.content,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          Padding(
-                                            padding:
-                                                const EdgeInsets.only(top: 4),
-                                            child: Chip(
-                                              label: Text(
-                                                marketInfo.location,
-                                                style: const TextStyle(
-                                                    fontSize: 12),
-                                              ),
-                                              backgroundColor: Colors.blue[100],
-                                              labelStyle: TextStyle(
-                                                color: Colors.blue[800],
-                                              ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding:
-                                                const EdgeInsets.only(top: 4),
-                                            child: Chip(
-                                              label: Text(
-                                                marketInfo.category,
-                                                style: const TextStyle(
-                                                    fontSize: 12),
-                                              ),
-                                              backgroundColor:
-                                                  Colors.green[100],
-                                              labelStyle: TextStyle(
-                                                color: Colors.green[800],
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      trailing: PopupMenuButton(
-                                        itemBuilder: (context) => [
-                                          const PopupMenuItem(
-                                            value: 'edit',
-                                            child: Row(
-                                              children: [
-                                                Icon(Icons.edit),
-                                                SizedBox(width: 8),
-                                                Text('Edit'),
-                                              ],
-                                            ),
-                                          ),
-                                          const PopupMenuItem(
-                                            value: 'delete',
-                                            child: Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.delete,
-                                                  color: Colors.red,
-                                                ),
-                                                SizedBox(width: 8),
-                                                Text(
-                                                  'Delete',
-                                                  style: TextStyle(
-                                                    color: Colors.red,
+
+                                        // Content section
+                                        Padding(
+                                          padding: const EdgeInsets.all(16),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              // Title and date row
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      marketInfo.title,
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .titleLarge
+                                                          ?.copyWith(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                    ),
                                                   ),
-                                                ),
-                                              ],
-                                            ),
+                                                  Text(
+                                                    '${marketInfo.createdAt.day}/${marketInfo.createdAt.month}/${marketInfo.createdAt.year}',
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .bodySmall
+                                                        ?.copyWith(
+                                                            color: Colors
+                                                                .grey[600]),
+                                                  ),
+                                                ],
+                                              ),
+
+                                              const SizedBox(height: 12),
+
+                                              // Content
+                                              Text(
+                                                marketInfo.content,
+                                                maxLines: 3,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyMedium,
+                                              ),
+
+                                              const SizedBox(height: 16),
+
+                                              // Tags row
+                                              Wrap(
+                                                spacing: 8,
+                                                runSpacing: 8,
+                                                children: [
+                                                  if (marketInfo
+                                                      .location.isNotEmpty)
+                                                    Chip(
+                                                      materialTapTargetSize:
+                                                          MaterialTapTargetSize
+                                                              .shrinkWrap,
+                                                      avatar: const Icon(
+                                                        Icons.location_on,
+                                                        size: 16,
+                                                        color: Colors.blue,
+                                                      ),
+                                                      label: Text(
+                                                        marketInfo.location,
+                                                        style: const TextStyle(
+                                                            fontSize: 12),
+                                                      ),
+                                                      backgroundColor:
+                                                          Colors.blue[50],
+                                                      labelStyle: TextStyle(
+                                                        color: Colors.blue[800],
+                                                      ),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              4),
+                                                    ),
+                                                  if (marketInfo
+                                                      .category.isNotEmpty)
+                                                    Chip(
+                                                      materialTapTargetSize:
+                                                          MaterialTapTargetSize
+                                                              .shrinkWrap,
+                                                      avatar: const Icon(
+                                                        Icons.category,
+                                                        size: 16,
+                                                        color: Colors.green,
+                                                      ),
+                                                      label: Text(
+                                                        marketInfo.category,
+                                                        style: const TextStyle(
+                                                            fontSize: 12),
+                                                      ),
+                                                      backgroundColor:
+                                                          Colors.green[50],
+                                                      labelStyle: TextStyle(
+                                                        color:
+                                                            Colors.green[800],
+                                                      ),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              4),
+                                                    ),
+                                                  if (marketInfo.isFeatured)
+                                                    Chip(
+                                                      materialTapTargetSize:
+                                                          MaterialTapTargetSize
+                                                              .shrinkWrap,
+                                                      avatar: const Icon(
+                                                        Icons.star,
+                                                        size: 16,
+                                                        color: Colors.amber,
+                                                      ),
+                                                      label: const Text(
+                                                        'Featured',
+                                                        style: TextStyle(
+                                                            fontSize: 12),
+                                                      ),
+                                                      backgroundColor:
+                                                          Colors.amber[50],
+                                                      labelStyle: TextStyle(
+                                                        color:
+                                                            Colors.amber[800],
+                                                      ),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              4),
+                                                    ),
+                                                ],
+                                              ),
+                                            ],
                                           ),
-                                        ],
-                                        onSelected: (value) {
-                                          switch (value) {
-                                            case 'edit':
+                                        ),
+
+                                        // Actions row
+                                        Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              8, 0, 8, 8),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              TextButton.icon(
+                                                onPressed: () =>
+                                                    _openEditMarketInfoScreen(
+                                                        marketInfo),
+                                                icon: const Icon(
+                                                  Icons.edit_outlined,
+                                                ),
+                                                label: const Text('Edit'),
+                                              ),
+                                              TextButton.icon(
+                                                onPressed: () {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (context) =>
+                                                        AlertDialog(
+                                                      title: const Text(
+                                                          'Delete Market Information'),
+                                                      content: const Text(
+                                                          'Are you sure you want to delete this market information?'),
+                                                      actions: [
+                                                        TextButton(
+                                                          onPressed: () =>
+                                                              Navigator.pop(
+                                                                  context),
+                                                          child: const Text(
+                                                              'CANCEL'),
+                                                        ),
+                                                        TextButton(
+                                                          onPressed: () {
+                                                            Navigator.pop(
+                                                                context);
+                                                            _deleteMarketInfo(
+                                                                marketInfo);
+                                                          },
+                                                          style: TextButton
+                                                              .styleFrom(
+                                                            foregroundColor:
+                                                                Colors.red,
+                                                          ),
+                                                          child: const Text(
+                                                              'DELETE'),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                },
+                                                icon: const Icon(
+                                                  Icons.delete_outline,
+                                                ),
+                                                label: const Text('Delete'),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        PopupMenuButton<String>(
+                                          onSelected: (value) {
+                                            if (value == 'edit') {
                                               _openEditMarketInfoScreen(
                                                   marketInfo);
-                                              break;
-                                            case 'delete':
+                                            } else if (value == 'delete') {
                                               showDialog(
                                                 context: context,
                                                 builder: (context) =>
@@ -373,10 +522,40 @@ class _MarketInfoManagementScreenState
                                                   ],
                                                 ),
                                               );
-                                              break;
-                                          }
-                                        },
-                                      ),
+                                            }
+                                          },
+                                          itemBuilder: (context) => [
+                                            const PopupMenuItem<String>(
+                                              value: 'edit',
+                                              child: Row(
+                                                children: [
+                                                  Icon(Icons.edit),
+                                                  SizedBox(width: 8),
+                                                  Text('Edit'),
+                                                ],
+                                              ),
+                                            ),
+                                            const PopupMenuItem<String>(
+                                              value: 'delete',
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.delete,
+                                                    color: Colors.red,
+                                                  ),
+                                                  SizedBox(width: 8),
+                                                  Text(
+                                                    'Delete',
+                                                    style: TextStyle(
+                                                      color: Colors.red,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ),
                                   );
                                 },

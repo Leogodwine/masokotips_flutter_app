@@ -1,21 +1,23 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'dart:convert';
+import 'package:masoko_tips/widgets/int_converter.dart';
 
 part 'user.g.dart';
 
 @JsonSerializable()
 class User {
+  @StringToIntConverter()
   final int id;
   final String name;
   final String email;
 
-  @JsonKey(name: 'phone_number')
+  @JsonKey(name: 'phone')
   final String? phoneNumber;
 
   final String? avatar;
   final List<String> roles;
 
-  // Local file path for the user's avatar image
+  @JsonKey(ignore: true)
   String? avatarPath;
 
   @JsonKey(name: 'email_verified_at')
@@ -43,30 +45,30 @@ class User {
     this.avatarPath,
   });
 
-  // Connect the generated code
   factory User.fromJson(Map<String, dynamic> json) {
-    // Handle cases where 'roles' is not present but 'role' is
-    if (json['roles'] == null && json['role'] != null) {
-      // Convert single role string to an array of strings
-      json['roles'] = [json['role']];
-    }
+    final rolesRaw = json['roles'] ?? json['role'];
 
-    // Handle cases where roles is a string representation of a list
-    if (json['roles'] is String) {
+    List<String> parsedRoles = [];
+
+    if (rolesRaw is String) {
       try {
-        // Try to parse the string as JSON
-        final List<dynamic> parsedRoles = jsonDecode(json['roles']);
-        json['roles'] = parsedRoles.map((e) => e.toString()).toList();
-      } catch (e) {
-        // If parsing fails, treat it as a single role
-        json['roles'] = [json['roles']];
+        parsedRoles = List<String>.from(jsonDecode(rolesRaw));
+      } catch (_) {
+        parsedRoles = [rolesRaw];
       }
+    } else if (rolesRaw is List) {
+      parsedRoles = rolesRaw.map((e) => e.toString()).toList();
+    } else if (rolesRaw != null) {
+      parsedRoles = [rolesRaw.toString()];
     }
 
-    return _$UserFromJson(json);
+    return _$UserFromJson({
+      ...json,
+      'roles': parsedRoles,
+    });
   }
+
   Map<String, dynamic> toJson() => _$UserToJson(this);
 
-  // Helper method to check if user has a specific role
   bool hasRole(String role) => roles.contains(role);
 }
