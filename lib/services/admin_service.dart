@@ -186,12 +186,13 @@ class AdminService {
   }
 
   Future<User> updateUser(int userId, Map<String, dynamic> userData) async {
+    final url = '$baseUrl/admin/users/$userId';
+
     try {
-      final url = '$baseUrl/admin/users/$userId';
       Log.d('🔵 Updating user $userId at URL: $url');
       Log.d('🔵 Request data: ${json.encode(userData)}');
       Log.d('🔵 Auth token: ${_authToken?.substring(0, 10)}...');
-      
+
       final response = await http.put(
         Uri.parse(url),
         headers: {
@@ -205,32 +206,44 @@ class AdminService {
       Log.d('🔵 Response status code: ${response.statusCode}');
       Log.d('🔵 Response body: ${response.body}');
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        Log.d('🔵 Decoded response data: $data');
-        
-        if (data is Map<String, dynamic> && data.containsKey('data')) {
-          final userData = data['data'];
-          Log.d('🔵 User data from response: $userData');
-          return User.fromJson(userData);
-        } else if (data is Map<String, dynamic> && data.containsKey('user')) {
-          // Alternative response format
-          final userData = data['user'];
-          Log.d('🔵 User data from response (alternative format): $userData');
-          return User.fromJson(userData);
-        } else {
-          Log.e('🔵 Unexpected API response structure: $data');
-          throw Exception('Unexpected API response structure: $data');
-        }
-      } else {
-        Log.e('🔵 Failed API call with status: ${response.statusCode}, body: ${response.body}');
-        throw Exception('Failed to update user: ${response.body}');
+      final Map<String, dynamic> data = json.decode(response.body);
+
+      switch (response.statusCode) {
+        case 200:
+          final userMap = data['data'] ?? data['user'];
+          if (userMap != null && userMap is Map<String, dynamic>) {
+            return User.fromJson(userMap);
+          } else {
+            Log.e('🔴 Invalid user data in response');
+            throw Exception('Unexpected user data in response.');
+          }
+
+        case 422:
+          final errors = data['errors'] ?? {};
+          final message = data['message'] ?? 'Validation failed.';
+          Log.e('🔴 Validation error: $errors');
+          throw Exception('$message\n${_formatValidationErrors(errors)}');
+
+        case 401:
+          throw Exception('Unauthorized. Please log in again.');
+
+        default:
+          final message = data['message'] ?? 'Unexpected error occurred.';
+          Log.e('🔴 API error [$url]: $message');
+          throw Exception('Failed to update user: $message');
       }
     } catch (e) {
-      Log.e('🔵 Error updating user: $e');
+      Log.e('🔴 Exception during updateUser: $e');
       throw Exception('Failed to update user: $e');
     }
   }
+
+  String _formatValidationErrors(Map<String, dynamic> errors) {
+    return errors.entries
+        .map((e) => "${e.key}: ${(e.value as List).join(', ')}")
+        .join('\n');
+  }
+
 
   Future<void> deleteUser(int userId) async {
     try {

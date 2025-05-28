@@ -313,13 +313,16 @@ class AdminProvider with ChangeNotifier {
 
     try {
       final updatedUser = await _adminService.updateUser(userId, userData);
+
       final index = _users.indexWhere((user) => user.id == userId);
       if (index != -1) {
         _users[index] = updatedUser;
       }
+
       return true;
     } catch (e) {
       _error = e.toString();
+      debugPrint('🔵 Error updating user: $_error');
       return false;
     } finally {
       _isLoading = false;

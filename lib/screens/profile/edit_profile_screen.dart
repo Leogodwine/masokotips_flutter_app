@@ -155,6 +155,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();
+        if (e.toString().contains('email has already been taken')) {
+          _errorMessage =
+              'This email is already registered. Please use a different email address.';
+        }
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -174,7 +178,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Profile'),
@@ -289,6 +293,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your email';
                     }
+                    // Add check if email is unchanged
+                    if (value == authProvider.user?.email) {
+                      return null; // Allow unchanged email to pass validation
+                    }
+                    // Add check for email format
                     if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
                         .hasMatch(value)) {
                       return 'Please enter a valid email address';

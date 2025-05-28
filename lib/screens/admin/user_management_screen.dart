@@ -138,15 +138,13 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
     final nameController = TextEditingController(text: user.name);
     final emailController = TextEditingController(text: user.email);
     final phoneController = TextEditingController(text: user.phoneNumber ?? '');
-    // Get the primary role from the user's roles list
     String selectedRole = user.roles.isNotEmpty ? user.roles.first : 'buyer';
-    // We don't have an isActive field, so we'll default to true
     bool isActive = true;
 
     showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setState) => AlertDialog(
           title: const Text('Edit User'),
           content: SingleChildScrollView(
             child: Column(
@@ -203,12 +201,12 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogContext),
               child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () async {
-                // Prepare user data for update
+                // Prepare payload
                 final userData = {
                   'name': nameController.text,
                   'email': emailController.text,
@@ -219,36 +217,32 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                   'is_active': isActive,
                 };
 
-                // Close the dialog
-                Navigator.pop(context);
-
-                // Show loading indicator
+                // Show loading SnackBar
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Updating user...')),
                 );
 
-                // Update the user
                 final adminProvider = context.read<AdminProvider>();
                 final success =
-                    await adminProvider.updateUser(user.id, userData);
+                await adminProvider.updateUser(user.id, userData);
 
-                if (mounted) {
-                  // Show result message
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        success
-                            ? 'User updated successfully'
-                            : 'Failed to update user: ${adminProvider.error}',
-                      ),
-                      backgroundColor: success ? Colors.green : Colors.red,
+                // Close the dialog
+                Navigator.pop(dialogContext);
+
+                // Show result SnackBar
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      success
+                          ? 'User updated successfully'
+                          : 'Failed: ${adminProvider.error}',
                     ),
-                  );
+                    backgroundColor: success ? Colors.green : Colors.red,
+                  ),
+                );
 
-                  // Refresh the users list if update was successful
-                  if (success) {
-                    adminProvider.loadUsers();
-                  }
+                if (success) {
+                  adminProvider.loadUsers();
                 }
               },
               child: const Text('Save'),
