@@ -48,7 +48,7 @@ class AdminProvider with ChangeNotifier {
         } catch (e) {
           Log.e('Auth token verification failed: $e');
           // Clear invalid token
-          await _adminAuthService.logout();
+          await _adminAuthService.logoutAdmin();
           _isAdmin = false;
           _dashboardData = null;
         }
@@ -90,11 +90,11 @@ class AdminProvider with ChangeNotifier {
 
       Log.d('Attempting admin login for email: $email');
 
-      final success = await _adminAuthService.login(email, password);
-      Log.d('Login result: $success');
+      final response = await _adminAuthService.loginAdmin(email, password);
+      Log.d('Login response: $response');
 
-      if (success) {
-        final token = _adminAuthService.authToken;
+      if (response['success'] == true) {
+        final token = response['token'] as String?;
         if (token != null) {
           setAuthToken(token);
           Log.d('Auth token set successfully');
@@ -106,13 +106,17 @@ class AdminProvider with ChangeNotifier {
           return false;
         }
       } else {
-        Log.e('Login failed');
-        _error = 'Invalid credentials';
+        final errorMessage = response['message'] ?? 'Invalid credentials';
+        Log.e('Login failed: $errorMessage');
+        _error = errorMessage;
         return false;
       }
     } catch (e, stackTrace) {
-      Log.e('Error during login: $e\n$stackTrace');
-      _error = 'Login failed: $e';
+      final errorMessage = e is Map<String, dynamic> 
+          ? e['message']?.toString() ?? e.toString()
+          : e.toString();
+      Log.e('Error during login: $errorMessage\n$stackTrace');
+      _error = 'Login failed: $errorMessage';
       return false;
     } finally {
       _isLoading = false;
@@ -146,58 +150,57 @@ class AdminProvider with ChangeNotifier {
   }
 
   Future<void> loadDashboardData() async {
-  try {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
 
-    Log.d('Starting to load dashboard data');
+      Log.d('Starting to load dashboard data');
 
-    if (_adminAuthService.authToken == null ||
-        _adminAuthService.authToken!.isEmpty) {
-      Log.e('No valid auth token available for dashboard request');
-      _error = 'Not authenticated. Please login again.';
-      _isAdmin = false;
-      _dashboardData = null;
-      return;
+      if (_adminAuthService.authToken == null ||
+          _adminAuthService.authToken!.isEmpty) {
+        Log.e('No valid auth token available for dashboard request');
+        _error = 'Not authenticated. Please login again.';
+        _isAdmin = false;
+        _dashboardData = null;
+        return;
+      }
+
+      final response = await _adminAuthService.getDashboardData();
+      Log.d('Dashboard response received: ${response.toString()}');
+
+      final dashboardData = response; // Already a Map<String, dynamic>
+      Log.d('Parsing dashboard data: ${dashboardData.toString()}');
+
+      // Ensure all required fields are present
+      if (!dashboardData.containsKey('stats') ||
+          !dashboardData.containsKey('recent_activities') ||
+          !dashboardData.containsKey('quick_links') ||
+          !dashboardData.containsKey('last_updated')) {
+        Log.e('Invalid dashboard data structure: Missing required fields');
+        _error = 'Invalid dashboard data structure';
+        return;
+      }
+
+      _dashboardData = AdminDashboardData.fromJson(dashboardData);
+      _error = null;
+      _isAdmin = true;
+      Log.d('Dashboard data loaded and parsed successfully');
+    } catch (e, stackTrace) {
+      Log.e('Error loading dashboard data: $e\n$stackTrace');
+      if (e.toString().toLowerCase().contains('unauthenticated')) {
+        await _adminAuthService.logoutAdmin();
+        _isAdmin = false;
+        _dashboardData = null;
+        _error = 'Session expired. Please login again.';
+      } else {
+        _error = 'Failed to load dashboard data: $e';
+      }
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-
-    final response = await _adminAuthService.getDashboardData();
-    Log.d('Dashboard response received: ${response.toString()}');
-
-    final dashboardData = response; // Already a Map<String, dynamic>
-    Log.d('Parsing dashboard data: ${dashboardData.toString()}');
-
-    // Ensure all required fields are present
-    if (!dashboardData.containsKey('stats') ||
-        !dashboardData.containsKey('recent_activities') ||
-        !dashboardData.containsKey('quick_links') ||
-        !dashboardData.containsKey('last_updated')) {
-      Log.e('Invalid dashboard data structure: Missing required fields');
-      _error = 'Invalid dashboard data structure';
-      return;
-    }
-
-    _dashboardData = AdminDashboardData.fromJson(dashboardData);
-    _error = null;
-    _isAdmin = true;
-    Log.d('Dashboard data loaded and parsed successfully');
-  } catch (e, stackTrace) {
-    Log.e('Error loading dashboard data: $e\n$stackTrace');
-    if (e.toString().toLowerCase().contains('unauthenticated')) {
-      await _adminAuthService.logout();
-      _isAdmin = false;
-      _dashboardData = null;
-      _error = 'Session expired. Please login again.';
-    } else {
-      _error = 'Failed to load dashboard data: $e';
-    }
-  } finally {
-    _isLoading = false;
-    notifyListeners();
   }
-}
-
 
   Future<void> loadUsers() async {
     _isLoading = true;
@@ -278,33 +281,34 @@ class AdminProvider with ChangeNotifier {
     }
   }
 
-  Future<List<Transport>> loadTransports({int offset = 0, int limit = 10}) async {
-  _isLoading = true;
-  _error = null;
-  notifyListeners();
+  Future<List<Transport>> loadTransports(
+      {int offset = 0, int limit = 10}) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
 
-  try {
-    final allTransports = await _adminService.getTransports();
+    try {
+      final allTransports = await _adminService.getTransports();
 
-    // Simulate server-side pagination by slicing the list
-    final paginatedList = allTransports.skip(offset).take(limit).toList();
+      // Simulate server-side pagination by slicing the list
+      final paginatedList = allTransports.skip(offset).take(limit).toList();
 
-    if (offset == 0) {
-      _transports = paginatedList; // Reset list on first load
-    } else {
-      _transports.addAll(paginatedList); // Append for infinite scroll
+      if (offset == 0) {
+        _transports = paginatedList; // Reset list on first load
+      } else {
+        _transports.addAll(paginatedList); // Append for infinite scroll
+      }
+
+      notifyListeners();
+      return paginatedList;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return [];
+    } finally {
+      _isLoading = false;
     }
-
-    notifyListeners();
-    return paginatedList;
-  } catch (e) {
-    _error = e.toString();
-    notifyListeners();
-    return [];
-  } finally {
-    _isLoading = false;
   }
-}
 
   Future<bool> updateUser(int userId, Map<String, dynamic> userData) async {
     _isLoading = true;
@@ -562,23 +566,33 @@ class AdminProvider with ChangeNotifier {
     }
   }
 
+  /// Logs out the admin user by clearing authentication state
   Future<void> logout() async {
-    _isLoading = true;
-    notifyListeners();
-
     try {
-      await _adminAuthService.logout();
-      _dashboardData = null;
+      _isLoading = true;
       _error = null;
+      notifyListeners();
+
+      Log.d('Logging out admin...');
+      
+      // Clear auth token and session
+      await _adminAuthService.logoutAdmin();
+      
+      // Clear provider state
       _isAdmin = false;
+      _dashboardData = null;
       _users = [];
       _services = [];
       _marketInfo = [];
       _products = [];
       _organicProducts = [];
       _transports = [];
-    } catch (e) {
-      _error = e.toString();
+      _categories = [];
+      
+      Log.d('Admin logout completed');
+    } catch (e, stackTrace) {
+      Log.e('Error during admin logout: $e\n$stackTrace');
+      rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -700,6 +714,7 @@ class AdminProvider with ChangeNotifier {
     }
   }
 
+
   Future<bool> removeTransport(int id) async {
     _isLoading = true;
     _error = null;
@@ -708,7 +723,7 @@ class AdminProvider with ChangeNotifier {
     try {
       final success = await _adminService.deleteTransport(id);
       if (success) {
-        await loadTransports();
+        _transports.removeWhere((transport) => transport.id == id);
       }
       return success;
     } catch (e) {

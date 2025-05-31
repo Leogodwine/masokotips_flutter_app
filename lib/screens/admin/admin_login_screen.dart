@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../widgets/loading_button.dart';
 import '../../utils/logger.dart';
-import '../../services/admin_auth_service.dart';
-import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
+import '../../providers/admin_provider.dart';
 
 class AdminLoginScreen extends StatefulWidget {
   const AdminLoginScreen({super.key});
@@ -16,7 +15,6 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _adminAuthService = AdminAuthService();
   bool _obscurePassword = true;
   bool _isLoading = false;
   String? _errorMessage;
@@ -35,38 +33,20 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
         _errorMessage = null;
       });
 
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final adminProvider = Provider.of<AdminProvider>(context, listen: false);
 
       try {
         Log.d('Attempting admin login for email: ${_emailController.text}');
 
-        final isVerified = await _adminAuthService.verifyAdminCredentials(
+        // Log in using AdminProvider
+        final success = await adminProvider.login(
           _emailController.text.trim(),
           _passwordController.text,
         );
 
-        if (!isVerified) {
-          setState(() {
-            _errorMessage = 'Invalid email or password. Please try again.';
-          });
-          setState(() => _isLoading = false);
-          return;
-        }
-
-        final adminLoginResponse = await _adminAuthService.loginAdmin(
-          _emailController.text.trim(),
-          _passwordController.text,
-        );
-
-        if (adminLoginResponse['success'] == true) {
-          Log.d('AdminAuthService login successful. Updating AuthProvider.');
-
-          await authProvider.login(
-            _emailController.text.trim(),
-            _passwordController.text,
-          );
-
-          Log.d('AuthProvider updated. Navigating to admin dashboard.');
+        if (success) {
+          Log.d('Admin login successful. Navigating to admin dashboard.');
+          
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -74,14 +54,17 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 backgroundColor: Colors.green,
               ),
             );
-            Navigator.pushReplacementNamed(context, '/admin/dashboard');
+            // Clear all routes and go to admin dashboard
+            Navigator.pushNamedAndRemoveUntil(
+              context, 
+              '/admin/dashboard',
+              (route) => false,
+            );
           }
         } else {
-          Log.e(
-              'AdminAuthService login failed: ${adminLoginResponse['message']}');
+          Log.e('Admin login failed: ${adminProvider.error}');
           setState(() {
-            _errorMessage = adminLoginResponse['message'] ??
-                'Admin login failed. Please try again.';
+            _errorMessage = adminProvider.error ?? 'Login failed. Please try again.';
           });
         }
       } catch (e) {

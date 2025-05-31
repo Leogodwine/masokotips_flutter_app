@@ -181,7 +181,7 @@ class ApiService {
   // Logout
   Future<void> logout() async {
     try {
-      final url = Uri.parse('$baseUrl/auth/logout');
+      final url = Uri.parse('$baseUrl/user/logout');
       final response = await http.post(
         url,
         headers: await _getAuthHeaders(),

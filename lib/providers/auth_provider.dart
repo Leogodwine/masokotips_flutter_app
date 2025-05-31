@@ -110,13 +110,30 @@ class AuthProvider with ChangeNotifier {
   // Logout
   Future<void> logout() async {
     try {
-      await _apiService.logout();
+      // First, get the current token before logging out
+      final currentToken = _token;
+      
+      // Clear local state first
       _token = null;
       _user = null;
       await _clearToken();
       notifyListeners();
+      
+      try {
+        // Then attempt to log out on the server with the token we just had
+        if (currentToken != null) {
+          _apiService.setAuthToken(currentToken);
+          await _apiService.logout();
+        }
+      } catch (e) {
+        // Even if server logout fails, we've already cleared local state
+        // so we'll just log the error but not throw it
+        debugPrint('Error during server logout (continuing with local logout): $e');
+      }
     } catch (e) {
-      throw Exception('Logout failed: $e');
+      debugPrint('Error during logout: $e');
+      // Re-throw the error so the UI can handle it
+      rethrow;
     }
   }
 

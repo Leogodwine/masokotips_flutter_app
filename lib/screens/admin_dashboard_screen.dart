@@ -28,9 +28,23 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
-              context.read<AdminProvider>().logout();
-              Navigator.pushReplacementNamed(context, '/admin/login');
+            onPressed: () async {
+              try {
+                await context.read<AdminProvider>().logout();
+                if (mounted) {
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    '/admin/login',
+                    (route) => false, // This removes all previous routes
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error during logout: ${e.toString()}')),
+                  );
+                }
+              }
             },
           ),
         ],
