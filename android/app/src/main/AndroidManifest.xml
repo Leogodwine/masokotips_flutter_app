@@ -1,8 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-
-    <!-- Required for internet access -->
     <uses-permission android:name="android.permission.INTERNET" />
     
     <!-- Required for picking images/files from gallery -->
@@ -20,6 +17,7 @@
         android:label="maSOKOtips"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="false"
         android:enableOnBackInvokedCallback="true">
         <activity
              android:name=".MainActivity"

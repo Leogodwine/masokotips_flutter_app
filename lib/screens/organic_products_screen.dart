@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
 import '../providers/organic_product_provider.dart';
 import '../models/organic_product.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -20,9 +21,32 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      context.read<OrganicProductProvider>().loadProducts();
-    });
+    // Load products when the screen is first shown
+    _loadProducts();
+    
+    // Listen for auth state changes
+    final authProvider = context.read<AuthProvider>();
+    authProvider.addListener(_onAuthStateChanged);
+  }
+  
+  @override
+  void dispose() {
+    // Remove the auth state listener when the widget is disposed
+    final authProvider = context.read<AuthProvider>();
+    authProvider.removeListener(_onAuthStateChanged);
+    super.dispose();
+  }
+  
+  void _onAuthStateChanged() {
+    // Reload products when auth state changes (e.g., after login)
+    if (mounted) {
+      _loadProducts();
+    }
+  }
+  
+  Future<void> _loadProducts() async {
+    final provider = context.read<OrganicProductProvider>();
+    await provider.loadProducts();
   }
 
   @override
@@ -100,12 +124,12 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
             onRefresh: () => provider.loadProducts(),
             child: AnimationLimiter(
               child: GridView.builder(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(12),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 0.75,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
+                  childAspectRatio: 0.7, // Adjusted to be more compact
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
                 ),
                 itemCount: provider.products.length,
                 itemBuilder: (context, index) {
@@ -131,6 +155,9 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
 
   Widget _buildProductCard(BuildContext context, OrganicProduct product) {
     final theme = Theme.of(context);
+    final isOutOfStock = product.stock <= 0;
+    final priceText = 'TZS ${product.price.toStringAsFixed(2)}';
+    final stockText = isOutOfStock ? 'Out of Stock' : '${product.stock} in stock';
 
     return Card(
       elevation: 2,
@@ -151,54 +178,61 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Product Image
+            // Product Image - Even more compact
             AspectRatio(
-              aspectRatio: 1,
+              aspectRatio: 0.9, // More compact aspect ratio
               child: Stack(
                 fit: StackFit.expand,
                 children: [
                   CachedNetworkImage(
                     imageUrl: product.imageUrl ?? '',
                     fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
                     placeholder: (context, url) => Container(
                       color: Colors.grey[200],
                       child: const Center(
-                        child: CircularProgressIndicator(),
+                        child: SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 1.5),
+                        ),
                       ),
                     ),
                     errorWidget: (context, url, error) => Container(
                       color: Colors.grey[200],
-                      child: const Icon(Icons.error),
+                      child: const Icon(Icons.error, size: 20),
                     ),
                   ),
                   if (product.isFeatured)
                     Positioned(
-                      top: 8,
-                      right: 8,
+                      top: 4,
+                      right: 4,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
+                          horizontal: 4,
+                          vertical: 1,
                         ),
                         decoration: BoxDecoration(
                           color: theme.primaryColor,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
                               Icons.star,
-                              size: 12,
+                              size: 8,
                               color: Colors.white,
                             ),
-                            SizedBox(width: 4),
+                            SizedBox(width: 1),
                             Text(
                               'Featured',
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 10,
+                                fontSize: 7,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -209,90 +243,101 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
                 ],
               ),
             ),
-            // Product Details
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
+            // Product Details - Even more compact
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4.0, 2.0, 4.0, 2.0), // Reduced padding
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Product name with tighter constraints
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 34), // Reduced from 40
+                    child: Text(
                       product.name,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontSize: 11, // Reduced from 12
+                        height: 1.1,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'TZS ${product.price.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        color: theme.primaryColor,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  ),
+                  const SizedBox(height: 1), // Reduced from 2
+                  // Price with smaller font and tighter line height
+                  Text(
+                    priceText,
+                    style: TextStyle(
+                      color: theme.primaryColor,
+                      fontSize: 12, // Reduced from 14
+                      fontWeight: FontWeight.bold,
+                      height: 1.1,
                     ),
-                    const Spacer(),
-                    Row(
+                  ),
+                  const SizedBox(height: 4), // Reduced from 6
+                  // Stock and actions row - minimal height
+                  SizedBox(
+                    height: 22, // Fixed height to prevent overflow
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        // Stock status - minimal
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
+                            horizontal: 3,
+                            vertical: 0,
                           ),
                           decoration: BoxDecoration(
-                            color: product.stock > 0
-                                ? Colors.green[100]
-                                : Colors.red[100],
-                            borderRadius: BorderRadius.circular(12),
+                            color: isOutOfStock ? Colors.red[100] : Colors.green[100],
+                            borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
-                            product.stock > 0
-                                ? 'In Stock (${product.stock})'
-                                : 'Out of Stock',
+                            stockText,
                             style: TextStyle(
-                              color: product.stock > 0
-                                  ? Colors.green[700]
-                                  : Colors.red[700],
-                              fontSize: 12,
+                              color: isOutOfStock ? Colors.red[700] : Colors.green[700],
+                              fontSize: 7,
                               fontWeight: FontWeight.w500,
+                              height: 1.0,
                             ),
                           ),
                         ),
+                        // Action buttons - minimal
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () {
+                            // Edit button - minimal
+                            GestureDetector(
+                              onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        EditOrganicProductScreen(
-                                            product: product),
+                                    builder: (context) => EditOrganicProductScreen(product: product),
                                   ),
                                 ).then((_) {
-                                  context
-                                      .read<OrganicProductProvider>()
-                                      .loadProducts();
+                                  context.read<OrganicProductProvider>().loadProducts();
                                 });
                               },
+                              child: const Padding(
+                                padding: EdgeInsets.all(2.0),
+                                child: Icon(Icons.edit, size: 12, color: Colors.blue),
+                              ),
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () =>
-                                  _showDeleteConfirmation(context, product),
+                            // Delete button - minimal
+                            GestureDetector(
+                              onTap: () => _showDeleteConfirmation(context, product),
+                              child: const Padding(
+                                padding: EdgeInsets.all(2.0),
+                                child: Icon(Icons.delete, size: 12, color: Colors.red),
+                              ),
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                  ),
+                ],
               ),
             ),
           ],

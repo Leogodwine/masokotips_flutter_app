@@ -115,6 +115,15 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // App Logo
+                  Image.asset(
+                    'assets/images/logo.png',
+                    height: 80,
+                    width: 80,
+                    alignment: Alignment.center,
+                  ),
+                  const SizedBox(height: 16),
+                  
                   // Header
                   Text(
                     'Admin Login',

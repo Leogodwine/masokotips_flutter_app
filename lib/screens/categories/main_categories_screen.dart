@@ -39,7 +39,8 @@ class _MainCategoriesScreenState extends State<MainCategoriesScreen> {
           }
 
           if (provider.error != null) {
-            return _buildErrorState(provider.error!, provider.loadMainCategories);
+            return _buildErrorState(
+                provider.error!, provider.loadMainCategories);
           }
 
           final categories = provider.mainCategories;
@@ -93,9 +94,7 @@ class _MainCategoriesScreenState extends State<MainCategoriesScreen> {
 
   Widget _buildCategoryCard(BuildContext context, Category category) {
     final theme = Theme.of(context);
-    final iconData = category.icon != null
-        ? IconData(int.tryParse(category.icon!) ?? 0xe3e6, fontFamily: 'MaterialIcons')
-        : Icons.category;
+    final iconData = _getIconData(category.icon);
 
     return Material(
       color: Colors.transparent,
@@ -158,5 +157,27 @@ class _MainCategoriesScreenState extends State<MainCategoriesScreen> {
         ),
       ),
     );
+  }
+
+  IconData _getIconData(String? iconName) {
+    if (iconName == null) return Icons.category;
+    switch (iconName.toLowerCase()) {
+      case 'shopping_basket':
+        return Icons.shopping_basket;
+      case 'miscellaneous_services':
+        return Icons.miscellaneous_services;
+      case 'trending_up':
+        return Icons.trending_up;
+      case 'local_shipping':
+        return Icons.local_shipping;
+      case 'eco':
+        return Icons.eco;
+      case 'agriculture':
+        return Icons.agriculture;
+      case 'category':
+        return Icons.category;
+      default:
+        return Icons.category;
+    }
   }
 }

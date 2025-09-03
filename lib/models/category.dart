@@ -29,6 +29,9 @@ class Category {
   @JsonKey(name: 'products_count')
   final int productsCount;
 
+  @JsonKey(name: 'subcategories_count')
+  final int subcategoriesCount;
+
   @JsonKey(name: 'subcategories')
   List<Category>? subcategories;
 
@@ -43,6 +46,7 @@ class Category {
     this.icon,
     this.parentId,
     this.productsCount = 0,
+    this.subcategoriesCount = 0,
     this.subcategories,
   });
 
@@ -63,35 +67,35 @@ final mainCategories = [
     icon: 'shopping_basket',
     subcategories: [
       Category(
-          id: 11,
+          id: 6,
           name: 'Vegetables',
           slug: 'vegetables',
           isActive: true,
           sortOrder: 1),
       Category(
-          id: 12, name: 'Fruits', slug: 'fruits', isActive: true, sortOrder: 2),
+          id: 7, name: 'Fruits', slug: 'fruits', isActive: true, sortOrder: 2),
       Category(
-          id: 13, name: 'Spices', slug: 'spices', isActive: true, sortOrder: 3),
+          id: 8, name: 'Spices', slug: 'spices', isActive: true, sortOrder: 3),
       Category(
-          id: 14,
+          id: 9,
           name: 'Cash Crops',
           slug: 'cash-crops',
           isActive: true,
           sortOrder: 4),
       Category(
-          id: 15,
+          id: 10,
           name: 'Cereals',
           slug: 'cereals',
           isActive: true,
           sortOrder: 5),
       Category(
-          id: 16,
+          id: 11,
           name: 'Seeds and Seedling',
           slug: 'seeds-and-seedling',
           isActive: true,
           sortOrder: 6),
       Category(
-          id: 17,
+          id: 12,
           name: 'Livestock and poultry',
           slug: 'livestock-and-poultry',
           isActive: true,
@@ -116,62 +120,62 @@ final mainCategories = [
     icon: 'local_shipping',
     subcategories: [
       Category(
-          id: 41, name: 'Tandem', slug: 'tandem', isActive: true, sortOrder: 1),
+          id: 13, name: 'Tandem', slug: 'tandem', isActive: true, sortOrder: 1),
       Category(
-          id: 42,
+          id: 14,
           name: 'Kirikuu',
           slug: 'kirikuu',
           isActive: true,
           sortOrder: 2),
       Category(
-          id: 43,
+          id: 15,
           name: 'Flatbed Trucks',
           slug: 'flatbed-trucks',
           isActive: true,
           sortOrder: 3),
       Category(
-          id: 44, name: 'Tanker', slug: 'tanker', isActive: true, sortOrder: 4),
+          id: 16, name: 'Tanker', slug: 'tanker', isActive: true, sortOrder: 4),
       Category(
-          id: 45,
+          id: 17,
           name: 'Refrigerator Truck',
           slug: 'refrigerator-truck',
           isActive: true,
           sortOrder: 5),
       Category(
-          id: 46,
+          id: 18,
           name: 'Box Truck',
           slug: 'box-truck',
           isActive: true,
           sortOrder: 6),
       Category(
-          id: 47,
+          id: 19,
           name: 'Liftgate Truck',
           slug: 'liftgate-truck',
           isActive: true,
           sortOrder: 7),
-      Category(id: 48, name: 'Van', slug: 'van', isActive: true, sortOrder: 8),
+      Category(id: 20, name: 'Van', slug: 'van', isActive: true, sortOrder: 8),
       Category(
-          id: 49,
+          id: 21,
           name: 'Container Hauler',
           slug: 'container-hauler',
           isActive: true,
           sortOrder: 9),
       Category(
-          id: 410,
+          id: 22,
           name: 'Pickups Trucks',
           slug: 'pickup-trucks',
           isActive: true,
           sortOrder: 10),
       Category(
-          id: 411, name: 'Fuso', slug: 'fuso', isActive: true, sortOrder: 11),
+          id: 23, name: 'Fuso', slug: 'fuso', isActive: true, sortOrder: 11),
       Category(
-          id: 412,
+          id: 24,
           name: 'Semi Trailers',
           slug: 'semi-trailers',
           isActive: true,
           sortOrder: 12),
       Category(
-          id: 413,
+          id: 25,
           name: 'Tracker Trailers',
           slug: 'tracker-trailers',
           isActive: true,
@@ -187,37 +191,37 @@ final mainCategories = [
     icon: 'eco',
     subcategories: [
       Category(
-          id: 51,
+          id: 26,
           name: 'Organic Vegetables',
           slug: 'organic-vegetables',
           isActive: true,
           sortOrder: 1),
       Category(
-          id: 52,
+          id: 27,
           name: 'Organic Fruits',
           slug: 'organic-fruits',
           isActive: true,
           sortOrder: 2),
       Category(
-          id: 53,
+          id: 28,
           name: 'Organic Spices',
           slug: 'organic-spices',
           isActive: true,
           sortOrder: 3),
       Category(
-          id: 54,
+          id: 29,
           name: 'Organic Cash Crops',
           slug: 'organic-cash-crops',
           isActive: true,
           sortOrder: 4),
       Category(
-          id: 55,
+          id: 30,
           name: 'Organic Cereals',
           slug: 'organic-cereals',
           isActive: true,
           sortOrder: 5),
       Category(
-          id: 56,
+          id: 31,
           name: 'Organic Livestock and Poultry',
           slug: 'organic-livestock-and-poultry',
           isActive: true,
@@ -233,47 +237,83 @@ final mainCategories = [
     icon: 'agriculture',
     subcategories: [
       Category(
-          id: 61,
+          id: 32,
           name: 'Packaging Materials',
           slug: 'packaging-materials',
           isActive: true,
           sortOrder: 1),
       Category(
-          id: 62,
+          id: 33,
           name: 'Hydroponics',
           slug: 'hydroponics',
           isActive: true,
           sortOrder: 2),
       Category(
-          id: 63,
+          id: 34,
           name: 'Fertilizer',
           slug: 'fertilizer',
           isActive: true,
           sortOrder: 3),
       Category(
-          id: 64,
+          id: 35,
           name: 'Organic Manure',
           slug: 'organic-manure',
           isActive: true,
           sortOrder: 4),
       Category(
-          id: 65,
+          id: 36,
           name: 'Machinery',
           slug: 'machinery',
           isActive: true,
           sortOrder: 5),
       Category(
-          id: 66,
+          id: 37,
           name: 'Beehive and Aquatic',
           slug: 'beehive-and-aquatic',
           isActive: true,
           sortOrder: 6),
       Category(
-          id: 67,
+          id: 38,
           name: 'Food and Beverage',
           slug: 'food-and-beverage',
           isActive: true,
           sortOrder: 7),
+      Category(
+          id: 39,
+          name: 'Cold Rooms Services',
+          slug: 'cold-rooms-services',
+          isActive: true,
+          sortOrder: 8),
+      Category(
+          id: 40,
+          name: 'Machinery and Rental Services',
+          slug: 'machinery-and-rental-services',
+          isActive: true,
+          sortOrder: 9),
+      Category(
+          id: 41,
+          name: 'Agronomist Services',
+          slug: 'agronomist-services',
+          isActive: true,
+          sortOrder: 10),
+      Category(
+          id: 42,
+          name: 'Financial Services',
+          slug: 'financial-services',
+          isActive: true,
+          sortOrder: 11),
+      Category(
+          id: 43,
+          name: 'Irrigation Services',
+          slug: 'irrigation-services',
+          isActive: true,
+          sortOrder: 12),
+      Category(
+          id: 44,
+          name: 'Branding and Consultation Services',
+          slug: 'branding-and-consultation-services',
+          isActive: true,
+          sortOrder: 13),
     ],
   ),
 ];

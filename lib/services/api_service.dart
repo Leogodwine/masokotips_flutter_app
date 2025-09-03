@@ -24,6 +24,7 @@ class ApiService {
   Map<String, String> get _headers => {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
         'Authorization': 'Bearer $_authToken',
       };
 
@@ -367,6 +368,7 @@ class ApiService {
       final response = await http.get(uri, headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
       });
 
       if (response.statusCode == 200) {
@@ -392,11 +394,19 @@ class ApiService {
       final response = await http.get(uri, headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
         if (_authToken != null) 'Authorization': 'Bearer $_authToken',
       });
 
       Log.e('Response status: ${response.statusCode}');
       Log.e('Response body: ${response.body}');
+
+      // Check if we got the ngrok warning page
+      if (response.body.contains('ngrok') &&
+          response.body.contains('warning')) {
+        Log.e('Received ngrok warning page instead of API response');
+        throw Exception('Received ngrok warning page - check ngrok headers');
+      }
 
       if (response.statusCode == 200) {
         final dynamic responseData = json.decode(response.body);
@@ -418,8 +428,20 @@ class ApiService {
         }
 
         Log.e('Received ${productsData.length} products');
-        final products =
-            productsData.map((json) => Product.fromJson(json)).toList();
+        Log.e('Products data: ${productsData.toString()}');
+
+        final products = <Product>[];
+        for (int i = 0; i < productsData.length; i++) {
+          try {
+            final product = Product.fromJson(productsData[i]);
+            products.add(product);
+            Log.e('Successfully parsed product ${i + 1}: ${product.name}');
+          } catch (e) {
+            Log.e('Error parsing product ${i + 1}: $e');
+            Log.e('Product data: ${productsData[i]}');
+          }
+        }
+
         Log.e('Parsed ${products.length} products');
         return products;
       } else if (response.statusCode == 404) {
@@ -438,14 +460,15 @@ class ApiService {
 
   Future<List<Category>> getCategories() async {
     try {
-      final uri = Uri.parse('$baseUrl/categories');
-      Log.e('ApiService: Fetching categories from: $uri');
+      final uri = Uri.parse('$baseUrl/main-categories');
+      Log.e('ApiService: Fetching main categories from: $uri');
 
       final response = await http.get(
         uri,
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
+          'ngrok-skip-browser-warning': 'true',
           if (_authToken != null) 'Authorization': 'Bearer $_authToken',
         },
       );
@@ -469,7 +492,7 @@ class ApiService {
           final categories =
               categoriesJson.map((json) => Category.fromJson(json)).toList();
           Log.e(
-              'ApiService: Successfully parsed ${categories.length} categories');
+              'ApiService: Successfully parsed ${categories.length} main categories');
           return categories;
         } else {
           Log.e('ApiService: Unexpected JSON structure: $data');
@@ -477,12 +500,13 @@ class ApiService {
         }
       } else {
         Log.e('ApiService: Failed with status ${response.statusCode}');
-        throw Exception('Failed to fetch categories: ${response.statusCode}');
+        throw Exception(
+            'Failed to fetch main categories: ${response.statusCode}');
       }
     } catch (e, stackTrace) {
-      Log.e('ApiService: Error fetching categories: $e');
+      Log.e('ApiService: Error fetching main categories: $e');
       Log.e('ApiService: Stack trace: $stackTrace');
-      throw Exception('Error fetching categories: $e');
+      throw Exception('Error fetching main categories: $e');
     }
   }
 
@@ -738,6 +762,137 @@ class ApiService {
 
     if (response.statusCode != 200) {
       throw Exception('Failed to delete data: ${response.statusCode}');
+    }
+  }
+
+  // Order API Methods
+  Future<Map<String, dynamic>> createOrder({
+    required List<Map<String, dynamic>> items,
+    required String shippingAddress,
+    required String paymentMethod,
+    String? notes,
+  }) async {
+    try {
+      final uri = Uri.parse('$baseUrl/buyer/orders');
+      Log.e('Creating order at: $uri');
+
+      final requestBody = {
+        'items': items,
+        'shipping_address': shippingAddress,
+        'payment_method': paymentMethod,
+        'notes': notes,
+      };
+
+      Log.e('Order request body: ${json.encode(requestBody)}');
+
+      final response = await http.post(
+        uri,
+        headers: _headers,
+        body: json.encode(requestBody),
+      );
+
+      Log.e('Order creation response status: ${response.statusCode}');
+      Log.e('Order creation response body: ${response.body}');
+
+      if (response.statusCode == 201) {
+        final responseData = json.decode(response.body);
+        Log.e('Order created successfully');
+        return responseData;
+      } else {
+        Log.e('Order creation failed: ${response.body}');
+        throw Exception('Failed to create order: ${response.statusCode}');
+      }
+    } catch (e, stackTrace) {
+      Log.e('Error creating order: $e');
+      Log.e('Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getUserOrders() async {
+    try {
+      final uri = Uri.parse('$baseUrl/buyer/orders');
+      Log.e('Fetching user orders from: $uri');
+
+      final response = await http.get(uri, headers: _headers);
+      Log.e('Orders response status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        Log.e('Received orders response: ${response.body}');
+
+        List<dynamic> ordersData;
+        if (responseData is Map<String, dynamic>) {
+          if (responseData.containsKey('data')) {
+            ordersData = List<dynamic>.from(responseData['data']);
+          } else {
+            ordersData = [];
+          }
+        } else if (responseData is List) {
+          ordersData = responseData;
+        } else {
+          ordersData = [];
+        }
+
+        Log.e('Received ${ordersData.length} orders');
+        return ordersData.cast<Map<String, dynamic>>();
+      } else if (response.statusCode == 404) {
+        Log.e('No orders found');
+        return [];
+      } else {
+        Log.e('Error response: ${response.body}');
+        throw Exception('Failed to load orders: ${response.statusCode}');
+      }
+    } catch (e, stackTrace) {
+      Log.e('Error fetching orders: $e');
+      Log.e('Stack trace: $stackTrace');
+      return [];
+    }
+  }
+
+  Future<Map<String, dynamic>> getOrder(int orderId) async {
+    try {
+      final uri = Uri.parse('$baseUrl/buyer/orders/$orderId');
+      Log.e('Fetching order from: $uri');
+
+      final response = await http.get(uri, headers: _headers);
+      Log.e('Order response status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        Log.e('Received order: ${response.body}');
+        return responseData;
+      } else {
+        Log.e('Error response: ${response.body}');
+        throw Exception('Failed to load order: ${response.statusCode}');
+      }
+    } catch (e, stackTrace) {
+      Log.e('Error fetching order: $e');
+      Log.e('Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> cancelOrder(int orderId) async {
+    try {
+      final uri = Uri.parse('$baseUrl/buyer/orders/$orderId/cancel');
+      Log.e('Cancelling order at: $uri');
+
+      final response = await http.put(uri, headers: _headers);
+      Log.e('Cancel order response status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        Log.e('Order cancelled successfully');
+        return responseData;
+      } else {
+        Log.e('Cancel order failed: ${response.body}');
+        throw Exception('Failed to cancel order: ${response.statusCode}');
+      }
+    } catch (e, stackTrace) {
+      Log.e('Error cancelling order: $e');
+      Log.e('Stack trace: $stackTrace');
+      rethrow;
     }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:masoko_tips/providers/auth_provider.dart';
 
 class CustomDrawer extends StatelessWidget {
@@ -219,6 +220,27 @@ class CustomDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     context,
+                    icon: Icons.delete_forever_rounded,
+                    title: 'Request Account Deletion',
+                    onTap: () async {
+                      Navigator.pop(context);
+                      await _composeDeletionEmail(context);
+                    },
+                  ),
+                  _buildDrawerItem(
+                    context,
+                    icon: Icons.privacy_tip_rounded,
+                    title: 'Privacy Policy',
+                    onTap: () async {
+                      Navigator.pop(context);
+                      await _openExternalUrl(
+                        context,
+                        'https://masokotips.com/privacy-policy.html',
+                      );
+                    },
+                  ),
+                  _buildDrawerItem(
+                    context,
                     icon: Icons.help_rounded,
                     title: 'Help & Support',
                     onTap: () {
@@ -308,5 +330,49 @@ class CustomDrawer extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _openExternalUrl(BuildContext context, String url) async {
+    final uri = Uri.parse(url);
+    bool opened = false;
+    if (await canLaunchUrl(uri)) {
+      opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+    if (!opened) {
+      // Fallback to in-app webview if no external handler available
+      opened = await launchUrl(
+        uri,
+        mode: LaunchMode.inAppWebView,
+        webViewConfiguration:
+            const WebViewConfiguration(enableJavaScript: true),
+      );
+    }
+    if (!opened && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not open link')),
+      );
+    }
+  }
+
+  Future<void> _composeDeletionEmail(BuildContext context) async {
+    final uri = Uri(
+      scheme: 'mailto',
+      path: 'info@masokotips.com',
+      queryParameters: <String, String>{
+        'subject': 'Account Deletion Request - maSOKOtips',
+        'body':
+            'Hello maSOKOtips Team,\n\nI would like to request deletion of my account and associated data.'
+                '\n\nPlease confirm once completed.\n\nThanks.',
+      },
+    );
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No email app found to send request')),
+        );
+      }
+    }
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/orders_provider.dart';
 import '../../models/address.dart';
@@ -20,7 +19,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final _formKey = GlobalKey<FormState>();
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
+  final _notesController = TextEditingController();
   String _paymentMethod = 'Cash';
+  String _deliveryMethod = 'Standard';
   bool _isLoading = false;
   Address? _selectedAddress;
   List<Address> _addresses = [];
@@ -32,12 +33,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   void _loadInitialData() {
-    final authProvider = context.read<AuthProvider>();
-    final user = authProvider.user;
-
-    if (user != null) {
-      _phoneController.text = user.phoneNumber ?? '';
-    }
+    // Use sample phone number for demo purposes
+    _phoneController.text = '+255 123 456 789';
 
     _loadSavedAddresses();
   }
@@ -50,22 +47,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         Address(
           id: '1',
           name: 'Home',
-          street: '123 Main St',
-          city: 'New York',
-          state: 'NY',
-          zipCode: '10001',
-          country: 'USA',
+          street: 'Shanty town',
+          city: 'Moshi',
+          state: 'Kilimanjaro',
+          zipCode: '25100',
+          country: 'Tanzania',
           isDefault: true,
-        ),
-        Address(
-          id: '2',
-          name: 'Work',
-          street: '456 Business Ave',
-          city: 'New York',
-          state: 'NY',
-          zipCode: '10002',
-          country: 'USA',
-          isDefault: false,
         ),
       ];
 
@@ -138,7 +125,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       final cart = context.read<CartProvider>();
       final orders = context.read<OrdersProvider>();
 
-      orders.addOrder(
+      await orders.addOrder(
         cartItems: cart.items.values
             .map((item) => models.CartItem(
                   id: item.product.id,
@@ -152,6 +139,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         address: _addressController.text,
         phone: _phoneController.text,
         paymentMethod: _paymentMethod,
+        notes: _notesController.text.isNotEmpty ? _notesController.text : null,
       );
 
       cart.clearCart();
@@ -179,6 +167,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   void dispose() {
     _phoneController.dispose();
     _addressController.dispose();
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -189,86 +178,426 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Checkout'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              Text('Order Summary',
-                  style: Theme.of(context).textTheme.headlineSmall),
-              const SizedBox(height: 12),
-              ...cart.items.values.map((item) => ListTile(
-                    title: Text(item.product.name),
-                    subtitle: Text('Qty: ${item.quantity}'),
-                    trailing: Text('TZS${item.total.toStringAsFixed(2)}'),
-                  )),
-              const Divider(),
-              ListTile(
-                title: const Text('Total',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                trailing: Text('TZS${cart.total.toStringAsFixed(2)}',
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
-              ),
-              const SizedBox(height: 24),
-              Text('Delivery Info',
-                  style: Theme.of(context).textTheme.headlineSmall),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _addressController,
-                readOnly: true,
-                decoration: InputDecoration(
-                  labelText: 'Address',
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.edit_location_alt),
-                    onPressed: _selectAddress,
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Colors.white,
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () => Navigator.pop(context),
+              )
+            : null,
+        actions: [
+          // Cart icon with badge
+          Consumer<CartProvider>(
+            builder: (context, cartProvider, child) {
+              return Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.shopping_cart),
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/cart');
+                    },
                   ),
-                  border: const OutlineInputBorder(),
-                ),
-                validator: (value) => (value == null || value.isEmpty)
-                    ? 'Please select address'
-                    : null,
+                  if (cartProvider.itemCount > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          '${cartProvider.itemCount}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Order Summary Card
+              _buildOrderSummaryCard(cart),
+              const SizedBox(height: 20),
+
+              // Delivery Information Card
+              _buildDeliveryInfoCard(),
+              const SizedBox(height: 20),
+
+              // Payment Method Card
+              _buildPaymentMethodCard(),
+              const SizedBox(height: 20),
+
+              // Order Notes Card
+              _buildOrderNotesCard(),
+              const SizedBox(height: 30),
+
+              // Place Order Button
+              LoadingButton(
+                text: 'PLACE ORDER - TZS ${cart.total.toStringAsFixed(2)}',
+                isLoading: _isLoading,
+                onPressed: _placeOrder,
+                height: 56,
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _phoneController,
-                keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(
-                  labelText: 'Phone Number',
-                  border: OutlineInputBorder(),
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOrderSummaryCard(CartProvider cart) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.shopping_bag, color: Theme.of(context).primaryColor),
+                const SizedBox(width: 8),
+                Text(
+                  'Order Summary',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
-                validator: (value) =>
-                    (value == null || value.isEmpty) ? 'Phone required' : null,
+              ],
+            ),
+            const SizedBox(height: 16),
+            ...cart.items.values.map((item) => Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey[200]!),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color:
+                              Theme.of(context).primaryColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Icons.shopping_basket,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.product.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Qty: ${item.quantity} × TZS ${item.product.price.toStringAsFixed(2)}',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        'TZS ${item.total.toStringAsFixed(2)}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+            const Divider(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Total',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                Text(
+                  'TZS ${cart.total.toStringAsFixed(2)}',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDeliveryInfoCard() {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.local_shipping,
+                    color: Theme.of(context).primaryColor),
+                const SizedBox(width: 8),
+                Text(
+                  'Delivery Information',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Delivery Method
+            Text(
+              'Delivery Method',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: RadioListTile(
+                    title: const Text('Standard Delivery'),
+                    subtitle: const Text('3-5 business days'),
+                    value: 'Standard',
+                    groupValue: _deliveryMethod,
+                    onChanged: (value) {
+                      setState(() => _deliveryMethod = value.toString());
+                    },
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+                Expanded(
+                  child: RadioListTile(
+                    title: const Text('Express Delivery'),
+                    subtitle: const Text('1-2 business days'),
+                    value: 'Express',
+                    groupValue: _deliveryMethod,
+                    onChanged: (value) {
+                      setState(() => _deliveryMethod = value.toString());
+                    },
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Address Selection
+            TextFormField(
+              controller: _addressController,
+              readOnly: true,
+              decoration: InputDecoration(
+                labelText: 'Delivery Address',
+                prefixIcon: const Icon(Icons.location_on),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.edit_location_alt),
+                  onPressed: _selectAddress,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Colors.grey[50],
               ),
-              const SizedBox(height: 24),
-              Text('Payment Method',
-                  style: Theme.of(context).textTheme.headlineSmall),
-              const SizedBox(height: 8),
-              RadioListTile(
+              validator: (value) => (value == null || value.isEmpty)
+                  ? 'Please select delivery address'
+                  : null,
+            ),
+            const SizedBox(height: 16),
+
+            // Phone Number
+            TextFormField(
+              controller: _phoneController,
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(
+                labelText: 'Phone Number',
+                hintText: '+255 123 456 789',
+                prefixIcon: const Icon(Icons.phone),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Colors.grey[50],
+              ),
+              validator: (value) => (value == null || value.isEmpty)
+                  ? 'Phone number is required'
+                  : null,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPaymentMethodCard() {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.payment, color: Theme.of(context).primaryColor),
+                const SizedBox(width: 8),
+                Text(
+                  'Payment Method',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Cash on Delivery
+            Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: _paymentMethod == 'Cash'
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey[300]!,
+                  width: 2,
+                ),
+                borderRadius: BorderRadius.circular(12),
+                color: _paymentMethod == 'Cash'
+                    ? Theme.of(context).primaryColor.withOpacity(0.1)
+                    : Colors.white,
+              ),
+              child: RadioListTile(
                 title: const Text('Cash on Delivery'),
+                subtitle: const Text('Pay when you receive your order'),
                 value: 'Cash',
                 groupValue: _paymentMethod,
                 onChanged: (value) {
                   setState(() => _paymentMethod = value.toString());
                 },
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                activeColor: Theme.of(context).primaryColor,
               ),
-              RadioListTile(
-                title: const Text('Credit Card'),
+            ),
+
+            // Credit Card
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: _paymentMethod == 'Card'
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey[300]!,
+                  width: 2,
+                ),
+                borderRadius: BorderRadius.circular(12),
+                color: _paymentMethod == 'Card'
+                    ? Theme.of(context).primaryColor.withOpacity(0.1)
+                    : Colors.white,
+              ),
+              child: RadioListTile(
+                title: const Text('Credit/Debit Card'),
+                subtitle: const Text('Secure online payment'),
                 value: 'Card',
                 groupValue: _paymentMethod,
                 onChanged: (value) {
                   setState(() => _paymentMethod = value.toString());
                 },
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                activeColor: Theme.of(context).primaryColor,
               ),
-              const SizedBox(height: 24),
-              LoadingButton(
-                text: 'PLACE ORDER',
-                isLoading: _isLoading,
-                onPressed: _placeOrder,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOrderNotesCard() {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.note_add, color: Theme.of(context).primaryColor),
+                const SizedBox(width: 8),
+                Text(
+                  'Order Notes (Optional)',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _notesController,
+              maxLines: 3,
+              decoration: InputDecoration(
+                hintText: 'Any special instructions for your order...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Colors.grey[50],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

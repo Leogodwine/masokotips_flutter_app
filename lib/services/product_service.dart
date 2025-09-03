@@ -229,9 +229,10 @@ class ProductService {
     _checkAuthToken(); // Ensure auth token is set
     try {
       final url = '${ApiConfig.baseUrl}/seller/products/$productId';
-      print('Attempting to delete product at URL: $url');
-      print(
-          'Auth token: ${_authToken?.substring(0, 10)}...'); // Log first 10 chars of token
+      if (kDebugMode) {
+        // ignore: avoid_print
+        print('Attempting to delete product at URL: $url');
+      }
 
       final response = await http.delete(
         Uri.parse(url),

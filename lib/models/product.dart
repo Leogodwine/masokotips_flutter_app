@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import '../config/api_config.dart';
 
 class Product {
@@ -111,7 +112,11 @@ class Product {
     }
 
     imageUrl = _processImageUrl(imageUrl);
-    print('✅ Final processed image URL: $imageUrl');
+    if (kDebugMode) {
+      // Log only in debug to avoid verbose logs in production
+      // ignore: avoid_print
+      print('✅ Final processed image URL: $imageUrl');
+    }
 
     return Product(
       id: json['id'] ?? 0,

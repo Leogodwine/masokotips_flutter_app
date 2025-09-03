@@ -8,7 +8,6 @@ import '../../providers/cart_provider.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/wishlist_provider.dart';
 import '../../screens/auth/login_screen.dart';
-import '../../screens/cart/cart_screen.dart';
 import '../../utils/logger.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
@@ -68,26 +67,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       cartProvider.addToCart(widget.product);
 
       if (!mounted) return;
-      
-      final theme = Theme.of(context);
+
+      // Simple confirmation message - cart icon in navbar will show the count
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('${widget.product.name} added to cart'),
-          backgroundColor: theme.primaryColor,
+          backgroundColor: Theme.of(context).primaryColor,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 2),
-          action: SnackBarAction(
-            label: 'VIEW CART',
-            textColor: Colors.white,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CartScreen(),
-                ),
-              );
-            },
-          ),
         ),
       );
     } catch (e) {
@@ -109,7 +96,55 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.product.name),
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Colors.white,
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () => Navigator.pop(context),
+              )
+            : null,
         actions: [
+          // Cart icon with badge
+          Consumer<CartProvider>(
+            builder: (context, cartProvider, child) {
+              return Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.shopping_cart),
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/cart');
+                    },
+                  ),
+                  if (cartProvider.itemCount > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          '${cartProvider.itemCount}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
           Consumer<WishlistProvider>(
             builder: (context, wishlistProvider, child) {
               final isFavorite =
@@ -202,7 +237,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                            ProductDetailsScreen(product: product),
+                                            ProductDetailsScreen(
+                                                product: product),
                                       ),
                                     );
                                   },
@@ -215,7 +251,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           AspectRatio(
                                             aspectRatio: 1,
@@ -224,9 +261,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                               fit: BoxFit.cover,
                                               placeholder: (context, url) =>
                                                   const Center(
-                                                      child: CircularProgressIndicator()),
-                                              errorWidget: (context, url, error) =>
-                                                  const Icon(Icons.error),
+                                                      child:
+                                                          CircularProgressIndicator()),
+                                              errorWidget:
+                                                  (context, url, error) =>
+                                                      const Icon(Icons.error),
                                             ),
                                           ),
                                           Padding(
@@ -238,7 +277,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                                 Text(
                                                   product.name,
                                                   maxLines: 1,
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   style: const TextStyle(
                                                     fontWeight: FontWeight.bold,
                                                   ),

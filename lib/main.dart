@@ -11,6 +11,9 @@ import 'providers/transport_provider.dart';
 import 'providers/market_info_provider.dart';
 import 'providers/admin_provider.dart';
 import 'providers/orders_provider.dart';
+import 'providers/organic_product_provider.dart';
+import 'services/organic_product_service.dart';
+import 'services/api_service.dart';
 
 import 'screens/splash_screen.dart';
 import 'screens/home/home_screen.dart';
@@ -41,6 +44,7 @@ import 'screens/admin/organic_products_management.dart';
 import 'screens/admin/user_management_screen.dart';
 import 'screens/admin/transport_management_screen.dart';
 import 'screens/categories/main_categories_screen.dart';
+import 'screens/settings/about_settings_screen.dart';
 
 import 'services/service_service.dart';
 import 'models/transport.dart';
@@ -68,7 +72,31 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => TransportProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
         ChangeNotifierProvider(create: (_) => AdminProvider()),
-        ChangeNotifierProvider(create: (_) => OrdersProvider()),
+        ChangeNotifierProxyProvider<AuthProvider, OrdersProvider>(
+          create: (context) => OrdersProvider(),
+          update: (context, authProvider, previous) {
+            final ordersProvider = previous ?? OrdersProvider();
+            if (authProvider.token != null) {
+              final apiService = ApiService(
+                baseUrl: 'https://0616390c20d7.ngrok-free.app/api',
+                apiKey: 'your-api-key',
+              );
+              apiService.setAuthToken(authProvider.token!);
+              ordersProvider.setApiService(apiService);
+            }
+            return ordersProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, OrganicProductProvider>(
+          create: (context) => OrganicProductProvider(OrganicProductService()),
+          update: (context, authProvider, previous) {
+            final service = OrganicProductService();
+            if (authProvider.token != null) {
+              service.setAuthToken(authProvider.token!);
+            }
+            return OrganicProductProvider(service);
+          },
+        ),
       ],
       child: MaterialApp(
         title: 'maSOKOtips',
@@ -87,34 +115,43 @@ class MyApp extends StatelessWidget {
           '/developer_settings': (context) => const DeveloperSettingsScreen(),
           '/seller/dashboard': (context) => const SellerDashboardScreen(),
           '/organic-products': (context) => const OrganicProductsScreen(),
-          '/organic-products/add': (context) => const EditOrganicProductScreen(),
-          '/organic-products/edit': (context) => const EditOrganicProductScreen(),
-          '/transport/list': (context) => const TransportListScreen(category: 'all'),
+          '/organic-products/add': (context) =>
+              const EditOrganicProductScreen(),
+          '/organic-products/edit': (context) =>
+              const EditOrganicProductScreen(),
+          '/transport/list': (context) =>
+              const TransportListScreen(category: 'all'),
           '/transport/add': (context) => const AddTransportScreen(),
           '/transport/edit': (context) {
-            final transport = ModalRoute.of(context)!.settings.arguments as Transport;
+            final transport =
+                ModalRoute.of(context)!.settings.arguments as Transport;
             return EditTransportScreen(transport: transport);
           },
           '/services': (context) => const ServiceCategoriesScreen(),
           '/services/search': (context) => const ServiceSearchScreen(),
           '/market-info': (context) => const MarketInfoScreen(),
+          '/settings': (context) => const AboutSettingsScreen(),
           '/admin/dashboard': (context) => const AdminDashboardScreen(),
           '/admin/market-info': (context) => const MarketInfoManagementScreen(),
           '/admin/create': (context) => const CreateAdminScreen(),
           '/admin/login': (context) => const AdminLoginScreen(),
           '/admin/products': (context) => const AdminProductsManagementScreen(),
           '/admin/services': (context) => const AdminServicesManagementScreen(),
-          '/admin/organic-products': (context) => const OrganicProductsManagement(),
+          '/admin/organic-products': (context) =>
+              const OrganicProductsManagement(),
           '/admin/users': (context) => const AdminUserManagementScreen(),
-          '/admin/transport': (context) => const AdminTransportManagementScreen(),
+          '/admin/transport': (context) =>
+              const AdminTransportManagementScreen(),
           '/categories': (context) => const MainCategoriesScreen(),
           '/provider/add-service': (context) {
-            final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+            final args = ModalRoute.of(context)!.settings.arguments
+                as Map<String, dynamic>;
             final category = args['category'];
             final onServiceAdded = args['onServiceAdded'];
 
             final serviceService = ServiceService();
-            final authProvider = Provider.of<AuthProvider>(context, listen: false);
+            final authProvider =
+                Provider.of<AuthProvider>(context, listen: false);
             if (authProvider.token != null) {
               serviceService.setAuthToken(authProvider.token!);
             }

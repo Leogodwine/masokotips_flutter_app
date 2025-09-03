@@ -54,27 +54,15 @@ class CategoryProvider with ChangeNotifier {
         _error = 'No categories available from the server';
         _mainCategories = [];
       } else {
-        final Map<int, models.Category> categoryMap = {
-          for (var category in response) category.id: category
-        };
+        // The /api/main-categories endpoint already returns only main categories
+        // No need to filter by parentId or build hierarchy
+        _mainCategories = response;
 
-        for (var category in response) {
-          if (category.parentId != null) {
-            final parent = categoryMap[category.parentId];
-            if (parent != null) {
-              parent.subcategories ??= [];
-              parent.subcategories!.add(category);
-              Log.d('Added subcategory ${category.name} under ${parent.name}');
-            }
-          }
-        }
-
-        _mainCategories = response.where((c) => c.parentId == null).toList()
-          ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
-
+        Log.i(
+            'CategoryProvider: ${_mainCategories.length} main categories loaded');
         for (var category in _mainCategories) {
-          category.subcategories
-              ?.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+          Log.d(
+              'CategoryProvider: Main category: ${category.name} (ID: ${category.id}) with ${category.subcategoriesCount} subcategories');
         }
 
         _error = null;
@@ -90,14 +78,14 @@ class CategoryProvider with ChangeNotifier {
     }
   }
 
-  // Load subcategories for a specific category
+  // Load subcategories for a specific category (using hardcoded data for speed)
   Future<void> loadSubcategories(int categoryId) async {
     Log.i(
         'CategoryProvider: Starting to load subcategories for category: $categoryId');
 
     // Don't reload if already loading
     if (_isLoading) {
-      Log.i('CategoryProvider: Already loading categories, skipping');
+      Log.i('CategoryProvider: Already loading subcategories, skipping');
       return;
     }
 
@@ -106,23 +94,22 @@ class CategoryProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final category = getCategoryById(categoryId);
-      Log.i('CategoryProvider: Found category: ${category?.name ?? 'null'}');
+      // Find the category in the hardcoded mainCategories list
+      // This ensures we get the correct subcategories with proper IDs
+      final category = models.mainCategories.firstWhere(
+        (cat) => cat.id == categoryId,
+        orElse: () =>
+            throw Exception('Category not found with ID: $categoryId'),
+      );
 
-      if (category != null) {
-        _subcategories = category.subcategories ?? [];
-        Log.i(
-            'CategoryProvider: Loaded ${_subcategories.length} subcategories');
-        for (var subcategory in _subcategories) {
-          Log.d(
-              'CategoryProvider: Subcategory: ${subcategory.name} (ID: ${subcategory.id})');
-        }
-        _error = null;
-      } else {
-        Log.w('CategoryProvider: Category not found with ID: $categoryId');
-        _error = 'Category not found';
-        _subcategories = [];
+      _subcategories = category.subcategories ?? [];
+      Log.i(
+          'CategoryProvider: Loaded ${_subcategories.length} subcategories instantly from hardcoded data');
+      for (var subcategory in _subcategories) {
+        Log.d(
+            'CategoryProvider: Subcategory: ${subcategory.name} (ID: ${subcategory.id})');
       }
+      _error = null;
     } catch (e) {
       Log.e('CategoryProvider: Error loading subcategories: $e');
       _error = 'Error: $e';

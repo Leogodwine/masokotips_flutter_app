@@ -39,6 +39,11 @@ class TransportProvider with ChangeNotifier {
     _filteredTransports.clear();
     super.dispose();
   }
+  
+  void clearError() {
+    _error = null;
+    notifyListeners();
+  }
 
   Future<void> loadTransports() async {
     _isLoading = true;

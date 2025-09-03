@@ -12,7 +12,7 @@ if (localPropertiesFile.exists()) {
 
 def flutterRoot = localProperties.getProperty('flutter.sdk')
 if (flutterRoot == null) {
-    throw new org.gradle.api.GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
+    throw new RuntimeException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
 }
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
@@ -25,8 +25,15 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+// Load keystore properties once
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
-    namespace "com.maSOKOtips.app"
+    namespace "com.masokotips.app"
     compileSdkVersion flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
@@ -44,7 +51,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.maSOKOtips.app"
+        applicationId "com.masokotips.app"
         minSdkVersion 21
         //noinspection EditedTargetSdkVersion
         targetSdkVersion 35
@@ -76,18 +83,27 @@ android {
 
     signingConfigs {
         release {
-            storeFile file('../upload-keystore.jks') // or use 'upload-keystore.jks'
-            storePassword 'sokotips' // replace with actual password
-            keyAlias 'mykey' // replace with your alias
-            keyPassword 'sokotips' // replace with your key password
+            // DO NOT hardcode secrets in VCS. Use key.properties
+            if (keystorePropertiesFile.exists()) {
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
         }
     }
 
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            if (signingConfigs.release.storeFile != null) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled true
             shrinkResources true
+            ndk {
+                // Generate native debug symbols for Play Console crash/ANR deobfuscation
+                debugSymbolLevel 'FULL' // or 'SYMBOL_TABLE' for more detail
+            }
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

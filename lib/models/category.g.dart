@@ -17,6 +17,7 @@ Category _$CategoryFromJson(Map<String, dynamic> json) => Category(
       icon: json['icon'] as String?,
       parentId: const NullableIntConverter().fromJson(json['parent_id']),
       productsCount: (json['products_count'] as num?)?.toInt() ?? 0,
+      subcategoriesCount: (json['subcategories_count'] as num?)?.toInt() ?? 0,
       subcategories: (json['subcategories'] as List<dynamic>?)
           ?.map((e) => Category.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -33,5 +34,6 @@ Map<String, dynamic> _$CategoryToJson(Category instance) => <String, dynamic>{
       'icon': instance.icon,
       'parent_id': const NullableIntConverter().toJson(instance.parentId),
       'products_count': instance.productsCount,
+      'subcategories_count': instance.subcategoriesCount,
       'subcategories': instance.subcategories?.map((e) => e.toJson()).toList(),
     };

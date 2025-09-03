@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../providers/auth_provider.dart';
 import 'dart:io';
 import 'developer_settings_screen.dart';
@@ -273,6 +274,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           : () => _showLoginDialog(context),
                     ),
                     const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.delete_forever_rounded),
+                      title: const Text('Request Account Deletion'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () async {
+                        final uri = Uri(
+                          scheme: 'mailto',
+                          path: 'info@masokotips.com',
+                          queryParameters: <String, String>{
+                            'subject': 'Account Deletion Request - maSOKOtips',
+                            'body': 'Hello maSOKOtips Team,\n\nI would like to request deletion of my account and associated data.'
+                                '\n\nPlease confirm once completed.\n\nThanks.',
+                          },
+                        );
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(uri);
+                        } else if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text('No email app found to send request')),
+                          );
+                        }
+                      },
+                    ),
                     // Add Seller Dashboard for users with seller role
                     if (isLoggedIn &&
                         user != null &&
@@ -421,12 +447,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ListTile(
                       leading: const Icon(Icons.privacy_tip_outlined),
                       title: const Text('Privacy Policy'),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Privacy Policy coming soon')),
-                        );
+                      trailing: const Icon(Icons.open_in_new_rounded),
+                      onTap: () async {
+                        final uri = Uri.parse(
+                            'https://masokotips.com/privacy-policy.html');
+                        bool opened = false;
+                        if (await canLaunchUrl(uri)) {
+                          opened = await launchUrl(uri,
+                              mode: LaunchMode.externalApplication);
+                        }
+                        if (!opened) {
+                          opened = await launchUrl(
+                            uri,
+                            mode: LaunchMode.inAppWebView,
+                            webViewConfiguration: const WebViewConfiguration(
+                                enableJavaScript: true),
+                          );
+                        }
+                        if (!opened && mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Could not open link')),
+                          );
+                        }
                       },
                     ),
                   ],
