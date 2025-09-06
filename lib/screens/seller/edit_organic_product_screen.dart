@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../models/organic_product.dart';
+import '../../models/category.dart';
 import '../../services/api_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../config/dev_config.dart';
@@ -30,7 +31,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
   final _storageConditionsController = TextEditingController();
   final _shelfLifeController = TextEditingController();
 
-  String _selectedCategory = 'Vegetables';
+  String? _selectedCategory;
   DateTime? _harvestDate;
   bool _isActive = true;
   bool _isFeatured = false;
@@ -38,20 +39,14 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
   bool _isLoading = false;
   String? _errorMessage;
   ApiService? _apiService;
-
-  final List<String> _categories = [
-    'Vegetables',
-    'Fruits',
-    'Grains',
-    'Herbs',
-    'Nuts',
-    'Other'
-  ];
+  List<Category> _categories = [];
+  bool _isLoadingCategories = false;
 
   @override
   void initState() {
     super.initState();
     _initializeApiService();
+    _loadCategories();
     _populateFields();
   }
 
@@ -60,9 +55,34 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
     if (authProvider.token != null) {
       _apiService = ApiService(
         baseUrl: '${DevConfig.ngrokUrl}/api',
-        apiKey: 'your-api-key',
+        apiKey: authProvider.token!,
       );
-      _apiService!.setAuthToken(authProvider.token!);
+    }
+  }
+
+  Future<void> _loadCategories() async {
+    if (_apiService == null) return;
+
+    setState(() {
+      _isLoadingCategories = true;
+    });
+
+    try {
+      Log.e('Loading organic product categories...');
+      final categories = await _apiService!.getOrganicProductCategories();
+      setState(() {
+        _categories = categories;
+      });
+      Log.e('Loaded ${categories.length} organic product categories');
+    } catch (e) {
+      Log.e('Error loading organic product categories: $e');
+      setState(() {
+        _errorMessage = 'Failed to load categories: $e';
+      });
+    } finally {
+      setState(() {
+        _isLoadingCategories = false;
+      });
     }
   }
 
@@ -78,6 +98,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
     _isActive = widget.product.isActive;
     _isFeatured = widget.product.isFeatured;
     _harvestDate = widget.product.harvestDate;
+    _selectedCategory = widget.product.categoryId.toString();
   }
 
   @override
@@ -151,8 +172,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
         'description': _descriptionController.text,
         'price': double.parse(_priceController.text),
         'stock': int.parse(_stockController.text),
-        'category_id':
-            1, // Default category ID - you might want to map this properly
+        'category_id': int.parse(_selectedCategory ?? '1'),
         'certification': _certificationController.text.isNotEmpty
             ? _certificationController.text
             : null,
@@ -353,16 +373,30 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                         filled: true,
                         fillColor: Colors.grey[50],
                       ),
-                      items: _categories.map((category) {
-                        return DropdownMenuItem(
-                          value: category,
-                          child: Text(category),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedCategory = value!;
-                        });
+                      items: _isLoadingCategories
+                          ? [
+                              DropdownMenuItem(
+                                  value: null,
+                                  child: Text('Loading categories...'))
+                            ]
+                          : _categories.map((category) {
+                              return DropdownMenuItem(
+                                value: category.id.toString(),
+                                child: Text(category.name),
+                              );
+                            }).toList(),
+                      onChanged: _isLoadingCategories
+                          ? null
+                          : (value) {
+                              setState(() {
+                                _selectedCategory = value!;
+                              });
+                            },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please select a category';
+                        }
+                        return null;
                       },
                     ),
                     const SizedBox(height: 16),
@@ -655,4 +689,3 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
     }
   }
 }
-

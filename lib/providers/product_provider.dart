@@ -94,17 +94,30 @@ class ProductProvider with ChangeNotifier {
   }
 
   // Load products by category
-  Future<void> loadProductsByCategory(
-      int categoryId, String subcategory) async {
+  Future<void> loadProductsByCategory(int categoryId, String subcategory,
+      {String? categoryName}) async {
     _setLoadingState(true);
 
     try {
       Log.e(
-          'Loading products for category: $categoryId, subcategory: $subcategory');
-      final products =
-          await _apiService.getProductsByCategory(categoryId, subcategory);
-      _products = products;
-      Log.e('Loaded ${products.length} products');
+          'Loading products for category: $categoryId, subcategory: $subcategory, categoryName: $categoryName');
+
+      if (categoryName?.toLowerCase() == 'organic products') {
+        // Load organic products for organic categories
+        final organicProductsData = await _apiService
+            .getOrganicProductsByCategory(categoryId, subcategory);
+        Log.e('Loaded ${organicProductsData.length} organic products');
+
+        // Convert organic products data to Product objects for display
+        _products =
+            organicProductsData.map((data) => Product.fromJson(data)).toList();
+      } else {
+        // Load regular products for other categories
+        final products =
+            await _apiService.getProductsByCategory(categoryId, subcategory);
+        _products = products;
+        Log.e('Loaded ${products.length} regular products');
+      }
     } catch (e) {
       Log.e('Error loading products: $e');
       _setErrorState(e.toString());

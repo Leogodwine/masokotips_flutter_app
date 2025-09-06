@@ -6,6 +6,7 @@ import '../../services/api_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../config/dev_config.dart';
 import '../../utils/logger.dart';
+import '../../models/category.dart';
 
 class AddOrganicProductScreen extends StatefulWidget {
   const AddOrganicProductScreen({Key? key}) : super(key: key);
@@ -26,7 +27,7 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
   final _storageConditionsController = TextEditingController();
   final _shelfLifeController = TextEditingController();
 
-  String _selectedCategory = 'Vegetables';
+  String? _selectedCategory;
   DateTime? _harvestDate;
   bool _isActive = true;
   bool _isFeatured = false;
@@ -34,20 +35,14 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
   bool _isLoading = false;
   String? _errorMessage;
   ApiService? _apiService;
-
-  final List<String> _categories = [
-    'Vegetables',
-    'Fruits',
-    'Grains',
-    'Herbs',
-    'Nuts',
-    'Other'
-  ];
+  List<Category> _categories = [];
+  bool _isLoadingCategories = false;
 
   @override
   void initState() {
     super.initState();
     _initializeApiService();
+    _loadCategories();
   }
 
   void _initializeApiService() {
@@ -55,9 +50,37 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
     if (authProvider.token != null) {
       _apiService = ApiService(
         baseUrl: '${DevConfig.ngrokUrl}/api',
-        apiKey: 'your-api-key',
+        apiKey: authProvider.token!,
       );
-      _apiService!.setAuthToken(authProvider.token!);
+    }
+  }
+
+  Future<void> _loadCategories() async {
+    if (_apiService == null) return;
+
+    setState(() {
+      _isLoadingCategories = true;
+    });
+
+    try {
+      Log.e('Loading organic product categories...');
+      final categories = await _apiService!.getOrganicProductCategories();
+      setState(() {
+        _categories = categories;
+        if (categories.isNotEmpty) {
+          _selectedCategory = categories.first.id.toString();
+        }
+      });
+      Log.e('Loaded ${categories.length} organic product categories');
+    } catch (e) {
+      Log.e('Error loading organic product categories: $e');
+      setState(() {
+        _errorMessage = 'Failed to load categories: $e';
+      });
+    } finally {
+      setState(() {
+        _isLoadingCategories = false;
+      });
     }
   }
 
@@ -132,8 +155,7 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
         'description': _descriptionController.text,
         'price': double.parse(_priceController.text),
         'stock': int.parse(_stockController.text),
-        'category_id':
-            1, // Default category ID - you might want to map this properly
+        'category_id': int.parse(_selectedCategory ?? '1'),
         'certification': _certificationController.text.isNotEmpty
             ? _certificationController.text
             : null,
@@ -327,16 +349,30 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
                         filled: true,
                         fillColor: Colors.grey[50],
                       ),
-                      items: _categories.map((category) {
-                        return DropdownMenuItem(
-                          value: category,
-                          child: Text(category),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedCategory = value!;
-                        });
+                      items: _isLoadingCategories
+                          ? [
+                              DropdownMenuItem(
+                                  value: null,
+                                  child: Text('Loading categories...'))
+                            ]
+                          : _categories.map((category) {
+                              return DropdownMenuItem(
+                                value: category.id.toString(),
+                                child: Text(category.name),
+                              );
+                            }).toList(),
+                      onChanged: _isLoadingCategories
+                          ? null
+                          : (value) {
+                              setState(() {
+                                _selectedCategory = value!;
+                              });
+                            },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please select a category';
+                        }
+                        return null;
                       },
                     ),
                     const SizedBox(height: 16),

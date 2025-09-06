@@ -387,7 +387,7 @@ class ApiService {
     }
   }
 
-  // Get products by category
+  // Get products by category (regular products)
   Future<List<Product>> getProductsByCategory(
       int categoryId, String subcategory) async {
     try {
@@ -459,6 +459,82 @@ class ApiService {
     } catch (e, stackTrace) {
       Log.e('Error in getProductsByCategory: $e\n$stackTrace');
       throw Exception('Failed to load products: $e');
+    }
+  }
+
+  // Get organic products by category
+  Future<List<Map<String, dynamic>>> getOrganicProductsByCategory(
+      int categoryId, String subcategory) async {
+    try {
+      final uri = Uri.parse('$baseUrl/categories/$categoryId/organic-products');
+      Log.e('Fetching organic products for category: $categoryId');
+      Log.e('Request URL: $uri');
+
+      final response = await http.get(uri, headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
+        if (_authToken != null) 'Authorization': 'Bearer $_authToken',
+      });
+
+      Log.e('Organic products response status: ${response.statusCode}');
+      Log.e('Organic products response body: ${response.body}');
+
+      // Check if we got the ngrok warning page
+      if (response.body.contains('ngrok') &&
+          response.body.contains('warning')) {
+        Log.e('Received ngrok warning page instead of API response');
+        throw Exception('Received ngrok warning page - check ngrok headers');
+      }
+
+      if (response.statusCode == 200) {
+        final dynamic responseData = json.decode(response.body);
+
+        // Handle different response formats
+        List<dynamic> productsData;
+        if (responseData is Map<String, dynamic>) {
+          if (responseData.containsKey('data')) {
+            productsData = List<dynamic>.from(responseData['data']);
+          } else if (responseData.containsKey('products')) {
+            productsData = List<dynamic>.from(responseData['products']);
+          } else {
+            productsData = [];
+          }
+        } else if (responseData is List) {
+          productsData = responseData;
+        } else {
+          productsData = [];
+        }
+
+        Log.e('Received ${productsData.length} organic products');
+        Log.e('Organic products data: ${productsData.toString()}');
+
+        final products = <Map<String, dynamic>>[];
+        for (int i = 0; i < productsData.length; i++) {
+          try {
+            final product = Map<String, dynamic>.from(productsData[i]);
+            products.add(product);
+            Log.e(
+                'Successfully parsed organic product ${i + 1}: ${product['name']}');
+          } catch (e) {
+            Log.e('Error parsing organic product ${i + 1}: $e');
+            Log.e('Organic product data: ${productsData[i]}');
+          }
+        }
+
+        Log.e('Parsed ${products.length} organic products');
+        return products;
+      } else if (response.statusCode == 404) {
+        Log.e('No organic products found for category: $categoryId');
+        return [];
+      } else {
+        Log.e('Error response: ${response.body}');
+        throw Exception(
+            'Failed to load organic products: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e, stackTrace) {
+      Log.e('Error in getOrganicProductsByCategory: $e\n$stackTrace');
+      throw Exception('Failed to load organic products: $e');
     }
   }
 
@@ -1163,6 +1239,63 @@ class ApiService {
     } catch (e) {
       Log.e('Error uploading organic product image: $e');
       rethrow;
+    }
+  }
+
+  // Get organic product subcategories
+  Future<List<Category>> getOrganicProductCategories() async {
+    try {
+      final uri = Uri.parse('$baseUrl/categories/4/subcategories');
+      Log.e('Fetching organic product subcategories from: $uri');
+
+      final response = await http.get(uri, headers: _headers);
+
+      Log.e(
+          'Organic product categories response status: ${response.statusCode}');
+      Log.e('Organic product categories response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final dynamic responseData = json.decode(response.body);
+
+        List<dynamic> categoriesData;
+        if (responseData is Map<String, dynamic>) {
+          if (responseData.containsKey('data')) {
+            categoriesData = List<dynamic>.from(responseData['data']);
+          } else {
+            categoriesData = [];
+          }
+        } else if (responseData is List) {
+          categoriesData = responseData;
+        } else {
+          categoriesData = [];
+        }
+
+        Log.e(
+            'Received ${categoriesData.length} organic product subcategories');
+
+        final categories = <Category>[];
+        for (int i = 0; i < categoriesData.length; i++) {
+          try {
+            final category = Category.fromJson(categoriesData[i]);
+            categories.add(category);
+            Log.e(
+                'Successfully parsed organic category ${i + 1}: ${category.name}');
+          } catch (e) {
+            Log.e('Error parsing organic category ${i + 1}: $e');
+            Log.e('Category data: ${categoriesData[i]}');
+          }
+        }
+
+        Log.e('Parsed ${categories.length} organic product subcategories');
+        return categories;
+      } else {
+        Log.e('Error response: ${response.body}');
+        throw Exception(
+            'Failed to load organic product categories: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e, stackTrace) {
+      Log.e('Error in getOrganicProductCategories: $e\n$stackTrace');
+      throw Exception('Failed to load organic product categories: $e');
     }
   }
 

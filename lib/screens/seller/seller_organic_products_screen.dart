@@ -36,9 +36,8 @@ class _SellerOrganicProductsScreenState
     if (authProvider.token != null) {
       _apiService = ApiService(
         baseUrl: '${DevConfig.ngrokUrl}/api',
-        apiKey: 'your-api-key',
+        apiKey: authProvider.token!,
       );
-      _apiService!.setAuthToken(authProvider.token!);
     }
   }
 
@@ -451,4 +450,3 @@ class _SellerOrganicProductsScreenState
     );
   }
 }
-

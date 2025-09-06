@@ -9,12 +9,14 @@ class CategoryProductsScreen extends StatefulWidget {
   final int categoryId;
   final String categoryName;
   final String? subcategory;
+  final String? parentCategoryName;
 
   const CategoryProductsScreen({
     super.key,
     required this.categoryId,
     required this.categoryName,
     this.subcategory,
+    this.parentCategoryName,
   });
 
   @override
@@ -30,6 +32,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
       context.read<ProductProvider>().loadProductsByCategory(
             widget.categoryId,
             widget.subcategory ?? '',
+            categoryName: widget.parentCategoryName,
           );
     });
   }

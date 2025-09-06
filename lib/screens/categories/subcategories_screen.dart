@@ -157,6 +157,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
               builder: (context) => CategoryProductsScreen(
                 categoryId: subcategory.id,
                 categoryName: subcategory.name,
+                parentCategoryName: widget.category.name,
               ),
             ),
           );
