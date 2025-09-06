@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/orders_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../models/address.dart';
 import '../../models/cart_item.dart' as models;
 import '../profile/address_management_screen.dart';
@@ -118,6 +119,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   void _placeOrder() async {
     if (!_formKey.currentState!.validate()) return;
+
+    // Check if user is authenticated
+    final authProvider = context.read<AuthProvider>();
+    if (!authProvider.isAuthenticated) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please log in to place an order'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
     setState(() => _isLoading = true);
 

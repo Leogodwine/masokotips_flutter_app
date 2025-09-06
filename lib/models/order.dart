@@ -39,7 +39,7 @@ class Order {
         items: (json['items'] as List)
             .map((item) => CartItem.fromJson(item))
             .toList(),
-        totalAmount: json['totalAmount'].toDouble(),
+        totalAmount: double.tryParse(json['totalAmount'].toString()) ?? 0.0,
         deliveryAddress: json['deliveryAddress'],
         phoneNumber: json['phoneNumber'],
         paymentMethod: json['paymentMethod'],
@@ -48,4 +48,77 @@ class Order {
           (e) => e.toString().split('.').last == json['status'],
         ),
       );
+
+  factory Order.fromApiJson(Map<String, dynamic> json) {
+    try {
+      print('Order.fromApiJson: Parsing order with ID: ${json['id']}');
+
+      // Convert API order items to CartItem format
+      List<CartItem> items = [];
+      if (json['items'] != null) {
+        print(
+            'Order.fromApiJson: Found ${(json['items'] as List).length} items');
+        items = (json['items'] as List).map((item) {
+          print(
+              'Order.fromApiJson: Parsing item with product_id: ${item['product_id']}');
+          print(
+              'Order.fromApiJson: Item price: ${item['price']} (type: ${item['price'].runtimeType})');
+
+          return CartItem(
+            id: int.tryParse(item['product_id']?.toString() ?? '0') ?? 0,
+            name: item['product_details']?['name'] ??
+                item['product']?['name'] ??
+                'Unknown Product',
+            price: double.tryParse(item['price']?.toString() ?? '0') ?? 0.0,
+            quantity: item['quantity'] ?? 1,
+            imageUrl: item['product_details']?['image'] ??
+                item['product']?['image'] ??
+                '',
+          );
+        }).toList();
+      }
+
+      return Order(
+        id: json['id'].toString(),
+        items: items,
+        totalAmount: double.tryParse(
+                (json['total_amount'] ?? json['totalAmount'] ?? 0)
+                    .toString()) ??
+            0.0,
+        deliveryAddress:
+            json['shipping_address'] ?? json['deliveryAddress'] ?? '',
+        phoneNumber: json['phone'] ?? json['phoneNumber'] ?? '',
+        paymentMethod:
+            json['payment_method'] ?? json['paymentMethod'] ?? 'Unknown',
+        createdAt: DateTime.parse(json['created_at'] ?? json['createdAt']),
+        status: _parseOrderStatus(json['status']),
+      );
+    } catch (e, stackTrace) {
+      print('Error in Order.fromApiJson: $e');
+      print('Stack trace: $stackTrace');
+      print('JSON data: $json');
+      rethrow;
+    }
+  }
+
+  static OrderStatus _parseOrderStatus(String? status) {
+    if (status == null) {
+      return OrderStatus.pending;
+    }
+
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return OrderStatus.pending;
+      case 'processing':
+        return OrderStatus.processing;
+      case 'shipped':
+        return OrderStatus.shipped;
+      case 'delivered':
+        return OrderStatus.delivered;
+      case 'cancelled':
+        return OrderStatus.cancelled;
+      default:
+        return OrderStatus.pending;
+    }
+  }
 }

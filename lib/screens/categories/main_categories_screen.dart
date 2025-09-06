@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/category_provider.dart';
 import '../../models/category.dart';
+import '../../widgets/app_scaffold.dart';
 import 'subcategories_screen.dart';
 
 class MainCategoriesScreen extends StatefulWidget {
@@ -22,46 +23,42 @@ class _MainCategoriesScreenState extends State<MainCategoriesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    return AppScaffold(
+      title: 'Explore Categories',
+      showBackButton: true,
+      body: Container(
+        color: Colors.grey[100],
+        child: Consumer<CategoryProvider>(
+          builder: (context, provider, child) {
+            if (provider.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        title: const Text('Explore Categories'),
-        elevation: 1,
-        backgroundColor: theme.primaryColor,
-        foregroundColor: Colors.white,
-      ),
-      body: Consumer<CategoryProvider>(
-        builder: (context, provider, child) {
-          if (provider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+            if (provider.error != null) {
+              return _buildErrorState(
+                  provider.error!, provider.loadMainCategories);
+            }
 
-          if (provider.error != null) {
-            return _buildErrorState(
-                provider.error!, provider.loadMainCategories);
-          }
+            final categories = provider.mainCategories;
+            if (categories.isEmpty) {
+              return const Center(child: Text('No categories available.'));
+            }
 
-          final categories = provider.mainCategories;
-          if (categories.isEmpty) {
-            return const Center(child: Text('No categories available.'));
-          }
-
-          return GridView.builder(
-            padding: const EdgeInsets.all(16),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.95,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-            ),
-            itemCount: categories.length,
-            itemBuilder: (context, index) {
-              return _buildCategoryCard(context, categories[index]);
-            },
-          );
-        },
+            return GridView.builder(
+              padding: const EdgeInsets.all(16),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.95,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              itemCount: categories.length,
+              itemBuilder: (context, index) {
+                return _buildCategoryCard(context, categories[index]);
+              },
+            );
+          },
+        ),
       ),
     );
   }

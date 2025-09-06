@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/category_provider.dart';
 import '../widgets/category_grid.dart';
+import '../widgets/app_scaffold.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -24,11 +25,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('maSOKOtips'),
-        centerTitle: true,
-      ),
+    return AppScaffold(
+      title: 'maSOKOtips',
+      currentIndex: 0,
       body: Consumer<CategoryProvider>(
         builder: (context, categoryProvider, child) {
           if (categoryProvider.isLoading) {

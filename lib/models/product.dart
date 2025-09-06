@@ -123,7 +123,14 @@ class Product {
       name: json['name'] ?? '',
       slug: json['slug'] ?? '',
       description: json['description'] ?? '',
-      price: double.tryParse(json['price']?.toString() ?? '0') ?? 0.0,
+      price: () {
+        final priceStr = json['price']?.toString() ?? '0';
+        final price = double.tryParse(priceStr) ?? 0.0;
+        if (kDebugMode) {
+          print('Price parsing: "$priceStr" -> $price');
+        }
+        return price;
+      }(),
       stock:
           json['stock'] != null ? int.tryParse(json['stock'].toString()) : null,
       unit: json['unit'],

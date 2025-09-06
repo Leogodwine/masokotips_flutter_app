@@ -34,7 +34,13 @@ class ProductService {
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body)['data'];
+        final responseData = jsonDecode(response.body);
+        print('Seller products response: $responseData');
+        final List<dynamic> data = responseData['data'];
+        print('Found ${data.length} products');
+        if (data.isNotEmpty) {
+          print('First product data: ${data[0]}');
+        }
         return data.map((product) => Product.fromJson(product)).toList();
       } else {
         throw Exception(
@@ -104,8 +110,13 @@ class ProductService {
       print('Response body: ${responseBody.body}');
 
       if (response.statusCode == 201) {
-        final data = jsonDecode(responseBody.body);
+        final responseData = jsonDecode(responseBody.body);
+        final data = responseData['data']; // Get the actual product data
         print('Successfully created product: ${data['name']}');
+        print('Raw response data: $responseData');
+        print('Product data: $data');
+        print(
+            'Price in response: ${data['price']} (type: ${data['price'].runtimeType})');
 
         // Ensure the response data has all required fields
         final productData = {
@@ -129,6 +140,10 @@ class ProductService {
           'deleted_at': data['deleted_at'],
           'category': data['category'],
         };
+
+        print('Constructed productData: $productData');
+        print(
+            'ProductData price: ${productData['price']} (type: ${productData['price'].runtimeType})');
 
         return Product.fromJson(productData);
       } else {

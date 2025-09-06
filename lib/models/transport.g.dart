@@ -14,7 +14,8 @@ Transport _$TransportFromJson(Map<String, dynamic> json) => Transport(
       vehicleType: json['vehicle_type'] as String,
       price: Transport._stringToDouble(json['price'] as String?),
       capacity: Transport._stringToDouble(json['capacity'] as String?),
-      isTemperatureControlled: json['is_temperature_controlled'] as bool,
+      isTemperatureControlled:
+          json['is_temperature_controlled'] as bool? ?? false,
       temperatureRange: Transport._stringToDoubleNullable(
           json['temperature_range'] as String?),
       supportedProductTypes:
@@ -22,7 +23,7 @@ Transport _$TransportFromJson(Map<String, dynamic> json) => Transport(
       driverId: json['driver_id'] as String?,
       driverRating:
           Transport._stringToDoubleNullable(json['driver_rating'] as String?),
-      hasInsurance: json['has_insurance'] as bool,
+      hasInsurance: json['has_insurance'] as bool? ?? false,
       insuranceDetails: json['insurance_details'] as String?,
       certifications: (json['certifications'] as List<dynamic>?)
           ?.map((e) => e as String)
@@ -32,7 +33,7 @@ Transport _$TransportFromJson(Map<String, dynamic> json) => Transport(
           .toList(),
       status: json['status'] as String,
       imageUrl: json['image_url'] as String?,
-      ownerName: json['owner_name'] as String,
+      ownerName: json['owner_name'] as String? ?? '',
       pricePerKg:
           Transport._stringToDoubleNullable(json['price_per_kg'] as String?),
       driverName: json['driver_name'] as String?,
@@ -47,6 +48,10 @@ Transport _$TransportFromJson(Map<String, dynamic> json) => Transport(
       productType:
           Transport._standardizeProductType(json['product_type'] as String?),
       amount: Transport._stringToDouble(json['amount'] as String?),
+      categoryId: (json['category_id'] as num?)?.toInt(),
+      category: json['category'] == null
+          ? null
+          : Category.fromJson(json['category'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$TransportToJson(Transport instance) => <String, dynamic>{
@@ -77,4 +82,6 @@ Map<String, dynamic> _$TransportToJson(Transport instance) => <String, dynamic>{
       'product_name': instance.productName,
       'product_type': instance.productType,
       'amount': instance.amount,
+      'category_id': instance.categoryId,
+      'category': instance.category,
     };

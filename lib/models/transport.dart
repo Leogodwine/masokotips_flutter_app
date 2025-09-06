@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'category.dart';
 
 part 'transport.g.dart';
 
@@ -15,7 +16,7 @@ class Transport {
   final double price;
   @JsonKey(fromJson: _stringToDouble)
   final double capacity;
-  @JsonKey(name: 'is_temperature_controlled')
+  @JsonKey(name: 'is_temperature_controlled', defaultValue: false)
   final bool isTemperatureControlled;
   @JsonKey(name: 'temperature_range', fromJson: _stringToDoubleNullable)
   final double? temperatureRange;
@@ -25,7 +26,7 @@ class Transport {
   final String? driverId;
   @JsonKey(name: 'driver_rating', fromJson: _stringToDoubleNullable)
   final double? driverRating;
-  @JsonKey(name: 'has_insurance')
+  @JsonKey(name: 'has_insurance', defaultValue: false)
   final bool hasInsurance;
   @JsonKey(name: 'insurance_details')
   final String? insuranceDetails;
@@ -34,7 +35,7 @@ class Transport {
   final String status;
   @JsonKey(name: 'image_url')
   final String? imageUrl;
-  @JsonKey(name: 'owner_name')
+  @JsonKey(name: 'owner_name', defaultValue: '')
   final String ownerName;
   @JsonKey(name: 'price_per_kg', fromJson: _stringToDoubleNullable)
   final double? pricePerKg;
@@ -52,6 +53,9 @@ class Transport {
   final String? productType;
   @JsonKey(fromJson: _stringToDouble)
   final double? amount;
+  @JsonKey(name: 'category_id')
+  final int? categoryId;
+  final Category? category;
 
   static double _stringToDouble(String? value) {
     if (value == null) return 0.0;
@@ -104,6 +108,8 @@ class Transport {
     this.productName,
     this.productType,
     this.amount,
+    this.categoryId,
+    this.category,
   });
 
   factory Transport.fromJson(Map<String, dynamic> json) =>
@@ -139,6 +145,8 @@ class Transport {
     String? productName,
     String? productType,
     double? amount,
+    int? categoryId,
+    Category? category,
   }) {
     return Transport(
       id: id ?? this.id,
@@ -170,6 +178,8 @@ class Transport {
       productName: productName ?? this.productName,
       productType: productType ?? this.productType,
       amount: amount ?? this.amount,
+      categoryId: categoryId ?? this.categoryId,
+      category: category ?? this.category,
     );
   }
 }

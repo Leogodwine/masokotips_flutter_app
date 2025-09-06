@@ -201,7 +201,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      prefixIcon: const Icon(Icons.attach_money),
+                      prefixText: 'TZS ',
+                      prefixIcon: const Icon(Icons.monetization_on),
                       filled: true,
                       fillColor: Colors.grey[50],
                     ),

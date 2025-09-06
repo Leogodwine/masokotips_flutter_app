@@ -182,7 +182,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Price',
                   border: OutlineInputBorder(),
-                  prefixText: '\$',
+                  prefixText: 'TZS ',
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {

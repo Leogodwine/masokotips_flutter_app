@@ -112,13 +112,13 @@ class AuthProvider with ChangeNotifier {
     try {
       // First, get the current token before logging out
       final currentToken = _token;
-      
+
       // Clear local state first
       _token = null;
       _user = null;
       await _clearToken();
       notifyListeners();
-      
+
       try {
         // Then attempt to log out on the server with the token we just had
         if (currentToken != null) {
@@ -128,7 +128,8 @@ class AuthProvider with ChangeNotifier {
       } catch (e) {
         // Even if server logout fails, we've already cleared local state
         // so we'll just log the error but not throw it
-        debugPrint('Error during server logout (continuing with local logout): $e');
+        debugPrint(
+            'Error during server logout (continuing with local logout): $e');
       }
     } catch (e) {
       debugPrint('Error during logout: $e');
@@ -173,13 +174,23 @@ class AuthProvider with ChangeNotifier {
 
   // Load token from shared preferences
   Future<void> loadToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    _token = prefs.getString('auth_token');
-    if (_token != null) {
-      // Set the auth token in TransportService
-      _transportService.setAuthToken(_token!);
-      await fetchUserProfile();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _token = prefs.getString('auth_token');
+      if (_token != null) {
+        // Set the auth token in TransportService
+        _transportService.setAuthToken(_token!);
+        try {
+          await fetchUserProfile();
+        } catch (e) {
+          print('Error fetching user profile: $e');
+          // Continue even if profile fetch fails
+        }
+      }
+      notifyListeners();
+    } catch (e) {
+      print('Error loading token: $e');
+      // Continue even if token loading fails
     }
-    notifyListeners();
   }
 }

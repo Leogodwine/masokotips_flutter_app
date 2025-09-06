@@ -14,6 +14,7 @@ import 'providers/orders_provider.dart';
 import 'providers/organic_product_provider.dart';
 import 'services/organic_product_service.dart';
 import 'services/api_service.dart';
+import 'config/dev_config.dart';
 
 import 'screens/splash_screen.dart';
 import 'screens/home/home_screen.dart';
@@ -78,7 +79,7 @@ class MyApp extends StatelessWidget {
             final ordersProvider = previous ?? OrdersProvider();
             if (authProvider.token != null) {
               final apiService = ApiService(
-                baseUrl: 'https://0616390c20d7.ngrok-free.app/api',
+                baseUrl: '${DevConfig.ngrokUrl}/api',
                 apiKey: 'your-api-key',
               );
               apiService.setAuthToken(authProvider.token!);

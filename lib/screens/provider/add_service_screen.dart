@@ -168,7 +168,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Price',
                   border: OutlineInputBorder(),
-                  prefixText: '\$',
+                  prefixText: 'TZS ',
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {

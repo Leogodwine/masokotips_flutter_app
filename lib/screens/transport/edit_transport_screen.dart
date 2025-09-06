@@ -277,7 +277,8 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
                 controller: _priceController,
                 decoration: const InputDecoration(
                   labelText: 'Price',
-                  prefixIcon: Icon(Icons.attach_money),
+                  prefixText: 'TZS ',
+                  prefixIcon: Icon(Icons.monetization_on),
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
@@ -355,7 +356,8 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
                 controller: _pricePerKgController,
                 decoration: const InputDecoration(
                   labelText: 'Price per kg (optional)',
-                  prefixIcon: Icon(Icons.attach_money),
+                  prefixText: 'TZS ',
+                  prefixIcon: Icon(Icons.monetization_on),
                 ),
                 keyboardType: TextInputType.number,
               ),

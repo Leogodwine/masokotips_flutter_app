@@ -173,8 +173,8 @@ class _SearchScreenState extends State<SearchScreen> {
             max: _maxPrice,
             divisions: 10,
             labels: RangeLabels(
-              '\$${_priceRange.start.toStringAsFixed(2)}',
-              '\$${_priceRange.end.toStringAsFixed(2)}',
+              'TZS ${_priceRange.start.toStringAsFixed(2)}',
+              'TZS ${_priceRange.end.toStringAsFixed(2)}',
             ),
             onChanged: (RangeValues values) {
               setState(() {
@@ -185,8 +185,8 @@ class _SearchScreenState extends State<SearchScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('\$${_priceRange.start.toStringAsFixed(2)}'),
-              Text('\$${_priceRange.end.toStringAsFixed(2)}'),
+              Text('TZS ${_priceRange.start.toStringAsFixed(2)}'),
+              Text('TZS ${_priceRange.end.toStringAsFixed(2)}'),
             ],
           ),
           const SizedBox(height: 16),

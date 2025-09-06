@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:masoko_tips/screens/home/home_screen.dart';
+import 'package:masoko_tips/providers/auth_provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -12,12 +14,18 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _navigateToHome();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _navigateToHome();
+    });
   }
 
   Future<void> _navigateToHome() async {
-    await Future.delayed(const Duration(seconds: 4));
+    // Wait for the splash screen to be visible
+    await Future.delayed(const Duration(milliseconds: 2000));
+
     if (!mounted) return;
+
+    // Navigate to home screen
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (_) => const HomeScreen()),
     );

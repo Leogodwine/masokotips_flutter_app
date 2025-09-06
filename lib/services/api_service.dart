@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../models/user.dart';
 import '../models/product.dart'; // Ensure this file contains the Product class definition
@@ -15,7 +16,9 @@ class ApiService {
   ApiService({
     required this.baseUrl,
     required this.apiKey,
-  });
+  }) {
+    _authToken = apiKey;
+  }
 
   void setAuthToken(String token) {
     _authToken = token;
@@ -25,7 +28,7 @@ class ApiService {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
         'ngrok-skip-browser-warning': 'true',
-        'Authorization': 'Bearer $_authToken',
+        if (_authToken != null) 'Authorization': 'Bearer $_authToken',
       };
 
   Future<bool> checkConnection() async {
@@ -47,17 +50,25 @@ class ApiService {
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       final url = Uri.parse('$baseUrl/auth/login');
+      final requestBody = {
+        'email': email,
+        'password': password,
+      };
+
+      Log.e('Login request URL: $url');
+      Log.e('Login request body: ${jsonEncode(requestBody)}');
+
       final response = await http.post(
         url,
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-        }),
+        body: jsonEncode(requestBody),
       );
+
+      Log.e('Login response status: ${response.statusCode}');
+      Log.e('Login response body: ${response.body}');
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
@@ -65,6 +76,7 @@ class ApiService {
         throw Exception('Failed to login: ${response.body}');
       }
     } catch (e) {
+      Log.e('Login error: $e');
       throw Exception('Error during login: $e');
     }
   }
@@ -155,26 +167,34 @@ class ApiService {
       {String role = 'buyer'}) async {
     try {
       final url = Uri.parse('$baseUrl/auth/register');
+      final requestBody = {
+        'name': name,
+        'email': email,
+        'password': password,
+        'password_confirmation': password,
+        'role': role,
+      };
+
+      Log.e('Registration request URL: $url');
+      Log.e('Registration request body: ${jsonEncode(requestBody)}');
+
       final response = await http.post(
         url,
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: jsonEncode({
-          'name': name,
-          'email': email,
-          'password': password,
-          'password_confirmation': password,
-          'role': role,
-          'is_admin': role == 'admin',
-        }),
+        body: jsonEncode(requestBody),
       );
+
+      Log.e('Registration response status: ${response.statusCode}');
+      Log.e('Registration response body: ${response.body}');
 
       if (response.statusCode != 201) {
         throw Exception('Failed to register: ${response.body}');
       }
     } catch (e) {
+      Log.e('Registration error: $e');
       throw Exception('Error during registration: $e');
     }
   }
@@ -226,7 +246,7 @@ class ApiService {
     String? avatarPath, // Added avatarPath parameter
   }) async {
     try {
-      final url = Uri.parse('$baseUrl/auth/profile');
+      final url = Uri.parse('$baseUrl/profile/');
       final request = http.MultipartRequest('POST', url);
 
       // Add authentication headers
@@ -265,7 +285,7 @@ class ApiService {
   // Upload profile image
   Future<void> uploadProfileImage(String imagePath) async {
     try {
-      final url = Uri.parse('$baseUrl/auth/profile/upload-avatar');
+      final url = Uri.parse('$baseUrl/profile/avatar');
       final request = http.MultipartRequest('POST', url);
 
       request.headers.addAll(await _getAuthHeaders());
@@ -280,26 +300,10 @@ class ApiService {
     }
   }
 
-  // Change password
+  // Change password - TODO: Implement this endpoint in the API
   Future<void> changePassword(
       String currentPassword, String newPassword) async {
-    try {
-      final url = Uri.parse('$baseUrl/auth/change-password');
-      final response = await http.post(
-        url,
-        headers: await _getAuthHeaders(),
-        body: jsonEncode({
-          'current_password': currentPassword,
-          'new_password': newPassword,
-        }),
-      );
-
-      if (response.statusCode != 200) {
-        throw Exception('Failed to change password: ${response.body}');
-      }
-    } catch (e) {
-      throw Exception('Error changing password: $e');
-    }
+    throw Exception('Change password endpoint not implemented in API yet');
   }
 
   // Get authentication headers
@@ -660,37 +664,6 @@ class ApiService {
     }
   }
 
-  Future<void> updateTransport(Transport transport) async {
-    try {
-      final response = await http.put(
-        Uri.parse('$baseUrl/transports/${transport.id}'),
-        headers: await _getAuthHeaders(),
-        body: json.encode(transport.toJson()),
-      );
-
-      if (response.statusCode != 200) {
-        throw Exception('Failed to update transport');
-      }
-    } catch (e) {
-      throw Exception('Error updating transport: $e');
-    }
-  }
-
-  Future<void> deleteTransport(int transportId) async {
-    try {
-      final response = await http.delete(
-        Uri.parse('$baseUrl/transports/$transportId'),
-        headers: await _getAuthHeaders(),
-      );
-
-      if (response.statusCode != 200) {
-        throw Exception('Failed to delete transport');
-      }
-    } catch (e) {
-      throw Exception('Error deleting transport: $e');
-    }
-  }
-
   Future<dynamic> get(String endpoint, {Map<String, String>? headers}) async {
     final response = await http.get(
       Uri.parse('$baseUrl$endpoint'),
@@ -775,6 +748,8 @@ class ApiService {
     try {
       final uri = Uri.parse('$baseUrl/buyer/orders');
       Log.e('Creating order at: $uri');
+      Log.e('Auth token available: ${_authToken != null}');
+      Log.e('Auth token (first 10 chars): ${_authToken?.substring(0, 10)}...');
 
       final requestBody = {
         'items': items,
@@ -784,6 +759,7 @@ class ApiService {
       };
 
       Log.e('Order request body: ${json.encode(requestBody)}');
+      Log.e('Request headers: $_headers');
 
       final response = await http.post(
         uri,
@@ -804,6 +780,47 @@ class ApiService {
       }
     } catch (e, stackTrace) {
       Log.e('Error creating order: $e');
+      Log.e('Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> getOrders() async {
+    try {
+      final uri = Uri.parse('$baseUrl/buyer/orders');
+      Log.e('Fetching user orders from: $uri');
+
+      final response = await http.get(uri, headers: _headers);
+      Log.e('Orders response status: ${response.statusCode}');
+      Log.e('Orders response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        Log.e('Raw response body: ${response.body}');
+        try {
+          final responseData = json.decode(response.body);
+          Log.e('Decoded response data: $responseData');
+          Log.e('Data type: ${responseData.runtimeType}');
+          if (responseData is Map && responseData['data'] != null) {
+            Log.e('Orders data type: ${responseData['data'].runtimeType}');
+            Log.e(
+                'First order: ${responseData['data'].isNotEmpty ? responseData['data'][0] : 'No orders'}');
+          }
+          return responseData;
+        } catch (e) {
+          Log.e('Error decoding JSON response: $e');
+          Log.e('Response body that failed to decode: ${response.body}');
+          rethrow;
+        }
+      } else if (response.statusCode == 404) {
+        Log.e('No orders found');
+        return {'success': true, 'data': [], 'message': 'No orders found'};
+      } else {
+        Log.e('Error response: ${response.body}');
+        throw Exception('Failed to load orders: ${response.statusCode}');
+      }
+    } catch (e, stackTrace) {
+      Log.e('Error fetching orders: $e');
+      Log.e('Error type: ${e.runtimeType}');
       Log.e('Stack trace: $stackTrace');
       rethrow;
     }
@@ -892,6 +909,345 @@ class ApiService {
     } catch (e, stackTrace) {
       Log.e('Error cancelling order: $e');
       Log.e('Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
+
+  // Seller order management methods
+  Future<Map<String, dynamic>> getSellerOrders() async {
+    try {
+      final uri = Uri.parse('$baseUrl/seller/orders');
+      Log.e('Fetching seller orders from: $uri');
+
+      final response = await http.get(uri, headers: _headers);
+      Log.e('Seller orders response status: ${response.statusCode}');
+      Log.e('Seller orders response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        Log.e('Received seller orders response: $responseData');
+        return responseData;
+      } else if (response.statusCode == 404) {
+        Log.e('No seller orders found');
+        return {'success': true, 'data': [], 'message': 'No orders found'};
+      } else {
+        Log.e('Error response: ${response.body}');
+        throw Exception('Failed to load seller orders: ${response.statusCode}');
+      }
+    } catch (e, stackTrace) {
+      Log.e('Error fetching seller orders: $e');
+      Log.e('Error type: ${e.runtimeType}');
+      Log.e('Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> updateOrderStatus(
+      int orderId, String status) async {
+    try {
+      final uri = Uri.parse('$baseUrl/seller/orders/$orderId/status');
+      Log.e('Updating order status: $uri');
+
+      final response = await http.put(
+        uri,
+        headers: _headers,
+        body: json.encode({'status': status}),
+      );
+
+      Log.e('Update order status response: ${response.statusCode}');
+      Log.e('Update order status body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        Log.e('Order status updated successfully');
+        return responseData;
+      } else {
+        Log.e('Error updating order status: ${response.body}');
+        throw Exception(
+            'Failed to update order status: ${response.statusCode}');
+      }
+    } catch (e, stackTrace) {
+      Log.e('Error updating order status: $e');
+      Log.e('Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
+
+  // Organic Products API methods
+  Future<Map<String, dynamic>> getSellerOrganicProducts() async {
+    try {
+      Log.e('Fetching seller organic products...');
+      final response = await http.get(
+        Uri.parse('${baseUrl}/seller/organic-products'),
+        headers: _headers,
+      );
+
+      Log.e('Seller organic products response status: ${response.statusCode}');
+      Log.e('Seller organic products response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw Exception(
+            'Failed to fetch seller organic products: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error fetching seller organic products: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> createOrganicProduct(
+      Map<String, dynamic> productData) async {
+    try {
+      Log.e('Creating organic product: ${productData['name']}');
+      final response = await http.post(
+        Uri.parse('${baseUrl}/seller/organic-products'),
+        headers: _headers,
+        body: json.encode(productData),
+      );
+
+      Log.e('Create organic product response status: ${response.statusCode}');
+      Log.e('Create organic product response body: ${response.body}');
+
+      if (response.statusCode == 201) {
+        return json.decode(response.body);
+      } else {
+        throw Exception(
+            'Failed to create organic product: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error creating organic product: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> updateOrganicProduct(
+      int productId, Map<String, dynamic> productData) async {
+    try {
+      Log.e('Updating organic product: $productId');
+      final response = await http.put(
+        Uri.parse('${baseUrl}/seller/organic-products/$productId'),
+        headers: _headers,
+        body: json.encode(productData),
+      );
+
+      Log.e('Update organic product response status: ${response.statusCode}');
+      Log.e('Update organic product response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw Exception(
+            'Failed to update organic product: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error updating organic product: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> deleteOrganicProduct(int productId) async {
+    try {
+      Log.e('Deleting organic product: $productId');
+      final response = await http.delete(
+        Uri.parse('${baseUrl}/seller/organic-products/$productId'),
+        headers: _headers,
+      );
+
+      Log.e('Delete organic product response status: ${response.statusCode}');
+      Log.e('Delete organic product response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw Exception(
+            'Failed to delete organic product: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error deleting organic product: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> uploadOrganicProductImage(File imageFile) async {
+    try {
+      Log.e('Uploading organic product image...');
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('${baseUrl}/seller/organic-products/upload-image'),
+      );
+
+      request.headers.addAll(_headers);
+      request.files
+          .add(await http.MultipartFile.fromPath('image', imageFile.path));
+
+      var response = await request.send();
+      var responseBody = await response.stream.bytesToString();
+
+      Log.e(
+          'Upload organic product image response status: ${response.statusCode}');
+      Log.e('Upload organic product image response body: $responseBody');
+
+      if (response.statusCode == 200) {
+        return json.decode(responseBody);
+      } else {
+        throw Exception(
+            'Failed to upload organic product image: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error uploading organic product image: $e');
+      rethrow;
+    }
+  }
+
+  // Transport API methods
+  Future<Map<String, dynamic>> getTransportCategories() async {
+    try {
+      Log.e('Fetching transport categories...');
+      final response = await http.get(
+        Uri.parse('${baseUrl}/public/categories'),
+        headers: _headers,
+      );
+
+      Log.e('Transport categories response status: ${response.statusCode}');
+      Log.e('Transport categories response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw Exception(
+            'Failed to fetch transport categories: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error fetching transport categories: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> getSellerTransports() async {
+    try {
+      Log.e('Fetching seller transports...');
+      final response = await http.get(
+        Uri.parse('${baseUrl}/seller/transports'),
+        headers: _headers,
+      );
+
+      Log.e('Seller transports response status: ${response.statusCode}');
+      Log.e('Seller transports response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw Exception(
+            'Failed to fetch seller transports: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error fetching seller transports: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> createTransport(
+      Map<String, dynamic> transportData) async {
+    try {
+      Log.e('Creating transport: $transportData');
+      final response = await http.post(
+        Uri.parse('${baseUrl}/seller/transports'),
+        headers: _headers,
+        body: json.encode(transportData),
+      );
+
+      Log.e('Create transport response status: ${response.statusCode}');
+      Log.e('Create transport response body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return json.decode(response.body);
+      } else {
+        throw Exception('Failed to create transport: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error creating transport: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> updateTransport(
+      int transportId, Map<String, dynamic> transportData) async {
+    try {
+      Log.e('Updating transport $transportId: $transportData');
+      final response = await http.put(
+        Uri.parse('${baseUrl}/seller/transports/$transportId'),
+        headers: _headers,
+        body: json.encode(transportData),
+      );
+
+      Log.e('Update transport response status: ${response.statusCode}');
+      Log.e('Update transport response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        // Handle both direct data response and wrapped response
+        if (responseData['data'] != null) {
+          return responseData;
+        } else {
+          return responseData;
+        }
+      } else {
+        throw Exception('Failed to update transport: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error updating transport: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> deleteTransport(int transportId) async {
+    try {
+      Log.e('Deleting transport $transportId...');
+      final response = await http.delete(
+        Uri.parse('${baseUrl}/seller/transports/$transportId'),
+        headers: _headers,
+      );
+
+      Log.e('Delete transport response status: ${response.statusCode}');
+      Log.e('Delete transport response body: ${response.body}');
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception('Failed to delete transport: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error deleting transport: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> uploadTransportImage(File imageFile) async {
+    try {
+      Log.e('Uploading transport image...');
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('${baseUrl}/seller/transports/upload-image'),
+      );
+
+      request.headers.addAll(_headers);
+      request.files
+          .add(await http.MultipartFile.fromPath('image', imageFile.path));
+
+      var response = await request.send();
+      var responseBody = await response.stream.bytesToString();
+
+      Log.e('Upload transport image response status: ${response.statusCode}');
+      Log.e('Upload transport image response body: $responseBody');
+
+      if (response.statusCode == 200) {
+        return json.decode(responseBody);
+      } else {
+        throw Exception(
+            'Failed to upload transport image: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error uploading transport image: $e');
       rethrow;
     }
   }

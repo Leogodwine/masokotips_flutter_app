@@ -6,8 +6,9 @@ import '../../providers/auth_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'add_product_screen.dart';
 import 'edit_product_screen.dart';
-import '../transport/transport_list_screen.dart';
-import '../organic_products_screen.dart';
+import 'seller_orders_screen.dart';
+import 'seller_organic_products_screen.dart';
+import 'seller_transport_screen.dart';
 
 class SellerDashboardScreen extends StatefulWidget {
   const SellerDashboardScreen({Key? key}) : super(key: key);
@@ -139,51 +140,77 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-          if (index == 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    const TransportListScreen(category: 'seller'),
-              ),
-            ).then((_) {
-              setState(() {
-                _selectedIndex = 0;
-              });
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(color: Colors.grey[300]!, width: 1),
+          ),
+        ),
+        child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          currentIndex: _selectedIndex,
+          selectedItemColor: Theme.of(context).primaryColor,
+          unselectedItemColor: Colors.grey[600],
+          backgroundColor: Colors.white,
+          elevation: 8,
+          onTap: (index) {
+            setState(() {
+              _selectedIndex = index;
             });
-          } else if (index == 2) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const OrganicProductsScreen(),
-              ),
-            ).then((_) {
-              setState(() {
-                _selectedIndex = 0;
+            if (index == 1) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SellerOrdersScreen(),
+                ),
+              ).then((_) {
+                setState(() {
+                  _selectedIndex = 0;
+                });
               });
-            });
-          }
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.inventory),
-            label: 'Products',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.directions_car),
-            label: 'Transports',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.eco),
-            label: 'Organic',
-          ),
-        ],
+            } else if (index == 2) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SellerTransportScreen(),
+                ),
+              ).then((_) {
+                setState(() {
+                  _selectedIndex = 0;
+                });
+              });
+            } else if (index == 3) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SellerOrganicProductsScreen(),
+                ),
+              ).then((_) {
+                setState(() {
+                  _selectedIndex = 0;
+                });
+              });
+            }
+          },
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.inventory),
+              label: 'Products',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_bag),
+              label: 'Orders',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.directions_car),
+              label: 'Transports',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.eco),
+              label: 'Organic',
+            ),
+          ],
+        ),
       ),
       floatingActionButton: _selectedIndex == 0
           ? FloatingActionButton.extended(
@@ -213,6 +240,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
               elevation: 4,
             )
           : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: _buildProductsSection(),
     );
   }
@@ -344,7 +372,8 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                     ),
                     // Product Details with adjusted padding
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0, vertical: 6.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
@@ -376,16 +405,21 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Icon(Icons.star, size: 14, color: Colors.amber[700]),
+                              Icon(Icons.star,
+                                  size: 14, color: Colors.amber[700]),
                               const SizedBox(width: 2),
                               Text(
                                 product.rating.toStringAsFixed(1),
-                                style: const TextStyle(fontSize: 11, height: 1.2),
+                                style:
+                                    const TextStyle(fontSize: 11, height: 1.2),
                               ),
                               const SizedBox(width: 2),
                               Text(
                                 '(${product.ratingCount})',
-                                style: TextStyle(fontSize: 11, color: Colors.grey[600], height: 1.2),
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey[600],
+                                    height: 1.2),
                               ),
                             ],
                           ),
@@ -397,7 +431,8 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                             children: [
                               // Stock status with smaller text and tighter padding
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
                                   color: (product.stock ?? 0) > 0
                                       ? Colors.green[100]
@@ -425,17 +460,20 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   IconButton(
-                                    icon: const Icon(Icons.edit, color: Colors.blue, size: 18),
+                                    icon: const Icon(Icons.edit,
+                                        color: Colors.blue, size: 18),
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(
                                       minWidth: 24,
                                       minHeight: 24,
                                     ),
                                     iconSize: 18,
-                                    onPressed: () => _navigateToEditProduct(product),
+                                    onPressed: () =>
+                                        _navigateToEditProduct(product),
                                   ),
                                   IconButton(
-                                    icon: const Icon(Icons.delete, color: Colors.red, size: 18),
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.red, size: 18),
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(
                                       minWidth: 24,

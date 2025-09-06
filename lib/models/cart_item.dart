@@ -29,7 +29,7 @@ class CartItem {
     return CartItem(
       id: json['id'] as int,
       name: json['name'] as String,
-      price: (json['price'] as num).toDouble(),
+      price: double.tryParse(json['price'].toString()) ?? 0.0,
       quantity: json['quantity'] as int,
       imageUrl: json['imageUrl'] as String,
     );
