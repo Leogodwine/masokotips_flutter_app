@@ -514,6 +514,71 @@ class ApiService {
     }
   }
 
+  // Get subcategories for a specific category
+  Future<List<Category>> getSubcategories(int categoryId) async {
+    try {
+      final uri = Uri.parse('$baseUrl/categories/$categoryId/subcategories');
+      Log.e(
+          'ApiService: Fetching subcategories for category $categoryId from: $uri');
+
+      final response = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'ngrok-skip-browser-warning': 'true',
+          if (_authToken != null) 'Authorization': 'Bearer $_authToken',
+        },
+      );
+
+      Log.e(
+          'ApiService: Subcategories response status: ${response.statusCode}');
+      Log.e('ApiService: Subcategories response headers: ${response.headers}');
+      Log.e(
+          'ApiService: Subcategories response body (partial): ${response.body.substring(0, response.body.length > 500 ? 500 : response.body.length)}');
+
+      final contentType = response.headers['content-type'] ?? '';
+
+      if (!contentType.contains('application/json')) {
+        throw Exception('Unexpected response type: $contentType');
+      }
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        if (data is Map<String, dynamic> && data.containsKey('data')) {
+          // Wrapped response format: {"data": [...]}
+          final List<dynamic> subcategoriesJson = data['data'];
+          final subcategories =
+              subcategoriesJson.map((json) => Category.fromJson(json)).toList();
+          Log.e(
+              'ApiService: Successfully parsed ${subcategories.length} subcategories from wrapped response');
+          return subcategories;
+        } else if (data is List) {
+          // Direct array format: [...]
+          final subcategories =
+              data.map((json) => Category.fromJson(json)).toList();
+          Log.e(
+              'ApiService: Successfully parsed ${subcategories.length} subcategories from direct array');
+          return subcategories;
+        } else {
+          Log.e(
+              'ApiService: Unexpected JSON structure for subcategories: $data');
+          return [];
+        }
+      } else {
+        Log.e(
+            'ApiService: Failed to fetch subcategories with status ${response.statusCode}');
+        throw Exception(
+            'Failed to fetch subcategories: ${response.statusCode}');
+      }
+    } catch (e, stackTrace) {
+      Log.e('ApiService: Error fetching subcategories: $e');
+      Log.e('ApiService: Stack trace: $stackTrace');
+      throw Exception('Error fetching subcategories: $e');
+    }
+  }
+
   Future<List<Product>> getFeaturedProducts() async {
     try {
       final uri = Uri.parse('$baseUrl/products/featured');

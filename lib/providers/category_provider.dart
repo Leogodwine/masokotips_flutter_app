@@ -78,7 +78,7 @@ class CategoryProvider with ChangeNotifier {
     }
   }
 
-  // Load subcategories for a specific category (using hardcoded data for speed)
+  // Load subcategories for a specific category from API
   Future<void> loadSubcategories(int categoryId) async {
     Log.i(
         'CategoryProvider: Starting to load subcategories for category: $categoryId');
@@ -94,17 +94,37 @@ class CategoryProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      // Find the category in the hardcoded mainCategories list
-      // This ensures we get the correct subcategories with proper IDs
-      final category = models.mainCategories.firstWhere(
+      // Find the category in the loaded mainCategories list from API
+      final category = _mainCategories.firstWhere(
         (cat) => cat.id == categoryId,
         orElse: () =>
             throw Exception('Category not found with ID: $categoryId'),
       );
 
-      _subcategories = category.subcategories ?? [];
-      Log.i(
-          'CategoryProvider: Loaded ${_subcategories.length} subcategories instantly from hardcoded data');
+      // If the category already has subcategories loaded, use them
+      if (category.subcategories != null &&
+          category.subcategories!.isNotEmpty) {
+        _subcategories = category.subcategories!;
+        Log.i(
+            'CategoryProvider: Loaded ${_subcategories.length} subcategories from cached data');
+        print('CategoryProvider: Cached subcategories: $_subcategories');
+      } else {
+        // Load subcategories from API
+        Log.i(
+            'CategoryProvider: Making API call to get subcategories for category $categoryId');
+        print(
+            'CategoryProvider: Making API call to get subcategories for category $categoryId');
+        final response = await _apiService.getSubcategories(categoryId);
+        _subcategories = response;
+
+        // Update the category with loaded subcategories for future use
+        category.subcategories = response;
+
+        Log.i(
+            'CategoryProvider: Loaded ${_subcategories.length} subcategories from API');
+        print('CategoryProvider: API response subcategories: $_subcategories');
+      }
+
       for (var subcategory in _subcategories) {
         Log.d(
             'CategoryProvider: Subcategory: ${subcategory.name} (ID: ${subcategory.id})');

@@ -22,6 +22,8 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      print(
+          'SubcategoriesScreen: Loading subcategories for category ${widget.category.id} (${widget.category.name})');
       context.read<CategoryProvider>().loadSubcategories(widget.category.id);
     });
   }
@@ -287,10 +289,46 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
           }
 
           final subcategories = categoryProvider.subcategories;
+          print(
+              'SubcategoriesScreen: subcategories count: ${subcategories.length}');
+          print('SubcategoriesScreen: subcategories: $subcategories');
+
           if (subcategories.isEmpty) {
-            return CategoryProductsScreen(
-              categoryId: widget.category.id,
-              categoryName: widget.category.name,
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.category_outlined,
+                    size: 64,
+                    color: Colors.grey[400],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No subcategories available',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Please check back later',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      print('SubcategoriesScreen: Retry button pressed');
+                      categoryProvider.loadSubcategories(widget.category.id);
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
             );
           }
 
