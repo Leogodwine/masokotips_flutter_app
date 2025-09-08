@@ -193,4 +193,47 @@ class AuthProvider with ChangeNotifier {
       // Continue even if token loading fails
     }
   }
+
+  // Role Management Methods
+  Future<Map<String, dynamic>> getUserRoles() async {
+    try {
+      return await _apiService.getUserRoles();
+    } catch (e) {
+      throw Exception('Failed to fetch user roles: $e');
+    }
+  }
+
+  Future<void> addUserRole(String role) async {
+    try {
+      final response = await _apiService.addUserRole(role);
+
+      // Update user profile to refresh roles
+      await fetchUserProfile();
+
+      notifyListeners();
+    } catch (e) {
+      throw Exception('Failed to add role: $e');
+    }
+  }
+
+  Future<void> removeUserRole(String role) async {
+    try {
+      final response = await _apiService.removeUserRole(role);
+
+      // Update user profile to refresh roles
+      await fetchUserProfile();
+
+      notifyListeners();
+    } catch (e) {
+      throw Exception('Failed to remove role: $e');
+    }
+  }
+
+  // Convenience methods for role checking
+  bool get isBuyer => _user?.isBuyer ?? false;
+  bool get isSeller => _user?.isSeller ?? false;
+  bool get isServiceProvider => _user?.isServiceProvider ?? false;
+  bool get isAdmin => _user?.isAdmin ?? false;
+  bool get hasMultipleRoles => _user?.hasMultipleRoles ?? false;
+  List<String> get accessibleFeatures => _user?.accessibleFeatures ?? [];
 }

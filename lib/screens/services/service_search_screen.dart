@@ -53,8 +53,10 @@ class _ServiceSearchScreenState extends State<ServiceSearchScreen> {
       final allServices = await _serviceService.getMyServices();
 
       final filteredServices = allServices.where((service) {
-        return service.title.toLowerCase().contains(query.toLowerCase()) ||
-            service.description.toLowerCase().contains(query.toLowerCase());
+        return (service.title?.toLowerCase().contains(query.toLowerCase()) ??
+                false) ||
+            (service.description?.toLowerCase().contains(query.toLowerCase()) ??
+                false);
       }).toList();
 
       setState(() {
@@ -223,7 +225,7 @@ class _ServiceSearchScreenState extends State<ServiceSearchScreen> {
                                 ),
                               ),
                               title: Text(
-                                service.title,
+                                service.title ?? 'No Title',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
@@ -234,7 +236,7 @@ class _ServiceSearchScreenState extends State<ServiceSearchScreen> {
                                 children: [
                                   const SizedBox(height: 4),
                                   Text(
-                                    service.description,
+                                    service.description ?? 'No Description',
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                   ),

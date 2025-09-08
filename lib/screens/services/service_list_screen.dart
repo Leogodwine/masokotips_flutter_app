@@ -524,7 +524,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                                         ),
                                       ),
                                       title: Text(
-                                        service.title,
+                                        service.title ?? 'No Title',
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16,
@@ -536,7 +536,8 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                                         children: [
                                           const SizedBox(height: 4),
                                           Text(
-                                            service.description,
+                                            service.description ??
+                                                'No Description',
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
                                           ),

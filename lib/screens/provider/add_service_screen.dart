@@ -30,32 +30,35 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   File? _imageFile;
   bool _isLoading = false;
   String? _error;
-  late int _selectedCategoryId;
+  int? _selectedCategoryId;
 
-  // Service categories with their IDs
-  final Map<int, String> _categories = {
-    1: 'Buyers & Sellers',
-    2: 'Transport',
-    3: 'Services',
-    4: 'Organic Products',
-    5: 'Other Services',
-  };
-
-  String? _selectedSubcategory;
+  List<Category> _agriculturalCategories = [];
+  bool _isLoadingCategories = false;
 
   @override
   void initState() {
     super.initState();
-    _selectedCategoryId =
-        widget.category?.id ?? 1; // Use provided category ID or default to 1
+    _loadAgriculturalCategories();
   }
 
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _descriptionController.dispose();
-    _priceController.dispose();
-    super.dispose();
+  Future<void> _loadAgriculturalCategories() async {
+    setState(() {
+      _isLoadingCategories = true;
+    });
+
+    try {
+      final categories =
+          await widget.serviceService.getAgriculturalServiceCategories();
+      setState(() {
+        _agriculturalCategories = categories;
+        _isLoadingCategories = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = 'Failed to load categories: $e';
+        _isLoadingCategories = false;
+      });
+    }
   }
 
   Future<void> _pickImage() async {
@@ -70,203 +73,552 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   }
 
   Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-        _error = null;
-      });
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
 
-      try {
-        String? imageUrl;
-        if (_imageFile != null) {
-          imageUrl = await widget.serviceService.uploadServiceImage(
-            'temp',
-            _imageFile!.path,
-          );
-        }
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
 
-        final service = await widget.serviceService.addService(
-          title: _titleController.text,
-          description: _descriptionController.text,
-          price: double.parse(_priceController.text),
-          categoryId: _selectedCategoryId,
-          imageUrl: imageUrl,
-          subcategory: _selectedSubcategory,
+    try {
+      String? imageUrl;
+      if (_imageFile != null) {
+        imageUrl = await widget.serviceService.uploadServiceImage(
+          'temp',
+          _imageFile!.path,
         );
+      }
 
-        widget.onServiceAdded(service);
-
-        if (mounted) {
-          Navigator.pop(context);
-        }
-      } catch (e) {
+      if (_selectedCategoryId == null) {
         setState(() {
-          _error = e.toString();
+          _error = 'Please select a category';
         });
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
+        return;
+      }
+
+      // Find the selected category name
+      final selectedCategory = _agriculturalCategories.firstWhere(
+        (category) => category.id == _selectedCategoryId,
+      );
+
+      final service = await widget.serviceService.addService(
+        title: _titleController.text,
+        description: _descriptionController.text,
+        price: double.parse(_priceController.text),
+        categoryId: _selectedCategoryId!,
+        categoryName: selectedCategory.name,
+        imageUrl: imageUrl,
+      );
+
+      widget.onServiceAdded(service);
+
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
+  }
+
+  List<DropdownMenuItem<int>> _getUniqueDropdownItems() {
+    // Create a map to track unique categories by ID
+    final Map<int, Category> uniqueCategories = {};
+
+    for (final category in _agriculturalCategories) {
+      if (category.id != null) {
+        uniqueCategories[category.id!] = category;
+      }
+    }
+
+    // Convert to dropdown items and ensure no duplicates
+    final List<DropdownMenuItem<int>> items = [];
+    final Set<int> usedValues = {};
+
+    for (final category in uniqueCategories.values) {
+      if (category.id != null && !usedValues.contains(category.id)) {
+        usedValues.add(category.id!);
+        items.add(DropdownMenuItem<int>(
+          value: category.id,
+          child: Text(category.name),
+        ));
+      }
+    }
+
+    print('AddServiceScreen: Generated ${items.length} unique dropdown items');
+    print(
+        'AddServiceScreen: Values: ${items.map((item) => item.value).toList()}');
+
+    return items;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Add Service'),
+        title: const Text(
+          'Add New Service',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        elevation: 0,
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (_error != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Text(
-                    _error!,
-                    style: const TextStyle(color: Colors.red),
+        child: Column(
+          children: [
+            // Header Section
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
                   ),
-                ),
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Service Title',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a title';
-                  }
-                  return null;
-                },
+                ],
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 3,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a description';
-                  }
-                  return null;
-                },
+              child: Column(
+                children: [
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.handyman,
+                      size: 40,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Create Your Service',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[800],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Fill in the details to offer your agricultural service',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _priceController,
-                decoration: const InputDecoration(
-                  labelText: 'Price',
-                  border: OutlineInputBorder(),
-                  prefixText: 'TZS ',
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a price';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Please enter a valid price';
-                  }
-                  return null;
-                },
+            ),
+            const SizedBox(height: 24),
+            // Form Section
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<int>(
-                value: _selectedCategoryId,
-                decoration: const InputDecoration(
-                  labelText: 'Category',
-                  border: OutlineInputBorder(),
-                ),
-                items: _categories.entries.map((entry) {
-                  return DropdownMenuItem(
-                    value: entry.key,
-                    child: Text(entry.value),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedCategoryId = value!;
-                    _selectedSubcategory = null;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Subcategory (Optional)',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedSubcategory = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: _pickImage,
-                icon: const Icon(Icons.image),
-                label: const Text('Add Service Image'),
-              ),
-              if (_imageFile != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 16),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: kIsWeb
-                        ? Image.network(
-                            _imageFile!.path,
-                            height: 200,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                height: 200,
-                                color: Colors.grey[300],
-                                child: const Center(
-                                  child: Icon(Icons.error_outline, size: 48),
-                                ),
-                              );
-                            },
-                          )
-                        : Image.file(
-                            _imageFile!,
-                            height: 200,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              print('Error loading image: $error');
-                              return Container(
-                                height: 200,
-                                color: Colors.grey[300],
-                                child: const Center(
-                                  child: Icon(Icons.error_outline, size: 48),
-                                ),
-                              );
-                            },
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (_error != null)
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Colors.red.withOpacity(0.3),
                           ),
-                  ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              color: Colors.red[700],
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _error!,
+                                style: TextStyle(
+                                  color: Colors.red[700],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    // Service Title Field
+                    TextFormField(
+                      controller: _titleController,
+                      decoration: InputDecoration(
+                        labelText: 'Service Title',
+                        hintText: 'e.g., Irrigation System Installation',
+                        prefixIcon: const Icon(Icons.title),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey[300]!),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              BorderSide(color: Theme.of(context).primaryColor),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey[50],
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a title';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    // Description Field
+                    TextFormField(
+                      controller: _descriptionController,
+                      decoration: InputDecoration(
+                        labelText: 'Description',
+                        hintText: 'Describe your service in detail...',
+                        prefixIcon: const Icon(Icons.description),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey[300]!),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              BorderSide(color: Theme.of(context).primaryColor),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey[50],
+                      ),
+                      maxLines: 4,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a description';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    // Price Field
+                    TextFormField(
+                      controller: _priceController,
+                      decoration: InputDecoration(
+                        labelText: 'Price (TZS)',
+                        hintText: 'Enter service price',
+                        prefixIcon: const Icon(Icons.attach_money),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey[300]!),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              BorderSide(color: Theme.of(context).primaryColor),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey[50],
+                      ),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a price';
+                        }
+                        if (double.tryParse(value) == null) {
+                          return 'Please enter a valid price';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    // Category Dropdown
+                    DropdownButtonFormField<int>(
+                      value: _selectedCategoryId,
+                      decoration: InputDecoration(
+                        labelText: 'Agricultural Service Category',
+                        hintText: 'Select a category',
+                        prefixIcon: const Icon(Icons.category),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey[300]!),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              BorderSide(color: Theme.of(context).primaryColor),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey[50],
+                      ),
+                      items: _isLoadingCategories
+                          ? [
+                              const DropdownMenuItem<int>(
+                                  value: null,
+                                  child: Text('Loading categories...'))
+                            ]
+                          : _getUniqueDropdownItems(),
+                      onChanged: _isLoadingCategories
+                          ? null
+                          : (value) {
+                              setState(() {
+                                _selectedCategoryId = value;
+                              });
+                            },
+                    ),
+                    const SizedBox(height: 20),
+                    // Image Upload Section
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey[300]!),
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.grey[50],
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.image_outlined,
+                            size: 48,
+                            color: Colors.grey[600],
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Service Image',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Add an image to make your service more appealing',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton.icon(
+                            onPressed: _pickImage,
+                            icon: const Icon(Icons.upload),
+                            label: const Text('Choose Image'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).primaryColor,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (_imageFile != null) ...[
+                      const SizedBox(height: 20),
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Stack(
+                            children: [
+                              kIsWeb
+                                  ? Image.network(
+                                      _imageFile!.path,
+                                      height: 200,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return Container(
+                                          height: 200,
+                                          color: Colors.grey[300],
+                                          child: const Center(
+                                            child: Icon(Icons.error_outline,
+                                                size: 48),
+                                          ),
+                                        );
+                                      },
+                                    )
+                                  : Image.file(
+                                      _imageFile!,
+                                      height: 200,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        print('Error loading image: $error');
+                                        return Container(
+                                          height: 200,
+                                          color: Colors.grey[300],
+                                          child: const Center(
+                                            child: Icon(Icons.error_outline,
+                                                size: 48),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                              Positioned(
+                                top: 8,
+                                right: 8,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.6),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: IconButton(
+                                    icon: const Icon(
+                                      Icons.close,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _imageFile = null;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 32),
+                    // Submit Button
+                    Container(
+                      width: double.infinity,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color:
+                                Theme.of(context).primaryColor.withOpacity(0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _submitForm,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).primaryColor,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: _isLoading
+                            ? Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  const Text(
+                                    'Creating Service...',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.add_circle, size: 24),
+                                  const SizedBox(width: 12),
+                                  const Text(
+                                    'Create Service',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                      ),
+                    ),
+                  ],
                 ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _submitForm,
-                child: _isLoading
-                    ? const CircularProgressIndicator()
-                    : const Text('Add Service'),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

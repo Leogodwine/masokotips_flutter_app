@@ -27,7 +27,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.service.title),
+        title: Text(widget.service.title ?? 'Service Details'),
         actions: [
           IconButton(
             icon: Icon(
@@ -90,7 +90,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                     children: [
                       Expanded(
                         child: Text(
-                          widget.service.title,
+                          widget.service.title ?? 'No Title',
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                       ),
@@ -112,8 +112,9 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                         // Create a Product object from the service
                         final product = Product(
                           id: widget.service.id,
-                          name: widget.service.title,
-                          description: widget.service.description,
+                          name: widget.service.title ?? 'Service',
+                          description:
+                              widget.service.description ?? 'No description',
                           price: widget.service.price,
                           stock: 1,
                           isActive: true,
@@ -125,7 +126,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                           ratingCount: 0,
                           createdAt: DateTime.now(),
                           updatedAt: DateTime.now(),
-                          slug: widget.service.title
+                          slug: (widget.service.title ?? 'service')
                               .toLowerCase()
                               .replaceAll(' ', '-'),
                           imageUrl: widget.service.imageUrl ?? '',

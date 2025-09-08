@@ -83,7 +83,7 @@ class _AdminServicesManagementScreenState
                           fit: BoxFit.cover,
                         )
                       : const Icon(Icons.image_not_supported),
-                  title: Text(service.title),
+                  title: Text(service.title ?? 'No Title'),
                   subtitle: Text(
                     'Price: TZS ${service.price.toStringAsFixed(2)}\n'
                     'Category: ${service.subcategory ?? 'Uncategorized'}',

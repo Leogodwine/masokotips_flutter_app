@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/service.dart';
+import '../../models/category.dart';
 import '../../services/service_service.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -27,37 +28,98 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
   late final TextEditingController _descriptionController;
   late final TextEditingController _priceController;
   late final TextEditingController _categoryController;
-  late final TextEditingController _subcategoryController;
   File? _imageFile;
   bool _isLoading = false;
   String? _error;
 
-  // Service categories with their IDs
-  final Map<int, String> _categories = {
-    1: 'Buyers & Sellers',
-    2: 'Transport',
-    3: 'Services',
-    4: 'Organic Products',
-    5: 'Other Services',
-  };
-
-  String? _selectedSubcategory;
-  int _selectedCategoryId = 1;
+  int? _selectedCategoryId;
+  List<dynamic> _agriculturalCategories = [];
+  bool _isLoadingCategories = false;
 
   @override
   void initState() {
     super.initState();
+    print('EditServiceScreen: Service ID: ${widget.service.id}');
+    print('EditServiceScreen: Service title: ${widget.service.title}');
+    print(
+        'EditServiceScreen: Service categoryId: ${widget.service.categoryId}');
+
     _titleController = TextEditingController(text: widget.service.title);
     _descriptionController =
         TextEditingController(text: widget.service.description);
     _priceController =
-        TextEditingController(text: widget.service.price.toString());
+        TextEditingController(text: widget.service.price.toStringAsFixed(2));
     _categoryController =
         TextEditingController(text: widget.service.categoryId.toString());
-    _subcategoryController =
-        TextEditingController(text: widget.service.subcategory ?? '');
     _selectedCategoryId = widget.service.categoryId;
-    _selectedSubcategory = widget.service.subcategory;
+    _loadAgriculturalCategories();
+  }
+
+  Future<void> _loadAgriculturalCategories() async {
+    setState(() {
+      _isLoadingCategories = true;
+    });
+
+    try {
+      final categories =
+          await widget.serviceService.getAgriculturalServiceCategories();
+
+      // Remove duplicates based on ID
+      final uniqueCategories = <int, dynamic>{};
+      for (final category in categories) {
+        uniqueCategories[category.id] = category;
+      }
+
+      setState(() {
+        _agriculturalCategories = uniqueCategories.values.toList();
+
+        print(
+            'EditServiceScreen: Loaded ${_agriculturalCategories.length} categories');
+        print(
+            'EditServiceScreen: Category IDs: ${_agriculturalCategories.map((c) => c.id).toList()}');
+        print('EditServiceScreen: Selected category ID: $_selectedCategoryId');
+
+        // Set the category ID from the existing service
+        _selectedCategoryId ??= widget.service.categoryId;
+      });
+    } catch (e) {
+      print('Error loading agricultural categories: $e');
+    } finally {
+      setState(() {
+        _isLoadingCategories = false;
+      });
+    }
+  }
+
+  List<DropdownMenuItem<int>> _getUniqueDropdownItems() {
+    // Create a map to track unique categories by ID
+    final Map<int, dynamic> uniqueCategories = {};
+
+    for (final category in _agriculturalCategories) {
+      if (category.id != null) {
+        uniqueCategories[category.id] = category;
+      }
+    }
+
+    // Convert to dropdown items and ensure no duplicates
+    final List<DropdownMenuItem<int>> items = [];
+    final Set<int> usedValues = {};
+
+    for (final category in uniqueCategories.values) {
+      if (category.id != null && !usedValues.contains(category.id)) {
+        usedValues.add(category.id);
+        items.add(DropdownMenuItem<int>(
+          value: category.id,
+          child: Text(category.name),
+        ));
+      }
+    }
+
+    print('EditServiceScreen: Generated ${items.length} unique dropdown items');
+    print(
+        'EditServiceScreen: Values: ${items.map((item) => item.value).toList()}');
+
+    return items;
   }
 
   @override
@@ -66,7 +128,6 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
     _descriptionController.dispose();
     _priceController.dispose();
     _categoryController.dispose();
-    _subcategoryController.dispose();
     super.dispose();
   }
 
@@ -115,12 +176,24 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
 
             try {
               // Create a service first without image
+              if (_selectedCategoryId == null) {
+                setState(() {
+                  _error = 'Please select a category';
+                });
+                return;
+              }
+
+              // Find the selected category name
+              final selectedCategory = _agriculturalCategories.firstWhere(
+                (category) => category.id == _selectedCategoryId,
+              );
+
               final tempService = await widget.serviceService.addService(
                 title: _titleController.text,
                 description: _descriptionController.text,
                 price: double.parse(_priceController.text),
-                categoryId: _selectedCategoryId,
-                subcategory: _selectedSubcategory,
+                categoryId: _selectedCategoryId!,
+                categoryName: selectedCategory.name,
               );
 
               serviceId = tempService.id.toString();
@@ -158,14 +231,19 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
           if (isNewService) {
             try {
               // Just update with the image URL
+              // Find the selected category name
+              final selectedCategory = _agriculturalCategories.firstWhere(
+                (category) => category.id == _selectedCategoryId,
+              );
+
               final updatedService = await widget.serviceService.updateService(
                 id: serviceId,
                 title: _titleController.text,
                 description: _descriptionController.text,
                 price: double.parse(_priceController.text),
-                categoryId: _selectedCategoryId,
+                categoryId: _selectedCategoryId!,
+                categoryName: selectedCategory.name,
                 imageUrl: imageUrl,
-                subcategory: _selectedSubcategory,
               );
 
               widget.onServiceUpdated(updatedService);
@@ -185,17 +263,46 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
         }
 
         // Standard update for existing service or no image case
-        final updatedService = await widget.serviceService.updateService(
-          id: widget.service.id.toString(),
-          title: _titleController.text,
-          description: _descriptionController.text,
-          price: double.parse(_priceController.text),
-          categoryId: _selectedCategoryId,
-          imageUrl: imageUrl ?? widget.service.imageUrl,
-          subcategory: _selectedSubcategory,
+        // Find the selected category name
+        final selectedCategory = _agriculturalCategories.firstWhere(
+          (category) => category.id == _selectedCategoryId,
         );
 
-        widget.onServiceUpdated(updatedService);
+        print(
+            'EditServiceScreen: Updating service with ID: ${widget.service.id}');
+        print(
+            'EditServiceScreen: Service ID as string: ${widget.service.id.toString()}');
+
+        // Check if this is a new service (ID = 0) or existing service
+        if (widget.service.id == 0) {
+          print(
+              'EditServiceScreen: This is a new service, creating instead of updating');
+
+          // Create a new service instead of updating
+          final newService = await widget.serviceService.addService(
+            title: _titleController.text,
+            description: _descriptionController.text,
+            price: double.parse(_priceController.text),
+            categoryId: _selectedCategoryId!,
+            categoryName: selectedCategory.name,
+            imageUrl: imageUrl ?? widget.service.imageUrl,
+          );
+
+          widget.onServiceUpdated(newService);
+        } else {
+          // Update existing service
+          final updatedService = await widget.serviceService.updateService(
+            id: widget.service.id.toString(),
+            title: _titleController.text,
+            description: _descriptionController.text,
+            price: double.parse(_priceController.text),
+            categoryId: _selectedCategoryId!,
+            categoryName: selectedCategory.name,
+            imageUrl: imageUrl ?? widget.service.imageUrl,
+          );
+
+          widget.onServiceUpdated(updatedService);
+        }
 
         if (mounted) {
           Navigator.pop(context);
@@ -268,9 +375,8 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
               TextFormField(
                 controller: _priceController,
                 decoration: const InputDecoration(
-                  labelText: 'Price',
+                  labelText: 'Price (TZS)',
                   border: OutlineInputBorder(),
-                  prefixText: 'TZS ',
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
@@ -284,37 +390,36 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              DropdownButtonFormField<int>(
-                value: _selectedCategoryId,
-                decoration: const InputDecoration(
-                  labelText: 'Category',
-                  border: OutlineInputBorder(),
-                ),
-                items: _categories.entries.map((entry) {
-                  return DropdownMenuItem(
-                    value: entry.key,
-                    child: Text(entry.value),
+              Builder(
+                builder: (context) {
+                  final dropdownItems = _isLoadingCategories
+                      ? <DropdownMenuItem<int>>[
+                          const DropdownMenuItem<int>(
+                              value: null, child: Text('Loading...'))
+                        ]
+                      : _getUniqueDropdownItems();
+
+                  final validSelectedValue = _selectedCategoryId != null &&
+                          dropdownItems
+                              .any((item) => item.value == _selectedCategoryId)
+                      ? _selectedCategoryId
+                      : null;
+
+                  return DropdownButtonFormField<int>(
+                    value: validSelectedValue,
+                    decoration: const InputDecoration(
+                      labelText: 'Agricultural Service Category',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: dropdownItems,
+                    onChanged: _isLoadingCategories
+                        ? null
+                        : (value) {
+                            setState(() {
+                              _selectedCategoryId = value!;
+                            });
+                          },
                   );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedCategoryId = value!;
-                    _selectedSubcategory = null;
-                    _subcategoryController.clear();
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _subcategoryController,
-                decoration: const InputDecoration(
-                  labelText: 'Subcategory (Optional)',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedSubcategory = value;
-                  });
                 },
               ),
               const SizedBox(height: 16),

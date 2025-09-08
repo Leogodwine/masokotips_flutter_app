@@ -58,7 +58,7 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
                       fit: BoxFit.cover,
                     )
                   : const Icon(Icons.image),
-              title: Text(service.title),
+              title: Text(service.title ?? 'No Title'),
               subtitle: Text(
                 'TZS ${service.price.toStringAsFixed(2)} - Category ${service.categoryId}',
               ),
@@ -92,8 +92,8 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
 
   void _showServiceDialog(BuildContext context, [Service? service]) {
     if (service != null) {
-      _titleController.text = service.title;
-      _descriptionController.text = service.description;
+      _titleController.text = service.title ?? '';
+      _descriptionController.text = service.description ?? '';
       _priceController.text = service.price.toString();
       _imageUrlController.text = service.imageUrl ?? '';
       _selectedCategory = 'Category ${service.categoryId}';

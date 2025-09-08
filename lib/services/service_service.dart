@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import '../models/service.dart';
+import '../models/category.dart';
 import '../utils/logger.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -72,12 +73,13 @@ class ServiceService {
     try {
       // Ensure baseUrl ends with a trailing slash
       final apiBaseUrl = baseUrl.endsWith('/') ? baseUrl : '$baseUrl/';
-      Log.d('Fetching user services from: ${apiBaseUrl}my-services');
+      Log.d(
+          'Fetching user services from: ${apiBaseUrl}service-provider/my-services');
       Log.d(
           'Using auth token: ${_authToken != null ? 'Token is set' : 'No token set'}');
 
       final response = await http.get(
-        Uri.parse('${apiBaseUrl}my-services'),
+        Uri.parse('${apiBaseUrl}service-provider/my-services'),
         headers: {
           'Authorization': 'Bearer $_authToken',
           'Accept': 'application/json',
@@ -184,6 +186,7 @@ class ServiceService {
     required String description,
     required double price,
     required int categoryId,
+    required String categoryName,
     String? imageUrl,
     String? subcategory,
   }) async {
@@ -194,6 +197,7 @@ class ServiceService {
         'title': title,
         'description': description,
         'price': price,
+        'category': categoryName,
         'category_id': categoryId,
         if (imageUrl != null) 'image_url': imageUrl,
         if (subcategory != null) 'subcategory': subcategory,
@@ -204,8 +208,8 @@ class ServiceService {
       // Ensure baseUrl ends with a trailing slash
       final apiBaseUrl = baseUrl.endsWith('/') ? baseUrl : '$baseUrl/';
 
-      // Use the correct endpoint
-      final endpoint = '${apiBaseUrl}services';
+      // Use the correct endpoint for service providers
+      final endpoint = '${apiBaseUrl}service-provider/services';
 
       Log.d('Adding service at endpoint: $endpoint');
       Log.d(
@@ -239,6 +243,9 @@ class ServiceService {
           if (responseData.containsKey('data')) {
             Log.d('Successfully created service');
             return Service.fromJson(responseData['data']);
+          } else if (responseData.containsKey('service')) {
+            Log.d('Successfully created service (service field)');
+            return Service.fromJson(responseData['service']);
           } else if (responseData.containsKey('id')) {
             // Alternative response format
             Log.d('Successfully created service (direct response)');
@@ -275,6 +282,7 @@ class ServiceService {
     required String description,
     required double price,
     required int categoryId,
+    required String categoryName,
     String? imageUrl,
     String? subcategory,
   }) async {
@@ -282,7 +290,7 @@ class ServiceService {
     final apiBaseUrl = baseUrl.endsWith('/') ? baseUrl : '$baseUrl/';
 
     final response = await http.put(
-      Uri.parse('${apiBaseUrl}services/$id'),
+      Uri.parse('${apiBaseUrl}service-provider/services/$id'),
       headers: {
         'Authorization': 'Bearer $_authToken',
         'Accept': 'application/json',
@@ -292,16 +300,34 @@ class ServiceService {
         'title': title,
         'description': description,
         'price': price,
+        'category': categoryName,
         'category_id': categoryId,
         'image_url': imageUrl,
         'subcategory': subcategory,
       }),
     );
 
+    Log.d('Update service response status: ${response.statusCode}');
+    Log.d('Update service response body: ${response.body}');
+
     if (response.statusCode == 200) {
-      return Service.fromJson(json.decode(response.body)['data']);
+      final responseData = json.decode(response.body);
+      if (responseData is Map<String, dynamic>) {
+        if (responseData.containsKey('data')) {
+          return Service.fromJson(responseData['data']);
+        } else if (responseData.containsKey('service')) {
+          return Service.fromJson(responseData['service']);
+        } else {
+          throw Exception('Unexpected API response format: $responseData');
+        }
+      } else {
+        throw Exception('Invalid response format');
+      }
     } else {
-      throw Exception('Failed to update service');
+      final errorBody = response.body;
+      Log.e('Update service failed: $errorBody');
+      throw Exception(
+          'Failed to update service: ${response.statusCode} - $errorBody');
     }
   }
 
@@ -310,7 +336,7 @@ class ServiceService {
     final apiBaseUrl = baseUrl.endsWith('/') ? baseUrl : '$baseUrl/';
 
     final response = await http.delete(
-      Uri.parse('${apiBaseUrl}services/$id'),
+      Uri.parse('${apiBaseUrl}service-provider/services/$id'),
       headers: {
         'Authorization': 'Bearer $_authToken',
         'Accept': 'application/json',
@@ -335,8 +361,8 @@ class ServiceService {
       // Ensure baseUrl ends with a trailing slash
       final apiBaseUrl = baseUrl.endsWith('/') ? baseUrl : '$baseUrl/';
 
-      // Use the correct endpoint
-      final endpoint = '${apiBaseUrl}services/upload-image';
+      // Use the correct endpoint for service providers
+      final endpoint = '${apiBaseUrl}service-provider/services/upload-image';
 
       Log.d('Uploading image to endpoint: $endpoint');
 
@@ -444,6 +470,90 @@ class ServiceService {
       Log.e('Error uploading service image: $e');
       Log.e('Stack trace: $stackTrace');
       throw Exception('Error uploading service image: $e');
+    }
+  }
+
+  // Add methods to match ApiService interface
+  Future<Map<String, dynamic>> getRequest(String endpoint) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/$endpoint'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          if (_authToken != null) 'Authorization': 'Bearer $_authToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw Exception('Failed to fetch data: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error in GET request: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> deleteRequest(String endpoint) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('$baseUrl/$endpoint'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          if (_authToken != null) 'Authorization': 'Bearer $_authToken',
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return response.statusCode == 200 ? json.decode(response.body) : {};
+      } else {
+        throw Exception('Failed to delete data: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error in DELETE request: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<Category>> getAgriculturalServiceCategories() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/categories/5/subcategories'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          if (_authToken != null) 'Authorization': 'Bearer $_authToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+
+        // Handle different response formats
+        List<dynamic> categoriesJson;
+        if (responseData is List) {
+          categoriesJson = responseData;
+        } else if (responseData is Map<String, dynamic> &&
+            responseData.containsKey('data')) {
+          categoriesJson = responseData['data'] as List<dynamic>;
+        } else {
+          throw Exception(
+              'Unexpected response format for agricultural service categories');
+        }
+
+        return categoriesJson
+            .map<Category>(
+                (json) => Category.fromJson(json as Map<String, dynamic>))
+            .toList();
+      } else {
+        throw Exception('Failed to fetch categories: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error fetching agricultural service categories: $e');
+      rethrow;
     }
   }
 }

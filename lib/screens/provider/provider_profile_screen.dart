@@ -197,7 +197,7 @@ class ProviderProfileScreen extends StatelessWidget {
                     fit: BoxFit.cover,
                   )
                 : const Icon(Icons.image),
-            title: Text(service.title),
+            title: Text(service.title ?? 'No Title'),
             subtitle: Text(
               'TZS ${service.price.toStringAsFixed(2)}',
               style: const TextStyle(

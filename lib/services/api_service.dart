@@ -31,6 +31,44 @@ class ApiService {
         if (_authToken != null) 'Authorization': 'Bearer $_authToken',
       };
 
+  // Generic GET method
+  Future<Map<String, dynamic>> getRequest(String endpoint) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/$endpoint'),
+        headers: _headers,
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to fetch data: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error in GET request: $e');
+      rethrow;
+    }
+  }
+
+  // Generic DELETE method
+  Future<Map<String, dynamic>> deleteRequest(String endpoint) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('$baseUrl/$endpoint'),
+        headers: _headers,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return response.statusCode == 200 ? jsonDecode(response.body) : {};
+      } else {
+        throw Exception('Failed to delete data: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error in DELETE request: $e');
+      rethrow;
+    }
+  }
+
   Future<bool> checkConnection() async {
     try {
       final uri = Uri.parse('$baseUrl/api/health');
@@ -1299,6 +1337,40 @@ class ApiService {
     }
   }
 
+  // Get agricultural service subcategories
+  Future<List<Category>> getAgriculturalServiceCategories() async {
+    try {
+      final uri = Uri.parse('$baseUrl/categories/5/subcategories');
+      Log.e('Fetching agricultural service subcategories from: $uri');
+
+      final response = await http.get(uri, headers: _headers);
+
+      Log.e(
+          'Agricultural service categories response status: ${response.statusCode}');
+      Log.e('Agricultural service categories response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data is Map<String, dynamic> && data.containsKey('data')) {
+          final List<dynamic> categoriesJson = data['data'];
+          return categoriesJson.map((json) => Category.fromJson(json)).toList();
+        } else if (data is List) {
+          return data.map((json) => Category.fromJson(json)).toList();
+        } else {
+          throw Exception(
+              'Unexpected response format for agricultural service categories');
+        }
+      } else {
+        Log.e('Error response: ${response.body}');
+        throw Exception(
+            'Failed to load agricultural service categories: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e, stackTrace) {
+      Log.e('Error in getAgriculturalServiceCategories: $e\n$stackTrace');
+      throw Exception('Failed to load agricultural service categories: $e');
+    }
+  }
+
   // Transport API methods
   Future<Map<String, dynamic>> getTransportCategories() async {
     try {
@@ -1446,6 +1518,75 @@ class ApiService {
       }
     } catch (e) {
       Log.e('Error uploading transport image: $e');
+      rethrow;
+    }
+  }
+
+  // Role Management Methods
+  Future<Map<String, dynamic>> getUserRoles() async {
+    try {
+      Log.e('Fetching user roles...');
+      final response = await http.get(
+        Uri.parse('$baseUrl/user/roles'),
+        headers: _headers,
+      );
+
+      Log.e('Get user roles response status: ${response.statusCode}');
+      Log.e('Get user roles response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw Exception('Failed to fetch user roles: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error fetching user roles: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> addUserRole(String role) async {
+    try {
+      Log.e('Adding user role: $role...');
+      final response = await http.post(
+        Uri.parse('$baseUrl/user/roles'),
+        headers: _headers,
+        body: json.encode({'role': role}),
+      );
+
+      Log.e('Add user role response status: ${response.statusCode}');
+      Log.e('Add user role response body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return json.decode(response.body);
+      } else {
+        throw Exception('Failed to add user role: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error adding user role: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> removeUserRole(String role) async {
+    try {
+      Log.e('Removing user role: $role...');
+      final response = await http.delete(
+        Uri.parse('$baseUrl/user/roles'),
+        headers: _headers,
+        body: json.encode({'role': role}),
+      );
+
+      Log.e('Remove user role response status: ${response.statusCode}');
+      Log.e('Remove user role response body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return json.decode(response.body);
+      } else {
+        throw Exception('Failed to remove user role: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error removing user role: $e');
       rethrow;
     }
   }

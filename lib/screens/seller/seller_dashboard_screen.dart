@@ -9,6 +9,7 @@ import 'edit_product_screen.dart';
 import 'seller_orders_screen.dart';
 import 'seller_organic_products_screen.dart';
 import 'seller_transport_screen.dart';
+import '../provider/provider_services_screen.dart';
 
 class SellerDashboardScreen extends StatefulWidget {
   const SellerDashboardScreen({Key? key}) : super(key: key);
@@ -190,6 +191,17 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                   _selectedIndex = 0;
                 });
               });
+            } else if (index == 4) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ProviderServicesScreen(),
+                ),
+              ).then((_) {
+                setState(() {
+                  _selectedIndex = 0;
+                });
+              });
             }
           },
           items: const [
@@ -208,6 +220,10 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
             BottomNavigationBarItem(
               icon: Icon(Icons.eco),
               label: 'Organic',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.handyman),
+              label: 'Services',
             ),
           ],
         ),
