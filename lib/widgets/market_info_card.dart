@@ -235,9 +235,9 @@ class MarketInfoCard extends StatelessWidget {
             ),
             const SizedBox(height: 4), // Minimal spacing before read more
             // Read more indicator
-            Row(
+            const Row(
               children: [
-                const Text(
+                Text(
                   'Read more',
                   style: TextStyle(
                     fontSize: 11, // Smaller font
@@ -245,8 +245,8 @@ class MarketInfoCard extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(width: 4),
-                const Icon(
+                SizedBox(width: 4),
+                Icon(
                   Icons.arrow_forward,
                   size: 11, // Smaller icon
                   color: Color(0xFF1C592B), // Dark green

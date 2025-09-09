@@ -8,3 +8,5 @@ Java_com_masokotips_app_MainActivity_stringFromJNI(
     std::string hello = "Hello from C++";
     return env->NewStringUTF(hello.c_str());
 }
+
+

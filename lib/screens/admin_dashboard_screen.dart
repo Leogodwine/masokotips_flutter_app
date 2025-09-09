@@ -460,15 +460,15 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ),
                 child: const Column(
                   children: [
-                    const Icon(Icons.info, color: Colors.blue, size: 20),
-                    const SizedBox(height: 8),
-                    const Text(
+                    Icon(Icons.info, color: Colors.blue, size: 20),
+                    SizedBox(height: 8),
+                    Text(
                       'To fix this issue, update your backend API to use the correct column name in the database query.',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 12, color: Colors.blue),
                     ),
-                    const SizedBox(height: 4),
-                    const Text(
+                    SizedBox(height: 4),
+                    Text(
                       'Change "role" to "roles" in your SQL queries.',
                       textAlign: TextAlign.center,
                       style: TextStyle(

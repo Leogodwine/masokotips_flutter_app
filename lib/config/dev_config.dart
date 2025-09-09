@@ -5,5 +5,5 @@
 class DevConfig {
   // Local development URL for Android emulator
   // Use 10.0.2.2 to access localhost from Android emulator
-  static const String ngrokUrl = 'https://add8d33805df.ngrok-free.app';
+  static const String ngrokUrl = 'https://7e1ad3535588.ngrok-free.app';
 }
