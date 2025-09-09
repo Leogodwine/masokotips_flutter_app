@@ -777,7 +777,7 @@ class AdminService {
   Future<bool> createTransport(Transport transport) async {
     try {
       final response = await _dio.post(
-        '$baseUrl/api/admin/transports',
+        '$baseUrl/admin/transports',
         data: transport.toJson(),
       );
       return response.statusCode == 201;
@@ -789,7 +789,7 @@ class AdminService {
   Future<bool> updateTransport(Transport transport) async {
     try {
       final response = await _dio.put(
-        '$baseUrl/api/admin/transports/${transport.id}',
+        '$baseUrl/admin/transports/${transport.id}',
         data: transport.toJson(),
       );
       return response.statusCode == 200;
@@ -801,7 +801,7 @@ class AdminService {
   Future<bool> deleteTransport(int id) async {
     try {
       final response = await _dio.delete(
-        '$baseUrl/api/admin/transports/$id',
+        '$baseUrl/admin/transports/$id',
       );
       return response.statusCode == 200;
     } catch (e) {

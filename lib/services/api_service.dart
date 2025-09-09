@@ -71,7 +71,7 @@ class ApiService {
 
   Future<bool> checkConnection() async {
     try {
-      final uri = Uri.parse('$baseUrl/api/health');
+      final uri = Uri.parse('$baseUrl/health');
       Log.e('Checking API connection at: $uri');
 
       final response = await http.get(uri, headers: _headers);
