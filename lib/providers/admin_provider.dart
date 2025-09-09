@@ -82,15 +82,15 @@ class AdminProvider with ChangeNotifier {
     Log.d('Auth token set in both services');
   }
 
-  Future<bool> login(String email, String password) async {
+  Future<bool> login(String username, String password) async {
     try {
       _isLoading = true;
       _error = null;
       notifyListeners();
 
-      Log.d('Attempting admin login for email: $email');
+      Log.d('Attempting admin login for username: $username');
 
-      final response = await _adminAuthService.loginAdmin(email, password);
+      final response = await _adminAuthService.loginAdmin(username, password);
       Log.d('Login response: $response');
 
       if (response['success'] == true) {

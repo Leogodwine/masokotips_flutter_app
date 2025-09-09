@@ -61,9 +61,9 @@ class AuthProvider with ChangeNotifier {
   }
 
   // Login
-  Future<void> login(String email, String password) async {
+  Future<void> login(String username, String password) async {
     try {
-      final response = await _apiService.login(email, password);
+      final response = await _apiService.login(username, password);
 
       // Handle the response format from Laravel
       if (response['token'] != null) {
@@ -88,10 +88,11 @@ class AuthProvider with ChangeNotifier {
   }
 
   // Register
-  Future<void> register(String name, String email, String password,
+  Future<void> register(
+      String name, String username, String email, String password,
       {String role = 'buyer'}) async {
     try {
-      await _apiService.register(name, email, password, role: role);
+      await _apiService.register(name, username, email, password, role: role);
     } catch (e) {
       throw Exception('Registration failed: $e');
     }
@@ -99,9 +100,10 @@ class AuthProvider with ChangeNotifier {
 
   // Create admin account
   Future<void> createAdminAccount(
-      String name, String email, String password) async {
+      String name, String username, String email, String password) async {
     try {
-      await _apiService.register(name, email, password, role: 'admin');
+      await _apiService.register(name, username, email, password,
+          role: 'admin');
     } catch (e) {
       throw Exception('Failed to create admin account: $e');
     }

@@ -13,7 +13,7 @@ class AdminLoginScreen extends StatefulWidget {
 
 class _AdminLoginScreenState extends State<AdminLoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
@@ -21,7 +21,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -36,17 +36,18 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
       final adminProvider = Provider.of<AdminProvider>(context, listen: false);
 
       try {
-        Log.d('Attempting admin login for email: ${_emailController.text}');
+        Log.d(
+            'Attempting admin login for username: ${_usernameController.text}');
 
         // Log in using AdminProvider
         final success = await adminProvider.login(
-          _emailController.text.trim(),
+          _usernameController.text.trim(),
           _passwordController.text,
         );
 
         if (success) {
           Log.d('Admin login successful. Navigating to admin dashboard.');
-          
+
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -56,7 +57,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
             );
             // Clear all routes and go to admin dashboard
             Navigator.pushNamedAndRemoveUntil(
-              context, 
+              context,
               '/admin/dashboard',
               (route) => false,
             );
@@ -64,7 +65,8 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
         } else {
           Log.e('Admin login failed: ${adminProvider.error}');
           setState(() {
-            _errorMessage = adminProvider.error ?? 'Login failed. Please try again.';
+            _errorMessage =
+                adminProvider.error ?? 'Login failed. Please try again.';
           });
         }
       } catch (e) {
@@ -123,7 +125,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                     alignment: Alignment.center,
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Header
                   Text(
                     'Admin Login',
@@ -170,26 +172,25 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
                   const SizedBox(height: 24),
 
-                  // Email Field
+                  // Username Field
                   TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
+                    controller: _usernameController,
+                    keyboardType: TextInputType.text,
                     textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
-                      labelText: 'Email',
-                      hintText: 'Enter your admin email',
-                      prefixIcon: const Icon(Icons.email_outlined),
+                      labelText: 'Username',
+                      hintText: 'Enter your admin username',
+                      prefixIcon: const Icon(Icons.person_outline),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
+                        return 'Please enter your username';
                       }
-                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                          .hasMatch(value)) {
-                        return 'Please enter a valid email address';
+                      if (value.length < 3) {
+                        return 'Username must be at least 3 characters';
                       }
                       return null;
                     },

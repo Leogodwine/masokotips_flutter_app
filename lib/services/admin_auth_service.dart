@@ -135,9 +135,10 @@ class AdminAuthService {
   }
 
   // Login admin - simplified to avoid redundant API calls
-  Future<Map<String, dynamic>> loginAdmin(String email, String password) async {
+  Future<Map<String, dynamic>> loginAdmin(
+      String username, String password) async {
     try {
-      Log.d('Logging in admin with email: $email');
+      Log.d('Logging in admin with username: $username');
 
       final response = await http.post(
         Uri.parse('$baseUrl/admin/login'),
@@ -146,7 +147,7 @@ class AdminAuthService {
           'Accept': 'application/json',
         },
         body: json.encode({
-          'email': email,
+          'username': username,
           'password': password,
         }),
       );
@@ -267,7 +268,6 @@ class AdminAuthService {
       rethrow;
     }
   }
-
 
   Future<Map<String, dynamic>> getDashboardData() async {
     if (_authToken == null) {

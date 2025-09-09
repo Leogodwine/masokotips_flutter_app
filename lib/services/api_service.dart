@@ -85,11 +85,11 @@ class ApiService {
   }
 
   // Login
-  Future<Map<String, dynamic>> login(String email, String password) async {
+  Future<Map<String, dynamic>> login(String username, String password) async {
     try {
       final url = Uri.parse('$baseUrl/auth/login');
       final requestBody = {
-        'email': email,
+        'username': username,
         'password': password,
       };
 
@@ -201,12 +201,14 @@ class ApiService {
   }
 
   // Register
-  Future<void> register(String name, String email, String password,
+  Future<void> register(
+      String name, String username, String email, String password,
       {String role = 'buyer'}) async {
     try {
       final url = Uri.parse('$baseUrl/auth/register');
       final requestBody = {
         'name': name,
+        'username': username,
         'email': email,
         'password': password,
         'password_confirmation': password,

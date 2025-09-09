@@ -9,15 +9,15 @@ class AuthService {
   static const String _tokenKey = 'auth_token';
   String? _authToken;
 
-  Future<bool> login(String email, String password) async {
+  Future<bool> login(String username, String password) async {
     try {
-      Log.d('Attempting login for user: $email');
+      Log.d('Attempting login for user: $username');
 
       final response = await http.post(
         Uri.parse('$_baseUrl/login'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'email': email,
+          'username': username,
           'password': password,
         }),
       );
