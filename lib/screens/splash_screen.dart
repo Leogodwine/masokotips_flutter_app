@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:masoko_tips/screens/home/home_screen.dart';
+import 'package:masoko_tips/widgets/sponsor_logo.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -8,22 +9,78 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
+  late AnimationController _logoController;
+  late AnimationController _sponsorController;
+  late Animation<double> _logoAnimation;
+  late Animation<double> _sponsorAnimation;
+  late Animation<double> _fadeAnimation;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _navigateToHome();
-    });
+    _setupAnimations();
+    _startAnimationSequence();
+  }
+
+  void _setupAnimations() {
+    // Logo animation controller
+    _logoController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+
+    // Sponsor animation controller
+    _sponsorController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+
+    // Logo scale and fade animation
+    _logoAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _logoController,
+      curve: Curves.elasticOut,
+    ));
+
+    // Sponsor fade in animation
+    _sponsorAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _sponsorController,
+      curve: Curves.easeInOut,
+    ));
+
+    // Overall fade animation for smooth transition
+    _fadeAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.0,
+    ).animate(CurvedAnimation(
+      parent: _logoController,
+      curve: const Interval(0.7, 1.0, curve: Curves.easeInOut),
+    ));
+  }
+
+  void _startAnimationSequence() async {
+    // Start logo animation
+    _logoController.forward();
+    
+    // Wait a bit then start sponsor animation
+    await Future.delayed(const Duration(milliseconds: 600));
+    _sponsorController.forward();
+    
+    // Wait for animations to complete then navigate
+    await Future.delayed(const Duration(milliseconds: 2000));
+    _navigateToHome();
   }
 
   Future<void> _navigateToHome() async {
-    // Wait for the splash screen to be visible
-    await Future.delayed(const Duration(milliseconds: 2000));
-
     if (!mounted) return;
 
-    // Navigate to home screen with error handling
     try {
       debugPrint('SplashScreen: Attempting to navigate to HomeScreen');
       Navigator.of(context).pushReplacement(
@@ -32,7 +89,6 @@ class _SplashScreenState extends State<SplashScreen> {
       debugPrint('SplashScreen: Successfully navigated to HomeScreen');
     } catch (e) {
       debugPrint('SplashScreen: Navigation error: $e');
-      // Fallback navigation if pushReplacement fails
       if (mounted) {
         debugPrint('SplashScreen: Attempting fallback navigation');
         Navigator.of(context).push(
@@ -43,67 +99,149 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   @override
+  void dispose() {
+    _logoController.dispose();
+    _sponsorController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          // 🔷 Centered logo + loader
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Image.asset(
-                  'assets/images/logo.png',
-                  height: 120,
-                  fit: BoxFit.contain,
+      backgroundColor: const Color(0xFF1C592B), // Dark green background
+      body: AnimatedBuilder(
+        animation: Listenable.merge([_logoController, _sponsorController]),
+        builder: (context, child) {
+          return FadeTransition(
+            opacity: _fadeAnimation,
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFF1C592B), // Dark green
+                    Color(0xFF2D7A3D), // Slightly lighter green
+                  ],
                 ),
-                const SizedBox(height: 32),
-                const CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                ),
-              ],
-            ),
-          ),
-
-          // 🔸 COSTECH Sponsor pinned to bottom center
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 38),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'Sponsored by',
-                    style: TextStyle(
-                      fontSize: 24,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Image.asset(
-                    'assets/images/costech_logo.png',
-                    height: 160,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Text(
-                        'COSTECH',
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
+              ),
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    // Top spacer
+                    const Spacer(flex: 2),
+                    
+                    // Main logo section (Instagram-style center)
+                    Expanded(
+                      flex: 3,
+                      child: Center(
+                        child: ScaleTransition(
+                          scale: _logoAnimation,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Main logo with subtle shadow
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.2),
+                                      blurRadius: 20,
+                                      offset: const Offset(0, 10),
+                                    ),
+                                  ],
+                                ),
+                                child: Image.asset(
+                                  'assets/images/logo.png',
+                                  height: 140,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              
+                              // App name with elegant typography
+                              const Text(
+                                'maSOKOtips',
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  letterSpacing: 1.5,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              
+                              // Tagline
+                              const Text(
+                                'Tanzania\'s Premier Agricultural Marketplace',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white70,
+                                  letterSpacing: 0.5,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
                         ),
-                      );
-                    },
-                  ),
-                ],
+                      ),
+                    ),
+                    
+                    // Bottom spacer
+                    const Spacer(flex: 1),
+                    
+                    // Sponsor section (Instagram-style bottom)
+                    FadeTransition(
+                      opacity: _sponsorAnimation,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 24,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Subtle "Powered by" text
+                            const Text(
+                              'Powered by',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white54,
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 1.0,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            
+                            // Sponsor logos in a row
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                // COSTECH logo
+                                const SponsorLogo(
+                                  imagePath: 'assets/images/costech_logo.png',
+                                  fallbackText: 'COSTECH',
+                                ),
+                                
+                                // Add more sponsor logos here if you have them
+                                // const SizedBox(width: 16),
+                                // const SponsorLogo(
+                                //   imagePath: 'assets/images/other_sponsor_logo.png',
+                                //   fallbackText: 'SPONSOR',
+                                // ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
