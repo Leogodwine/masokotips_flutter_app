@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/service.dart';
+import '../../services/service_service.dart';
 
 class ServiceManagementScreen extends StatefulWidget {
   const ServiceManagementScreen({super.key});
@@ -16,6 +17,7 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
   final _priceController = TextEditingController();
   final _imageUrlController = TextEditingController();
   String _selectedCategory = 'Buyers & Sellers';
+  final ServiceService _serviceService = ServiceService();
 
   @override
   Widget build(BuildContext context) {
@@ -72,14 +74,7 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
                   IconButton(
                     icon: const Icon(Icons.delete),
                     color: Colors.red,
-                    onPressed: () {
-                      // TODO: Implement delete service
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Service deleted'),
-                        ),
-                      );
-                    },
+                    onPressed: () => _showDeleteConfirmation(context, service),
                   ),
                 ],
               ),
@@ -187,23 +182,109 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if (_formKey.currentState!.validate()) {
-                // TODO: Implement save service
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      service == null
-                          ? 'Service added successfully'
-                          : 'Service updated successfully',
+                // Capture context-dependent objects before async operation
+                final navigator = Navigator.of(context);
+                final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+                await _saveService(service);
+                if (mounted) {
+                  navigator.pop();
+                  scaffoldMessenger.showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        service == null
+                            ? 'Service added successfully'
+                            : 'Service updated successfully',
+                      ),
+                      backgroundColor: Colors.green,
                     ),
-                  ),
-                );
-                _clearForm();
+                  );
+                  _clearForm();
+                }
               }
             },
             child: Text(service == null ? 'Add' : 'Update'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _saveService(Service? service) async {
+    try {
+      if (service == null) {
+        // Create new service
+        await _serviceService.addService(
+          title: _titleController.text,
+          description: _descriptionController.text,
+          price: double.parse(_priceController.text),
+          categoryId: 1, // Default category ID
+          categoryName: _selectedCategory,
+          imageUrl: _imageUrlController.text.isNotEmpty
+              ? _imageUrlController.text
+              : null,
+        );
+      } else {
+        // Update existing service
+        await _serviceService.updateService(
+          id: service.id.toString(),
+          title: _titleController.text,
+          description: _descriptionController.text,
+          price: double.parse(_priceController.text),
+          categoryId: 1, // Default category ID
+          categoryName: _selectedCategory,
+          imageUrl: _imageUrlController.text.isNotEmpty
+              ? _imageUrlController.text
+              : null,
+        );
+      }
+    } catch (e) {
+      debugPrint('Error saving service: $e');
+      // Handle error - could show error message to user
+    }
+  }
+
+  void _showDeleteConfirmation(BuildContext context, Service service) {
+    // Capture context-dependent objects before async operation
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete Service'),
+        content: Text('Are you sure you want to delete "${service.title}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              try {
+                await _serviceService.deleteService(service.id.toString());
+                if (mounted) {
+                  scaffoldMessenger.showSnackBar(
+                    SnackBar(
+                      content: Text('${service.title} deleted successfully'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  scaffoldMessenger.showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to delete service: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),

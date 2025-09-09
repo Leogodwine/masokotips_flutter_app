@@ -393,6 +393,9 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
     BuildContext context,
     OrganicProduct product,
   ) async {
+    final provider = context.read<OrganicProductProvider>();
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -411,18 +414,18 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
       ),
     );
 
-    if (confirmed == true && context.mounted) {
+    if (confirmed == true && mounted) {
       try {
-        await context.read<OrganicProductProvider>().deleteProduct(product.id);
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+        await provider.deleteProduct(product.id);
+        if (mounted) {
+          scaffoldMessenger.showSnackBar(
             const SnackBar(content: Text('Product deleted successfully')),
           );
           _loadOrganicProducts();
         }
       } catch (e) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+        if (mounted) {
+          scaffoldMessenger.showSnackBar(
             SnackBar(content: Text('Error deleting product: $e')),
           );
         }

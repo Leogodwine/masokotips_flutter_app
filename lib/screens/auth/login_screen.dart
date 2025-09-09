@@ -49,13 +49,13 @@ class _LoginScreenState extends State<LoginScreen> {
           final user = authProvider.user;
           if (user != null) {
             // Debug print user roles
-            print('User roles: ${user.roles}');
+            debugPrint('User roles: ${user.roles}');
 
             // Navigate to profile screen first for all users
-            print('Navigating to profile screen');
+            debugPrint('Navigating to profile screen');
             Navigator.pushReplacementNamed(context, '/profile');
           } else {
-            print('User is null after login');
+            debugPrint('User is null after login');
             Navigator.pushReplacementNamed(context, '/home');
           }
         }

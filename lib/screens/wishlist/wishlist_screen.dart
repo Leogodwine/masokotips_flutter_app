@@ -19,11 +19,14 @@ class WishlistScreen extends StatelessWidget {
         actions: [
           Consumer<WishlistProvider>(
             builder: (context, wishlistProvider, _) {
-              if (wishlistProvider.wishlistItems.isEmpty) return const SizedBox();
+              if (wishlistProvider.wishlistItems.isEmpty) {
+                return const SizedBox();
+              }
               return IconButton(
                 icon: const Icon(Icons.delete_sweep_outlined),
                 tooltip: 'Clear Wishlist',
-                onPressed: () => _confirmClearWishlist(context, wishlistProvider),
+                onPressed: () =>
+                    _confirmClearWishlist(context, wishlistProvider),
               );
             },
           ),
@@ -64,11 +67,11 @@ class WishlistScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     color: Colors.white,
-                    boxShadow: [
+                    boxShadow: const [
                       BoxShadow(
                         color: Colors.black12,
                         blurRadius: 6,
-                        offset: const Offset(0, 3),
+                        offset: Offset(0, 3),
                       ),
                     ],
                   ),
@@ -136,17 +139,23 @@ class WishlistScreen extends StatelessWidget {
                           children: [
                             Consumer<CartProvider>(
                               builder: (context, cartProvider, _) {
-                                final isInCart = cartProvider.isInCart(product.id);
+                                final isInCart =
+                                    cartProvider.isInCart(product.id);
                                 return IconButton(
                                   icon: Icon(
-                                    isInCart ? Icons.shopping_cart : Icons.add_shopping_cart,
-                                    color: isInCart ? Colors.green : Colors.black54,
+                                    isInCart
+                                        ? Icons.shopping_cart
+                                        : Icons.add_shopping_cart,
+                                    color: isInCart
+                                        ? Colors.green
+                                        : Colors.black54,
                                   ),
                                   tooltip: isInCart ? 'In Cart' : 'Add to Cart',
                                   onPressed: () {
                                     if (!isInCart) {
                                       cartProvider.addToCart(product);
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
                                         const SnackBar(
                                           content: Text('Added to cart'),
                                           duration: Duration(seconds: 2),
@@ -160,20 +169,23 @@ class WishlistScreen extends StatelessWidget {
                               },
                             ),
                             IconButton(
-                              icon: const Icon(Icons.favorite, color: Colors.redAccent),
+                              icon: const Icon(Icons.favorite,
+                                  color: Colors.redAccent),
                               tooltip: 'Saved in Wishlist',
                               onPressed: () {
                                 // Optional: implement wishlist toggle logic
                               },
                             ),
                             IconButton(
-                              icon: const Icon(Icons.close_rounded, color: Colors.grey),
+                              icon: const Icon(Icons.close_rounded,
+                                  color: Colors.grey),
                               tooltip: 'Remove from Wishlist',
                               onPressed: () {
                                 wishlistProvider.removeFromWishlist(product.id);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('${product.name} removed from wishlist'),
+                                    content: Text(
+                                        '${product.name} removed from wishlist'),
                                     duration: const Duration(seconds: 2),
                                     behavior: SnackBarBehavior.floating,
                                   ),

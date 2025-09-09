@@ -107,12 +107,12 @@ class CategoryProvider with ChangeNotifier {
         _subcategories = category.subcategories!;
         Log.i(
             'CategoryProvider: Loaded ${_subcategories.length} subcategories from cached data');
-        print('CategoryProvider: Cached subcategories: $_subcategories');
+        debugPrint('CategoryProvider: Cached subcategories: $_subcategories');
       } else {
         // Load subcategories from API
         Log.i(
             'CategoryProvider: Making API call to get subcategories for category $categoryId');
-        print(
+        debugPrint(
             'CategoryProvider: Making API call to get subcategories for category $categoryId');
         final response = await _apiService.getSubcategories(categoryId);
         _subcategories = response;
@@ -122,7 +122,8 @@ class CategoryProvider with ChangeNotifier {
 
         Log.i(
             'CategoryProvider: Loaded ${_subcategories.length} subcategories from API');
-        print('CategoryProvider: API response subcategories: $_subcategories');
+        debugPrint(
+            'CategoryProvider: API response subcategories: $_subcategories');
       }
 
       for (var subcategory in _subcategories) {

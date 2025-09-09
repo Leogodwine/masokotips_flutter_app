@@ -145,8 +145,12 @@ class _DeveloperSettingsScreenState extends State<DeveloperSettingsScreen> {
   }
 
   Future<void> _testApiConnection() async {
+    // Capture context-dependent objects before async operation
+    final navigator = Navigator.of(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     try {
-      ScaffoldMessenger.of(context).showSnackBar(
+      scaffoldMessenger.showSnackBar(
         const SnackBar(
           content: Text('Testing API connection...'),
           duration: Duration(seconds: 1),
@@ -156,7 +160,7 @@ class _DeveloperSettingsScreenState extends State<DeveloperSettingsScreen> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const AlertDialog(
+        builder: (dialogContext) => const AlertDialog(
           title: Text('Testing Connection'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -170,52 +174,60 @@ class _DeveloperSettingsScreenState extends State<DeveloperSettingsScreen> {
       );
 
       final bool isConnected = await _apiService.checkConnection();
-      Navigator.of(context).pop();
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(isConnected
-              ? 'Connection successful to ${_apiService.baseUrl}'
-              : 'Connection failed to ${_apiService.baseUrl}'),
-          backgroundColor: isConnected ? Colors.green : Colors.red,
-        ),
-      );
-    } catch (e) {
-      if (Navigator.of(context).canPop()) {
-        Navigator.of(context).pop();
+      if (mounted) {
+        navigator.pop();
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text(isConnected
+                ? 'Connection successful to ${_apiService.baseUrl}'
+                : 'Connection failed to ${_apiService.baseUrl}'),
+            backgroundColor: isConnected ? Colors.green : Colors.red,
+          ),
+        );
       }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Connection test error: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+    } catch (e) {
+      if (mounted) {
+        if (navigator.canPop()) {
+          navigator.pop();
+        }
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text('Connection test error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
   Future<void> _clearStoredData() async {
+    // Capture context-dependent objects before async operation
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final authProvider = context.read<AuthProvider>();
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Clear Stored Data'),
         content: const Text(
           'This will clear all stored data including login information. You will need to log in again.',
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context);
-              await context.read<AuthProvider>().logout();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('All stored data cleared'),
-                ),
-              );
+              Navigator.of(dialogContext).pop();
+              await authProvider.logout();
+              if (mounted) {
+                scaffoldMessenger.showSnackBar(
+                  const SnackBar(
+                    content: Text('All stored data cleared'),
+                  ),
+                );
+              }
             },
             child: const Text('Clear Data'),
           ),

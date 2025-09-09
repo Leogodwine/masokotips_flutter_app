@@ -108,7 +108,7 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
         });
       }
     } catch (e) {
-      print('Error picking images: $e');
+      debugPrint('Error picking images: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -351,7 +351,7 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
                       ),
                       items: _isLoadingCategories
                           ? [
-                              DropdownMenuItem(
+                              const DropdownMenuItem(
                                   value: null,
                                   child: Text('Loading categories...'))
                             ]

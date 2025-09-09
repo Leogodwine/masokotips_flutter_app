@@ -74,7 +74,7 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
     _titleController.text = widget.transport.title;
     _descriptionController.text = widget.transport.description ?? '';
     _vehicleLocationController.text = widget.transport.vehicleLocation;
-    _pricePerKmController.text = (widget.transport.price ?? 0)
+    _pricePerKmController.text = widget.transport.price
         .toString(); // Fixed: use 'price' instead of 'pricePerKg'
     _capacityController.text = widget.transport.capacity.toString();
     _contactPhoneController.text = widget.transport.driverPhone ?? '';

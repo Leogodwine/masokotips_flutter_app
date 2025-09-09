@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/admin_provider.dart';
 import '../../models/service.dart';
+import 'service_management_screen.dart';
 
 class AdminServicesManagementScreen extends StatefulWidget {
   const AdminServicesManagementScreen({Key? key}) : super(key: key);
@@ -31,7 +32,18 @@ class _AdminServicesManagementScreenState
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
-              // TODO: Navigate to add service screen
+              final adminProvider = context.read<AdminProvider>();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ServiceManagementScreen(),
+                ),
+              ).then((_) {
+                // Refresh services list after returning
+                if (mounted) {
+                  adminProvider.loadServices();
+                }
+              });
             },
           ),
         ],
@@ -92,7 +104,19 @@ class _AdminServicesManagementScreenState
                     onSelected: (value) {
                       switch (value) {
                         case 'edit':
-                          // TODO: Navigate to edit service screen
+                          final adminProvider = context.read<AdminProvider>();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const ServiceManagementScreen(),
+                            ),
+                          ).then((_) {
+                            // Refresh services list after returning
+                            if (mounted) {
+                              adminProvider.loadServices();
+                            }
+                          });
                           break;
                         case 'delete':
                           _showDeleteConfirmation(context, service);
@@ -134,7 +158,7 @@ class _AdminServicesManagementScreenState
             onPressed: () async {
               final success =
                   await context.read<AdminProvider>().deleteService(service.id);
-              if (success && mounted) {
+              if (success && context.mounted) {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(

@@ -62,6 +62,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _pickImage(ImageSource source) async {
+    // Capture context-dependent objects before async operation
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     try {
       final XFile? pickedFile = await _picker.pickImage(
         source: source,
@@ -76,9 +79,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error picking image: $e')),
-      );
+      if (mounted) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text('Error picking image: $e')),
+        );
+      }
     }
   }
 
@@ -132,9 +137,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _errorMessage = null;
     });
 
-    try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    // Capture context-dependent objects before async operation
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
 
+    try {
       await authProvider.updateProfile(
         name: _nameController.text,
         email: _emailController.text,
@@ -144,13 +152,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        scaffoldMessenger.showSnackBar(
           const SnackBar(
             content: Text('Profile updated successfully'),
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.pop(context);
+        navigator.pop();
       }
     } catch (e) {
       setState(() {
@@ -160,12 +168,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               'This email is already registered. Please use a different email address.';
         }
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to update profile: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text('Failed to update profile: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() {

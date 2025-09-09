@@ -328,24 +328,28 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   void _cancelOrder(Order order) async {
     final ordersProvider = context.read<OrdersProvider>();
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     await ordersProvider.cancelOrder(order.id);
 
-    if (ordersProvider.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(ordersProvider.error!),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Order cancelled successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      // Refresh the orders list
-      _fetchOrders();
+    if (mounted) {
+      if (ordersProvider.error != null) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text(ordersProvider.error!),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } else {
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(
+            content: Text('Order cancelled successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        // Refresh the orders list
+        _fetchOrders();
+      }
     }
   }
 }

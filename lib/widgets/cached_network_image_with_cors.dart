@@ -21,7 +21,7 @@ class CachedNetworkImageWithCors extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('Attempting to load image from URL: $imageUrl');
+    debugPrint('Attempting to load image from URL: $imageUrl');
 
     return CachedNetworkImage(
       imageUrl: imageUrl,
@@ -30,8 +30,8 @@ class CachedNetworkImageWithCors extends StatelessWidget {
       fit: fit,
       placeholder: placeholder,
       errorWidget: (context, url, error) {
-        print('Error loading image from URL: $url');
-        print('Error details: $error');
+        debugPrint('Error loading image from URL: $url');
+        debugPrint('Error details: $error');
 
         return errorWidget?.call(context, url, error) ??
             Container(

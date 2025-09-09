@@ -15,8 +15,7 @@ import '../../utils/logger.dart';
 import '../categories/subcategories_screen.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:masoko_tips/screens/market_info/market_info_screen.dart';
-import 'package:masoko_tips/screens/market_info/market_info_detail_screen.dart';
-import '../../models/market_info.dart';
+import '../../widgets/market_info_card.dart';
 import '../../widgets/friendly_error_display.dart';
 
 class HomeContentScreen extends StatefulWidget {
@@ -27,9 +26,7 @@ class HomeContentScreen extends StatefulWidget {
 }
 
 class _HomeContentScreenState extends State<HomeContentScreen> {
-  bool _isLoading = false;
   final TextEditingController _searchController = TextEditingController();
-  List<MarketInfo> _marketInfoList = [];
 
   @override
   void initState() {
@@ -84,8 +81,6 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
   Future<void> _loadData() async {
     if (!mounted) return;
 
-    setState(() => _isLoading = true);
-
     try {
       Log.e('HomeContentScreen: Loading featured products...');
       final productProvider = context.read<ProductProvider>();
@@ -104,28 +99,15 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           ),
         );
       }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
     }
   }
 
   Future<void> _loadMarketInfo() async {
     if (!mounted) return;
 
-    setState(() {
-      _isLoading = true; // Start showing loading spinner
-    });
-
     try {
       final marketInfoProvider = context.read<MarketInfoProvider>();
       await marketInfoProvider.loadMarketInfo();
-      if (mounted) {
-        setState(() {
-          _marketInfoList = marketInfoProvider.marketInfoList;
-        });
-      }
     } catch (e) {
       Log.e('HomeContentScreen: Error loading market info: $e');
       if (mounted) {
@@ -134,12 +116,6 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
             content: Text('Failed to load market information.'),
           ),
         );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false; // Stop showing loading spinner
-        });
       }
     }
   }
@@ -192,7 +168,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.15),
+                          color: Colors.white.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(
@@ -215,7 +191,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
+                      const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
@@ -227,7 +203,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                               height: 1.1,
                             ),
                           ),
-                          const SizedBox(width: 4),
+                          SizedBox(width: 4),
                           Text(
                             'tips',
                             style: TextStyle(
@@ -248,7 +224,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                             fontSize: 18,
                             height: 1.4,
                             fontWeight: FontWeight.w400,
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                           ),
                           textAlign: TextAlign.start,
                         ),
@@ -322,8 +298,9 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color:
-                              Theme.of(context).primaryColor.withOpacity(0.1),
+                          color: Theme.of(context)
+                              .primaryColor
+                              .withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
@@ -479,6 +456,21 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                 children: [
                   Row(
                     children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context)
+                              .primaryColor
+                              .withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.trending_up,
+                          color: Theme.of(context).primaryColor,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           'Market News',
@@ -489,7 +481,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      TextButton(
+                      TextButton.icon(
                         onPressed: () {
                           Navigator.push(
                             context,
@@ -498,256 +490,219 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                             ),
                           );
                         },
-                        child: const Text('See All'),
+                        icon: const Icon(Icons.arrow_forward, size: 16),
+                        label: const Text('See All'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Theme.of(context).primaryColor,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  if (_isLoading)
-                    const Center(child: CircularProgressIndicator())
-                  else if (_marketInfoList.isEmpty)
-                    Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const MarketInfoScreen(),
-                            ),
-                          );
-                        },
-                        borderRadius: BorderRadius.circular(16),
-                        child: Container(
-                          height: 150,
-                          padding: const EdgeInsets.all(16),
+                  Consumer<MarketInfoProvider>(
+                    builder: (context, marketInfoProvider, child) {
+                      if (marketInfoProvider.isLoading) {
+                        return Container(
+                          height: 220,
                           decoration: BoxDecoration(
+                            color: Colors.grey[50],
                             borderRadius: BorderRadius.circular(16),
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                Theme.of(context).primaryColor.withAlpha(25),
-                                Theme.of(context).primaryColor.withAlpha(13),
+                            border: Border.all(
+                              color: Colors.grey[200]!,
+                              width: 1,
+                            ),
+                          ),
+                          child: const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                CircularProgressIndicator(),
+                                SizedBox(height: 16),
+                                Text(
+                                  'Loading market news...',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 14,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .primaryColor
-                                      .withAlpha(25),
-                                  borderRadius: BorderRadius.circular(12),
+                        );
+                      }
+
+                      if (marketInfoProvider.error != null) {
+                        return Container(
+                          height: 220,
+                          decoration: BoxDecoration(
+                            color: Colors.red[50],
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: Colors.red[200]!,
+                              width: 1,
+                            ),
+                          ),
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.error_outline,
+                                  size: 48,
+                                  color: Colors.red[400],
                                 ),
-                                child: const Icon(
-                                  Icons.trending_up,
-                                  size: 24,
-                                  color: Colors.green,
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Failed to load market news',
+                                  style: TextStyle(
+                                    color: Colors.red[700],
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Stay Updated',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Theme.of(context).primaryColor,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Get the latest market trends, prices, and insights',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Tap to retry',
+                                  style: TextStyle(
+                                    color: Colors.red[500],
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+
+                      final marketInfoList = marketInfoProvider.marketInfoList;
+
+                      if (marketInfoList.isEmpty) {
+                        return Card(
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const MarketInfoScreen(),
+                                ),
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(16),
+                            child: Container(
+                              height: 180,
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    Theme.of(context)
+                                        .primaryColor
+                                        .withValues(alpha: 0.1),
+                                    Theme.of(context)
+                                        .primaryColor
+                                        .withValues(alpha: 0.05),
                                   ],
                                 ),
                               ),
-                              Icon(
-                                Icons.arrow_forward_ios,
-                                size: 16,
-                                color: Theme.of(context).primaryColor,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                  else
-                    SizedBox(
-                      height: 220,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: _marketInfoList.length,
-                        itemBuilder: (context, index) {
-                          final marketInfo = _marketInfoList[index];
-                          return Container(
-                            width: 300,
-                            margin: const EdgeInsets.only(right: 16),
-                            child: Card(
-                              elevation: 2,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: InkWell(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          MarketInfoDetailScreen(
-                                        marketInfo: marketInfo,
-                                      ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 60,
+                                    height: 60,
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .primaryColor
+                                          .withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(16),
                                     ),
-                                  );
-                                },
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: const BorderRadius.vertical(
-                                        top: Radius.circular(16),
-                                      ),
-                                      child: Image.network(
-                                        marketInfo.imageUrl,
-                                        height: 120,
-                                        width: double.infinity,
-                                        fit: BoxFit.cover,
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                          return Container(
-                                            height: 120,
-                                            color: Colors.grey[200],
-                                            child: const Center(
-                                              child: Icon(
-                                                Icons.broken_image,
-                                                size: 48,
-                                                color: Colors.grey,
+                                    child: Icon(
+                                      Icons.newspaper,
+                                      size: 30,
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 20),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          'Stay Updated with Market News',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color:
+                                                Theme.of(context).primaryColor,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Get the latest agricultural market trends, prices, and insights to make informed decisions.',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey[600],
+                                            height: 1.4,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 16),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              'Explore News',
+                                              style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .primaryColor,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14,
                                               ),
                                             ),
-                                          );
-                                        },
-                                      ),
+                                            const SizedBox(width: 8),
+                                            Icon(
+                                              Icons.arrow_forward,
+                                              size: 16,
+                                              color: Theme.of(context)
+                                                  .primaryColor,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(12),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          // Title + Status Badges
-                                          Row(
-                                            children: [
-                                              Expanded(
-                                                child: Text(
-                                                  marketInfo.title,
-                                                  style: const TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                              if (marketInfo.isActive ||
-                                                  marketInfo.isFeatured)
-                                                Container(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                    horizontal: 10,
-                                                    vertical: 4,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    color: marketInfo.isActive
-                                                        ? Colors.green
-                                                            .withOpacity(0.15)
-                                                        : Colors.grey
-                                                            .withOpacity(0.15),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            12),
-                                                  ),
-                                                  child: Text(
-                                                    marketInfo.isActive
-                                                        ? 'ACTIVE'
-                                                        : 'FEATURED',
-                                                    style: TextStyle(
-                                                      color: marketInfo.isActive
-                                                          ? Colors.green
-                                                          : Colors.grey[700],
-                                                      fontSize: 10,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 8),
-
-                                          // Content Preview
-                                          Text(
-                                            marketInfo.content,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style:
-                                                const TextStyle(fontSize: 15),
-                                          ),
-                                          const SizedBox(height: 16),
-
-                                          // Location & Category
-                                          Row(
-                                            children: [
-                                              const Icon(
-                                                Icons.location_on,
-                                                size: 16,
-                                                color: Colors.grey,
-                                              ),
-                                              const SizedBox(width: 4),
-                                              Text(
-                                                marketInfo.location,
-                                                style: const TextStyle(
-                                                    fontSize: 14),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              const Spacer(),
-                                              const Icon(
-                                                Icons.category,
-                                                size: 16,
-                                                color: Colors.grey,
-                                              ),
-                                              const SizedBox(width: 4),
-                                              Text(
-                                                marketInfo.category,
-                                                style: const TextStyle(
-                                                    fontSize: 14),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
-                          );
-                        },
-                      ),
-                    ),
+                          ),
+                        );
+                      }
+
+                      return SizedBox(
+                        height: 240,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          itemCount: marketInfoList.length,
+                          itemBuilder: (context, index) {
+                            final marketInfo = marketInfoList[index];
+                            return MarketInfoCard(marketInfo: marketInfo);
+                          },
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -861,8 +816,9 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                               fit: BoxFit.cover,
                                               loadingBuilder: (context, child,
                                                   loadingProgress) {
-                                                if (loadingProgress == null)
+                                                if (loadingProgress == null) {
                                                   return child;
+                                                }
                                                 return Container(
                                                   height: 160,
                                                   color: Colors.grey[200],
@@ -1150,7 +1106,8 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor.withOpacity(0.1),
+                      color:
+                          Theme.of(context).primaryColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(

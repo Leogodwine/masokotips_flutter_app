@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:masoko_tips/screens/home/home_screen.dart';
-import 'package:masoko_tips/providers/auth_provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -25,10 +23,23 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (!mounted) return;
 
-    // Navigate to home screen
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const HomeScreen()),
-    );
+    // Navigate to home screen with error handling
+    try {
+      debugPrint('SplashScreen: Attempting to navigate to HomeScreen');
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
+      debugPrint('SplashScreen: Successfully navigated to HomeScreen');
+    } catch (e) {
+      debugPrint('SplashScreen: Navigation error: $e');
+      // Fallback navigation if pushReplacement fails
+      if (mounted) {
+        debugPrint('SplashScreen: Attempting fallback navigation');
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      }
+    }
   }
 
   @override

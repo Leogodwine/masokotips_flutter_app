@@ -1,6 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
 import '../models/organic_product.dart';
@@ -128,14 +128,14 @@ class OrganicProductService {
         }
       }
 
-      print('Sending create request to: $url');
-      print('Create fields: ${request.fields}');
+      debugPrint('Sending create request to: $url');
+      debugPrint('Create fields: ${request.fields}');
 
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
 
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
@@ -205,14 +205,14 @@ class OrganicProductService {
         }
       }
 
-      print('Sending update request to: $url');
-      print('Update fields: ${request.fields}');
+      debugPrint('Sending update request to: $url');
+      debugPrint('Update fields: ${request.fields}');
 
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -289,12 +289,12 @@ class OrganicProductService {
       }
 
       // Send the request
-      print('Uploading image to: $url');
+      debugPrint('Uploading image to: $url');
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
-      print('Upload response status: ${response.statusCode}');
-      print('Upload response body: ${response.body}');
+      debugPrint('Upload response status: ${response.statusCode}');
+      debugPrint('Upload response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -305,7 +305,7 @@ class OrganicProductService {
             'Failed to upload image. Status code: ${response.statusCode}. Error: ${errorBody['message'] ?? 'Unknown error'}');
       }
     } catch (e) {
-      print('Error uploading organic product image: $e');
+      debugPrint('Error uploading organic product image: $e');
       throw Exception('Error uploading organic product image: $e');
     }
   }

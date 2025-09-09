@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:masoko_tips/models/organic_product.dart';
 import 'package:masoko_tips/providers/admin_provider.dart';
+import 'package:masoko_tips/providers/auth_provider.dart';
 import 'package:masoko_tips/theme/app_theme.dart';
 import 'package:masoko_tips/widgets/custom_app_bar.dart';
 import 'package:provider/provider.dart';
@@ -28,7 +29,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
   bool _isActive = true;
   bool _isFeatured = false;
   int _selectedCategoryId = 1;
-  List<Map<String, dynamic>> _categories = [
+  final List<Map<String, dynamic>> _categories = [
     {'id': 1, 'name': 'Organic Vegetables'},
     {'id': 2, 'name': 'Organic Fruits'},
     {'id': 3, 'name': 'Organic Spices'},
@@ -309,7 +310,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
       stock: int.parse(_stockController.text),
       isActive: _isActive,
       isFeatured: _isFeatured,
-      sellerId: 1, // TODO: Get actual seller ID from auth
+      sellerId: context.read<AuthProvider>().user?.id ?? 1,
       categoryId: _selectedCategoryId,
       certification: _certificationController.text,
       origin: _originController.text,

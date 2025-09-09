@@ -41,8 +41,7 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
     }
   }
 
-  void _navigateToEditProduct(BuildContext context,
-      {OrganicProduct? product}) {
+  void _navigateToEditProduct(BuildContext context, {OrganicProduct? product}) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -69,15 +68,16 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
           ),
           TextButton(
             onPressed: () async {
-              final success = await context
-                  .read<AdminProvider>()
-                  .deleteOrganicProduct(product.id);
-              if (success && mounted) {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
+              final adminProvider = context.read<AdminProvider>();
+              final navigator = Navigator.of(context);
+              final scaffoldMessenger = ScaffoldMessenger.of(context);
+              final success =
+                  await adminProvider.deleteOrganicProduct(product.id);
+              if (success && context.mounted) {
+                navigator.pop(context);
+                scaffoldMessenger.showSnackBar(
                   SnackBar(
-                    content:
-                        const Text('Organic product deleted successfully'),
+                    content: const Text('Organic product deleted successfully'),
                     backgroundColor: theme.primaryColor,
                   ),
                 );
@@ -231,10 +231,11 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                                                   color: product.isActive
                                                       ? theme
                                                           .colorScheme.primary
-                                                          .withValues(alpha: 0.1)
-                                                      : theme
-                                                          .colorScheme.error
-                                                          .withValues(alpha: 0.1),
+                                                          .withValues(
+                                                              alpha: 0.1)
+                                                      : theme.colorScheme.error
+                                                          .withValues(
+                                                              alpha: 0.1),
                                                   borderRadius:
                                                       BorderRadius.circular(12),
                                                 ),
@@ -244,8 +245,10 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                                                       : 'INACTIVE',
                                                   style: TextStyle(
                                                     color: product.isActive
-                                                        ? theme.colorScheme.primary
-                                                        : theme.colorScheme.error,
+                                                        ? theme
+                                                            .colorScheme.primary
+                                                        : theme
+                                                            .colorScheme.error,
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.bold,
                                                   ),
@@ -254,11 +257,10 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                                               // ✅ Use collection-if here
                                               if (product.isFeatured)
                                                 Container(
-                                                  margin:
-                                                      const EdgeInsets.only(
-                                                          left: 8),
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
+                                                  margin: const EdgeInsets.only(
+                                                      left: 8),
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
                                                     horizontal: 8,
                                                     vertical: 4,
                                                   ),
@@ -273,8 +275,8 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                                                   child: Text(
                                                     'FEATURED',
                                                     style: TextStyle(
-                                                      color: theme
-                                                          .colorScheme.secondary,
+                                                      color: theme.colorScheme
+                                                          .secondary,
                                                       fontSize: 12,
                                                       fontWeight:
                                                           FontWeight.bold,
@@ -291,7 +293,8 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                                               ClipRRect(
                                                 borderRadius:
                                                     BorderRadius.circular(8),
-                                                child: CachedNetworkImageWithCors(
+                                                child:
+                                                    CachedNetworkImageWithCors(
                                                   imageUrl: product.imageUrl ??
                                                       'https://via.placeholder.com/300x300 ',
                                                   height: 200,
@@ -339,17 +342,17 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                                                 top: 8,
                                                 right: 8,
                                                 child: Container(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
                                                     horizontal: 8,
                                                     vertical: 4,
                                                   ),
                                                   decoration: BoxDecoration(
                                                     color: product.isActive
-                                                        ? theme.colorScheme
-                                                            .primary
-                                                        : theme.colorScheme
-                                                            .error,
+                                                        ? theme
+                                                            .colorScheme.primary
+                                                        : theme
+                                                            .colorScheme.error,
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             12),
@@ -374,9 +377,8 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                                                   bottom: 8,
                                                   right: 8,
                                                   child: Container(
-                                                    padding:
-                                                        const EdgeInsets
-                                                            .symmetric(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
                                                       horizontal: 8,
                                                       vertical: 4,
                                                     ),
@@ -406,8 +408,8 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                                           // Description
                                           Text(
                                             product.description ?? '',
-                                            style: const TextStyle(
-                                                fontSize: 16),
+                                            style:
+                                                const TextStyle(fontSize: 16),
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
                                           ),
@@ -452,8 +454,7 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                                           // Price + Actions
                                           Row(
                                             mainAxisAlignment:
-                                                MainAxisAlignment
-                                                    .spaceBetween,
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
                                               Row(
                                                 children: [
@@ -477,8 +478,8 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                                               Row(
                                                 children: [
                                                   IconButton(
-                                                    icon: const Icon(
-                                                        Icons.edit),
+                                                    icon:
+                                                        const Icon(Icons.edit),
                                                     color: theme.primaryColor,
                                                     onPressed: () =>
                                                         _navigateToEditProduct(
@@ -487,9 +488,10 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                                                     ),
                                                   ),
                                                   IconButton(
-                                                    icon: const Icon(Icons.delete),
-                                                    color: theme.colorScheme
-                                                        .error,
+                                                    icon: const Icon(
+                                                        Icons.delete),
+                                                    color:
+                                                        theme.colorScheme.error,
                                                     onPressed: () =>
                                                         _showDeleteConfirmation(
                                                             context, product),
@@ -506,7 +508,7 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                               );
                             },
                           ),
-                      ),
+                        ),
     );
   }
 }

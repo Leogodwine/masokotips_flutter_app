@@ -135,9 +135,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
     final Map<int, Category> uniqueCategories = {};
 
     for (final category in _agriculturalCategories) {
-      if (category.id != null) {
-        uniqueCategories[category.id!] = category;
-      }
+      uniqueCategories[category.id] = category;
     }
 
     // Convert to dropdown items and ensure no duplicates
@@ -145,8 +143,8 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
     final Set<int> usedValues = {};
 
     for (final category in uniqueCategories.values) {
-      if (category.id != null && !usedValues.contains(category.id)) {
-        usedValues.add(category.id!);
+      if (!usedValues.contains(category.id)) {
+        usedValues.add(category.id);
         items.add(DropdownMenuItem<int>(
           value: category.id,
           child: Text(category.name),
@@ -154,8 +152,9 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
       }
     }
 
-    print('AddServiceScreen: Generated ${items.length} unique dropdown items');
-    print(
+    debugPrint(
+        'AddServiceScreen: Generated ${items.length} unique dropdown items');
+    debugPrint(
         'AddServiceScreen: Values: ${items.map((item) => item.value).toList()}');
 
     return items;
@@ -189,7 +188,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -201,7 +200,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor.withOpacity(0.1),
+                      color: Theme.of(context).primaryColor.withValues(),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -241,7 +240,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -257,10 +256,10 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                         padding: const EdgeInsets.all(12),
                         margin: const EdgeInsets.only(bottom: 16),
                         decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.1),
+                          color: Colors.red.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: Colors.red.withOpacity(0.3),
+                            color: Colors.red.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Row(
@@ -476,7 +475,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -511,7 +510,8 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                                       fit: BoxFit.cover,
                                       errorBuilder:
                                           (context, error, stackTrace) {
-                                        print('Error loading image: $error');
+                                        debugPrint(
+                                            'Error loading image: $error');
                                         return Container(
                                           height: 200,
                                           color: Colors.grey[300],
@@ -527,7 +527,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                                 right: 8,
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.6),
+                                    color: Colors.black.withValues(alpha: 0.6),
                                     shape: BoxShape.circle,
                                   ),
                                   child: IconButton(
@@ -558,8 +558,9 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color:
-                                Theme.of(context).primaryColor.withOpacity(0.3),
+                            color: Theme.of(context)
+                                .primaryColor
+                                .withValues(alpha: 0.3),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -576,10 +577,10 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                           ),
                         ),
                         child: _isLoading
-                            ? Row(
+                            ? const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const SizedBox(
+                                  SizedBox(
                                     width: 20,
                                     height: 20,
                                     child: CircularProgressIndicator(
@@ -588,8 +589,8 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                                           Colors.white),
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
-                                  const Text(
+                                  SizedBox(width: 12),
+                                  Text(
                                     'Creating Service...',
                                     style: TextStyle(
                                       fontSize: 16,
@@ -598,12 +599,12 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                                   ),
                                 ],
                               )
-                            : Row(
+                            : const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(Icons.add_circle, size: 24),
-                                  const SizedBox(width: 12),
-                                  const Text(
+                                  Icon(Icons.add_circle, size: 24),
+                                  SizedBox(width: 12),
+                                  Text(
                                     'Create Service',
                                     style: TextStyle(
                                       fontSize: 16,

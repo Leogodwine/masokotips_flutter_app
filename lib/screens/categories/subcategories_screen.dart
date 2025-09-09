@@ -22,7 +22,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      print(
+      debugPrint(
           'SubcategoriesScreen: Loading subcategories for category ${widget.category.id} (${widget.category.name})');
       context.read<CategoryProvider>().loadSubcategories(widget.category.id);
     });
@@ -173,7 +173,8 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor.withOpacity(0.1),
+                    color:
+                        Theme.of(context).primaryColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: ClipRRect(
@@ -290,9 +291,9 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
           }
 
           final subcategories = categoryProvider.subcategories;
-          print(
+          debugPrint(
               'SubcategoriesScreen: subcategories count: ${subcategories.length}');
-          print('SubcategoriesScreen: subcategories: $subcategories');
+          debugPrint('SubcategoriesScreen: subcategories: $subcategories');
 
           if (subcategories.isEmpty) {
             return Center(
@@ -323,7 +324,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
-                      print('SubcategoriesScreen: Retry button pressed');
+                      debugPrint('SubcategoriesScreen: Retry button pressed');
                       categoryProvider.loadSubcategories(widget.category.id);
                     },
                     child: const Text('Retry'),

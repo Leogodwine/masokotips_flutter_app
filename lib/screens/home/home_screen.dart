@@ -28,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final authProvider = context.read<AuthProvider>();
       await authProvider.loadToken();
     } catch (e) {
-      print('Error loading token in HomeScreen: $e');
+      debugPrint('Error loading token in HomeScreen: $e');
       // Continue even if token loading fails
     }
   }

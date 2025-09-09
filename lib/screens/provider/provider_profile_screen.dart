@@ -141,7 +141,6 @@ class ProviderProfileScreen extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 8),
-                  // TODO: Replace with actual provider services
                   _buildServicesList(),
                 ],
               ),
@@ -165,21 +164,33 @@ class ProviderProfileScreen extends StatelessWidget {
   }
 
   Widget _buildServicesList() {
-    // Dummy services - replace with API call
-    final services = [
-      Service(
-        id: 1,
-        title: 'Sample Service 1',
-        description: 'Service description',
-        price: 99.99,
-        categoryId: 1,
-        userId: 1,
-        imageUrl: 'https://via.placeholder.com/150',
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      ),
-      // Add more services...
-    ];
+    // Services feature is under development
+    final services = <Service>[];
+
+    if (services.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32.0),
+          child: Column(
+            children: [
+              Icon(
+                Icons.handyman_outlined,
+                size: 64,
+                color: Colors.grey,
+              ),
+              SizedBox(height: 16),
+              Text(
+                'No services available',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return ListView.builder(
       shrinkWrap: true,
@@ -195,6 +206,8 @@ class ProviderProfileScreen extends StatelessWidget {
                     width: 50,
                     height: 50,
                     fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.image),
                   )
                 : const Icon(Icons.image),
             title: Text(service.title ?? 'No Title'),
@@ -204,15 +217,15 @@ class ProviderProfileScreen extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            trailing: const Row(
+            trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
+                const Icon(
                   Icons.star,
                   size: 16,
                   color: Colors.amber,
                 ),
-                Text(' 4.5'),
+                Text(' ${service.rating?.toStringAsFixed(1) ?? 'N/A'}'),
               ],
             ),
             onTap: () {

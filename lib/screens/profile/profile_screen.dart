@@ -30,9 +30,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             IconButton(
               icon: const Icon(Icons.logout),
               onPressed: () async {
+                // Capture context-dependent objects before async operation
+                final navigator = Navigator.of(context);
                 await authProvider.logout();
                 if (mounted) {
-                  Navigator.pushReplacementNamed(context, '/');
+                  navigator.pushReplacementNamed('/');
                 }
               },
             ),
@@ -279,6 +281,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       title: const Text('Request Account Deletion'),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () async {
+                        // Capture context-dependent objects before async operation
+                        final scaffoldMessenger = ScaffoldMessenger.of(context);
+
                         final uri = Uri(
                           scheme: 'mailto',
                           path: 'info@masokotips.com',
@@ -291,7 +296,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         if (await canLaunchUrl(uri)) {
                           await launchUrl(uri);
                         } else if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          scaffoldMessenger.showSnackBar(
                             const SnackBar(
                                 content:
                                     Text('No email app found to send request')),
@@ -449,6 +454,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       title: const Text('Privacy Policy'),
                       trailing: const Icon(Icons.open_in_new_rounded),
                       onTap: () async {
+                        // Capture context-dependent objects before async operation
+                        final scaffoldMessenger = ScaffoldMessenger.of(context);
+
                         final uri = Uri.parse(
                             'https://masokotips.com/privacy-policy.html');
                         bool opened = false;
@@ -465,7 +473,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           );
                         }
                         if (!opened && mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          scaffoldMessenger.showSnackBar(
                             const SnackBar(
                                 content: Text('Could not open link')),
                           );
@@ -487,6 +495,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       foregroundColor: Colors.white,
                     ),
                     onPressed: () async {
+                      // Capture context-dependent objects before async operation
+                      final scaffoldMessenger = ScaffoldMessenger.of(context);
+                      final navigator = Navigator.of(context);
+
                       try {
                         // Show confirmation dialog
                         final result = await showDialog<bool>(
@@ -512,31 +524,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           await authProvider.logout();
 
                           // Show success message
-                          if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Logged out successfully'),
-                              backgroundColor: Colors.green,
-                            ),
-                          );
+                          if (mounted) {
+                            scaffoldMessenger.showSnackBar(
+                              const SnackBar(
+                                content: Text('Logged out successfully'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          }
 
                           // Navigate to home screen
-                          if (!mounted) return;
-                          Navigator.pushNamedAndRemoveUntil(
-                            context,
-                            '/',
-                            (route) => false,
-                          );
+                          if (mounted) {
+                            navigator.pushNamedAndRemoveUntil(
+                              '/',
+                              (route) => false,
+                            );
+                          }
                         }
                       } catch (e) {
                         // Show error message
-                        if (!mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Logout failed: $e'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
+                        if (mounted) {
+                          scaffoldMessenger.showSnackBar(
+                            SnackBar(
+                              content: Text('Logout failed: $e'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
                       }
                     },
                   ),

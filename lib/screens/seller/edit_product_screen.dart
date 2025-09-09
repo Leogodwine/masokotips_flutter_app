@@ -63,7 +63,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
         });
       }
     } catch (e) {
-      print('Error picking images: $e');
+      debugPrint('Error picking images: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

@@ -17,7 +17,7 @@ class User {
   final String? avatar;
   final List<String> roles;
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   String? avatarPath;
 
   @JsonKey(name: 'email_verified_at')

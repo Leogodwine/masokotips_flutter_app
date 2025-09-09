@@ -115,7 +115,7 @@ class Product {
     if (kDebugMode) {
       // Log only in debug to avoid verbose logs in production
       // ignore: avoid_print
-      print('✅ Final processed image URL: $imageUrl');
+      debugPrint('✅ Final processed image URL: $imageUrl');
     }
 
     return Product(
@@ -127,7 +127,7 @@ class Product {
         final priceStr = json['price']?.toString() ?? '0';
         final price = double.tryParse(priceStr) ?? 0.0;
         if (kDebugMode) {
-          print('Price parsing: "$priceStr" -> $price');
+          debugPrint('Price parsing: "$priceStr" -> $price');
         }
         return price;
       }(),

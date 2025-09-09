@@ -23,12 +23,12 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
     super.initState();
     // Load products when the screen is first shown
     _loadProducts();
-    
+
     // Listen for auth state changes
     final authProvider = context.read<AuthProvider>();
     authProvider.addListener(_onAuthStateChanged);
   }
-  
+
   @override
   void dispose() {
     // Remove the auth state listener when the widget is disposed
@@ -36,15 +36,16 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
     authProvider.removeListener(_onAuthStateChanged);
     super.dispose();
   }
-  
+
   void _onAuthStateChanged() {
     // Reload products when auth state changes (e.g., after login)
     if (mounted) {
       _loadProducts();
     }
   }
-  
+
   Future<void> _loadProducts() async {
+    if (!mounted) return;
     final provider = context.read<OrganicProductProvider>();
     await provider.loadProducts();
   }
@@ -114,7 +115,9 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
                     builder: (context) => const EditOrganicProductScreen(),
                   ),
                 ).then((_) {
-                  provider.loadProducts();
+                  if (mounted) {
+                    provider.loadProducts();
+                  }
                 });
               },
             );
@@ -157,7 +160,8 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
     final theme = Theme.of(context);
     final isOutOfStock = product.stock <= 0;
     final priceText = 'TZS ${product.price.toStringAsFixed(2)}';
-    final stockText = isOutOfStock ? 'Out of Stock' : '${product.stock} in stock';
+    final stockText =
+        isOutOfStock ? 'Out of Stock' : '${product.stock} in stock';
 
     return Card(
       elevation: 2,
@@ -167,13 +171,16 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
+          final provider = context.read<OrganicProductProvider>();
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => EditOrganicProductScreen(product: product),
             ),
           ).then((_) {
-            context.read<OrganicProductProvider>().loadProducts();
+            if (mounted) {
+              provider.loadProducts();
+            }
           });
         },
         child: Column(
@@ -245,14 +252,16 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
             ),
             // Product Details - Even more compact
             Padding(
-              padding: const EdgeInsets.fromLTRB(4.0, 2.0, 4.0, 2.0), // Reduced padding
+              padding: const EdgeInsets.fromLTRB(
+                  4.0, 2.0, 4.0, 2.0), // Reduced padding
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // Product name with tighter constraints
                   ConstrainedBox(
-                    constraints: const BoxConstraints(maxHeight: 34), // Reduced from 40
+                    constraints:
+                        const BoxConstraints(maxHeight: 34), // Reduced from 40
                     child: Text(
                       product.name,
                       maxLines: 2,
@@ -290,13 +299,17 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
                             vertical: 0,
                           ),
                           decoration: BoxDecoration(
-                            color: isOutOfStock ? Colors.red[100] : Colors.green[100],
+                            color: isOutOfStock
+                                ? Colors.red[100]
+                                : Colors.green[100],
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
                             stockText,
                             style: TextStyle(
-                              color: isOutOfStock ? Colors.red[700] : Colors.green[700],
+                              color: isOutOfStock
+                                  ? Colors.red[700]
+                                  : Colors.green[700],
                               fontSize: 7,
                               fontWeight: FontWeight.w500,
                               height: 1.0,
@@ -310,32 +323,41 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
                             // Edit button - minimal
                             GestureDetector(
                               onTap: () {
+                                final provider =
+                                    context.read<OrganicProductProvider>();
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => EditOrganicProductScreen(product: product),
+                                    builder: (context) =>
+                                        EditOrganicProductScreen(
+                                            product: product),
                                   ),
                                 ).then((_) {
-                                  context.read<OrganicProductProvider>().loadProducts();
+                                  if (mounted) {
+                                    provider.loadProducts();
+                                  }
                                 });
                               },
                               child: const Padding(
                                 padding: EdgeInsets.all(2.0),
-                                child: Icon(Icons.edit, size: 12, color: Colors.blue),
+                                child: Icon(Icons.edit,
+                                    size: 12, color: Colors.blue),
                               ),
                             ),
                             // Delete button - minimal
                             GestureDetector(
-                              onTap: () => _showDeleteConfirmation(context, product),
+                              onTap: () =>
+                                  _showDeleteConfirmation(context, product),
                               child: const Padding(
                                 padding: EdgeInsets.all(2.0),
-                                child: Icon(Icons.delete, size: 12, color: Colors.red),
+                                child: Icon(Icons.delete,
+                                    size: 12, color: Colors.red),
                               ),
                             ),
                           ],
                         ),
-                    ],
-                  ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -348,6 +370,9 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
 
   Future<void> _showDeleteConfirmation(
       BuildContext context, OrganicProduct product) async {
+    final provider = context.read<OrganicProductProvider>();
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -370,11 +395,11 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
       ),
     );
 
-    if (confirmed == true && context.mounted) {
+    if (confirmed == true && mounted) {
       try {
-        await context.read<OrganicProductProvider>().deleteProduct(product.id);
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+        await provider.deleteProduct(product.id);
+        if (mounted) {
+          scaffoldMessenger.showSnackBar(
             const SnackBar(
               content: Text('Product deleted successfully'),
               backgroundColor: Colors.green,
@@ -382,8 +407,8 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
           );
         }
       } catch (e) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+        if (mounted) {
+          scaffoldMessenger.showSnackBar(
             SnackBar(
               content: Text('Error deleting product: $e'),
               backgroundColor: Colors.red,

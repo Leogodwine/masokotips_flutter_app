@@ -21,8 +21,8 @@ class _SearchScreenState extends State<SearchScreen> {
   bool _isSearching = false;
   String? _sortBy;
   RangeValues _priceRange = const RangeValues(0, 100);
-  double _minPrice = 0;
-  double _maxPrice = 100;
+  final double _minPrice = 0;
+  final double _maxPrice = 100;
   bool _showFilters = false;
 
   @override
@@ -87,9 +87,11 @@ class _SearchScreenState extends State<SearchScreen> {
       setState(() {
         _isSearching = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Search error: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Search error: $e')),
+        );
+      }
     }
   }
 

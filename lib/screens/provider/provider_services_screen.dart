@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/service_service.dart';
-import '../../services/api_service.dart';
 import '../../models/service.dart';
 import '../../models/category.dart';
 import 'add_service_screen.dart';
@@ -47,7 +46,7 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
     });
 
     try {
-      print('Loading provider services...');
+      debugPrint('Loading provider services...');
 
       // Check if user has service_provider role using ServiceService
       if (_serviceService != null) {
@@ -66,7 +65,7 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
             return;
           }
         } catch (e) {
-          print('Error checking user roles: $e');
+          debugPrint('Error checking user roles: $e');
           // Continue without role check if it fails
         }
       }
@@ -82,7 +81,7 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
         });
       }
     } catch (e) {
-      print('Error loading services: $e');
+      debugPrint('Error loading services: $e');
       setState(() {
         _errorMessage = 'Failed to load services: $e';
       });
@@ -103,12 +102,15 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
         _categories = categories;
       });
     } catch (e) {
-      print('Error loading categories: $e');
+      debugPrint('Error loading categories: $e');
     }
   }
 
   Future<void> _deleteService(Service service) async {
     if (_serviceService == null) return;
+
+    // Capture context-dependent objects before async operation
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     try {
       await _serviceService!
@@ -116,14 +118,18 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
       setState(() {
         _services.removeWhere((s) => s.id == service.id);
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Service deleted successfully')),
-      );
+      if (mounted) {
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(content: Text('Service deleted successfully')),
+        );
+      }
     } catch (e) {
-      print('Error deleting service: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete service: $e')),
-      );
+      debugPrint('Error deleting service: $e');
+      if (mounted) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text('Failed to delete service: $e')),
+        );
+      }
     }
   }
 
@@ -197,7 +203,7 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
                               decoration: BoxDecoration(
                                 color: Theme.of(context)
                                     .primaryColor
-                                    .withOpacity(0.1),
+                                    .withValues(alpha: 0.1),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
@@ -271,7 +277,7 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
                             margin: const EdgeInsets.only(bottom: 20),
                             child: Card(
                               elevation: 8,
-                              shadowColor: Colors.black.withOpacity(0.1),
+                              shadowColor: Colors.black.withValues(alpha: 0.1),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),
@@ -301,7 +307,7 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
                                               boxShadow: [
                                                 BoxShadow(
                                                   color: Colors.black
-                                                      .withOpacity(0.1),
+                                                      .withValues(alpha: 0.1),
                                                   blurRadius: 8,
                                                   offset: const Offset(0, 2),
                                                 ),
@@ -327,13 +333,15 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
                                                                 Theme.of(
                                                                         context)
                                                                     .primaryColor
-                                                                    .withOpacity(
-                                                                        0.1),
+                                                                    .withValues(
+                                                                        alpha:
+                                                                            0.1),
                                                                 Theme.of(
                                                                         context)
                                                                     .primaryColor
-                                                                    .withOpacity(
-                                                                        0.3),
+                                                                    .withValues(
+                                                                        alpha:
+                                                                            0.3),
                                                               ],
                                                               begin: Alignment
                                                                   .topLeft,
@@ -358,12 +366,12 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
                                                           colors: [
                                                             Theme.of(context)
                                                                 .primaryColor
-                                                                .withOpacity(
-                                                                    0.1),
+                                                                .withValues(
+                                                                    alpha: 0.1),
                                                             Theme.of(context)
                                                                 .primaryColor
-                                                                .withOpacity(
-                                                                    0.3),
+                                                                .withValues(
+                                                                    alpha: 0.3),
                                                           ],
                                                           begin:
                                                               Alignment.topLeft,
@@ -494,13 +502,13 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
                                             decoration: BoxDecoration(
                                               color: Theme.of(context)
                                                   .primaryColor
-                                                  .withOpacity(0.1),
+                                                  .withValues(alpha: 0.1),
                                               borderRadius:
                                                   BorderRadius.circular(20),
                                               border: Border.all(
                                                 color: Theme.of(context)
                                                     .primaryColor
-                                                    .withOpacity(0.3),
+                                                    .withValues(alpha: 0.3),
                                                 width: 1,
                                               ),
                                             ),
@@ -535,17 +543,17 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
                                             decoration: BoxDecoration(
                                               color: service.isActive == true
                                                   ? Colors.green
-                                                      .withOpacity(0.1)
+                                                      .withValues(alpha: 0.1)
                                                   : Colors.orange
-                                                      .withOpacity(0.1),
+                                                      .withValues(alpha: 0.1),
                                               borderRadius:
                                                   BorderRadius.circular(16),
                                               border: Border.all(
                                                 color: service.isActive == true
                                                     ? Colors.green
-                                                        .withOpacity(0.3)
+                                                        .withValues(alpha: 0.3)
                                                     : Colors.orange
-                                                        .withOpacity(0.3),
+                                                        .withValues(alpha: 0.3),
                                                 width: 1,
                                               ),
                                             ),
@@ -674,7 +682,7 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).primaryColor.withOpacity(0.3),
+              color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),

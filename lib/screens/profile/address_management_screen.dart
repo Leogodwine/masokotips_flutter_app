@@ -25,9 +25,11 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
       _isLoading = true;
     });
 
+    // Capture context-dependent objects before async operation
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     try {
-      // TODO: Implement API call to fetch addresses
-      // Mock data for now
+      // Mock data implementation
       await Future.delayed(const Duration(seconds: 1));
       setState(() {
         _addresses = [
@@ -54,9 +56,11 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
         ];
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load addresses: $e')),
-      );
+      if (mounted) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text('Failed to load addresses: $e')),
+        );
+      }
     } finally {
       setState(() {
         _isLoading = false;
@@ -65,14 +69,17 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
   }
 
   void _deleteAddress(String id) {
+    // Capture context-dependent objects before async operation
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Delete Address'),
         content: const Text('Are you sure you want to delete this address?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: const Text('CANCEL'),
           ),
           TextButton(
@@ -80,8 +87,8 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
               setState(() {
                 _addresses.removeWhere((address) => address.id == id);
               });
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
+              Navigator.of(dialogContext).pop();
+              scaffoldMessenger.showSnackBar(
                 const SnackBar(content: Text('Address deleted')),
               );
             },

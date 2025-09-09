@@ -25,11 +25,31 @@ class MarketInfoService {
   }
 
   Future<List<MarketInfo>> getAllMarketInfo() async {
-    final response = await _apiService.get(
-      '/market-info',
-      headers: {'Authorization': 'Bearer $_authToken'},
-    );
-    return (response as List).map((json) => MarketInfo.fromJson(json)).toList();
+    try {
+      Log.d('MarketInfoService: Fetching market info from /market-info/public');
+      final response = await _apiService.get(
+        '/market-info/public',
+      );
+      Log.d('MarketInfoService: Response received: ${response.runtimeType}');
+      Log.d(
+          'MarketInfoService: Response length: ${response is List ? response.length : 'Not a list'}');
+
+      if (response is List) {
+        final marketInfoList = response.map((json) {
+          Log.d('MarketInfoService: Parsing market info: ${json['title']}');
+          return MarketInfo.fromJson(json);
+        }).toList();
+        Log.d(
+            'MarketInfoService: Successfully parsed ${marketInfoList.length} market info items');
+        return marketInfoList;
+      } else {
+        Log.e('MarketInfoService: Response is not a list: $response');
+        return [];
+      }
+    } catch (e) {
+      Log.e('MarketInfoService: Error fetching market info: $e');
+      rethrow;
+    }
   }
 
   Future<MarketInfo> addMarketInfo({

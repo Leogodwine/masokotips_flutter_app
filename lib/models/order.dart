@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'cart_item.dart';
 
 enum OrderStatus { pending, processing, shipped, delivered, cancelled }
@@ -51,17 +52,17 @@ class Order {
 
   factory Order.fromApiJson(Map<String, dynamic> json) {
     try {
-      print('Order.fromApiJson: Parsing order with ID: ${json['id']}');
+      debugPrint('Order.fromApiJson: Parsing order with ID: ${json['id']}');
 
       // Convert API order items to CartItem format
       List<CartItem> items = [];
       if (json['items'] != null) {
-        print(
+        debugPrint(
             'Order.fromApiJson: Found ${(json['items'] as List).length} items');
         items = (json['items'] as List).map((item) {
-          print(
+          debugPrint(
               'Order.fromApiJson: Parsing item with product_id: ${item['product_id']}');
-          print(
+          debugPrint(
               'Order.fromApiJson: Item price: ${item['price']} (type: ${item['price'].runtimeType})');
 
           return CartItem(
@@ -94,9 +95,9 @@ class Order {
         status: _parseOrderStatus(json['status']),
       );
     } catch (e, stackTrace) {
-      print('Error in Order.fromApiJson: $e');
-      print('Stack trace: $stackTrace');
-      print('JSON data: $json');
+      debugPrint('Error in Order.fromApiJson: $e');
+      debugPrint('Stack trace: $stackTrace');
+      debugPrint('JSON data: $json');
       rethrow;
     }
   }

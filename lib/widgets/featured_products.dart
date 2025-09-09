@@ -45,7 +45,11 @@ class FeaturedProducts extends StatelessWidget {
         ),
         child: InkWell(
           onTap: () {
-            // TODO: Navigate to product details
+            Navigator.pushNamed(
+              context,
+              '/product-details',
+              arguments: product,
+            );
           },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

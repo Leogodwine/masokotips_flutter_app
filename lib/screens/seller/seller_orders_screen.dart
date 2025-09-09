@@ -81,6 +81,9 @@ class _SellerOrdersScreenState extends State<SellerOrdersScreen> {
   Future<void> _updateOrderStatus(Order order, String newStatus) async {
     if (_apiService == null) return;
 
+    // Capture context-dependent objects before async operation
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     try {
       Log.e('Updating order ${order.id} status to $newStatus');
       final response =
@@ -94,29 +97,36 @@ class _SellerOrdersScreenState extends State<SellerOrdersScreen> {
           }
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Order status updated to ${newStatus.toUpperCase()}'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        if (mounted) {
+          scaffoldMessenger.showSnackBar(
+            SnackBar(
+              content:
+                  Text('Order status updated to ${newStatus.toUpperCase()}'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
+        if (mounted) {
+          scaffoldMessenger.showSnackBar(
+            SnackBar(
+              content:
+                  Text(response['message'] ?? 'Failed to update order status'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      Log.e('Error updating order status: $e');
+      if (mounted) {
+        scaffoldMessenger.showSnackBar(
           SnackBar(
-            content:
-                Text(response['message'] ?? 'Failed to update order status'),
+            content: Text('Error updating order status: $e'),
             backgroundColor: Colors.red,
           ),
         );
       }
-    } catch (e) {
-      Log.e('Error updating order status: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error updating order status: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
     }
   }
 

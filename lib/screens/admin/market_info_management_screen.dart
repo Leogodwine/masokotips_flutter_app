@@ -751,7 +751,7 @@ class _AddMarketInfoScreenState extends State<AddMarketInfoScreen> {
                                 width: double.infinity,
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
-                                  print('Error loading image: $error');
+                                  debugPrint('Error loading image: $error');
                                   return Container(
                                     height: 200,
                                     color: Colors.grey[300],
@@ -768,7 +768,7 @@ class _AddMarketInfoScreenState extends State<AddMarketInfoScreen> {
                                 width: double.infinity,
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
-                                  print('Error loading image: $error');
+                                  debugPrint('Error loading image: $error');
                                   return Container(
                                     height: 200,
                                     color: Colors.grey[300],
@@ -996,7 +996,7 @@ class _EditMarketInfoScreenState extends State<EditMarketInfoScreen> {
                             width: double.infinity,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
-                              print('Error loading image: $error');
+                              debugPrint('Error loading image: $error');
                               return Container(
                                 height: 200,
                                 color: Colors.grey[300],
@@ -1012,7 +1012,7 @@ class _EditMarketInfoScreenState extends State<EditMarketInfoScreen> {
                             width: double.infinity,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
-                              print('Error loading image: $error');
+                              debugPrint('Error loading image: $error');
                               return Container(
                                 height: 200,
                                 color: Colors.grey[300],
@@ -1032,7 +1032,7 @@ class _EditMarketInfoScreenState extends State<EditMarketInfoScreen> {
                   width: double.infinity,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
-                    print('Error loading image: $error');
+                    debugPrint('Error loading image: $error');
                     return Container(
                       height: 200,
                       color: Colors.grey[300],

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../models/service.dart';
-import '../../models/category.dart';
 import '../../services/service_service.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -39,9 +38,9 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
   @override
   void initState() {
     super.initState();
-    print('EditServiceScreen: Service ID: ${widget.service.id}');
-    print('EditServiceScreen: Service title: ${widget.service.title}');
-    print(
+    debugPrint('EditServiceScreen: Service ID: ${widget.service.id}');
+    debugPrint('EditServiceScreen: Service title: ${widget.service.title}');
+    debugPrint(
         'EditServiceScreen: Service categoryId: ${widget.service.categoryId}');
 
     _titleController = TextEditingController(text: widget.service.title);
@@ -73,17 +72,18 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
       setState(() {
         _agriculturalCategories = uniqueCategories.values.toList();
 
-        print(
+        debugPrint(
             'EditServiceScreen: Loaded ${_agriculturalCategories.length} categories');
-        print(
+        debugPrint(
             'EditServiceScreen: Category IDs: ${_agriculturalCategories.map((c) => c.id).toList()}');
-        print('EditServiceScreen: Selected category ID: $_selectedCategoryId');
+        debugPrint(
+            'EditServiceScreen: Selected category ID: $_selectedCategoryId');
 
         // Set the category ID from the existing service
         _selectedCategoryId ??= widget.service.categoryId;
       });
     } catch (e) {
-      print('Error loading agricultural categories: $e');
+      debugPrint('Error loading agricultural categories: $e');
     } finally {
       setState(() {
         _isLoadingCategories = false;
@@ -115,8 +115,9 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
       }
     }
 
-    print('EditServiceScreen: Generated ${items.length} unique dropdown items');
-    print(
+    debugPrint(
+        'EditServiceScreen: Generated ${items.length} unique dropdown items');
+    debugPrint(
         'EditServiceScreen: Values: ${items.map((item) => item.value).toList()}');
 
     return items;
@@ -152,17 +153,17 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
         String? imageUrl;
         if (_imageFile != null) {
           // Log the image file details for debugging
-          print('Image file path: ${_imageFile!.path}');
-          print('Current service ID: ${widget.service.id}');
+          debugPrint('Image file path: ${_imageFile!.path}');
+          debugPrint('Current service ID: ${widget.service.id}');
 
           if (kIsWeb) {
-            print('Web environment detected for image upload');
+            debugPrint('Web environment detected for image upload');
             if (_imageFile!.path.startsWith('blob:')) {
-              print('Blob URL detected: ${_imageFile!.path}');
+              debugPrint('Blob URL detected: ${_imageFile!.path}');
             }
           } else {
-            print('Image file exists: ${await _imageFile!.exists()}');
-            print('Image file size: ${await _imageFile!.length()} bytes');
+            debugPrint('Image file exists: ${await _imageFile!.exists()}');
+            debugPrint('Image file size: ${await _imageFile!.length()} bytes');
           }
 
           // First check if we need to update an existing service or create a new one
@@ -172,7 +173,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
           // For new services or temporary ones, create a service first to get a valid ID
           if (widget.service.id <= 0) {
             isNewService = true;
-            print('Creating new service to get valid ID');
+            debugPrint('Creating new service to get valid ID');
 
             try {
               // Create a service first without image
@@ -197,9 +198,9 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
               );
 
               serviceId = tempService.id.toString();
-              print('Successfully created service with ID: $serviceId');
+              debugPrint('Successfully created service with ID: $serviceId');
             } catch (e) {
-              print('Error creating service: $e');
+              debugPrint('Error creating service: $e');
               setState(() {
                 _error = 'Failed to create service: $e';
                 _isLoading = false;
@@ -209,7 +210,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
           } else {
             // For existing services, use the actual ID
             serviceId = widget.service.id.toString();
-            print('Using existing service ID: $serviceId');
+            debugPrint('Using existing service ID: $serviceId');
           }
 
           try {
@@ -217,9 +218,9 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
               serviceId,
               _imageFile!.path,
             );
-            print('Image uploaded successfully: $imageUrl');
+            debugPrint('Image uploaded successfully: $imageUrl');
           } catch (uploadError) {
-            print('Error uploading image: $uploadError');
+            debugPrint('Error uploading image: $uploadError');
             setState(() {
               _error = 'Failed to upload image: $uploadError';
               _isLoading = false;
@@ -252,7 +253,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
               }
               return;
             } catch (e) {
-              print('Error updating new service with image: $e');
+              debugPrint('Error updating new service with image: $e');
               setState(() {
                 _error = 'Failed to update service with image: $e';
                 _isLoading = false;
@@ -268,14 +269,14 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
           (category) => category.id == _selectedCategoryId,
         );
 
-        print(
+        debugPrint(
             'EditServiceScreen: Updating service with ID: ${widget.service.id}');
-        print(
+        debugPrint(
             'EditServiceScreen: Service ID as string: ${widget.service.id.toString()}');
 
         // Check if this is a new service (ID = 0) or existing service
         if (widget.service.id == 0) {
-          print(
+          debugPrint(
               'EditServiceScreen: This is a new service, creating instead of updating');
 
           // Create a new service instead of updating
@@ -308,7 +309,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
           Navigator.pop(context);
         }
       } catch (e) {
-        print('Error updating service: $e');
+        debugPrint('Error updating service: $e');
         setState(() {
           _error = e.toString();
         });
@@ -440,7 +441,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                             width: double.infinity,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
-                              print('Error loading image: $error');
+                              debugPrint('Error loading image: $error');
                               return Container(
                                 height: 200,
                                 color: Colors.grey[300],
@@ -456,7 +457,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                             width: double.infinity,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
-                              print('Error loading image: $error');
+                              debugPrint('Error loading image: $error');
                               return Container(
                                 height: 200,
                                 color: Colors.grey[300],
@@ -479,7 +480,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                       width: double.infinity,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
-                        print('Error loading image: $error');
+                        debugPrint('Error loading image: $error');
                         return Container(
                           height: 200,
                           color: Colors.grey[300],

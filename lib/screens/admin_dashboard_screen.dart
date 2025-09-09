@@ -22,7 +22,7 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _selectedIndex);
-    
+
     // Load dashboard data after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -48,7 +48,7 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
         }
 
         final user = authProvider.user!;
-        
+
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -58,9 +58,10 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
               // Profile Picture
               CircleAvatar(
                 radius: 50,
-                backgroundImage: user.avatar != null 
+                backgroundImage: user.avatar != null
                     ? NetworkImage(user.avatar!)
-                    : const AssetImage('assets/images/default_avatar.png') as ImageProvider,
+                    : const AssetImage('assets/images/default_avatar.png')
+                        as ImageProvider,
                 backgroundColor: Colors.grey[200],
               ),
               const SizedBox(height: 16),
@@ -77,7 +78,8 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.email_outlined, size: 16, color: Colors.grey),
+                  const Icon(Icons.email_outlined,
+                      size: 16, color: Colors.grey),
                   const SizedBox(width: 4),
                   Text(
                     user.email,
@@ -94,7 +96,8 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.phone_outlined, size: 16, color: Colors.grey),
+                    const Icon(Icons.phone_outlined,
+                        size: 16, color: Colors.grey),
                     const SizedBox(width: 4),
                     Text(
                       user.phoneNumber!,
@@ -112,19 +115,24 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 spacing: 8,
                 runSpacing: 8,
                 alignment: WrapAlignment.center,
-                children: user.roles.map((role) => Chip(
-                  label: Text(
-                    role.toUpperCase(),
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                  backgroundColor: Theme.of(context).primaryColor.withValues(),
-                  labelStyle: TextStyle(
-                    color: Theme.of(context).primaryColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                )).toList(),
+                children: user.roles
+                    .map((role) => Chip(
+                          label: Text(
+                            role.toUpperCase(),
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                          backgroundColor:
+                              Theme.of(context).primaryColor.withValues(),
+                          labelStyle: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
+                        ))
+                    .toList(),
               ),
               const SizedBox(height: 32),
               // Account Created
@@ -147,16 +155,19 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
                     final confirmed = await showDialog<bool>(
                       context: context, // This context is still valid here
-                      builder: (dialogContext) => AlertDialog( // Use dialogContext for things inside the dialog
+                      builder: (dialogContext) => AlertDialog(
+                        // Use dialogContext for things inside the dialog
                         title: const Text('Logout'),
                         content: const Text('Are you sure you want to logout?'),
                         actions: [
                           TextButton(
-                            onPressed: () => Navigator.of(dialogContext).pop(false),
+                            onPressed: () =>
+                                Navigator.of(dialogContext).pop(false),
                             child: const Text('CANCEL'),
                           ),
                           TextButton(
-                            onPressed: () => Navigator.of(dialogContext).pop(true),
+                            onPressed: () =>
+                                Navigator.of(dialogContext).pop(true),
                             child: const Text('LOGOUT'),
                           ),
                         ],
@@ -169,11 +180,11 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       // It's good practice to check mounted again if another await happened,
                       // or if the operation above could have unmounted the widget.
                       if (mounted) {
-                        navigator.pushNamedAndRemoveUntil('/admin/login', (route) => false);
+                        navigator.pushNamedAndRemoveUntil(
+                            '/admin/login', (route) => false);
                       }
                     }
                   },
-
                   icon: const Icon(Icons.logout, size: 20),
                   label: const Text('LOGOUT'),
                   style: ElevatedButton.styleFrom(
@@ -206,7 +217,8 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
           if (_selectedIndex == 0) // Only show refresh on dashboard
             IconButton(
               icon: const Icon(Icons.refresh),
-              onPressed: () => context.read<AdminProvider>().loadDashboardData(),
+              onPressed: () =>
+                  context.read<AdminProvider>().loadDashboardData(),
             ),
           PopupMenuButton<String>(
             onSelected: (value) {
@@ -274,10 +286,10 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
               );
             },
           ),
-          
+
           // User Management Tab
           const AdminUserManagementScreen(),
-          
+
           // Profile Tab with custom implementation
           _buildProfileTab(),
         ],
@@ -286,7 +298,8 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
         currentIndex: _selectedIndex,
         onTap: (index) {
           // Handle navigation to profile or other tabs
-          if (index == 2) { // Profile tab
+          if (index == 2) {
+            // Profile tab
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -377,14 +390,16 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
       try {
         await adminProvider.logout(); // Use the captured provider
 
-        if (mounted) { // Check mounted again before using navigator
+        if (mounted) {
+          // Check mounted again before using navigator
           navigator.pushNamedAndRemoveUntil(
             '/admin/login',
-                (route) => false,
+            (route) => false,
           );
         }
       } catch (e) {
-        if (mounted) { // Check mounted before using scaffoldMessenger
+        if (mounted) {
+          // Check mounted before using scaffoldMessenger
           scaffoldMessenger.showSnackBar(
             SnackBar(content: Text('Error during logout: ${e.toString()}')),
           );
@@ -395,27 +410,84 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   // Build error view widget
   Widget _buildErrorView(AdminProvider adminProvider) {
+    // Check if this is a backend database schema error
+    final isBackendError = adminProvider.error
+                ?.toLowerCase()
+                .contains('column not found') ==
+            true ||
+        adminProvider.error?.toLowerCase().contains('unknown column') == true ||
+        adminProvider.error?.toLowerCase().contains('sqlstate[42s22]') == true;
+
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, color: Colors.red, size: 48),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0),
-            child: Text(
-              'Error: ${adminProvider.error}',
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.red),
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              isBackendError ? Icons.warning_amber : Icons.error_outline,
+              color: isBackendError ? Colors.orange : Colors.red,
+              size: 48,
             ),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: adminProvider.loadDashboardData,
-            icon: const Icon(Icons.refresh),
-            label: const Text('Retry'),
-          ),
-        ],
+            const SizedBox(height: 16),
+            Text(
+              isBackendError ? 'Backend Database Issue' : 'Error',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: isBackendError ? Colors.orange : Colors.red,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              isBackendError
+                  ? 'The backend database schema needs to be updated. The admin dashboard is running in fallback mode with limited functionality.'
+                  : 'Error: ${adminProvider.error}',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: isBackendError ? Colors.orange[700] : Colors.red,
+                fontSize: 14,
+              ),
+            ),
+            if (isBackendError) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue[50],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.blue[200]!),
+                ),
+                child: const Column(
+                  children: [
+                    const Icon(Icons.info, color: Colors.blue, size: 20),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'To fix this issue, update your backend API to use the correct column name in the database query.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12, color: Colors.blue),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Change "role" to "roles" in your SQL queries.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: adminProvider.loadDashboardData,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Retry'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -483,10 +555,8 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
               icon: Icons.person_add,
               label: 'Add User',
               onTap: () {
-                // TODO: Implement add user navigation
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Add user functionality coming soon')),
-                );
+                // Navigate to user management screen where users can be added
+                Navigator.pushNamed(context, '/admin/users');
               },
             ),
             _buildQuickActionButton(
@@ -494,9 +564,12 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
               icon: Icons.settings,
               label: 'Settings',
               onTap: () {
-                // TODO: Implement settings navigation
+                // Show coming soon message for settings
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Settings screen coming soon')),
+                  const SnackBar(
+                    content: Text('Admin settings coming soon!'),
+                    duration: Duration(seconds: 2),
+                  ),
                 );
               },
             ),
@@ -569,8 +642,8 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     'Buyers', users.buyers.toString(), Icons.shopping_cart),
                 _buildStatCard('Service Providers',
                     users.serviceProviders.toString(), Icons.handyman),
-                _buildStatCard('New Users',
-                    users.newUsersToday.toString(), Icons.person_add),
+                _buildStatCard('New Users', users.newUsersToday.toString(),
+                    Icons.person_add),
                 _buildStatCard(
                     'Active', users.activeUsers.toString(), Icons.person),
                 _buildStatCard('Verified', users.verifiedUsers.toString(),
@@ -632,7 +705,6 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
       ),
     );
   }
-
 
   Widget _buildManagementSection() {
     return Card(
@@ -730,7 +802,6 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-
   Widget _buildRecentUsersSection(AdminDashboardData data) {
     final latestUsers = data.recentActivities.latestUsers;
 
@@ -760,7 +831,7 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   final user = latestUsers[index];
                   return ListTile(
                     leading: CircleAvatar(
-                      child: Text(user.name.substring(0,1).toUpperCase()),
+                      child: Text(user.name.substring(0, 1).toUpperCase()),
                     ),
                     title: Text(user.name),
                     subtitle: Text(user.email),

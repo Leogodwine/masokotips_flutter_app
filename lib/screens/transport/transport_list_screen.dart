@@ -30,11 +30,11 @@ class _TransportListScreenState extends State<TransportListScreen> {
 
   Future<void> _loadTransports() async {
     if (!mounted) return;
-    
+
     setState(() {
       _isLoading = true;
     });
-    
+
     // You can now use widget.category here to filter transports
     debugPrint('Loading transports for category: ${widget.category}');
 
@@ -73,7 +73,7 @@ class _TransportListScreenState extends State<TransportListScreen> {
   Widget _buildTransportItem(Transport transport) {
     final theme = Theme.of(context);
     final isAvailable = transport.status.toLowerCase() == 'available';
-    
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       elevation: 3,
@@ -85,13 +85,15 @@ class _TransportListScreenState extends State<TransportListScreen> {
           Navigator.push(
             context,
             PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) => 
+              pageBuilder: (context, animation, secondaryAnimation) =>
                   TransportDetailsScreen(transport: transport),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
                 const begin = Offset(0.0, 0.5);
                 const end = Offset.zero;
                 const curve = Curves.easeInOut;
-                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                var tween = Tween(begin: begin, end: end)
+                    .chain(CurveTween(curve: curve));
                 var offsetAnimation = animation.drive(tween);
                 return SlideTransition(position: offsetAnimation, child: child);
               },
@@ -106,9 +108,11 @@ class _TransportListScreenState extends State<TransportListScreen> {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(16)),
                   child: CachedNetworkImage(
-                    imageUrl: transport.imageUrl ?? 'https://via.placeholder.com/600x400?text=No+Image',
+                    imageUrl: transport.imageUrl ??
+                        'https://via.placeholder.com/600x400?text=No+Image',
                     height: 180,
                     width: double.infinity,
                     fit: BoxFit.cover,
@@ -129,9 +133,11 @@ class _TransportListScreenState extends State<TransportListScreen> {
                       child: const Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.error_outline, size: 40, color: Colors.grey),
+                          Icon(Icons.error_outline,
+                              size: 40, color: Colors.grey),
                           SizedBox(height: 8),
-                          Text('Failed to load image', style: TextStyle(color: Colors.grey)),
+                          Text('Failed to load image',
+                              style: TextStyle(color: Colors.grey)),
                         ],
                       ),
                     ),
@@ -141,7 +147,8 @@ class _TransportListScreenState extends State<TransportListScreen> {
                 Positioned.fill(
                   child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(16)),
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -158,7 +165,8 @@ class _TransportListScreenState extends State<TransportListScreen> {
                   top: 12,
                   right: 12,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: isAvailable ? Colors.green : Colors.orange,
                       borderRadius: BorderRadius.circular(20),
@@ -389,7 +397,8 @@ class _TransportListScreenState extends State<TransportListScreen> {
               child: ElevatedButton(
                 onPressed: () {
                   final locationFilter = _locationController.text;
-                  context.read<TransportProvider>().setVehicleLocationFilter(locationFilter.isNotEmpty ? locationFilter : null);
+                  context.read<TransportProvider>().setVehicleLocationFilter(
+                      locationFilter.isNotEmpty ? locationFilter : null);
                   _toggleFilters(); // Close the filter panel after applying
                 },
                 child: const Text('Apply Filters'),
@@ -449,7 +458,8 @@ class _TransportListScreenState extends State<TransportListScreen> {
                               ),
                               const SizedBox(height: 10),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 30.0),
                                 child: Text(
                                   'There are currently no transports available for this category or matching your filters. Try adjusting your search or check back later.',
                                   textAlign: TextAlign.center,
@@ -466,7 +476,8 @@ class _TransportListScreenState extends State<TransportListScreen> {
                                 icon: const Icon(Icons.refresh, size: 18),
                                 label: const Text('Refresh'),
                                 style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 24, vertical: 12),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(25),
                                   ),
@@ -482,13 +493,15 @@ class _TransportListScreenState extends State<TransportListScreen> {
                         backgroundColor: Colors.white,
                         strokeWidth: 2.5,
                         child: ListView.builder(
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 16),
                           itemCount: transports.length,
                           itemBuilder: (context, index) {
                             // Add animation to list items
                             return TweenAnimationBuilder<double>(
                               tween: Tween(begin: 0.0, end: 1.0),
-                              duration: Duration(milliseconds: 300 + (index * 100)),
+                              duration:
+                                  Duration(milliseconds: 300 + (index * 100)),
                               curve: Curves.easeOut,
                               builder: (context, value, child) {
                                 return Opacity(
@@ -509,12 +522,7 @@ class _TransportListScreenState extends State<TransportListScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: Implement add transport functionality
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Add transport functionality coming soon!'),
-            ),
-          );
+          Navigator.pushNamed(context, '/transport/add');
         },
         tooltip: 'Add Transport',
         child: const Icon(Icons.add),

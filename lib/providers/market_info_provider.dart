@@ -76,7 +76,8 @@ class MarketInfoProvider extends ChangeNotifier {
         category: category,
         contact: contact,
       );
-      final index = _marketInfoList.indexWhere((info) => info.id == id);
+      final index =
+          _marketInfoList.indexWhere((info) => info.id.toString() == id);
       if (index != -1) {
         _marketInfoList[index] = updatedMarketInfo;
         _notifySafely();

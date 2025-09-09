@@ -18,7 +18,8 @@ class ConnectivityService with ChangeNotifier {
   Future<void> _initConnectivity() async {
     try {
       final result = await _connectivity.checkConnectivity();
-      _isConnected = result != ConnectivityResult.none;
+      _isConnected =
+          result.isNotEmpty && !result.contains(ConnectivityResult.none);
 
       notifyListeners();
     } catch (e) {

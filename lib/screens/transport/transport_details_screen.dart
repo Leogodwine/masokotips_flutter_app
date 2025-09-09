@@ -14,7 +14,7 @@ class TransportDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isActive = transport.status.toLowerCase() == 'active';
-    
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -36,7 +36,8 @@ class TransportDetailsScreen extends StatelessWidget {
                         width: double.infinity,
                         placeholder: (context, url) => Container(
                           color: Colors.grey[200],
-                          child: const Center(child: CircularProgressIndicator()),
+                          child:
+                              const Center(child: CircularProgressIndicator()),
                         ),
                         errorWidget: (context, url, error) => Container(
                           color: Colors.grey[200],
@@ -57,7 +58,7 @@ class TransportDetailsScreen extends StatelessWidget {
                         color: Colors.grey,
                       ),
                     ),
-                  
+
                   // Gradient Overlay
                   Container(
                     decoration: BoxDecoration(
@@ -73,7 +74,7 @@ class TransportDetailsScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  
+
                   // Status Badge
                   Positioned(
                     top: 16,
@@ -138,7 +139,6 @@ class TransportDetailsScreen extends StatelessWidget {
               ),
             ],
           ),
-          
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -206,9 +206,9 @@ class TransportDetailsScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Key Features
                   _buildSection(
                     context,
@@ -226,8 +226,8 @@ class TransportDetailsScreen extends StatelessWidget {
                             _buildFeatureChip(
                               context,
                               icon: Icons.thermostat,
-                              label: transport.isTemperatureControlled 
-                                  ? 'Temperature Controlled' 
+                              label: transport.isTemperatureControlled
+                                  ? 'Temperature Controlled'
                                   : 'No Temp Control',
                             ),
                           ],
@@ -251,9 +251,9 @@ class TransportDetailsScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Contact Information
                   _buildSection(
                     context,
@@ -286,7 +286,7 @@ class TransportDetailsScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  
+
                   // Insurance Information
                   if (transport.hasInsurance) ...[
                     const SizedBox(height: 24),
@@ -296,14 +296,14 @@ class TransportDetailsScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                         const  Row(
+                          const Row(
                             children: [
                               Icon(
                                 Icons.verified_user,
                                 color: Colors.green,
                                 size: 20,
                               ),
-                               SizedBox(width: 8),
+                              SizedBox(width: 8),
                               Text(
                                 'Fully Insured',
                                 style: TextStyle(
@@ -327,9 +327,10 @@ class TransportDetailsScreen extends StatelessWidget {
                       ),
                     ),
                   ],
-                  
+
                   // Amenities
-                  if (transport.amenities != null && transport.amenities!.isNotEmpty) ...[
+                  if (transport.amenities != null &&
+                      transport.amenities!.isNotEmpty) ...[
                     const SizedBox(height: 24),
                     _buildSection(
                       context,
@@ -337,19 +338,26 @@ class TransportDetailsScreen extends StatelessWidget {
                       child: Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: transport.amenities!.map((amenity) => Chip(
-                          label: Text(amenity),
-                          backgroundColor: theme.primaryColor.withValues(),
-                          labelStyle: TextStyle(color: theme.primaryColor),
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        )).toList(),
+                        children: transport.amenities!
+                            .map((amenity) => Chip(
+                                  label: Text(amenity),
+                                  backgroundColor:
+                                      theme.primaryColor.withValues(),
+                                  labelStyle:
+                                      TextStyle(color: theme.primaryColor),
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 8),
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                ))
+                            .toList(),
                       ),
                     ),
                   ],
-                  
+
                   // Certifications
-                  if (transport.certifications != null && transport.certifications!.isNotEmpty) ...[
+                  if (transport.certifications != null &&
+                      transport.certifications!.isNotEmpty) ...[
                     const SizedBox(height: 24),
                     _buildSection(
                       context,
@@ -357,17 +365,22 @@ class TransportDetailsScreen extends StatelessWidget {
                       child: Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: transport.certifications!.map((cert) => Chip(
-                          label: Text(cert),
-                          backgroundColor: Colors.green.withValues(),
-                          labelStyle: const TextStyle(color: Colors.green),
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        )).toList(),
+                        children: transport.certifications!
+                            .map((cert) => Chip(
+                                  label: Text(cert),
+                                  backgroundColor: Colors.green.withValues(),
+                                  labelStyle:
+                                      const TextStyle(color: Colors.green),
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 8),
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                ))
+                            .toList(),
                       ),
                     ),
                   ],
-                  
+
                   // Supported Products
                   if (transport.supportedProductTypes?.isNotEmpty == true) ...[
                     const SizedBox(height: 24),
@@ -377,26 +390,37 @@ class TransportDetailsScreen extends StatelessWidget {
                       child: Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: transport.supportedProductTypes!.map((type) => Chip(
-                          label: Text(type),
-                          backgroundColor: Colors.blue.withValues(),
-                          labelStyle: const TextStyle(color: Colors.blue),
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        )).toList(),
+                        children: transport.supportedProductTypes!
+                            .map((type) => Chip(
+                                  label: Text(type),
+                                  backgroundColor: Colors.blue.withValues(),
+                                  labelStyle:
+                                      const TextStyle(color: Colors.blue),
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 8),
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                ))
+                            .toList(),
                       ),
                     ),
                   ],
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Action Buttons
                   Row(
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: () {
-                            // TODO: Implement contact functionality
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content:
+                                    Text('Contact functionality coming soon'),
+                                backgroundColor: Colors.blue,
+                              ),
+                            );
                           },
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -418,12 +442,21 @@ class TransportDetailsScreen extends StatelessWidget {
                       const SizedBox(width: 16),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: isActive ? () {
-                            // TODO: Implement booking functionality
-                          } : null,
+                          onPressed: isActive
+                              ? () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                          'Booking functionality coming soon'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                }
+                              : null,
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            backgroundColor: isActive ? theme.primaryColor : Colors.grey,
+                            backgroundColor:
+                                isActive ? theme.primaryColor : Colors.grey,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -439,7 +472,7 @@ class TransportDetailsScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 24),
                 ],
               ),
@@ -541,14 +574,19 @@ class TransportDetailsScreen extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.phone, color: Colors.green),
               onPressed: () {
-                // TODO: Implement phone call
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Phone call functionality coming soon'),
+                    backgroundColor: Colors.orange,
+                  ),
+                );
               },
             ),
         ],
       ),
     );
   }
-  
+
   Widget _buildFeatureChip(
     BuildContext context, {
     required IconData icon,

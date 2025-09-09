@@ -1,5 +1,5 @@
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import '../models/transport.dart';
 import '../config/api_config.dart';
@@ -19,7 +19,7 @@ class TransportService {
 
   Future<List<Transport>> getTransports() async {
     try {
-      print('Fetching transports from API...');
+      debugPrint('Fetching transports from API...');
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/public/transports'),
         headers: {
@@ -27,23 +27,23 @@ class TransportService {
         },
       );
 
-      print('API Response Status Code: ${response.statusCode}');
-      print('API Response Body: ${response.body}');
+      debugPrint('API Response Status Code: ${response.statusCode}');
+      debugPrint('API Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         if (responseData.containsKey('data')) {
           final List<dynamic> data = responseData['data'];
-          print('Parsed ${data.length} transports from response');
+          debugPrint('Parsed ${data.length} transports from response');
           return data.map((transport) {
             try {
-              print('Transport data before parsing: $transport');
-              print(
+              debugPrint('Transport data before parsing: $transport');
+              debugPrint(
                   'Supported product types: ${transport['supported_product_types']}');
               return Transport.fromJson(transport);
             } catch (e) {
-              print('Error parsing transport: $e');
-              print('Transport data: $transport');
+              debugPrint('Error parsing transport: $e');
+              debugPrint('Transport data: $transport');
               rethrow;
             }
           }).toList();
@@ -55,7 +55,7 @@ class TransportService {
             'Failed to fetch transports. Status code: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error in getTransports: $e');
+      debugPrint('Error in getTransports: $e');
       throw Exception('Error fetching transports: $e');
     }
   }

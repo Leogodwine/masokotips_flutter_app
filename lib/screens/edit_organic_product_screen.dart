@@ -284,7 +284,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
       if (images.isEmpty) return;
 
       // Debug print the selected images
-      print('Selected images: ${images.map((img) => img.path).toList()}');
+      debugPrint('Selected images: ${images.map((img) => img.path).toList()}');
 
       // Validate file extensions
       final validExtensions = ['gif', 'png', 'jpg', 'jpeg'];
@@ -299,16 +299,17 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
 
         // For regular file paths, validate the extension
         final extension = path.contains('.') ? path.split('.').last.trim() : '';
-        print('Checking extension: $extension for file: $path'); // Debug print
+        debugPrint(
+            'Checking extension: $extension for file: $path'); // Debug print
 
         // Check if the extension is valid
         final isValid = validExtensions.contains(extension);
-        print('Is valid extension? $isValid'); // Debug print
+        debugPrint('Is valid extension? $isValid'); // Debug print
         return !isValid;
       }).toList();
 
       if (invalidImages.isNotEmpty) {
-        print(
+        debugPrint(
             'Invalid images found: ${invalidImages.map((img) => img.path).toList()}'); // Debug print
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -335,7 +336,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
         _images.addAll(images.map((image) => image.path));
       });
     } catch (e) {
-      print('Error picking images: $e');
+      debugPrint('Error picking images: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -355,7 +356,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
     );
-    if (picked != null && picked != _harvestDate) {
+    if (picked != null && picked != _harvestDate && mounted) {
       setState(() {
         _harvestDate = picked;
       });
@@ -372,7 +373,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
     }
 
     // Debug print the images before saving
-    print('Images to be saved: $_images');
+    debugPrint('Images to be saved: $_images');
 
     // Validate that we have at least one valid image
     if (_images.isEmpty) {
@@ -390,6 +391,8 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
     try {
       final authProvider = context.read<AuthProvider>();
       final provider = context.read<OrganicProductProvider>();
+      final scaffoldMessenger = ScaffoldMessenger.of(context);
+      final navigator = Navigator.of(context);
 
       // Convert blob URLs to actual files if needed
       List<String> processedImages = [];
@@ -433,7 +436,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
       if (widget.product == null) {
         await provider.createProduct(product);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          scaffoldMessenger.showSnackBar(
             const SnackBar(
               content: Text('Product created successfully'),
               backgroundColor: Colors.green,
@@ -443,7 +446,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
       } else {
         await provider.updateProduct(product);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          scaffoldMessenger.showSnackBar(
             const SnackBar(
               content: Text('Product updated successfully'),
               backgroundColor: Colors.green,
@@ -453,10 +456,10 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
       }
 
       if (mounted) {
-        Navigator.pop(context, true);
+        navigator.pop(true);
       }
     } catch (e) {
-      print('Error saving product: $e'); // Debug print
+      debugPrint('Error saving product: $e'); // Debug print
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -474,6 +477,8 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
   }
 
   Future<void> _deleteProduct() async {
+    final provider = context.read<OrganicProductProvider>();
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -501,7 +506,6 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
       setState(() => _isLoading = true);
 
       try {
-        final provider = context.read<OrganicProductProvider>();
         await provider.deleteProduct(widget.product!.id);
 
         if (mounted) {
@@ -511,7 +515,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
               backgroundColor: Colors.green,
             ),
           );
-          Navigator.pop(context, true);
+          Navigator.of(context).pop(true);
         }
       } catch (e) {
         if (mounted) {

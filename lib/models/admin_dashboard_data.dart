@@ -2,20 +2,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'admin_dashboard_data.g.dart';
 
-// Helper function to safely convert dynamic values to int
-int _parseIntSafely(dynamic value) {
-  if (value == null) return 0;
-  if (value is int) return value;
-  if (value is String) {
-    try {
-      return int.parse(value);
-    } catch (e) {
-      return 0;
-    }
-  }
-  return 0;
-}
-
 @JsonSerializable()
 class AdminDashboardData {
   final UserStats stats;
@@ -77,18 +63,7 @@ class Users {
     required this.verifiedUsers,
   });
 
-  factory Users.fromJson(Map<String, dynamic> json) {
-    return Users(
-      total: _parseIntSafely(json['total']),
-      admins: _parseIntSafely(json['admins']),
-      sellers: _parseIntSafely(json['sellers']),
-      buyers: _parseIntSafely(json['buyers']),
-      serviceProviders: _parseIntSafely(json['service_providers']),
-      newUsersToday: _parseIntSafely(json['new_users_today']),
-      activeUsers: _parseIntSafely(json['active_users']),
-      verifiedUsers: _parseIntSafely(json['verified_users']),
-    );
-  }
+  factory Users.fromJson(Map<String, dynamic> json) => _$UsersFromJson(json);
 
   Map<String, dynamic> toJson() => _$UsersToJson(this);
 }
@@ -123,15 +98,8 @@ class LatestUser {
     required this.createdAt,
   });
 
-  factory LatestUser.fromJson(Map<String, dynamic> json) {
-    return LatestUser(
-      id: _parseIntSafely(json['id']),
-      name: json['name'] as String,
-      email: json['email'] as String,
-      role: json['role'] as String,
-      createdAt: json['created_at'] as String,
-    );
-  }
+  factory LatestUser.fromJson(Map<String, dynamic> json) =>
+      _$LatestUserFromJson(json);
 
   Map<String, dynamic> toJson() => _$LatestUserToJson(this);
 }

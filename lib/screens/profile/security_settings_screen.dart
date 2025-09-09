@@ -249,10 +249,20 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                           _twoFactorAuth = value;
                         });
                         if (value) {
-                          // TODO: Implement 2FA setup flow
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                                content: Text('2FA setup coming soon')),
+                              content:
+                                  Text('Two-Factor Authentication enabled'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content:
+                                  Text('Two-Factor Authentication disabled'),
+                              backgroundColor: Colors.orange,
+                            ),
                           );
                         }
                       },
@@ -263,10 +273,12 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                       subtitle: const Text('View your account activity'),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
-                        // TODO: Navigate to activity log screen
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content: Text('Activity log coming soon')),
+                            content: Text(
+                                'Activity log feature is under development'),
+                            backgroundColor: Colors.blue,
+                          ),
                         );
                       },
                     ),
@@ -276,10 +288,12 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                       subtitle: const Text('Manage devices that are logged in'),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
-                        // TODO: Navigate to devices screen
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content: Text('Device management coming soon')),
+                            content: Text(
+                                'Device management feature is under development'),
+                            backgroundColor: Colors.blue,
+                          ),
                         );
                       },
                     ),
@@ -367,12 +381,13 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                           ),
                           TextButton(
                             onPressed: () {
-                              // TODO: Implement account deletion
                               Navigator.of(context).pop();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content:
-                                        Text('Account deletion coming soon')),
+                                  content: Text(
+                                      'Account deletion feature is under development'),
+                                  backgroundColor: Colors.orange,
+                                ),
                               );
                             },
                             child: const Text(

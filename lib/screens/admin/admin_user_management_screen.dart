@@ -59,7 +59,8 @@ class AdminUserManagementScreen extends StatelessWidget {
                     if (value == 'edit') {
                       _showEditUserDialog(context, user, adminProvider);
                     } else if (value == 'delete') {
-                      _showDeleteConfirmationDialog(context, user, adminProvider);
+                      _showDeleteConfirmationDialog(
+                          context, user, adminProvider);
                     }
                   },
                   itemBuilder: (context) => [
@@ -80,9 +81,10 @@ class AdminUserManagementScreen extends StatelessWidget {
       ),
     );
   }
-  
+
   // Show dialog to edit user details
-  void _showEditUserDialog(BuildContext context, User user, AdminProvider adminProvider) {
+  void _showEditUserDialog(
+      BuildContext context, User user, AdminProvider adminProvider) {
     final nameController = TextEditingController(text: user.name);
     final emailController = TextEditingController(text: user.email);
     final phoneController = TextEditingController(text: user.phoneNumber ?? '');
@@ -90,7 +92,7 @@ class AdminUserManagementScreen extends StatelessWidget {
     String selectedRole = user.roles.isNotEmpty ? user.roles.first : 'buyer';
     // We don't have an isActive field, so we'll default to true
     bool isActive = true;
-    
+
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
@@ -124,7 +126,9 @@ class AdminUserManagementScreen extends StatelessWidget {
                     DropdownMenuItem(value: 'admin', child: Text('Admin')),
                     DropdownMenuItem(value: 'buyer', child: Text('Buyer')),
                     DropdownMenuItem(value: 'seller', child: Text('Seller')),
-                    DropdownMenuItem(value: 'service_provider', child: Text('Service Provider')),
+                    DropdownMenuItem(
+                        value: 'service_provider',
+                        child: Text('Service Provider')),
                   ],
                   onChanged: (value) {
                     if (value != null) {
@@ -158,28 +162,33 @@ class AdminUserManagementScreen extends StatelessWidget {
                 final userData = {
                   'name': nameController.text,
                   'email': emailController.text,
-                  'phone_number': phoneController.text.isNotEmpty ? phoneController.text : null,
+                  'phone_number': phoneController.text.isNotEmpty
+                      ? phoneController.text
+                      : null,
                   'role': selectedRole,
                   'is_active': isActive,
                 };
-                
+
                 // Close the dialog
                 Navigator.pop(context);
-                
+
                 // Show loading indicator
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Updating user...')),
                 );
-                
+
                 // Update the user
-                final success = await adminProvider.updateUser(user.id, userData);
-                
+                final success =
+                    await adminProvider.updateUser(user.id, userData);
+
                 if (context.mounted) {
                   // Show result message
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        success ? 'User updated successfully' : 'Failed to update user: ${adminProvider.error}',
+                        success
+                            ? 'User updated successfully'
+                            : 'Failed to update user: ${adminProvider.error}',
                       ),
                       backgroundColor: success ? Colors.green : Colors.red,
                     ),
@@ -193,14 +202,16 @@ class AdminUserManagementScreen extends StatelessWidget {
       ),
     );
   }
-  
+
   // Show confirmation dialog for deleting a user
-  void _showDeleteConfirmationDialog(BuildContext context, User user, AdminProvider adminProvider) {
+  void _showDeleteConfirmationDialog(
+      BuildContext context, User user, AdminProvider adminProvider) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete User'),
-        content: Text('Are you sure you want to delete ${user.name}? This action cannot be undone.'),
+        content: Text(
+            'Are you sure you want to delete ${user.name}? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -211,21 +222,23 @@ class AdminUserManagementScreen extends StatelessWidget {
             onPressed: () async {
               // Close the dialog
               Navigator.pop(context);
-              
+
               // Show loading indicator
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Deleting user...')),
               );
-              
+
               // Delete the user
               final success = await adminProvider.deleteUser(user.id);
-              
+
               if (context.mounted) {
                 // Show result message
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      success ? 'User deleted successfully' : 'Failed to delete user: ${adminProvider.error}',
+                      success
+                          ? 'User deleted successfully'
+                          : 'Failed to delete user: ${adminProvider.error}',
                     ),
                     backgroundColor: success ? Colors.green : Colors.red,
                   ),

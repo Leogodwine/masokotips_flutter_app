@@ -45,7 +45,11 @@ class CategoryCard extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
-          // TODO: Navigate to category details or subcategories
+          Navigator.pushNamed(
+            context,
+            '/categories/subcategories',
+            arguments: category,
+          );
         },
         borderRadius: BorderRadius.circular(12),
         child: Container(

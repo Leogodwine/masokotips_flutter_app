@@ -35,11 +35,11 @@ class ProductService {
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-        print('Seller products response: $responseData');
+        debugPrint('Seller products response: $responseData');
         final List<dynamic> data = responseData['data'];
-        print('Found ${data.length} products');
+        debugPrint('Found ${data.length} products');
         if (data.isNotEmpty) {
-          print('First product data: ${data[0]}');
+          debugPrint('First product data: ${data[0]}');
         }
         return data.map((product) => Product.fromJson(product)).toList();
       } else {
@@ -47,7 +47,7 @@ class ProductService {
             'Failed to fetch seller products. Status code: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching seller products: $e');
+      debugPrint('Error fetching seller products: $e');
       throw Exception('Error fetching seller products: $e');
     }
   }
@@ -56,19 +56,19 @@ class ProductService {
   Future<Product> addProduct(Product product) async {
     _checkAuthToken(); // Ensure auth token is set
     try {
-      print('Adding product: ${product.name}');
+      debugPrint('Adding product: ${product.name}');
       // First, upload all images and get their URLs
       List<String> imageUrls = [];
       final images = product.images ?? [];
       for (var i = 0; i < images.length; i++) {
-        print('Uploading image ${i + 1}/${images.length}');
+        debugPrint('Uploading image ${i + 1}/${images.length}');
         final imageUrl = await uploadProductImage(images[i]);
         imageUrls.add(imageUrl);
       }
 
       // Now create the product with the uploaded image URLs
       final url = '${ApiConfig.baseUrl}/seller/products';
-      print('Sending request to: $url');
+      debugPrint('Sending request to: $url');
       final request = http.MultipartRequest('POST', Uri.parse(url));
 
       // Add headers
@@ -89,7 +89,7 @@ class ProductService {
         'slug': product.slug,
       });
 
-      print('Request fields: ${request.fields}');
+      debugPrint('Request fields: ${request.fields}');
 
       // Add each image URL as a separate field
       if (imageUrls.isNotEmpty) {
@@ -103,19 +103,19 @@ class ProductService {
       }
 
       // Send the request
-      print('Sending request...');
+      debugPrint('Sending request...');
       final response = await request.send();
       final responseBody = await http.Response.fromStream(response);
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${responseBody.body}');
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${responseBody.body}');
 
       if (response.statusCode == 201) {
         final responseData = jsonDecode(responseBody.body);
         final data = responseData['data']; // Get the actual product data
-        print('Successfully created product: ${data['name']}');
-        print('Raw response data: $responseData');
-        print('Product data: $data');
-        print(
+        debugPrint('Successfully created product: ${data['name']}');
+        debugPrint('Raw response data: $responseData');
+        debugPrint('Product data: $data');
+        debugPrint(
             'Price in response: ${data['price']} (type: ${data['price'].runtimeType})');
 
         // Ensure the response data has all required fields
@@ -141,20 +141,20 @@ class ProductService {
           'category': data['category'],
         };
 
-        print('Constructed productData: $productData');
-        print(
+        debugPrint('Constructed productData: $productData');
+        debugPrint(
             'ProductData price: ${productData['price']} (type: ${productData['price'].runtimeType})');
 
         return Product.fromJson(productData);
       } else {
         final errorBody = jsonDecode(responseBody.body);
-        print(
+        debugPrint(
             'Failed to add product. Error: ${errorBody['message'] ?? 'Unknown error'}');
         throw Exception(
             'Failed to add product. Status code: ${response.statusCode}. Error: ${errorBody['message'] ?? 'Unknown error'}');
       }
     } catch (e) {
-      print('Error adding product: $e');
+      debugPrint('Error adding product: $e');
       throw Exception('Error adding product: $e');
     }
   }
@@ -163,7 +163,7 @@ class ProductService {
   Future<Product> updateProduct(Product product) async {
     _checkAuthToken(); // Ensure auth token is set
     try {
-      print('Updating product: ${product.name}');
+      debugPrint('Updating product: ${product.name}');
 
       // First, upload any new images if they exist
       List<String> imageUrls = [];
@@ -171,12 +171,12 @@ class ProductService {
       for (var i = 0; i < images.length; i++) {
         // Only upload if it's a local file path (not a URL)
         if (!images[i].startsWith('http')) {
-          print('Uploading new image ${i + 1}/${images.length}');
+          debugPrint('Uploading new image ${i + 1}/${images.length}');
           try {
             final imageUrl = await uploadProductImage(images[i]);
             imageUrls.add(imageUrl);
           } catch (e) {
-            print('Error uploading image ${i + 1}: $e');
+            debugPrint('Error uploading image ${i + 1}: $e');
             continue; // Skip this image if upload fails
           }
         } else {
@@ -216,14 +216,14 @@ class ProductService {
         request.fields['image_url'] = imageUrls[0];
       }
 
-      print('Sending update request to: $url');
-      print('Update fields: ${request.fields}');
+      debugPrint('Sending update request to: $url');
+      debugPrint('Update fields: ${request.fields}');
 
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -234,7 +234,7 @@ class ProductService {
             'Failed to update product. Status code: ${response.statusCode}. Error: ${errorBody['message'] ?? 'Unknown error'}');
       }
     } catch (e) {
-      print('Error updating product: $e');
+      debugPrint('Error updating product: $e');
       throw Exception('Error updating product: $e');
     }
   }
@@ -246,7 +246,7 @@ class ProductService {
       final url = '${ApiConfig.baseUrl}/seller/products/$productId';
       if (kDebugMode) {
         // ignore: avoid_print
-        print('Attempting to delete product at URL: $url');
+        debugPrint('Attempting to delete product at URL: $url');
       }
 
       final response = await http.delete(
@@ -258,8 +258,8 @@ class ProductService {
         },
       );
 
-      print('Delete response status code: ${response.statusCode}');
-      print('Delete response body: ${response.body}');
+      debugPrint('Delete response status code: ${response.statusCode}');
+      debugPrint('Delete response body: ${response.body}');
 
       if (response.statusCode != 200) {
         final errorBody = response.body.isNotEmpty
@@ -269,7 +269,7 @@ class ProductService {
             'Failed to delete product. Status code: ${response.statusCode}. Error: $errorBody');
       }
     } catch (e) {
-      print('Error deleting product: $e');
+      debugPrint('Error deleting product: $e');
       throw Exception('Error deleting product: $e');
     }
   }
@@ -314,12 +314,12 @@ class ProductService {
       }
 
       // Send the request
-      print('Uploading image to: $url');
+      debugPrint('Uploading image to: $url');
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
-      print('Upload response status: ${response.statusCode}');
-      print('Upload response body: ${response.body}');
+      debugPrint('Upload response status: ${response.statusCode}');
+      debugPrint('Upload response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -330,7 +330,7 @@ class ProductService {
             'Failed to upload image. Status code: ${response.statusCode}. Error: ${errorBody['message'] ?? 'Unknown error'}');
       }
     } catch (e) {
-      print('Error uploading product image: $e');
+      debugPrint('Error uploading product image: $e');
       throw Exception('Error uploading product image: $e');
     }
   }

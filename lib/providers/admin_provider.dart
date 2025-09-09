@@ -112,7 +112,7 @@ class AdminProvider with ChangeNotifier {
         return false;
       }
     } catch (e, stackTrace) {
-      final errorMessage = e is Map<String, dynamic> 
+      final errorMessage = e is Map<String, dynamic>
           ? e['message']?.toString() ?? e.toString()
           : e.toString();
       Log.e('Error during login: $errorMessage\n$stackTrace');
@@ -188,13 +188,45 @@ class AdminProvider with ChangeNotifier {
       Log.d('Dashboard data loaded and parsed successfully');
     } catch (e, stackTrace) {
       Log.e('Error loading dashboard data: $e\n$stackTrace');
-      if (e.toString().toLowerCase().contains('unauthenticated')) {
+      Log.e('Error type: ${e.runtimeType}');
+      Log.e('Error string: "${e.toString()}"');
+
+      // Check for specific backend SQL error
+      final errorString = e.toString().toLowerCase();
+      Log.d('Checking error string: "$errorString"');
+      if (errorString.contains('column not found') ||
+          errorString.contains('unknown column') ||
+          errorString.contains('sqlstate[42s22]') ||
+          errorString.contains('error retrieving dashboard data') ||
+          errorString.contains('sqlstate') ||
+          errorString.contains('mysql') ||
+          errorString.contains('database') ||
+          (errorString.contains('role') &&
+              errorString.contains('where clause'))) {
+        Log.w(
+            'Backend database schema issue detected. This should be fixed in the backend API.');
+        Log.w('Original error: $e');
+
+        _error =
+            'Backend database schema issue. The API needs to be updated to use the correct column names.';
+      } else if (e.toString().toLowerCase().contains('unauthenticated')) {
         await _adminAuthService.logoutAdmin();
         _isAdmin = false;
         _dashboardData = null;
         _error = 'Session expired. Please login again.';
       } else {
-        _error = 'Failed to load dashboard data: $e';
+        // For any other dashboard-related errors
+        if (errorString.contains('dashboard') ||
+            errorString.contains('stats')) {
+          Log.w(
+              'Dashboard-related error detected. This should be fixed in the backend API.');
+          Log.w('Original error: $e');
+
+          _error =
+              'Dashboard API error. Please contact the administrator to fix the backend.';
+        } else {
+          _error = 'Failed to load dashboard data: $e';
+        }
       }
     } finally {
       _isLoading = false;
@@ -574,10 +606,10 @@ class AdminProvider with ChangeNotifier {
       notifyListeners();
 
       Log.d('Logging out admin...');
-      
+
       // Clear auth token and session
       await _adminAuthService.logoutAdmin();
-      
+
       // Clear provider state
       _isAdmin = false;
       _dashboardData = null;
@@ -588,7 +620,7 @@ class AdminProvider with ChangeNotifier {
       _organicProducts = [];
       _transports = [];
       _categories = [];
-      
+
       Log.d('Admin logout completed');
     } catch (e, stackTrace) {
       Log.e('Error during admin logout: $e\n$stackTrace');
@@ -713,7 +745,6 @@ class AdminProvider with ChangeNotifier {
       notifyListeners();
     }
   }
-
 
   Future<bool> removeTransport(int id) async {
     _isLoading = true;

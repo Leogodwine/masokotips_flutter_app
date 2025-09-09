@@ -183,13 +183,13 @@ class AuthProvider with ChangeNotifier {
         try {
           await fetchUserProfile();
         } catch (e) {
-          print('Error fetching user profile: $e');
+          debugPrint('Error fetching user profile: $e');
           // Continue even if profile fetch fails
         }
       }
       notifyListeners();
     } catch (e) {
-      print('Error loading token: $e');
+      debugPrint('Error loading token: $e');
       // Continue even if token loading fails
     }
   }
@@ -205,7 +205,7 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> addUserRole(String role) async {
     try {
-      final response = await _apiService.addUserRole(role);
+      await _apiService.addUserRole(role);
 
       // Update user profile to refresh roles
       await fetchUserProfile();
@@ -218,7 +218,7 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> removeUserRole(String role) async {
     try {
-      final response = await _apiService.removeUserRole(role);
+      await _apiService.removeUserRole(role);
 
       // Update user profile to refresh roles
       await fetchUserProfile();
@@ -226,6 +226,15 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
     } catch (e) {
       throw Exception('Failed to remove role: $e');
+    }
+  }
+
+  // Reset password
+  Future<void> resetPassword(String email) async {
+    try {
+      await _apiService.resetPassword(email);
+    } catch (e) {
+      throw Exception('Failed to send reset password email: $e');
     }
   }
 

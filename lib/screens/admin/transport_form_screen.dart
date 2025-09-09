@@ -340,6 +340,10 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      final adminProvider = context.read<AdminProvider>();
+      final navigator = Navigator.of(context);
+      final scaffoldMessenger = ScaffoldMessenger.of(context);
+
       final transport = Transport(
         id: widget.transport?.id,
         title: _titleController.text,
@@ -362,12 +366,12 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
       );
 
       final success = widget.transport == null
-          ? await context.read<AdminProvider>().createTransport(transport)
-          : await context.read<AdminProvider>().updateTransport(transport);
+          ? await adminProvider.createTransport(transport)
+          : await adminProvider.updateTransport(transport);
 
       if (success && mounted) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
+        navigator.pop(context);
+        scaffoldMessenger.showSnackBar(
           SnackBar(
             content: Text(
               widget.transport == null

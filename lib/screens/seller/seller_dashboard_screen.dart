@@ -43,14 +43,14 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
     });
 
     try {
-      print('Loading seller products...');
+      debugPrint('Loading seller products...');
       final products = await _productService.getSellerProducts();
-      print('Loaded ${products.length} products');
+      debugPrint('Loaded ${products.length} products');
       setState(() {
         _sellerProducts = products;
       });
     } catch (e) {
-      print('Error loading seller products: $e');
+      debugPrint('Error loading seller products: $e');
       setState(() {
         _errorMessage = 'Failed to load products: $e';
       });
@@ -88,6 +88,9 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
   }
 
   Future<void> _deleteProduct(Product product) async {
+    // Capture context-dependent objects before async operation
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     try {
       setState(() {
         _isLoading = true;
@@ -98,13 +101,17 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
         _sellerProducts.removeWhere((p) => p.id == product.id);
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${product.name} deleted successfully')),
-      );
+      if (mounted) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text('${product.name} deleted successfully')),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete product: $e')),
-      );
+      if (mounted) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text('Failed to delete product: $e')),
+        );
+      }
     } finally {
       setState(() {
         _isLoading = false;
@@ -236,11 +243,11 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                   MaterialPageRoute(
                     builder: (context) => AddProductScreen(
                       onProductAdded: (product) {
-                        print(
+                        debugPrint(
                             'Product added callback received: ${product.name}');
                         setState(() {
                           _sellerProducts.add(product);
-                          print(
+                          debugPrint(
                               'Product added to list. Total products: ${_sellerProducts.length}');
                         });
                       },

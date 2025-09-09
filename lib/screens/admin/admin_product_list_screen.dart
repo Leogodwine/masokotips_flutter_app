@@ -53,7 +53,7 @@ class _AdminProductListScreenState extends State<AdminProductListScreen> {
     return showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
@@ -62,7 +62,7 @@ class _AdminProductListScreenState extends State<AdminProductListScreen> {
               actions: [
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    Navigator.of(dialogContext).pop();
                   },
                   child: const Text('Cancel'),
                 ),
@@ -72,12 +72,12 @@ class _AdminProductListScreenState extends State<AdminProductListScreen> {
                       // Disable buttons while deleting
                     });
                     try {
-                      await context
+                      await dialogContext
                           .read<AdminProvider>()
                           .deleteProduct(product.id);
-                      if (mounted) {
-                        Navigator.of(context).pop(); // Close dialog
-                        ScaffoldMessenger.of(context).showSnackBar(
+                      if (mounted && dialogContext.mounted) {
+                        Navigator.of(dialogContext).pop(); // Close dialog
+                        ScaffoldMessenger.of(dialogContext).showSnackBar(
                           const SnackBar(
                             content: Text('Product deleted successfully'),
                             backgroundColor: Colors.green,
@@ -85,8 +85,9 @@ class _AdminProductListScreenState extends State<AdminProductListScreen> {
                         );
                       }
                     } catch (e) {
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
+                      if (mounted && dialogContext.mounted) {
+                        Navigator.of(dialogContext).pop(); // Close dialog
+                        ScaffoldMessenger.of(dialogContext).showSnackBar(
                           SnackBar(
                             content: Text('Error deleting product: $e'),
                             backgroundColor: Colors.red,

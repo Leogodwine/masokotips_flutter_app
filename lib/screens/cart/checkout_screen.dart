@@ -132,12 +132,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       return;
     }
 
+    // Capture context-dependent objects before async operation
+    final cart = context.read<CartProvider>();
+    final orders = context.read<OrdersProvider>();
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
     setState(() => _isLoading = true);
 
     try {
-      final cart = context.read<CartProvider>();
-      final orders = context.read<OrdersProvider>();
-
       await orders.addOrder(
         cartItems: cart.items.values
             .map((item) => models.CartItem(
@@ -157,22 +160,27 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
       cart.clearCart();
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) =>
-              const OrderSuccessScreen(), // ✅ GO TO success screen
-        ),
-      );
+      if (mounted) {
+        navigator.pushReplacement(
+          MaterialPageRoute(
+            builder: (context) =>
+                const OrderSuccessScreen(), // ✅ GO TO success screen
+          ),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to place order: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text('Failed to place order: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -316,8 +324,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         width: 50,
                         height: 50,
                         decoration: BoxDecoration(
-                          color:
-                              Theme.of(context).primaryColor.withOpacity(0.1),
+                          color: Theme.of(context)
+                              .primaryColor
+                              .withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
@@ -528,7 +537,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
                 borderRadius: BorderRadius.circular(12),
                 color: _paymentMethod == 'Cash'
-                    ? Theme.of(context).primaryColor.withOpacity(0.1)
+                    ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
                     : Colors.white,
               ),
               child: RadioListTile(
@@ -555,7 +564,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
                 borderRadius: BorderRadius.circular(12),
                 color: _paymentMethod == 'Card'
-                    ? Theme.of(context).primaryColor.withOpacity(0.1)
+                    ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
                     : Colors.white,
               ),
               child: RadioListTile(

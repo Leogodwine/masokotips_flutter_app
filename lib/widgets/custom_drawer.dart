@@ -245,7 +245,7 @@ class CustomDrawer extends StatelessWidget {
                     title: 'Help & Support',
                     onTap: () {
                       Navigator.pop(context);
-                      // TODO: Implement help screen
+                      Navigator.pushNamed(context, '/help');
                     },
                   ),
                   _buildDrawerItem(
@@ -263,10 +263,12 @@ class CustomDrawer extends StatelessWidget {
                       icon: Icons.logout_rounded,
                       title: 'Logout',
                       onTap: () async {
+                        // Capture context-dependent objects before async operation
+                        final scaffoldMessenger = ScaffoldMessenger.of(context);
                         Navigator.pop(context);
                         await authProvider.logout();
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          scaffoldMessenger.showSnackBar(
                             const SnackBar(
                               content: Text('Logged out successfully'),
                             ),
@@ -333,6 +335,9 @@ class CustomDrawer extends StatelessWidget {
   }
 
   Future<void> _openExternalUrl(BuildContext context, String url) async {
+    // Capture context-dependent objects before async operation
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     final uri = Uri.parse(url);
     bool opened = false;
     if (await canLaunchUrl(uri)) {
@@ -348,13 +353,16 @@ class CustomDrawer extends StatelessWidget {
       );
     }
     if (!opened && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      scaffoldMessenger.showSnackBar(
         const SnackBar(content: Text('Could not open link')),
       );
     }
   }
 
   Future<void> _composeDeletionEmail(BuildContext context) async {
+    // Capture context-dependent objects before async operation
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     final uri = Uri(
       scheme: 'mailto',
       path: 'info@masokotips.com',
@@ -369,7 +377,7 @@ class CustomDrawer extends StatelessWidget {
       await launchUrl(uri);
     } else {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        scaffoldMessenger.showSnackBar(
           const SnackBar(content: Text('No email app found to send request')),
         );
       }

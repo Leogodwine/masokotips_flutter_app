@@ -38,8 +38,8 @@ class _AdminTransportManagementScreenState
     });
     try {
       final adminProvider = Provider.of<AdminProvider>(context, listen: false);
-      final newTransports = await adminProvider.loadTransports(
-          offset: 0, limit: _pageSize);
+      final newTransports =
+          await adminProvider.loadTransports(offset: 0, limit: _pageSize);
       if (newTransports.isEmpty && reset) {
         setState(() {
           _hasMore = false;
@@ -177,12 +177,14 @@ class _AdminTransportManagementScreenState
   }
 
   Future<void> _deleteTransport(Transport transport) async {
+    final adminProvider = Provider.of<AdminProvider>(context, listen: false);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Transport'),
-        content:
-            Text('Are you sure you want to delete ${transport.title}?'),
+        content: Text('Are you sure you want to delete ${transport.title}?'),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -204,12 +206,10 @@ class _AdminTransportManagementScreenState
 
     if (confirmed == true) {
       try {
-        final adminProvider =
-            Provider.of<AdminProvider>(context, listen: false);
         await adminProvider.deleteTransport(transport.id!);
         _loadTransports();
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          scaffoldMessenger.showSnackBar(
             const SnackBar(
               content: Text('Transport deleted successfully'),
               backgroundColor: Colors.green,
@@ -218,7 +218,7 @@ class _AdminTransportManagementScreenState
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          scaffoldMessenger.showSnackBar(
             SnackBar(
               content: Text('Error deleting transport: $e'),
               backgroundColor: Colors.red,
@@ -287,7 +287,8 @@ class _AdminTransportManagementScreenState
                       child: Chip(
                         label: Text(
                           transport.status.toUpperCase(),
-                          style: const TextStyle(fontSize: 10, color: Colors.white),
+                          style: const TextStyle(
+                              fontSize: 10, color: Colors.white),
                         ),
                         backgroundColor: transport.status == 'active'
                             ? Colors.green
@@ -317,8 +318,8 @@ class _AdminTransportManagementScreenState
                         transport.vehicleLocation,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontSize: 13, color: Colors.grey),
+                        style:
+                            const TextStyle(fontSize: 13, color: Colors.grey),
                       ),
                     ),
                   ],
@@ -334,8 +335,8 @@ class _AdminTransportManagementScreenState
                         transport.vehicleType,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontSize: 13, color: Colors.grey),
+                        style:
+                            const TextStyle(fontSize: 13, color: Colors.grey),
                       ),
                     ),
                   ],
@@ -343,13 +344,11 @@ class _AdminTransportManagementScreenState
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(Icons.scale,
-                        size: 14, color: theme.primaryColor),
+                    Icon(Icons.scale, size: 14, color: theme.primaryColor),
                     const SizedBox(width: 4),
                     Text(
                       '${transport.capacity} tons',
-                      style: const TextStyle(
-                          fontSize: 13, color: Colors.grey),
+                      style: const TextStyle(fontSize: 13, color: Colors.grey),
                     ),
                     const Spacer(),
                     IconButton(
@@ -375,9 +374,7 @@ class _AdminTransportManagementScreenState
       final matchesSearch = t.title
               .toLowerCase()
               .contains(_searchQuery.toLowerCase()) ||
-          t.vehicleLocation
-              .toLowerCase()
-              .contains(_searchQuery.toLowerCase());
+          t.vehicleLocation.toLowerCase().contains(_searchQuery.toLowerCase());
       final matchesStatus = _selectedStatus == null ||
           t.status.toLowerCase() == _selectedStatus!.toLowerCase();
       return matchesSearch && matchesStatus;

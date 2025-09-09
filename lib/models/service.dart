@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' hide Category;
 import 'package:json_annotation/json_annotation.dart';
 import 'category.dart';
 
@@ -105,18 +106,19 @@ class Service {
 
   factory Service.fromJson(Map<String, dynamic> json) {
     // Debug logging
-    print('Service.fromJson: Parsing service with keys: ${json.keys.toList()}');
-    print(
+    debugPrint(
+        'Service.fromJson: Parsing service with keys: ${json.keys.toList()}');
+    debugPrint(
         'Service.fromJson: title = ${json['title']} (${json['title'].runtimeType})');
-    print(
+    debugPrint(
         'Service.fromJson: description = ${json['description']} (${json['description'].runtimeType})');
-    print(
+    debugPrint(
         'Service.fromJson: user_id = ${json['user_id']} (${json['user_id'].runtimeType})');
-    print(
+    debugPrint(
         'Service.fromJson: provider_id = ${json['provider_id']} (${json['provider_id'].runtimeType})');
-    print(
+    debugPrint(
         'Service.fromJson: category_id = ${json['category_id']} (${json['category_id'].runtimeType})');
-    print(
+    debugPrint(
         'Service.fromJson: price = ${json['price']} (${json['price'].runtimeType})');
 
     // Handle the case where API returns provider_id instead of user_id
@@ -128,7 +130,7 @@ class Service {
     if (json.keys.length <= 2 &&
         json.containsKey('provider') &&
         json.containsKey('category')) {
-      print(
+      debugPrint(
           'Service.fromJson: Warning - Received minimal response with only relationships');
       // Return a default service if we only have relationships
       return Service(
@@ -146,8 +148,8 @@ class Service {
     try {
       return _$ServiceFromJson(json);
     } catch (e) {
-      print('Service.fromJson: Error parsing service: $e');
-      print('Service.fromJson: JSON data: $json');
+      debugPrint('Service.fromJson: Error parsing service: $e');
+      debugPrint('Service.fromJson: JSON data: $json');
       rethrow;
     }
   }
@@ -157,7 +159,7 @@ class Service {
   // Helper functions for price conversion
   static double _priceFromJson(dynamic value) {
     if (value == null) {
-      print('Warning: Price is null, using 0.0 as default');
+      debugPrint('Warning: Price is null, using 0.0 as default');
       return 0.0; // Use 0.0 as default for null prices
     }
     if (value is String) {
@@ -174,7 +176,7 @@ class Service {
   // Helper function for userId conversion (handles both user_id and provider_id)
   static int _userIdFromJson(dynamic value) {
     if (value == null) {
-      print('Warning: User ID is null, using 0 as default');
+      debugPrint('Warning: User ID is null, using 0 as default');
       return 0; // Use 0 as default for null user IDs
     }
     if (value is String) {
@@ -191,7 +193,7 @@ class Service {
   // Helper function for id conversion
   static int _idFromJson(dynamic value) {
     if (value == null) {
-      print('Warning: Service ID is null, using 0 as default');
+      debugPrint('Warning: Service ID is null, using 0 as default');
       return 0; // Use 0 as default for null IDs
     }
     if (value is String) {
@@ -206,7 +208,7 @@ class Service {
   // Helper function for categoryId conversion
   static int _categoryIdFromJson(dynamic value) {
     if (value == null) {
-      print('Warning: Category ID is null, using 0 as default');
+      debugPrint('Warning: Category ID is null, using 0 as default');
       return 0; // Use 0 as default for null category IDs
     }
     if (value is String) {

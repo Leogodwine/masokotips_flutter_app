@@ -115,11 +115,14 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
           ),
           TextButton(
             onPressed: () async {
-              final success =
-                  await context.read<AdminProvider>().deleteUser(user.id);
+              final adminProvider = context.read<AdminProvider>();
+              final scaffoldMessenger = ScaffoldMessenger.of(context);
+              final navigator = Navigator.of(context);
+
+              final success = await adminProvider.deleteUser(user.id);
               if (success && mounted) {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
+                navigator.pop();
+                scaffoldMessenger.showSnackBar(
                   const SnackBar(
                     content: Text('User deleted successfully'),
                     backgroundColor: Colors.green,
@@ -206,6 +209,10 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
             ),
             ElevatedButton(
               onPressed: () async {
+                final adminProvider = context.read<AdminProvider>();
+                final scaffoldMessenger = ScaffoldMessenger.of(context);
+                final navigator = Navigator.of(context);
+
                 // Prepare payload
                 final userData = {
                   'name': nameController.text,
@@ -218,19 +225,18 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                 };
 
                 // Show loading SnackBar
-                ScaffoldMessenger.of(context).showSnackBar(
+                scaffoldMessenger.showSnackBar(
                   const SnackBar(content: Text('Updating user...')),
                 );
 
-                final adminProvider = context.read<AdminProvider>();
                 final success =
-                await adminProvider.updateUser(user.id, userData);
+                    await adminProvider.updateUser(user.id, userData);
 
                 // Close the dialog
-                Navigator.pop(dialogContext);
+                navigator.pop();
 
                 // Show result SnackBar
-                ScaffoldMessenger.of(context).showSnackBar(
+                scaffoldMessenger.showSnackBar(
                   SnackBar(
                     content: Text(
                       success

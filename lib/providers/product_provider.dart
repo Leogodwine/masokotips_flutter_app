@@ -135,7 +135,7 @@ class ProductProvider with ChangeNotifier {
       await _cacheProducts();
     } catch (e) {
       _setErrorState('Failed to load products: $e');
-      print(_error);
+      debugPrint(_error);
     } finally {
       _setLoadingState(false);
     }
@@ -167,7 +167,7 @@ class ProductProvider with ChangeNotifier {
       return await _apiService.getProductDetails(productId);
     } catch (e) {
       _error = 'Failed to fetch product details: $e';
-      print(_error);
+      debugPrint(_error);
       return null;
     }
   }
@@ -200,7 +200,7 @@ class ProductProvider with ChangeNotifier {
       final productsJson = _products.map((p) => p.toJson()).toList();
       await prefs.setString(_productsKey, json.encode(productsJson));
     } catch (e) {
-      print('Error caching products: $e');
+      debugPrint('Error caching products: $e');
     }
   }
 
@@ -216,7 +216,7 @@ class ProductProvider with ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print('Error loading cached products: $e');
+      debugPrint('Error loading cached products: $e');
     }
   }
 
@@ -249,7 +249,7 @@ class ProductProvider with ChangeNotifier {
       _products.add(product);
     } catch (e) {
       _error = 'Failed to add product: $e';
-      print(_error);
+      debugPrint(_error);
       rethrow;
     } finally {
       _isLoading = false;

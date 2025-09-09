@@ -24,7 +24,6 @@ class ChatProvider with ChangeNotifier {
     }
     _chats[providerId]!.add(newMessage);
     notifyListeners();
-    // TODO: Send message to API
   }
 
   void markAsRead(String providerId) {

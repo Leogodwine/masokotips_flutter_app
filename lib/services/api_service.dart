@@ -254,6 +254,35 @@ class ApiService {
     }
   }
 
+  Future<void> resetPassword(String email) async {
+    try {
+      final url = Uri.parse('$baseUrl/auth/forgot-password');
+      final requestBody = {
+        'email': email,
+      };
+
+      final response = await http.post(
+        url,
+        headers: _headers,
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['success'] != true) {
+          throw Exception(
+              responseData['message'] ?? 'Failed to send reset email');
+        }
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw Exception(errorData['message'] ?? 'Failed to send reset email');
+      }
+    } catch (e) {
+      Log.e('Reset password error: $e');
+      throw Exception('Error sending reset password email: $e');
+    }
+  }
+
   // Get user profile
   Future<User> getUserProfile() async {
     try {
@@ -338,7 +367,7 @@ class ApiService {
     }
   }
 
-  // Change password - TODO: Implement this endpoint in the API
+  // Change password
   Future<void> changePassword(
       String currentPassword, String newPassword) async {
     throw Exception('Change password endpoint not implemented in API yet');
@@ -1157,7 +1186,7 @@ class ApiService {
     try {
       Log.e('Fetching seller organic products...');
       final response = await http.get(
-        Uri.parse('${baseUrl}/seller/organic-products'),
+        Uri.parse('$baseUrl/seller/organic-products'),
         headers: _headers,
       );
 
@@ -1181,7 +1210,7 @@ class ApiService {
     try {
       Log.e('Creating organic product: ${productData['name']}');
       final response = await http.post(
-        Uri.parse('${baseUrl}/seller/organic-products'),
+        Uri.parse('$baseUrl/seller/organic-products'),
         headers: _headers,
         body: json.encode(productData),
       );
@@ -1206,7 +1235,7 @@ class ApiService {
     try {
       Log.e('Updating organic product: $productId');
       final response = await http.put(
-        Uri.parse('${baseUrl}/seller/organic-products/$productId'),
+        Uri.parse('$baseUrl/seller/organic-products/$productId'),
         headers: _headers,
         body: json.encode(productData),
       );
@@ -1230,7 +1259,7 @@ class ApiService {
     try {
       Log.e('Deleting organic product: $productId');
       final response = await http.delete(
-        Uri.parse('${baseUrl}/seller/organic-products/$productId'),
+        Uri.parse('$baseUrl/seller/organic-products/$productId'),
         headers: _headers,
       );
 
@@ -1254,7 +1283,7 @@ class ApiService {
       Log.e('Uploading organic product image...');
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('${baseUrl}/seller/organic-products/upload-image'),
+        Uri.parse('$baseUrl/seller/organic-products/upload-image'),
       );
 
       request.headers.addAll(_headers);
@@ -1376,7 +1405,7 @@ class ApiService {
     try {
       Log.e('Fetching transport categories...');
       final response = await http.get(
-        Uri.parse('${baseUrl}/public/categories'),
+        Uri.parse('$baseUrl/public/categories'),
         headers: _headers,
       );
 
@@ -1399,7 +1428,7 @@ class ApiService {
     try {
       Log.e('Fetching seller transports...');
       final response = await http.get(
-        Uri.parse('${baseUrl}/seller/transports'),
+        Uri.parse('$baseUrl/seller/transports'),
         headers: _headers,
       );
 
@@ -1423,7 +1452,7 @@ class ApiService {
     try {
       Log.e('Creating transport: $transportData');
       final response = await http.post(
-        Uri.parse('${baseUrl}/seller/transports'),
+        Uri.parse('$baseUrl/seller/transports'),
         headers: _headers,
         body: json.encode(transportData),
       );
@@ -1447,7 +1476,7 @@ class ApiService {
     try {
       Log.e('Updating transport $transportId: $transportData');
       final response = await http.put(
-        Uri.parse('${baseUrl}/seller/transports/$transportId'),
+        Uri.parse('$baseUrl/seller/transports/$transportId'),
         headers: _headers,
         body: json.encode(transportData),
       );
@@ -1476,7 +1505,7 @@ class ApiService {
     try {
       Log.e('Deleting transport $transportId...');
       final response = await http.delete(
-        Uri.parse('${baseUrl}/seller/transports/$transportId'),
+        Uri.parse('$baseUrl/seller/transports/$transportId'),
         headers: _headers,
       );
 
@@ -1497,7 +1526,7 @@ class ApiService {
       Log.e('Uploading transport image...');
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('${baseUrl}/seller/transports/upload-image'),
+        Uri.parse('$baseUrl/seller/transports/upload-image'),
       );
 
       request.headers.addAll(_headers);

@@ -101,8 +101,10 @@ class _SearchScreenState extends State<SearchScreen> {
   void initState() {
     super.initState();
     _loadRecentSearches();
-    Future.microtask(() {
-      context.read<CategoryProvider>().loadMainCategories();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<CategoryProvider>().loadMainCategories();
+      }
     });
   }
 

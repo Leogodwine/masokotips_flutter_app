@@ -1,9 +1,11 @@
+import 'package:flutter/foundation.dart';
+
 class Log {
   static void d(String message) {
-    print('DEBUG: $message');
+    debugPrint('DEBUG: $message');
   }
 
   static void e(String message) {
-    print('ERROR: $message');
+    debugPrint('ERROR: $message');
   }
 }
