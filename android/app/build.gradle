@@ -46,6 +46,42 @@ android {
         jvmTarget = '17'
     }
 
+    // Support for 16 KB memory page sizes (required for Android 15+)
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
+    
+    // Enable page size agnostic builds
+    bundle {
+        language {
+            enableSplit = false
+        }
+        density {
+            enableSplit = false
+        }
+        abi {
+            enableSplit = false
+        }
+    }
+    
+    // Support for 16 KB memory page sizes (required for Android 15+)
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    
+    // Enable page size agnostic builds
+    ndkVersion "25.1.8937393"
+    
+    // Support for 16 KB memory page sizes (required for Android 15+)
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
+
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
@@ -63,6 +99,12 @@ android {
         resConfigs "en"
         ndk {
             abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+        }
+        // Support for 16 KB memory page sizes (required for Android 15+)
+        externalNativeBuild {
+            cmake {
+                arguments "-DANDROID_STL=c++_shared", "-DCMAKE_ANDROID_PAGE_SIZE_AGNOSTIC=ON"
+            }
         }
         packagingOptions {
             resources {
@@ -105,6 +147,24 @@ android {
                 debugSymbolLevel 'FULL' // or 'SYMBOL_TABLE' for more detail
             }
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    // Support for 16 KB memory page sizes (required for Android 15+)
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+            version "3.22.1"
+        }
+    }
+    
+    // Enable page size agnostic builds
+    splits {
+        abi {
+            enable true
+            reset()
+            include "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+            universalApk true
         }
     }
 }
