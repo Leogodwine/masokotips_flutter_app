@@ -141,7 +141,7 @@ class AdminAuthService {
       Log.d('Logging in admin with username: $username');
 
       final response = await http.post(
-        Uri.parse('$baseUrl/admin/login'),
+        Uri.parse('$baseUrl/api/admin/login'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
