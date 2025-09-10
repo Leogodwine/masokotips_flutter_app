@@ -74,7 +74,7 @@ class _SplashScreenState extends State<SplashScreen>
     _sponsorController.forward();
     
     // Wait for animations to complete then navigate
-    await Future.delayed(const Duration(milliseconds: 2000));
+    await Future.delayed(const Duration(milliseconds: 4000));
     _navigateToHome();
   }
 
@@ -197,7 +197,7 @@ class _SplashScreenState extends State<SplashScreen>
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 32,
-                          vertical: 24,
+                          vertical: 32,
                         ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -212,7 +212,7 @@ class _SplashScreenState extends State<SplashScreen>
                                 letterSpacing: 1.0,
                               ),
                             ),
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 16),
                             
                             // Sponsor logos in a row
                             Row(

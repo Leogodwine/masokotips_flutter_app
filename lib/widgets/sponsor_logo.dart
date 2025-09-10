@@ -10,8 +10,8 @@ class SponsorLogo extends StatelessWidget {
     super.key,
     required this.imagePath,
     required this.fallbackText,
-    this.height = 40,
-    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    this.height = 60,
+    this.padding = const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
   });
 
   @override
