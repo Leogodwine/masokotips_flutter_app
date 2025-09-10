@@ -27,13 +27,13 @@ class _SplashScreenState extends State<SplashScreen>
   void _setupAnimations() {
     // Logo animation controller
     _logoController = AnimationController(
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1600),
       vsync: this,
     );
 
     // Sponsor animation controller
     _sponsorController = AnimationController(
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 400),
       vsync: this,
     );
 
@@ -69,17 +69,17 @@ class _SplashScreenState extends State<SplashScreen>
     // Start logo animation
     _logoController.forward();
     debugPrint('SplashScreen: Started logo animation');
-    
+
     // Wait 2 seconds for first logo to be visible
-    await Future.delayed(const Duration(milliseconds: 2000));
+    await Future.delayed(const Duration(milliseconds: 1000));
     debugPrint('SplashScreen: 2 seconds passed, starting sponsor animation');
-    
+
     // Start sponsor animation after 2 seconds
     _sponsorController.forward();
     debugPrint('SplashScreen: Started sponsor animation');
-    
+
     // Wait additional 3 seconds for sponsor animation (total 5 seconds)
-    await Future.delayed(const Duration(milliseconds: 3000));
+    await Future.delayed(const Duration(milliseconds: 4000));
     debugPrint('SplashScreen: 5 seconds total, navigating to home');
     _navigateToHome();
   }
@@ -136,7 +136,7 @@ class _SplashScreenState extends State<SplashScreen>
                   children: [
                     // Top spacer
                     const Spacer(flex: 1),
-                    
+
                     // Main logo section (Instagram-style center) - More space
                     Expanded(
                       flex: 4,
@@ -147,24 +147,13 @@ class _SplashScreenState extends State<SplashScreen>
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               // Main logo with subtle shadow
-                              Container(
-                                decoration: BoxDecoration(
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.2),
-                                      blurRadius: 20,
-                                      offset: const Offset(0, 10),
-                                    ),
-                                  ],
-                                ),
-                                child: Image.asset(
-                                  'assets/images/logo.png',
-                                  height: 160, // Increased from 140
-                                  fit: BoxFit.contain,
-                                ),
+                              Image.asset(
+                                'assets/images/logo.png',
+                                height: 160, // Increased from 140
+                                fit: BoxFit.contain,
                               ),
                               const SizedBox(height: 32), // Increased spacing
-                              
+
                               // App name with elegant typography
                               const Text(
                                 'maSOKOtips',
@@ -176,10 +165,11 @@ class _SplashScreenState extends State<SplashScreen>
                                 ),
                               ),
                               const SizedBox(height: 12), // Increased spacing
-                              
+
                               // Tagline with better wrapping
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 20),
                                 child: Text(
                                   'Tanzania\'s Premier Agricultural Marketplace',
                                   style: const TextStyle(
@@ -198,7 +188,7 @@ class _SplashScreenState extends State<SplashScreen>
                         ),
                       ),
                     ),
-                    
+
                     // Sponsor section (Instagram-style bottom)
                     Container(
                       width: double.infinity,
@@ -208,10 +198,6 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.2),
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20),
-                        ),
                       ),
                       child: FadeTransition(
                         opacity: _sponsorAnimation,
@@ -229,7 +215,7 @@ class _SplashScreenState extends State<SplashScreen>
                               ),
                             ),
                             const SizedBox(height: 24),
-                            
+
                             // Sponsor logos in a row
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -239,7 +225,7 @@ class _SplashScreenState extends State<SplashScreen>
                                   imagePath: 'assets/images/costech_logo.png',
                                   fallbackText: 'COSTECH',
                                 ),
-                                
+
                                 // Add more sponsor logos here if you have them
                                 // const SizedBox(width: 16),
                                 // const SponsorLogo(
