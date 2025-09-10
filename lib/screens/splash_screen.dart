@@ -69,12 +69,14 @@ class _SplashScreenState extends State<SplashScreen>
     // Start logo animation
     _logoController.forward();
     
-    // Wait a bit then start sponsor animation
-    await Future.delayed(const Duration(milliseconds: 600));
+    // Wait 2 seconds for first logo to be visible
+    await Future.delayed(const Duration(milliseconds: 2000));
+    
+    // Start sponsor animation after 2 seconds
     _sponsorController.forward();
     
-    // Wait for animations to complete then navigate
-    await Future.delayed(const Duration(milliseconds: 4000));
+    // Wait additional 2 seconds for sponsor animation (total 4 seconds)
+    await Future.delayed(const Duration(milliseconds: 2000));
     _navigateToHome();
   }
 
@@ -129,11 +131,11 @@ class _SplashScreenState extends State<SplashScreen>
                 child: Column(
                   children: [
                     // Top spacer
-                    const Spacer(flex: 2),
+                    const Spacer(flex: 1),
                     
-                    // Main logo section (Instagram-style center)
+                    // Main logo section (Instagram-style center) - More space
                     Expanded(
-                      flex: 3,
+                      flex: 4,
                       child: Center(
                         child: ScaleTransition(
                           scale: _logoAnimation,
@@ -154,33 +156,39 @@ class _SplashScreenState extends State<SplashScreen>
                                 ),
                                 child: Image.asset(
                                   'assets/images/logo.png',
-                                  height: 140,
+                                  height: 160, // Increased from 140
                                   fit: BoxFit.contain,
                                 ),
                               ),
-                              const SizedBox(height: 24),
+                              const SizedBox(height: 32), // Increased spacing
                               
                               // App name with elegant typography
                               const Text(
                                 'maSOKOtips',
                                 style: TextStyle(
-                                  fontSize: 32,
+                                  fontSize: 36, // Increased from 32
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                   letterSpacing: 1.5,
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 12), // Increased spacing
                               
-                              // Tagline
-                              const Text(
-                                'Tanzania\'s Premier Agricultural Marketplace',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white70,
-                                  letterSpacing: 0.5,
+                              // Tagline with better wrapping
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                child: Text(
+                                  'Tanzania\'s Premier Agricultural Marketplace',
+                                  style: const TextStyle(
+                                    fontSize: 16, // Increased from 14
+                                    color: Colors.white70,
+                                    letterSpacing: 0.5,
+                                    height: 1.3, // Better line height
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                textAlign: TextAlign.center,
                               ),
                             ],
                           ),
