@@ -16,6 +16,7 @@ class SponsorLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('SponsorLogo: Building logo with path: $imagePath');
     return Container(
       padding: padding,
       decoration: BoxDecoration(
@@ -31,6 +32,7 @@ class SponsorLogo extends StatelessWidget {
         height: height,
         fit: BoxFit.contain,
         errorBuilder: (context, error, stackTrace) {
+          debugPrint('SponsorLogo: Error loading image: $error');
           return Text(
             fallbackText,
             style: TextStyle(

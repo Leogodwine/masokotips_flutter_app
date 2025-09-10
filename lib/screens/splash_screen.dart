@@ -68,15 +68,19 @@ class _SplashScreenState extends State<SplashScreen>
   void _startAnimationSequence() async {
     // Start logo animation
     _logoController.forward();
+    debugPrint('SplashScreen: Started logo animation');
     
     // Wait 2 seconds for first logo to be visible
     await Future.delayed(const Duration(milliseconds: 2000));
+    debugPrint('SplashScreen: 2 seconds passed, starting sponsor animation');
     
     // Start sponsor animation after 2 seconds
     _sponsorController.forward();
+    debugPrint('SplashScreen: Started sponsor animation');
     
     // Wait additional 2 seconds for sponsor animation (total 4 seconds)
     await Future.delayed(const Duration(milliseconds: 2000));
+    debugPrint('SplashScreen: 4 seconds total, navigating to home');
     _navigateToHome();
   }
 
@@ -199,49 +203,46 @@ class _SplashScreenState extends State<SplashScreen>
                     // Bottom spacer
                     const Spacer(flex: 1),
                     
-                    // Sponsor section (Instagram-style bottom)
-                    FadeTransition(
-                      opacity: _sponsorAnimation,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 32,
-                          vertical: 32,
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Subtle "Powered by" text
-                            const Text(
-                              'Powered by',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.white54,
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 1.0,
+                    // Sponsor section (Instagram-style bottom) - Always visible for testing
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 32,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Subtle "Powered by" text
+                          const Text(
+                            'Powered by',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white70,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 1.0,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          
+                          // Sponsor logos in a row
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // COSTECH logo
+                              const SponsorLogo(
+                                imagePath: 'assets/images/costech_logo.png',
+                                fallbackText: 'COSTECH',
                               ),
-                            ),
-                            const SizedBox(height: 16),
-                            
-                            // Sponsor logos in a row
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                // COSTECH logo
-                                const SponsorLogo(
-                                  imagePath: 'assets/images/costech_logo.png',
-                                  fallbackText: 'COSTECH',
-                                ),
-                                
-                                // Add more sponsor logos here if you have them
-                                // const SizedBox(width: 16),
-                                // const SponsorLogo(
-                                //   imagePath: 'assets/images/other_sponsor_logo.png',
-                                //   fallbackText: 'SPONSOR',
-                                // ),
-                              ],
-                            ),
-                          ],
-                        ),
+                              
+                              // Add more sponsor logos here if you have them
+                              // const SizedBox(width: 16),
+                              // const SponsorLogo(
+                              //   imagePath: 'assets/images/other_sponsor_logo.png',
+                              //   fallbackText: 'SPONSOR',
+                              // ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ],
