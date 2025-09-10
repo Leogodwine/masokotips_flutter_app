@@ -104,7 +104,8 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeConfig.getThemeData(),
         scaffoldMessengerKey: scaffoldMessengerKey,
-        home: const SplashScreen(), // ✅ Entry point
+        home:
+            const SplashScreen(), // ✅ Brief custom splash for sponsors after native splash
         routes: {
           '/home': (context) => const HomeScreen(),
           '/login': (context) => const LoginScreen(),

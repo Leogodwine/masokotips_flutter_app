@@ -1,3 +1,4 @@
+// sponsor_logo.dart
 import 'package:flutter/material.dart';
 
 class SponsorLogo extends StatelessWidget {
@@ -10,8 +11,8 @@ class SponsorLogo extends StatelessWidget {
     super.key,
     required this.imagePath,
     required this.fallbackText,
-    this.height = 60,
-    this.padding = const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+    this.height = 80,
+    this.padding = const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
   });
 
   @override
@@ -20,17 +21,17 @@ class SponsorLogo extends StatelessWidget {
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.transparent,
+        // ✅ Removed borderRadius completely - no rounded corners
         border: Border.all(
-          color: Colors.white.withOpacity(0.2),
-          width: 1,
+          color: Colors.white.withValues(alpha: 0.4),
+          width: 1.5,
         ),
       ),
       child: Image.asset(
         imagePath,
         height: height,
-        fit: BoxFit.contain,
+        fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
           debugPrint('SponsorLogo: Error loading image: $error');
           return Text(

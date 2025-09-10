@@ -1,3 +1,4 @@
+// splash_screen.dart
 import 'package:flutter/material.dart';
 import 'package:masoko_tips/screens/home/home_screen.dart';
 import 'package:masoko_tips/widgets/sponsor_logo.dart';
@@ -11,11 +12,11 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
-  late AnimationController _logoController;
   late AnimationController _sponsorController;
-  late Animation<double> _logoAnimation;
   late Animation<double> _sponsorAnimation;
-  late Animation<double> _fadeAnimation;
+
+  // ✅ Optional: Add scale animation for sponsor (uncomment to use)
+  // late Animation<double> _sponsorScaleAnimation;
 
   @override
   void initState() {
@@ -25,26 +26,11 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _setupAnimations() {
-    // Logo animation controller
-    _logoController = AnimationController(
-      duration: const Duration(milliseconds: 1600),
-      vsync: this,
-    );
-
     // Sponsor animation controller
     _sponsorController = AnimationController(
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 400), // fade in duration
       vsync: this,
     );
-
-    // Logo scale and fade animation
-    _logoAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _logoController,
-      curve: Curves.elasticOut,
-    ));
 
     // Sponsor fade in animation
     _sponsorAnimation = Tween<double>(
@@ -52,35 +38,20 @@ class _SplashScreenState extends State<SplashScreen>
       end: 1.0,
     ).animate(CurvedAnimation(
       parent: _sponsorController,
-      curve: Curves.easeInOut,
-    ));
-
-    // Overall fade animation for smooth transition
-    _fadeAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(
-      parent: _logoController,
-      curve: const Interval(0.7, 1.0, curve: Curves.easeInOut),
+      curve: Curves.easeIn,
     ));
   }
 
   void _startAnimationSequence() async {
-    // Start logo animation
-    _logoController.forward();
-    debugPrint('SplashScreen: Started logo animation');
-
-    // Wait 2 seconds for first logo to be visible
-    await Future.delayed(const Duration(milliseconds: 1000));
-    debugPrint('SplashScreen: 2 seconds passed, starting sponsor animation');
-
-    // Start sponsor animation after 2 seconds
+    // Show sponsors after 2 seconds (logo + text display time)
+    await Future.delayed(const Duration(milliseconds: 2000));
     _sponsorController.forward();
-    debugPrint('SplashScreen: Started sponsor animation');
+    debugPrint('SplashScreen: Showing sponsor logos');
 
-    // Wait additional 3 seconds for sponsor animation (total 5 seconds)
-    await Future.delayed(const Duration(milliseconds: 4000));
-    debugPrint('SplashScreen: 5 seconds total, navigating to home');
+    // Display sponsors for 2 more seconds (total 4 seconds)
+    await Future.delayed(const Duration(milliseconds: 2000));
+    debugPrint('SplashScreen: Sponsor display complete');
+
     _navigateToHome();
   }
 
@@ -106,7 +77,6 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void dispose() {
-    _logoController.dispose();
     _sponsorController.dispose();
     super.dispose();
   }
@@ -114,127 +84,116 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1C592B), // Dark green background
+      backgroundColor: Colors.transparent, // Remove background color
       body: AnimatedBuilder(
-        animation: Listenable.merge([_logoController, _sponsorController]),
+        animation: _sponsorController,
         builder: (context, child) {
-          return FadeTransition(
-            opacity: _fadeAnimation,
+          return Container(
+            // Remove gradient decoration to see logo clearly
+            color: Colors.transparent,
             child: Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Color(0xFF1C592B), // Dark green
-                    Color(0xFF2D7A3D), // Slightly lighter green
+                    Color(0xFF1C592B),
+                    Color(0xFF2D7A3D),
                   ],
                 ),
               ),
               child: SafeArea(
                 child: Column(
                   children: [
-                    // Top spacer
-                    const Spacer(flex: 1),
-
-                    // Main logo section (Instagram-style center) - More space
+                    // Main Logo Section with text
                     Expanded(
-                      flex: 4,
+                      flex: 3,
                       child: Center(
-                        child: ScaleTransition(
-                          scale: _logoAnimation,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // Main logo with subtle shadow
-                              Image.asset(
-                                'assets/images/logo.png',
-                                height: 160, // Increased from 140
-                                fit: BoxFit.contain,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // Logo
+                            Image.asset(
+                              'assets/images/logo-moble.png',
+                              height: 120,
+                              fit: BoxFit.contain,
+                              filterQuality: FilterQuality.high,
+                            ),
+                            const SizedBox(height: 24),
+                            // App name
+                            const Text(
+                              'maSOKOtips',
+                              style: TextStyle(
+                                fontSize: 28,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.5,
                               ),
-                              const SizedBox(height: 32), // Increased spacing
-
-                              // App name with elegant typography
-                              const Text(
-                                'maSOKOtips',
+                            ),
+                            const SizedBox(height: 8),
+                            // Subtitle
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 20),
+                              child: Text(
+                                'Tanzania\'s Premier Agricultural Marketplace',
                                 style: TextStyle(
-                                  fontSize: 36, // Increased from 32
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  letterSpacing: 1.5,
+                                  fontSize: 14,
+                                  color: Colors.white70,
+                                  fontWeight: FontWeight.w400,
+                                  letterSpacing: 0.5,
                                 ),
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              const SizedBox(height: 12), // Increased spacing
-
-                              // Tagline with better wrapping
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 20),
-                                child: Text(
-                                  'Tanzania\'s Premier Agricultural Marketplace',
-                                  style: const TextStyle(
-                                    fontSize: 16, // Increased from 14
-                                    color: Colors.white70,
-                                    letterSpacing: 0.5,
-                                    height: 1.3, // Better line height
-                                  ),
-                                  textAlign: TextAlign.center,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
 
-                    // Sponsor section (Instagram-style bottom)
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 40,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.2),
-                      ),
-                      child: FadeTransition(
-                        opacity: _sponsorAnimation,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Subtle "Powered by" text
-                            const Text(
-                              'Powered by',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 1.0,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-
-                            // Sponsor logos in a row
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                // COSTECH logo
-                                const SponsorLogo(
-                                  imagePath: 'assets/images/costech_logo.png',
-                                  fallbackText: 'COSTECH',
+                    // Sponsor Section
+                    Expanded(
+                      flex: 2,
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 40,
+                        ),
+                        child: FadeTransition(
+                          opacity: _sponsorAnimation,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Sponsor section
+                              const Text(
+                                'Powered by',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 1.0,
                                 ),
-
-                                // Add more sponsor logos here if you have them
-                                // const SizedBox(width: 16),
-                                // const SponsorLogo(
-                                //   imagePath: 'assets/images/other_sponsor_logo.png',
-                                //   fallbackText: 'SPONSOR',
-                                // ),
-                              ],
-                            ),
-                          ],
+                              ),
+                              const SizedBox(height: 20),
+                              // Enlarged sponsor logo
+                              Container(
+                                height: 80,
+                                width: 200,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Center(
+                                  child: SponsorLogo(
+                                    imagePath: 'assets/images/costech_logo.png',
+                                    fallbackText: 'COSTECH',
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

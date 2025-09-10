@@ -679,7 +679,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       applicationName: 'Masoko Tips',
       applicationVersion: '1.0.0',
       applicationIcon: Image.asset(
-        'assets/images/logo.png',
+        'assets/images/logo-moble.png',
         width: 48,
         height: 48,
         errorBuilder: (context, error, stackTrace) => const Icon(

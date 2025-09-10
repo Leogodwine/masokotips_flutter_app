@@ -119,7 +119,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 children: [
                   // App Logo
                   Image.asset(
-                    'assets/images/logo.png',
+                    'assets/images/logo-moble.png',
                     height: 80,
                     width: 80,
                     alignment: Alignment.center,
