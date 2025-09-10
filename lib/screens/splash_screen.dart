@@ -149,7 +149,6 @@ class _SplashScreenState extends State<SplashScreen>
                               // Main logo with subtle shadow
                               Container(
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withOpacity(0.2),
