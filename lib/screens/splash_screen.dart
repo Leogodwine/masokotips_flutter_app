@@ -168,7 +168,7 @@ class _SplashScreenState extends State<SplashScreen>
                             children: [
                               // Sponsor section
                               const Text(
-                                'Powered by',
+                                'Powered by: COSTECH',
                                 style: TextStyle(
                                   fontSize: 18,
                                   color: Colors.white,
