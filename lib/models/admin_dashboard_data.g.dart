@@ -33,14 +33,14 @@ Map<String, dynamic> _$UserStatsToJson(UserStats instance) => <String, dynamic>{
     };
 
 Users _$UsersFromJson(Map<String, dynamic> json) => Users(
-      total: (json['total'] as num?)?.toInt() ?? 0,
-      admins: (json['admins'] as num?)?.toInt() ?? 0,
-      sellers: (json['sellers'] as num?)?.toInt() ?? 0,
-      buyers: (json['buyers'] as num?)?.toInt() ?? 0,
-      serviceProviders: (json['service_providers'] as num?)?.toInt() ?? 0,
-      newUsersToday: (json['new_users_today'] as num?)?.toInt() ?? 0,
-      activeUsers: (json['active_users'] as num?)?.toInt() ?? 0,
-      verifiedUsers: (json['verified_users'] as num?)?.toInt() ?? 0,
+      total: (json['total'] as num).toInt(),
+      admins: (json['admins'] as num).toInt(),
+      sellers: (json['sellers'] as num).toInt(),
+      buyers: (json['buyers'] as num).toInt(),
+      serviceProviders: (json['service_providers'] as num).toInt(),
+      newUsersToday: (json['new_users_today'] as num).toInt(),
+      activeUsers: (json['active_users'] as num).toInt(),
+      verifiedUsers: (json['verified_users'] as num).toInt(),
     );
 
 Map<String, dynamic> _$UsersToJson(Users instance) => <String, dynamic>{

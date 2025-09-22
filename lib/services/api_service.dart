@@ -306,7 +306,6 @@ class ApiService {
   }
 
   // Update user profile
-  // Update user profile
   Future<User> updateProfile({
     required String name,
     required String email,

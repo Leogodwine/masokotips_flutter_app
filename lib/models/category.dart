@@ -5,6 +5,7 @@ part 'category.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class Category {
+  @StringToIntConverter()
   final int id;
   final String name;
   final String? description;
@@ -17,6 +18,7 @@ class Category {
   @JsonKey(name: 'is_active')
   final bool isActive;
 
+  @StringToIntConverter()
   @JsonKey(name: 'sort_order')
   final int sortOrder;
 
@@ -26,9 +28,11 @@ class Category {
   @JsonKey(name: 'parent_id')
   final int? parentId;
 
+  @StringToIntConverter()
   @JsonKey(name: 'products_count')
   final int productsCount;
 
+  @StringToIntConverter()
   @JsonKey(name: 'subcategories_count')
   final int subcategoriesCount;
 
