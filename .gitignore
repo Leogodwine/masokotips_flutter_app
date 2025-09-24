@@ -119,4 +119,8 @@ Thumbs.db
 /android/app/.cxx/
 /*.iml
 /.idea
+# Keystore files
+android/*.jks
+android/*.keystore
+upload_certificate.pem
 

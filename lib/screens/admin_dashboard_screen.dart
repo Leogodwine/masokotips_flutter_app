@@ -60,7 +60,7 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 radius: 50,
                 backgroundImage: user.avatar != null
                     ? NetworkImage(user.avatar!)
-                    : const AssetImage('assets/images/default_avatar.png')
+                    : const AssetImage('assets/images/default_avatar.webp')
                         as ImageProvider,
                 backgroundColor: Colors.grey[200],
               ),

@@ -11,14 +11,46 @@ class FriendlyErrorDisplay extends StatelessWidget {
   }) : super(key: key);
 
   String get _friendlyMessage {
-    if (error == null) return '';
-    if (error!.contains('SocketException')) {
-      return 'No internet connection. Please check and try again.';
+    if (error == null) return 'An unknown error occurred.';
+
+    final errorLower = error!.toLowerCase();
+
+    // Network errors
+    if (errorLower.contains('socketexception') ||
+        errorLower.contains('connection') ||
+        errorLower.contains('network') ||
+        errorLower.contains('clientexception') ||
+        errorLower.contains('failed to fetch')) {
+      return 'No internet connection. Please check your network and try again.';
     }
-    if (error!.contains('text/html')) {
-      return 'The server responded with an unexpected format.';
+
+    // HTTP status codes
+    if (errorLower.contains('404') || errorLower.contains('not found')) {
+      return 'The requested information could not be found. It may have been moved or deleted.';
     }
-    return 'Something went wrong. Please try again.';
+    if (errorLower.contains('500') ||
+        errorLower.contains('internal server error')) {
+      return 'Our servers are experiencing issues. Please try again in a few minutes.';
+    }
+    if (errorLower.contains('403') ||
+        errorLower.contains('forbidden') ||
+        errorLower.contains('unauthorized')) {
+      return 'You do not have permission to access this content. Please log in again.';
+    }
+    if (errorLower.contains('timeout')) {
+      return 'The request took too long. Please check your connection and try again.';
+    }
+
+    // API specific errors
+    if (errorLower.contains('text/html')) {
+      return 'The server responded with an unexpected format. Please contact support if this persists.';
+    }
+    if (errorLower.contains('json') || errorLower.contains('parsing')) {
+      return 'There was an issue processing the data. Please try again.';
+    }
+
+    // Generic fallback
+    return 'Something went wrong while loading the content. Please try again.';
   }
 
   @override

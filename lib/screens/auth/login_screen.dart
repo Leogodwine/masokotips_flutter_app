@@ -104,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   // Logo or App Icon
                   Image.asset(
-                    'assets/images/logo-moble.png',
+                    'assets/images/logo-moble.webp',
                     height: 80,
                     width: 80,
                   ),

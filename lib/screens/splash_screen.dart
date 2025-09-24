@@ -114,7 +114,7 @@ class _SplashScreenState extends State<SplashScreen>
                           children: [
                             // Logo
                             Image.asset(
-                              'assets/images/logo-moble.png',
+                              'assets/images/logo-moble.webp',
                               height: 120,
                               fit: BoxFit.contain,
                               filterQuality: FilterQuality.high,
@@ -187,7 +187,8 @@ class _SplashScreenState extends State<SplashScreen>
                                 ),
                                 child: const Center(
                                   child: SponsorLogo(
-                                    imagePath: 'assets/images/costech_logo.png',
+                                    imagePath:
+                                        'assets/images/costech_logo.webp',
                                     fallbackText: 'COSTECH',
                                   ),
                                 ),

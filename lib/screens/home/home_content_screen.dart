@@ -52,18 +52,8 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
         if (error != null) {
           Log.e('HomeContentScreen: Failed to load categories: $error');
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error loading categories: $error'),
-              action: SnackBarAction(
-                label: 'RETRY',
-                onPressed: () {
-                  Log.e('HomeContentScreen: Retrying category load');
-                  provider.loadMainCategories();
-                },
-              ),
-            ),
-          );
+          // Removed SnackBar to prevent showing raw error to user
+          // The FriendlyErrorDisplay widget handles user-friendly error display
         } else {
           Log.e('HomeContentScreen: Categories loaded successfully');
           Log.e('HomeContentScreen: Categories count: $count');
@@ -999,19 +989,19 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
   String _getCategoryImage(String categoryName) {
     switch (categoryName.toLowerCase()) {
       case 'products':
-        return 'assets/images/cereals.png';
+        return 'assets/images/cereals.webp';
 
       case 'market information':
-        return 'assets/images/market_information.png';
+        return 'assets/images/market_information.webp';
       case 'transport':
-        return 'assets/images/transport.png';
+        return 'assets/images/transport.webp';
       case 'organic products':
-        return 'assets/images/vegetables.png';
+        return 'assets/images/vegetables.webp';
       case 'agricultural services':
-        return 'assets/images/consultation.png';
+        return 'assets/images/consultation.webp';
 
       default:
-        return 'assets/images/consultation.png'; // fallback image
+        return 'assets/images/consultation.webp'; // fallback image
     }
   }
 

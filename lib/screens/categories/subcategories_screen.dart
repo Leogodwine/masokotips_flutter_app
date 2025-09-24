@@ -31,116 +31,116 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
   String _getCategoryImage(String categoryName) {
     switch (categoryName.toLowerCase()) {
       case 'products':
-        return 'assets/images/cereals.png';
+        return 'assets/images/cereals.webp';
       case 'spices':
-        return 'assets/images/spices.png';
+        return 'assets/images/spices.webp';
       case 'cash crops':
-        return 'assets/images/cash_crops.png';
+        return 'assets/images/cash_crops.webp';
       case 'cereals':
-        return 'assets/images/cereals.png';
+        return 'assets/images/cereals.webp';
       case 'organic products':
-        return 'assets/images/vegetables.png';
+        return 'assets/images/vegetables.webp';
       case 'fruits':
-        return 'assets/images/fruits.png';
+        return 'assets/images/fruits.webp';
       case 'vegetables':
-        return 'assets/images/vegetables.png';
+        return 'assets/images/vegetables.webp';
       case 'grains':
-        return 'assets/images/grains.png';
+        return 'assets/images/grains.webp';
       case 'livestock and poultry':
-        return 'assets/images/livestock_and_poultry.png';
+        return 'assets/images/livestock_and_poultry.webp';
       case 'seeds and seedling':
-        return 'assets/images/seed.png';
+        return 'assets/images/seed.webp';
       case 'seeds':
-        return 'assets/images/seeds.png';
+        return 'assets/images/seeds.webp';
 
       //Organic Products
       case 'organic vegetables':
-        return 'assets/images/vegetables.png';
+        return 'assets/images/vegetables.webp';
       case 'organic fruits':
-        return 'assets/images/fruits.png';
+        return 'assets/images/fruits.webp';
       case 'organic cereals':
-        return 'assets/images/cereals.png';
+        return 'assets/images/cereals.webp';
       case 'organic spices':
-        return 'assets/images/spices.png';
+        return 'assets/images/spices.webp';
       case 'organic cash crops':
-        return 'assets/images/cash_crops.png';
+        return 'assets/images/cash_crops.webp';
       case 'organic grains':
-        return 'assets/images/grains.png';
+        return 'assets/images/grains.webp';
       case 'organic seeds':
-        return 'assets/images/seeds.png';
+        return 'assets/images/seeds.webp';
       case 'organic livestock and poultry':
-        return 'assets/images/livestock_and_poultry.png';
+        return 'assets/images/livestock_and_poultry.webp';
 
       //Transport
       case 'tandem':
-        return 'assets/images/tandum.png';
+        return 'assets/images/tandum.webp';
       case 'kirikuu':
-        return 'assets/images/kirikuu.png';
+        return 'assets/images/kirikuu.webp';
       case 'flatbed trucks':
-        return 'assets/images/flatbed.png';
+        return 'assets/images/flatbed.webp';
       case 'tanker':
-        return 'assets/images/tanker.png';
+        return 'assets/images/tanker.webp';
       case 'refrigerator truck':
-        return 'assets/images/refrigerated.png';
+        return 'assets/images/refrigerated.webp';
       case 'box truck':
-        return 'assets/images/box_truck.png';
+        return 'assets/images/box_truck.webp';
       case 'liftgate truck':
-        return 'assets/images/liftgate.png';
+        return 'assets/images/liftgate.webp';
       case 'van':
-        return 'assets/images/van.png';
+        return 'assets/images/van.webp';
       case 'container hauler':
-        return 'assets/images/container.png';
+        return 'assets/images/container.webp';
       case 'pickups trucks':
-        return 'assets/images/pickup.png';
+        return 'assets/images/pickup.webp';
       case 'fuso':
-        return 'assets/images/fuso.png';
+        return 'assets/images/fuso.webp';
       case 'semi trailers':
-        return 'assets/images/semi_trailers.png';
+        return 'assets/images/semi_trailers.webp';
       case 'tracker trailers':
-        return 'assets/images/tractor_trailers.png';
+        return 'assets/images/tractor_trailers.webp';
 
       //Agricultural Services
       case 'packaging materials':
-        return 'assets/images/packaging.png';
+        return 'assets/images/packaging.webp';
 
       case 'hydroponics':
-        return 'assets/images/irrigation.png';
+        return 'assets/images/irrigation.webp';
 
       case 'fertilizer':
-        return 'assets/images/fertilizer.png';
+        return 'assets/images/fertilizer.webp';
 
       case 'organic manure':
-        return 'assets/images/organic_manure.png';
+        return 'assets/images/organic_manure.webp';
 
       case 'irrigation services':
-        return 'assets/images/irrigation.png';
+        return 'assets/images/irrigation.webp';
 
       case 'machinery':
-        return 'assets/images/tanker.png';
+        return 'assets/images/tanker.webp';
 
       case 'beehive and aquatic':
-        return 'assets/images/beehive.png';
+        return 'assets/images/beehive.webp';
 
       case 'food and beverage':
-        return 'assets/images/fruits.png';
+        return 'assets/images/fruits.webp';
 
       case 'cold rooms services':
-        return 'assets/images/cold_rooms.png';
+        return 'assets/images/cold_rooms.webp';
 
       case 'machinery and rental services':
         return 'assets/images/machinery_rental.jpg';
 
       case 'financial services':
-        return 'assets/images/financial.png';
+        return 'assets/images/financial.webp';
 
       case 'branding and consultation services':
-        return 'assets/images/branding.png';
+        return 'assets/images/branding.webp';
 
       case 'agronomist services':
-        return 'assets/images/vegetables.png';
+        return 'assets/images/vegetables.webp';
 
       default:
-        return 'assets/images/default.png';
+        return 'assets/images/default.webp';
     }
   }
 
