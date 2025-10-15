@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../providers/category_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../models/category.dart';
@@ -26,6 +27,25 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
           'SubcategoriesScreen: Loading subcategories for category ${widget.category.id} (${widget.category.name})');
       context.read<CategoryProvider>().loadSubcategories(widget.category.id);
     });
+  }
+
+  String _getLocalizedCategoryName(String categoryName) {
+    // Map common category names to localized versions
+    switch (categoryName.toLowerCase()) {
+      case 'products':
+        return 'Bidhaa'; // Kiswahili for Products
+      case 'services':
+        return AppLocalizations.of(context)?.services ??
+            'Huduma'; // Kiswahili for Services
+      case 'transport':
+        return 'Usafiri'; // Kiswahili for Transport
+      case 'organic products':
+        return 'Bidhaa za Kikaboni'; // Kiswahili for Organic Products
+      case 'agricultural services':
+        return 'Huduma za Kilimo'; // Kiswahili for Agricultural Services
+      default:
+        return categoryName;
+    }
   }
 
   String _getCategoryImage(String categoryName) {
@@ -213,7 +233,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.category.name),
+        title: Text(_getLocalizedCategoryName(widget.category.name)),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
         leading: Navigator.canPop(context)
@@ -307,7 +327,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'No subcategories available',
+                    AppLocalizations.of(context)!.noCategoriesFound,
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey[600],
@@ -315,7 +335,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Please check back later',
+                    AppLocalizations.of(context)!.checkBackLater,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[500],

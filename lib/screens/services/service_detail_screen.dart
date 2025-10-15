@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../models/service.dart';
 import '../../providers/cart_provider.dart';
 import '../cart/cart_screen.dart';
@@ -20,6 +21,12 @@ class ServiceDetailScreen extends StatefulWidget {
 }
 
 class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
+  String _getLocalizedServiceTitle(String serviceTitle) {
+    // For now, return the service title as-is since service titles are dynamic
+    // In a full implementation, this could map common service types to localized versions
+    return serviceTitle;
+  }
+
   @override
   Widget build(BuildContext context) {
     final favorites = Provider.of<FavoritesProvider>(context);
@@ -27,7 +34,8 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.service.title ?? 'Service Details'),
+        title: Text(_getLocalizedServiceTitle(
+            widget.service.title ?? 'Service Details')),
         actions: [
           IconButton(
             icon: Icon(
@@ -155,7 +163,8 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                         );
                       },
                       icon: const Icon(Icons.shopping_cart),
-                      label: const Text('Add to Cart'),
+                      label: Text(AppLocalizations.of(context)?.addToCart ??
+                          'Add to Cart'),
                     ),
                   ),
                 ],

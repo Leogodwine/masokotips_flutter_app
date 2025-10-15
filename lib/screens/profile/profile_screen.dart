@@ -3,10 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../providers/auth_provider.dart';
 import 'dart:io';
-import 'developer_settings_screen.dart';
 import 'edit_profile_screen.dart';
 import './address_management_screen.dart';
 import '../seller/seller_dashboard_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -24,7 +24,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Profile'),
+        title: Text(AppLocalizations.of(context)!.myProfile),
         actions: [
           if (isLoggedIn)
             IconButton(
@@ -114,7 +114,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             _buildQuickActionButton(
                               context,
                               icon: Icons.edit,
-                              label: 'Edit Profile',
+                              label: AppLocalizations.of(context)!.editProfile,
                               onPressed: () {
                                 Navigator.push(
                                   context,
@@ -128,7 +128,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             _buildQuickActionButton(
                               context,
                               icon: Icons.location_on,
-                              label: 'Addresses',
+                              label: AppLocalizations.of(context)!.addresses,
                               onPressed: () {
                                 Navigator.push(
                                   context,
@@ -143,7 +143,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               _buildQuickActionButton(
                                 context,
                                 icon: Icons.store,
-                                label: 'Seller Dashboard',
+                                label: AppLocalizations.of(context)!
+                                    .sellerDashboard,
                                 onPressed: () {
                                   Navigator.push(
                                     context,
@@ -158,7 +159,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               _buildQuickActionButton(
                                 context,
                                 icon: Icons.handyman,
-                                label: 'Service Provider',
+                                label: AppLocalizations.of(context)!
+                                    .serviceProviderDashboard,
                                 onPressed: () {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
@@ -172,7 +174,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               _buildQuickActionButton(
                                 context,
                                 icon: Icons.admin_panel_settings,
-                                label: 'Admin Dashboard',
+                                label:
+                                    '${AppLocalizations.of(context)!.admin} Dashboard',
                                 onPressed: () {
                                   Navigator.pushNamed(
                                       context, '/admin/dashboard');
@@ -182,7 +185,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               _buildQuickActionButton(
                                 context,
                                 icon: Icons.info_outline,
-                                label: 'Market Info',
+                                label: AppLocalizations.of(context)!
+                                    .marketInformation,
                                 onPressed: () {
                                   Navigator.pushNamed(
                                       context, '/admin/market-info');
@@ -191,7 +195,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             _buildQuickActionButton(
                               context,
                               icon: Icons.shopping_bag,
-                              label: 'My Orders',
+                              label: AppLocalizations.of(context)!.myOrders,
                               onPressed: () {
                                 Navigator.pushNamed(context, '/orders');
                               },
@@ -199,15 +203,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             _buildQuickActionButton(
                               context,
                               icon: Icons.settings,
-                              label: 'Settings',
+                              label: AppLocalizations.of(context)!.settings,
                               onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const DeveloperSettingsScreen(),
-                                  ),
-                                );
+                                Navigator.pushNamed(context, '/settings');
                               },
                             ),
                           ],
@@ -226,9 +224,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: Icon(Icons.person, size: 50),
                       ),
                       const SizedBox(height: 16),
-                      const Text(
-                        'Guest User',
-                        style: TextStyle(
+                      Text(
+                        AppLocalizations.of(context)!.guestUser,
+                        style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
@@ -238,7 +236,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         onPressed: () {
                           Navigator.pushNamed(context, '/login');
                         },
-                        child: const Text('Login / Register'),
+                        child:
+                            Text(AppLocalizations.of(context)!.loginRegister),
                       ),
                     ],
                   ),
@@ -246,9 +245,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
 
               const SizedBox(height: 32),
-              const Text(
-                'Account',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.account,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -261,7 +260,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     ListTile(
                       leading: const Icon(Icons.person_outline),
-                      title: const Text('Personal Details'),
+                      title:
+                          Text(AppLocalizations.of(context)!.personalDetails),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: user != null
                           ? () {
@@ -278,11 +278,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const Divider(height: 1),
                     ListTile(
                       leading: const Icon(Icons.delete_forever_rounded),
-                      title: const Text('Request Account Deletion'),
+                      title: Text(
+                          AppLocalizations.of(context)!.requestAccountDeletion),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () async {
                         // Capture context-dependent objects before async operation
                         final scaffoldMessenger = ScaffoldMessenger.of(context);
+                        final localizations = AppLocalizations.of(context)!;
 
                         final uri = Uri(
                           scheme: 'mailto',
@@ -297,9 +299,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           await launchUrl(uri);
                         } else if (mounted) {
                           scaffoldMessenger.showSnackBar(
-                            const SnackBar(
-                                content:
-                                    Text('No email app found to send request')),
+                            SnackBar(content: Text(localizations.noEmailApp)),
                           );
                         }
                       },
@@ -310,7 +310,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         user.roles.contains('seller')) ...[
                       ListTile(
                         leading: const Icon(Icons.store_outlined),
-                        title: const Text('Seller Dashboard'),
+                        title:
+                            Text(AppLocalizations.of(context)!.sellerDashboard),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
                           Navigator.push(
@@ -330,14 +331,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         user.roles.contains('service_provider')) ...[
                       ListTile(
                         leading: const Icon(Icons.handyman_outlined),
-                        title: const Text('Service Provider Dashboard'),
+                        title: Text(AppLocalizations.of(context)!
+                            .serviceProviderDashboard),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
                           // Service provider dashboard temporarily disabled
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                  'Service provider dashboard is currently unavailable'),
+                            SnackBar(
+                              content: Text(AppLocalizations.of(context)!
+                                  .serviceProviderUnavailable),
                             ),
                           );
                         },
@@ -346,7 +348,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                     ListTile(
                       leading: const Icon(Icons.location_on_outlined),
-                      title: const Text('Manage Addresses'),
+                      title:
+                          Text(AppLocalizations.of(context)!.manageAddresses),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: user != null
                           ? () {
@@ -363,7 +366,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const Divider(height: 1),
                     ListTile(
                       leading: const Icon(Icons.shopping_bag),
-                      title: const Text('My Orders'),
+                      title: Text(AppLocalizations.of(context)!.myOrders),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
                         if (isLoggedIn) {
@@ -376,7 +379,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const Divider(height: 1),
                     ListTile(
                       leading: const Icon(Icons.favorite),
-                      title: const Text('My Favorites'),
+                      title: Text(AppLocalizations.of(context)!.myFavorites),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
                         Navigator.pushNamed(context, '/wishlist');
@@ -387,9 +390,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
 
               const SizedBox(height: 24),
-              const Text(
-                'App Settings',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.appSettings,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -402,39 +405,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     ListTile(
                       leading: const Icon(Icons.notifications),
-                      title: const Text('Notifications'),
+                      title: Text(AppLocalizations.of(context)!.notifications),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content:
-                                  Text('Notifications settings coming soon')),
+                          SnackBar(
+                              content: Text(AppLocalizations.of(context)!
+                                  .notificationsComingSoon)),
                         );
                       },
                     ),
                     const Divider(height: 1),
                     ListTile(
+                      leading: const Icon(Icons.language),
+                      title: Text(AppLocalizations.of(context)!.language),
+                      subtitle:
+                          Text(AppLocalizations.of(context)!.englishKiswahili),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        Navigator.pushNamed(context, '/settings/language');
+                      },
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
                       leading: const Icon(Icons.help),
-                      title: const Text('Help & Support'),
+                      title: Text(AppLocalizations.of(context)!.helpSupport),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Help & Support coming soon')),
+                          SnackBar(
+                              content: Text(AppLocalizations.of(context)!
+                                  .helpSupportComingSoon)),
                         );
                       },
                     ),
                     const Divider(height: 1),
                     ListTile(
                       leading: const Icon(Icons.code),
-                      title: const Text('Developer Settings'),
+                      title:
+                          Text(AppLocalizations.of(context)!.developerSettings),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                const DeveloperSettingsScreen(),
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                                'Developer settings are not available in production'),
                           ),
                         );
                       },
@@ -442,7 +457,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const Divider(height: 1),
                     ListTile(
                       leading: const Icon(Icons.info_outline),
-                      title: const Text('About'),
+                      title: Text(AppLocalizations.of(context)!.about),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
                         _showAboutDialog(context);
@@ -451,11 +466,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const Divider(height: 1),
                     ListTile(
                       leading: const Icon(Icons.privacy_tip_outlined),
-                      title: const Text('Privacy Policy'),
+                      title: Text(AppLocalizations.of(context)!.privacyPolicy),
                       trailing: const Icon(Icons.open_in_new_rounded),
                       onTap: () async {
                         // Capture context-dependent objects before async operation
                         final scaffoldMessenger = ScaffoldMessenger.of(context);
+                        final localizations = AppLocalizations.of(context)!;
 
                         final uri = Uri.parse(
                             'https://masokotips.com/privacy-policy.html');
@@ -474,8 +490,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         }
                         if (!opened && mounted) {
                           scaffoldMessenger.showSnackBar(
-                            const SnackBar(
-                                content: Text('Could not open link')),
+                            SnackBar(
+                                content: Text(localizations.couldNotOpenLink)),
                           );
                         }
                       },
@@ -489,7 +505,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Center(
                   child: ElevatedButton.icon(
                     icon: const Icon(Icons.logout),
-                    label: const Text('Logout'),
+                    label: Text(AppLocalizations.of(context)!.logout),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       foregroundColor: Colors.white,
@@ -498,23 +514,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       // Capture context-dependent objects before async operation
                       final scaffoldMessenger = ScaffoldMessenger.of(context);
                       final navigator = Navigator.of(context);
+                      final localizations = AppLocalizations.of(context)!;
 
                       try {
                         // Show confirmation dialog
                         final result = await showDialog<bool>(
                           context: context,
                           builder: (context) => AlertDialog(
-                            title: const Text('Logout'),
-                            content:
-                                const Text('Are you sure you want to logout?'),
+                            title: Text(localizations.logout),
+                            content: Text(localizations.logoutConfirmation),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context, false),
-                                child: const Text('Cancel'),
+                                child: Text(localizations.cancel),
                               ),
                               TextButton(
                                 onPressed: () => Navigator.pop(context, true),
-                                child: const Text('Logout'),
+                                child: Text(localizations.logout),
                               ),
                             ],
                           ),
@@ -526,8 +542,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           // Show success message
                           if (mounted) {
                             scaffoldMessenger.showSnackBar(
-                              const SnackBar(
-                                content: Text('Logged out successfully'),
+                              SnackBar(
+                                content:
+                                    Text(localizations.loggedOutSuccessfully),
                                 backgroundColor: Colors.green,
                               ),
                             );
@@ -546,7 +563,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         if (mounted) {
                           scaffoldMessenger.showSnackBar(
                             SnackBar(
-                              content: Text('Logout failed: $e'),
+                              content: Text('${localizations.logoutFailed} $e'),
                               backgroundColor: Colors.red,
                             ),
                           );
@@ -563,7 +580,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   user.roles.contains('admin')) ...[
                 ListTile(
                   leading: const Icon(Icons.info_outline),
-                  title: const Text('Market Information'),
+                  title: Text(AppLocalizations.of(context)!.marketInformation),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     Navigator.pushNamed(context, '/admin/market-info');
@@ -582,20 +599,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Login Required'),
-        content: const Text(
-            'You need to login to access this feature. Would you like to login now?'),
+        title: Text(AppLocalizations.of(context)!.loginRequired),
+        content: Text(AppLocalizations.of(context)!.loginRequiredMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('LATER'),
+            child: Text(AppLocalizations.of(context)!.later),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/login');
             },
-            child: const Text('LOGIN'),
+            child: Text(AppLocalizations.of(context)!.loginButton),
           ),
         ],
       ),
@@ -620,13 +636,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _formatRoleName(String role) {
     switch (role) {
       case 'admin':
-        return 'Admin';
+        return AppLocalizations.of(context)!.admin;
       case 'seller':
-        return 'Seller';
+        return AppLocalizations.of(context)!.seller;
       case 'service_provider':
-        return 'Service Provider';
+        return AppLocalizations.of(context)!.serviceProvider;
       case 'buyer':
-        return 'Buyer';
+        return AppLocalizations.of(context)!.buyer;
       default:
         return role.substring(0, 1).toUpperCase() + role.substring(1);
     }
@@ -676,7 +692,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _showAboutDialog(BuildContext context) {
     showAboutDialog(
       context: context,
-      applicationName: 'Masoko Tips',
+      applicationName: AppLocalizations.of(context)!.masokoTips,
       applicationVersion: '1.0.0',
       applicationIcon: Image.asset(
         'assets/images/logo-moble.webp',
@@ -688,15 +704,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           color: Colors.green,
         ),
       ),
-      applicationLegalese: '© 2023 Masoko Tips - All rights reserved',
+      applicationLegalese: AppLocalizations.of(context)!.copyright,
       children: [
         const SizedBox(height: 16),
-        const Text(
-          'Masoko Tips is a platform connecting buyers and sellers of agricultural products. Our mission is to promote sustainable farming and fair trade practices.',
+        Text(
+          AppLocalizations.of(context)!.aboutDescription,
         ),
         const SizedBox(height: 16),
-        const Text(
-          'For more information, contact us at support@masokotips.com',
+        Text(
+          AppLocalizations.of(context)!.aboutContact,
         ),
       ],
     );

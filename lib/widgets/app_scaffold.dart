@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/cart_provider.dart';
@@ -39,19 +40,19 @@ class AppScaffold extends StatelessWidget {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Login Required'),
-          content: const Text('Please login to access this feature.'),
+          title: Text(AppLocalizations.of(context)!.loginRequired),
+          content: Text(AppLocalizations.of(context)!.loginRequiredMessage),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
                 Navigator.pushNamed(context, '/login');
               },
-              child: const Text('Login'),
+              child: Text(AppLocalizations.of(context)!.loginButton),
             ),
           ],
         ),
@@ -233,22 +234,22 @@ class AppScaffold extends StatelessWidget {
               type: BottomNavigationBarType.fixed,
               selectedItemColor: Theme.of(context).primaryColor,
               unselectedItemColor: Colors.grey,
-              items: const [
+              items: [
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.home),
-                  label: 'Home',
+                  icon: const Icon(Icons.home),
+                  label: AppLocalizations.of(context)!.home,
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.favorite),
-                  label: 'Wishlist',
+                  icon: const Icon(Icons.favorite),
+                  label: AppLocalizations.of(context)!.myFavorites,
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.shopping_bag),
-                  label: 'Orders',
+                  icon: const Icon(Icons.shopping_bag),
+                  label: AppLocalizations.of(context)!.orders,
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.person),
-                  label: 'Profile',
+                  icon: const Icon(Icons.person),
+                  label: AppLocalizations.of(context)!.profile,
                 ),
               ],
             )

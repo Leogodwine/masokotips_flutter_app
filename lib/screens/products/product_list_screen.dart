@@ -4,6 +4,7 @@ import '../../providers/product_provider.dart';
 import '../products/product_details_screen.dart';
 import 'package:masoko_tips/widgets/cached_network_image_with_cors.dart';
 import '../../utils/logger.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProductListScreen extends StatefulWidget {
   final String title;
@@ -48,9 +49,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error loading products: $e'),
+            content: Text(AppLocalizations.of(context)!
+                .errorLoadingProducts('Network error occurred')),
             action: SnackBarAction(
-              label: 'RETRY',
+              label: AppLocalizations.of(context)!.retry,
               onPressed: _loadProducts,
             ),
           ),
@@ -97,7 +99,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'No products available in this category',
+                            AppLocalizations.of(context)!.noProductsInCategory,
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey[600],
@@ -105,7 +107,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Check back later for new products',
+                            AppLocalizations.of(context)!.checkBackLater,
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey[500],
@@ -195,7 +197,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                     if ((product.stock ?? 0) > 0) ...[
                                       const SizedBox(height: 4),
                                       Text(
-                                        'In Stock: ${product.stock}',
+                                        AppLocalizations.of(context)!
+                                            .inStock(product.stock ?? 0),
                                         style: TextStyle(
                                           color: Colors.green[700],
                                           fontSize: 12,

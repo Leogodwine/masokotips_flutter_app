@@ -8,6 +8,7 @@ import '../../models/cart_item.dart' as models;
 import '../profile/address_management_screen.dart';
 import '../../widgets/loading_button.dart';
 import '../orders/order_success_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({Key? key}) : super(key: key);
@@ -80,7 +81,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Select Address'),
+        title: Text(AppLocalizations.of(context)!.addAddress),
         content: SizedBox(
           height: 300,
           width: double.maxFinite,
@@ -110,7 +111,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
         ],
       ),
@@ -124,8 +125,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final authProvider = context.read<AuthProvider>();
     if (!authProvider.isAuthenticated) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please log in to place an order'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.pleaseLoginToPlaceOrder),
           backgroundColor: Colors.red,
         ),
       );
@@ -172,7 +173,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       if (mounted) {
         scaffoldMessenger.showSnackBar(
           SnackBar(
-            content: Text('Failed to place order: $e'),
+            content: Text(
+                AppLocalizations.of(context)!.failedToPlaceOrder(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -198,7 +200,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Checkout'),
+        title: Text(AppLocalizations.of(context)!.checkout),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
         leading: Navigator.canPop(context)
@@ -275,7 +277,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
               // Place Order Button
               LoadingButton(
-                text: 'PLACE ORDER - TZS ${cart.total.toStringAsFixed(2)}',
+                text: AppLocalizations.of(context)!.placeOrder(cart.total),
                 isLoading: _isLoading,
                 onPressed: _placeOrder,
                 height: 56,
@@ -302,7 +304,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 Icon(Icons.shopping_bag, color: Theme.of(context).primaryColor),
                 const SizedBox(width: 8),
                 Text(
-                  'Order Summary',
+                  AppLocalizations.of(context)!.orderSummary,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -373,7 +375,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Total',
+                  AppLocalizations.of(context)!.total,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -408,7 +410,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     color: Theme.of(context).primaryColor),
                 const SizedBox(width: 8),
                 Text(
-                  'Delivery Information',
+                  AppLocalizations.of(context)!.deliveryInformation,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -419,7 +421,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
             // Delivery Method
             Text(
-              'Delivery Method',
+              AppLocalizations.of(context)!.deliveryMethod,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -429,8 +431,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               children: [
                 Expanded(
                   child: RadioListTile(
-                    title: const Text('Standard Delivery'),
-                    subtitle: const Text('3-5 business days'),
+                    title: Text(AppLocalizations.of(context)!.standardDelivery),
+                    subtitle: Text(
+                        AppLocalizations.of(context)!.standardDeliveryTime),
                     value: 'Standard',
                     groupValue: _deliveryMethod,
                     onChanged: (value) {
@@ -441,8 +444,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
                 Expanded(
                   child: RadioListTile(
-                    title: const Text('Express Delivery'),
-                    subtitle: const Text('1-2 business days'),
+                    title: Text(AppLocalizations.of(context)!.expressDelivery),
+                    subtitle:
+                        Text(AppLocalizations.of(context)!.expressDeliveryTime),
                     value: 'Express',
                     groupValue: _deliveryMethod,
                     onChanged: (value) {
@@ -460,7 +464,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               controller: _addressController,
               readOnly: true,
               decoration: InputDecoration(
-                labelText: 'Delivery Address',
+                labelText: AppLocalizations.of(context)!.deliveryAddress,
                 prefixIcon: const Icon(Icons.location_on),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.edit_location_alt),
@@ -473,7 +477,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 fillColor: Colors.grey[50],
               ),
               validator: (value) => (value == null || value.isEmpty)
-                  ? 'Please select delivery address'
+                  ? AppLocalizations.of(context)!.pleaseSelectDeliveryAddress
                   : null,
             ),
             const SizedBox(height: 16),
@@ -483,8 +487,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               controller: _phoneController,
               keyboardType: TextInputType.phone,
               decoration: InputDecoration(
-                labelText: 'Phone Number',
-                hintText: '+255 123 456 789',
+                labelText: AppLocalizations.of(context)!.phoneNumber,
+                hintText: AppLocalizations.of(context)!.phoneNumberHint,
                 prefixIcon: const Icon(Icons.phone),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -493,7 +497,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 fillColor: Colors.grey[50],
               ),
               validator: (value) => (value == null || value.isEmpty)
-                  ? 'Phone number is required'
+                  ? AppLocalizations.of(context)!.phoneNumberRequired
                   : null,
             ),
           ],
@@ -516,7 +520,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 Icon(Icons.payment, color: Theme.of(context).primaryColor),
                 const SizedBox(width: 8),
                 Text(
-                  'Payment Method',
+                  AppLocalizations.of(context)!.paymentMethod,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -541,8 +545,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     : Colors.white,
               ),
               child: RadioListTile(
-                title: const Text('Cash on Delivery'),
-                subtitle: const Text('Pay when you receive your order'),
+                title: Text(AppLocalizations.of(context)!.cashOnDelivery),
+                subtitle: Text(
+                    AppLocalizations.of(context)!.cashOnDeliveryDescription),
                 value: 'Cash',
                 groupValue: _paymentMethod,
                 onChanged: (value) {
@@ -568,8 +573,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     : Colors.white,
               ),
               child: RadioListTile(
-                title: const Text('Credit/Debit Card'),
-                subtitle: const Text('Secure online payment'),
+                title: Text(AppLocalizations.of(context)!.creditDebitCard),
+                subtitle: Text(
+                    AppLocalizations.of(context)!.creditDebitCardDescription),
                 value: 'Card',
                 groupValue: _paymentMethod,
                 onChanged: (value) {
@@ -599,7 +605,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 Icon(Icons.note_add, color: Theme.of(context).primaryColor),
                 const SizedBox(width: 8),
                 Text(
-                  'Order Notes (Optional)',
+                  AppLocalizations.of(context)!.orderNotesOptional,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -611,7 +617,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               controller: _notesController,
               maxLines: 3,
               decoration: InputDecoration(
-                hintText: 'Any special instructions for your order...',
+                hintText: AppLocalizations.of(context)!.orderNotesHint,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),

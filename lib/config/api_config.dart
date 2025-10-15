@@ -1,20 +1,8 @@
-import 'package:flutter/foundation.dart';
-import 'dev_config.dart'; // 👈 Import it
-
 class ApiConfig {
   static const bool isProduction = true; // Set to true for production
 
   static String get baseUrl {
-    if (isProduction) {
-      return 'https://masokotips.com/api'; // Production URL
-    } else {
-      if (kIsWeb) {
-        return 'http://localhost:8000/api'; // Web still uses localhost
-      } else {
-        // Devices and emulators use ngrok URL during development
-        return '${DevConfig.ngrokUrl}/api';
-      }
-    }
+    return 'https://masokotips.com/api'; // Production URL
   }
 
   static const Duration timeoutDuration = Duration(seconds: 60);

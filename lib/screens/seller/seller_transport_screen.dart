@@ -4,7 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../models/transport.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
-import '../../config/dev_config.dart';
+import '../../config/api_config.dart';
 import '../../utils/logger.dart';
 import 'add_transport_screen.dart';
 import 'edit_transport_screen.dart';
@@ -33,7 +33,7 @@ class _SellerTransportScreenState extends State<SellerTransportScreen> {
     final authProvider = context.read<AuthProvider>();
     if (authProvider.token != null) {
       _apiService = ApiService(
-        baseUrl: '${DevConfig.ngrokUrl}/api',
+        baseUrl: ApiConfig.baseUrl,
         apiKey: authProvider.token!,
       );
     }

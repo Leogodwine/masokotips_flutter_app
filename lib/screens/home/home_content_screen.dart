@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/category_provider.dart';
 import '../../providers/market_info_provider.dart';
@@ -79,11 +80,13 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
     } catch (e) {
       Log.e('HomeContentScreen: Error loading featured products: $e');
       if (mounted) {
+        final localizations = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error loading featured products: $e'),
+            content:
+                Text(localizations.errorLoadingFeaturedProducts(e.toString())),
             action: SnackBarAction(
-              label: 'RETRY',
+              label: localizations.retry.toUpperCase(),
               onPressed: _loadData,
             ),
           ),
@@ -101,9 +104,10 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
     } catch (e) {
       Log.e('HomeContentScreen: Error loading market info: $e');
       if (mounted) {
+        final localizations = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to load market information.'),
+          SnackBar(
+            content: Text(localizations.failedToLoadMarketInformation),
           ),
         );
       }
@@ -118,6 +122,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
   }
 
   Widget _buildContent() {
+    final localizations = AppLocalizations.of(context)!;
     return RefreshIndicator(
       onRefresh: _loadData,
       child: SingleChildScrollView(
@@ -168,9 +173,9 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Text(
-                        'Welcome to',
-                        style: TextStyle(
+                      Text(
+                        localizations.welcomeTo,
+                        style: const TextStyle(
                           fontSize: 24,
                           color: Colors.white,
                         ),
@@ -209,7 +214,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                       SizedBox(
                         width: MediaQuery.of(context).size.width * 0.9,
                         child: Text(
-                          'Everything you need to know about agriculture is here',
+                          localizations.agricultureDescription,
                           style: TextStyle(
                             fontSize: 18,
                             height: 1.4,
@@ -237,7 +242,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                     child: TextField(
                       controller: _searchController,
                       decoration: InputDecoration(
-                        hintText: 'Search products...',
+                        hintText: localizations.searchProducts,
                         prefixIcon:
                             const Icon(Icons.search, color: Colors.grey),
                         suffixIcon: Container(
@@ -300,7 +305,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        'Categories',
+                        localizations.categories,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
@@ -322,7 +327,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                       );
                     },
                     icon: const Icon(Icons.arrow_forward),
-                    label: const Text('See All'),
+                    label: Text(localizations.seeAll),
                   ),
                 ],
               ),
@@ -339,13 +344,13 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
 
                 if (categoryProvider.isLoading) {
                   Log.e('HomeContentScreen: Showing loading indicator');
-                  return const Center(
+                  return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        CircularProgressIndicator(),
-                        SizedBox(height: 16),
-                        Text('Loading categories...'),
+                        const CircularProgressIndicator(),
+                        const SizedBox(height: 16),
+                        Text(localizations.loadingCategories),
                       ],
                     ),
                   );
@@ -381,7 +386,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'No categories available',
+                          localizations.noCategoriesAvailable,
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.grey[600],
@@ -389,7 +394,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Please check back later',
+                          localizations.checkBackLater,
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[500],
@@ -463,7 +468,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Market News',
+                          localizations.marketNews,
                           style:
                               Theme.of(context).textTheme.titleLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
@@ -481,7 +486,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                           );
                         },
                         icon: const Icon(Icons.arrow_forward, size: 16),
-                        label: const Text('See All'),
+                        label: Text(localizations.seeAll),
                         style: TextButton.styleFrom(
                           foregroundColor: Theme.of(context).primaryColor,
                           padding: const EdgeInsets.symmetric(
@@ -506,15 +511,15 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                               width: 1,
                             ),
                           ),
-                          child: const Center(
+                          child: Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                CircularProgressIndicator(),
-                                SizedBox(height: 16),
+                                const CircularProgressIndicator(),
+                                const SizedBox(height: 16),
                                 Text(
-                                  'Loading market news...',
-                                  style: TextStyle(
+                                  localizations.loadingMarketNews,
+                                  style: const TextStyle(
                                     color: Colors.grey,
                                     fontSize: 14,
                                   ),
@@ -547,7 +552,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'Failed to load market news',
+                                  localizations.failedToLoadMarketNews,
                                   style: TextStyle(
                                     color: Colors.red[700],
                                     fontSize: 16,
@@ -556,7 +561,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'Tap to retry',
+                                  localizations.tapToRetry,
                                   style: TextStyle(
                                     color: Colors.red[500],
                                     fontSize: 14,
@@ -631,7 +636,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                           MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                          'Stay Updated with Market News',
+                                          localizations.stayUpdatedMarketNews,
                                           style: TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
@@ -641,7 +646,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                         ),
                                         const SizedBox(height: 8),
                                         Text(
-                                          'Get the latest agricultural market trends, prices, and insights to make informed decisions.',
+                                          localizations.marketNewsDescription,
                                           style: TextStyle(
                                             fontSize: 14,
                                             color: Colors.grey[600],
@@ -652,7 +657,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                         Row(
                                           children: [
                                             Text(
-                                              'Explore News',
+                                              localizations.exploreNews,
                                               style: TextStyle(
                                                 color: Theme.of(context)
                                                     .primaryColor,
@@ -707,7 +712,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                     children: [
                       Expanded(
                         child: Text(
-                          'Featured Products',
+                          localizations.featuredProducts,
                           style:
                               Theme.of(context).textTheme.titleLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
@@ -728,7 +733,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                             ),
                           );
                         },
-                        child: const Text('See All'),
+                        child: Text(localizations.seeAll),
                       ),
                     ],
                   ),
@@ -750,7 +755,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'No featured products available',
+                                  localizations.noFeaturedProductsAvailable,
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: Colors.grey[600],
@@ -851,8 +856,10 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                                         SnackBar(
                                                           content: Text(
                                                             isInWishlist
-                                                                ? 'Removed from wishlist'
-                                                                : 'Added to wishlist',
+                                                                ? localizations
+                                                                    .removedFromWishlist
+                                                                : localizations
+                                                                    .addedToWishlist,
                                                           ),
                                                           duration:
                                                               const Duration(
@@ -867,9 +874,9 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                                       padding:
                                                           const EdgeInsets.all(
                                                               6),
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.white
-                                                            .withValues(),
+                                                      decoration:
+                                                          const BoxDecoration(
+                                                        color: Colors.white,
                                                         shape: BoxShape.circle,
                                                       ),
                                                       child: Icon(
@@ -936,12 +943,14 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
                                                 SnackBar(
-                                                  content: Text(
-                                                      '${product.name} added to cart'),
+                                                  content: Text(localizations
+                                                      .productAddedToCart(
+                                                          product.name)),
                                                   duration: const Duration(
                                                       seconds: 2),
                                                   action: SnackBarAction(
-                                                    label: 'View Cart',
+                                                    label:
+                                                        localizations.viewCart,
                                                     onPressed: () {
                                                       Navigator.push(
                                                         context,
@@ -1043,7 +1052,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                       height: imageSize,
 
                       decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor.withValues(),
+                        color: Theme.of(context).primaryColor,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: ClipRRect(

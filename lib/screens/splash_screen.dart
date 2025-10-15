@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:masoko_tips/screens/home/home_screen.dart';
 import 'package:masoko_tips/widgets/sponsor_logo.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -121,9 +122,9 @@ class _SplashScreenState extends State<SplashScreen>
                             ),
                             const SizedBox(height: 24),
                             // App name
-                            const Text(
-                              'maSOKOtips',
-                              style: TextStyle(
+                            Text(
+                              AppLocalizations.of(context)!.appName,
+                              style: const TextStyle(
                                 fontSize: 28,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -132,11 +133,12 @@ class _SplashScreenState extends State<SplashScreen>
                             ),
                             const SizedBox(height: 8),
                             // Subtitle
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 20),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
                               child: Text(
-                                'Tanzania\'s Premier Agricultural Marketplace',
-                                style: TextStyle(
+                                AppLocalizations.of(context)!.appSubtitle,
+                                style: const TextStyle(
                                   fontSize: 14,
                                   color: Colors.white70,
                                   fontWeight: FontWeight.w400,
@@ -167,9 +169,9 @@ class _SplashScreenState extends State<SplashScreen>
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               // Sponsor section
-                              const Text(
-                                'Powered by: COSTECH',
-                                style: TextStyle(
+                              Text(
+                                AppLocalizations.of(context)!.poweredBy,
+                                style: const TextStyle(
                                   fontSize: 18,
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
@@ -185,11 +187,12 @@ class _SplashScreenState extends State<SplashScreen>
                                   color: Colors.white.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: const Center(
+                                child: Center(
                                   child: SponsorLogo(
                                     imagePath:
                                         'assets/images/costech_logo.webp',
-                                    fallbackText: 'COSTECH',
+                                    fallbackText:
+                                        AppLocalizations.of(context)!.costech,
                                   ),
                                 ),
                               ),

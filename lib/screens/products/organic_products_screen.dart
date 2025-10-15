@@ -5,6 +5,7 @@ import '../../models/organic_product.dart';
 import '../../screens/edit_organic_product_screen.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class OrganicProductsScreen extends StatefulWidget {
   const OrganicProductsScreen({Key? key}) : super(key: key);
@@ -51,9 +52,10 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error loading organic products: $e'),
+            content: Text(AppLocalizations.of(context)!
+                .errorLoadingOrganicProducts(e.toString())),
             action: SnackBarAction(
-              label: 'RETRY',
+              label: AppLocalizations.of(context)!.retry,
               onPressed: _loadOrganicProducts,
             ),
           ),
@@ -66,7 +68,7 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Sort & Filter'),
+        title: Text(AppLocalizations.of(context)!.sortAndFilter),
         content: SizedBox(
           width: double.maxFinite,
           child: Column(
@@ -75,19 +77,23 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
               DropdownButtonFormField<String>(
                 value: _sortBy,
                 isExpanded: true,
-                decoration: const InputDecoration(
-                  labelText: 'Sort By',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.sortBy,
+                  border: const OutlineInputBorder(),
                 ),
-                items: const [
+                items: [
                   DropdownMenuItem(
-                      value: 'name_asc', child: Text('Name (A-Z)')),
+                      value: 'name_asc',
+                      child: Text(AppLocalizations.of(context)!.nameAZ)),
                   DropdownMenuItem(
-                      value: 'name_desc', child: Text('Name (Z-A)')),
+                      value: 'name_desc',
+                      child: Text(AppLocalizations.of(context)!.nameZA)),
                   DropdownMenuItem(
-                      value: 'price_asc', child: Text('Price (Low-High)')),
+                      value: 'price_asc',
+                      child: Text(AppLocalizations.of(context)!.priceLowHigh)),
                   DropdownMenuItem(
-                      value: 'price_desc', child: Text('Price (High-Low)')),
+                      value: 'price_desc',
+                      child: Text(AppLocalizations.of(context)!.priceHighLow)),
                 ],
                 onChanged: (value) {
                   setState(() => _sortBy = value!);
@@ -95,7 +101,7 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
               ),
               const SizedBox(height: 16),
               SwitchListTile(
-                title: const Text('Show In Stock Only'),
+                title: Text(AppLocalizations.of(context)!.showInStockOnly),
                 value: _showInStock,
                 onChanged: (value) {
                   setState(() => _showInStock = value);
@@ -107,7 +113,7 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: Text(AppLocalizations.of(context)!.close),
           ),
         ],
       ),
@@ -174,7 +180,7 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Organic Products'),
+        title: Text(AppLocalizations.of(context)!.organicProducts),
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list),
@@ -201,7 +207,7 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Search organic products...',
+                hintText: AppLocalizations.of(context)!.searchOrganicProducts,
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -268,7 +274,7 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
                         const SizedBox(height: 16),
                         ElevatedButton(
                           onPressed: _loadOrganicProducts,
-                          child: const Text('Retry'),
+                          child: Text(AppLocalizations.of(context)!.retry),
                         ),
                       ],
                     ),
@@ -278,8 +284,9 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
                 final filteredProducts = _filterProducts(provider.products);
 
                 if (filteredProducts.isEmpty) {
-                  return const Center(
-                    child: Text('No organic products found'),
+                  return Center(
+                    child: Text(
+                        AppLocalizations.of(context)!.noOrganicProductsFound),
                   );
                 }
 
@@ -395,20 +402,21 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
   ) async {
     final provider = context.read<OrganicProductProvider>();
     final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final localizations = AppLocalizations.of(context)!;
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Product'),
-        content: Text('Are you sure you want to delete ${product.name}?'),
+        title: Text(localizations.deleteProduct),
+        content: Text(localizations.confirmDeleteProduct(product.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(localizations.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
+            child: Text(localizations.delete),
           ),
         ],
       ),
@@ -419,14 +427,18 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
         await provider.deleteProduct(product.id);
         if (mounted) {
           scaffoldMessenger.showSnackBar(
-            const SnackBar(content: Text('Product deleted successfully')),
+            SnackBar(
+                content: Text(
+                    localizations.productDeletedSuccessfully(product.name))),
           );
           _loadOrganicProducts();
         }
       } catch (e) {
         if (mounted) {
           scaffoldMessenger.showSnackBar(
-            SnackBar(content: Text('Error deleting product: $e')),
+            SnackBar(
+                content:
+                    Text(localizations.errorDeletingProduct(e.toString()))),
           );
         }
       }

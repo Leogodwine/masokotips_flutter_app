@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../providers/category_provider.dart';
 import '../../models/category.dart';
 import '../../widgets/app_scaffold.dart';
@@ -24,7 +25,7 @@ class _MainCategoriesScreenState extends State<MainCategoriesScreen> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      title: 'Explore Categories',
+      title: AppLocalizations.of(context)!.categories,
       showBackButton: true,
       body: Container(
         color: Colors.grey[100],
@@ -41,7 +42,8 @@ class _MainCategoriesScreenState extends State<MainCategoriesScreen> {
 
             final categories = provider.mainCategories;
             if (categories.isEmpty) {
-              return const Center(child: Text('No categories available.'));
+              return Center(
+                  child: Text(AppLocalizations.of(context)!.noCategoriesFound));
             }
 
             return GridView.builder(
@@ -144,7 +146,7 @@ class _MainCategoriesScreenState extends State<MainCategoriesScreen> {
                 if (category.productsCount > 0) ...[
                   const SizedBox(height: 4),
                   Text(
-                    '${category.productsCount} products',
+                    '${category.productsCount} bidhaa',
                     style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                   ),
                 ],

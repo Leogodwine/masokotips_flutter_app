@@ -27,7 +27,6 @@ class ApiService {
   Map<String, String> get _headers => {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'ngrok-skip-browser-warning': 'true',
         if (_authToken != null) 'Authorization': 'Bearer $_authToken',
       };
 
@@ -440,7 +439,6 @@ class ApiService {
       final response = await http.get(uri, headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'ngrok-skip-browser-warning': 'true',
       });
 
       if (response.statusCode == 200) {
@@ -466,19 +464,11 @@ class ApiService {
       final response = await http.get(uri, headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'ngrok-skip-browser-warning': 'true',
         if (_authToken != null) 'Authorization': 'Bearer $_authToken',
       });
 
       Log.e('Response status: ${response.statusCode}');
       Log.e('Response body: ${response.body}');
-
-      // Check if we got the ngrok warning page
-      if (response.body.contains('ngrok') &&
-          response.body.contains('warning')) {
-        Log.e('Received ngrok warning page instead of API response');
-        throw Exception('Received ngrok warning page - check ngrok headers');
-      }
 
       if (response.statusCode == 200) {
         final dynamic responseData = json.decode(response.body);
@@ -541,19 +531,11 @@ class ApiService {
       final response = await http.get(uri, headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'ngrok-skip-browser-warning': 'true',
         if (_authToken != null) 'Authorization': 'Bearer $_authToken',
       });
 
       Log.e('Organic products response status: ${response.statusCode}');
       Log.e('Organic products response body: ${response.body}');
-
-      // Check if we got the ngrok warning page
-      if (response.body.contains('ngrok') &&
-          response.body.contains('warning')) {
-        Log.e('Received ngrok warning page instead of API response');
-        throw Exception('Received ngrok warning page - check ngrok headers');
-      }
 
       if (response.statusCode == 200) {
         final dynamic responseData = json.decode(response.body);
@@ -616,7 +598,6 @@ class ApiService {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'ngrok-skip-browser-warning': 'true',
           if (_authToken != null) 'Authorization': 'Bearer $_authToken',
         },
       );
@@ -670,7 +651,6 @@ class ApiService {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'ngrok-skip-browser-warning': 'true',
           if (_authToken != null) 'Authorization': 'Bearer $_authToken',
         },
       );

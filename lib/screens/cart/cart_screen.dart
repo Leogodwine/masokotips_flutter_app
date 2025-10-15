@@ -5,6 +5,7 @@ import '../../providers/auth_provider.dart';
 import '../cart/checkout_screen.dart'; // Make sure you import checkout screen
 import '../products/product_details_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({Key? key}) : super(key: key);
@@ -13,7 +14,7 @@ class CartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Shopping Cart'),
+        title: Text(AppLocalizations.of(context)!.shoppingCart),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline),
@@ -23,20 +24,20 @@ class CartScreen extends StatelessWidget {
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
-                    title: const Text('Clear Cart'),
+                    title: Text(AppLocalizations.of(context)!.clearCart),
                     content:
-                        const Text('Are you sure you want to clear your cart?'),
+                        Text(AppLocalizations.of(context)!.confirmClearCart),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
-                        child: const Text('Cancel'),
+                        child: Text(AppLocalizations.of(context)!.cancel),
                       ),
                       TextButton(
                         onPressed: () {
                           cartProvider.clearCart();
                           Navigator.pop(context);
                         },
-                        child: const Text('Clear'),
+                        child: Text(AppLocalizations.of(context)!.clearCart),
                       ),
                     ],
                   ),
@@ -77,8 +78,9 @@ class CartScreen extends StatelessWidget {
                       onDismissed: (_) {
                         cartProvider.removeFromCart(item.product.id);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Item removed from cart')),
+                          SnackBar(
+                              content: Text(AppLocalizations.of(context)!
+                                  .itemRemovedFromCart)),
                         );
                       },
                       child: Card(
@@ -178,30 +180,48 @@ class CartScreen extends StatelessWidget {
                                   ),
                                 ),
                                 IconButton(
-                                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                                  icon: const Icon(Icons.delete_outline,
+                                      color: Colors.red),
                                   onPressed: () {
                                     showDialog(
                                       context: context,
                                       builder: (context) => AlertDialog(
-                                        title: const Text('Remove Item'),
-                                        content: const Text('Are you sure you want to remove this item from your cart?'),
+                                        title: Text(
+                                            AppLocalizations.of(context)!
+                                                .removeItem),
+                                        content: Text(
+                                            AppLocalizations.of(context)!
+                                                .confirmRemoveItem),
                                         actions: [
                                           TextButton(
-                                            onPressed: () => Navigator.pop(context),
-                                            child: const Text('Cancel'),
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            child: Text(
+                                                AppLocalizations.of(context)!
+                                                    .cancel),
                                           ),
                                           TextButton(
                                             onPressed: () {
-                                              cartProvider.removeFromCart(item.product.id);
+                                              cartProvider.removeFromCart(
+                                                  item.product.id);
                                               Navigator.pop(context);
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                const SnackBar(
-                                                  content: Text('Item removed from cart'),
-                                                  duration: Duration(seconds: 2),
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                      AppLocalizations.of(
+                                                              context)!
+                                                          .itemRemovedFromCart),
+                                                  duration: const Duration(
+                                                      seconds: 2),
                                                 ),
                                               );
                                             },
-                                            child: const Text('Remove', style: TextStyle(color: Colors.red)),
+                                            child: Text(
+                                                AppLocalizations.of(context)!
+                                                    .removeItem,
+                                                style: const TextStyle(
+                                                    color: Colors.red)),
                                           ),
                                         ],
                                       ),
@@ -234,12 +254,12 @@ class CartScreen extends StatelessWidget {
         children: [
           Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.grey[400]),
           const SizedBox(height: 16),
-          Text('Please login to view your cart',
+          Text(AppLocalizations.of(context)!.pleaseLoginToViewCart,
               style: TextStyle(fontSize: 18, color: Colors.grey[600])),
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () => Navigator.pushNamed(context, '/login'),
-            child: const Text('Login'),
+            child: Text(AppLocalizations.of(context)!.loginButton),
           ),
         ],
       ),
@@ -253,12 +273,12 @@ class CartScreen extends StatelessWidget {
         children: [
           Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.grey[400]),
           const SizedBox(height: 16),
-          Text('Your cart is empty',
+          Text(AppLocalizations.of(context)!.yourCartIsEmpty,
               style: TextStyle(fontSize: 18, color: Colors.grey[600])),
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Continue Shopping'),
+            child: Text(AppLocalizations.of(context)!.continueShopping),
           ),
         ],
       ),
@@ -286,8 +306,9 @@ class CartScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Total:',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(AppLocalizations.of(context)!.total,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
               Text(
                 'TZS ${cartProvider.total.toStringAsFixed(2)}',
                 style: TextStyle(
@@ -306,8 +327,8 @@ class CartScreen extends StatelessWidget {
               );
             },
             icon: const Icon(Icons.payment),
-            label: const Text('Proceed to Checkout',
-                style: TextStyle(fontSize: 16)),
+            label: Text(AppLocalizations.of(context)!.proceedToCheckout,
+                style: const TextStyle(fontSize: 16)),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(

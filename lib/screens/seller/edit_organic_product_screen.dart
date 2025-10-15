@@ -6,7 +6,7 @@ import '../../models/organic_product.dart';
 import '../../models/category.dart';
 import '../../services/api_service.dart';
 import '../../providers/auth_provider.dart';
-import '../../config/dev_config.dart';
+import '../../config/api_config.dart';
 import '../../utils/logger.dart';
 
 class EditOrganicProductScreen extends StatefulWidget {
@@ -54,7 +54,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
     final authProvider = context.read<AuthProvider>();
     if (authProvider.token != null) {
       _apiService = ApiService(
-        baseUrl: '${DevConfig.ngrokUrl}/api',
+        baseUrl: ApiConfig.baseUrl,
         apiKey: authProvider.token!,
       );
     }

@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../services/api_service.dart';
 import '../../providers/auth_provider.dart';
-import '../../config/dev_config.dart';
+import '../../config/api_config.dart';
 import '../../utils/logger.dart';
 import '../../models/category.dart';
 
@@ -49,7 +49,7 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
     final authProvider = context.read<AuthProvider>();
     if (authProvider.token != null) {
       _apiService = ApiService(
-        baseUrl: '${DevConfig.ngrokUrl}/api',
+        baseUrl: ApiConfig.baseUrl,
         apiKey: authProvider.token!,
       );
     }

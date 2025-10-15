@@ -5,7 +5,7 @@ import 'dart:io';
 import '../../models/transport.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
-import '../../config/dev_config.dart';
+import '../../config/api_config.dart';
 import '../../utils/logger.dart';
 
 class EditTransportScreen extends StatefulWidget {
@@ -60,7 +60,7 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
     Log.e('EditTransport - AuthProvider token: ${authProvider.token}');
     if (authProvider.token != null) {
       _apiService = ApiService(
-        baseUrl: '${DevConfig.ngrokUrl}/api',
+        baseUrl: ApiConfig.baseUrl,
         apiKey: authProvider.token!,
       );
       Log.e(

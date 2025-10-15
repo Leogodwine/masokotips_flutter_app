@@ -5,7 +5,7 @@ import '../../services/api_service.dart';
 import '../../models/order.dart';
 import '../../widgets/app_scaffold.dart';
 import '../../utils/logger.dart';
-import '../../config/dev_config.dart';
+import '../../config/api_config.dart';
 
 class SellerOrdersScreen extends StatefulWidget {
   const SellerOrdersScreen({Key? key}) : super(key: key);
@@ -31,7 +31,7 @@ class _SellerOrdersScreenState extends State<SellerOrdersScreen> {
     final authProvider = context.read<AuthProvider>();
     if (authProvider.token != null) {
       _apiService = ApiService(
-        baseUrl: '${DevConfig.ngrokUrl}/api',
+        baseUrl: ApiConfig.baseUrl,
         apiKey: authProvider.token!,
       );
     }

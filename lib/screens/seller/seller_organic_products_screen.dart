@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../models/organic_product.dart';
 import '../../services/api_service.dart';
 import '../../providers/auth_provider.dart';
-import '../../config/dev_config.dart';
+import '../../config/api_config.dart';
 import '../../utils/logger.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'add_organic_product_screen.dart';
@@ -35,7 +35,7 @@ class _SellerOrganicProductsScreenState
     final authProvider = context.read<AuthProvider>();
     if (authProvider.token != null) {
       _apiService = ApiService(
-        baseUrl: '${DevConfig.ngrokUrl}/api',
+        baseUrl: ApiConfig.baseUrl,
         apiKey: authProvider.token!,
       );
     }

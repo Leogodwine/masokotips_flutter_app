@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../providers/category_provider.dart';
 import '../widgets/category_grid.dart';
 import '../widgets/app_scaffold.dart';
@@ -25,8 +26,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return AppScaffold(
-      title: 'maSOKOtips',
+      title: localizations.appTitle,
       currentIndex: 0,
       body: Consumer<CategoryProvider>(
         builder: (context, categoryProvider, child) {
@@ -50,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onPressed: () {
                       categoryProvider.loadMainCategories();
                     },
-                    child: const Text('Retry'),
+                    child: Text(localizations.retry),
                   ),
                 ],
               ),
@@ -58,8 +60,8 @@ class _HomeScreenState extends State<HomeScreen> {
           }
 
           if (categoryProvider.mainCategories.isEmpty) {
-            return const Center(
-              child: Text('No categories found'),
+            return Center(
+              child: Text(localizations.noCategoriesFound),
             );
           }
 

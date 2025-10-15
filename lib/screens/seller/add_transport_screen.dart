@@ -6,7 +6,7 @@ import '../../models/transport.dart';
 import '../../models/category.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
-import '../../config/dev_config.dart';
+import '../../config/api_config.dart';
 import '../../utils/logger.dart';
 
 class AddTransportScreen extends StatefulWidget {
@@ -71,7 +71,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
     Log.e('AddTransport - AuthProvider token: ${authProvider.token}');
     if (authProvider.token != null) {
       _apiService = ApiService(
-        baseUrl: '${DevConfig.ngrokUrl}/api',
+        baseUrl: ApiConfig.baseUrl,
         apiKey: authProvider.token!,
       );
       Log.e(

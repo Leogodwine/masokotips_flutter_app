@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../models/product.dart';
 import '../../services/product_service.dart';
 import '../../providers/auth_provider.dart';
@@ -52,7 +53,8 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
     } catch (e) {
       debugPrint('Error loading seller products: $e');
       setState(() {
-        _errorMessage = 'Failed to load products: $e';
+        _errorMessage =
+            AppLocalizations.of(context)!.failedToLoadProducts(e.toString());
       });
     } finally {
       setState(() {
@@ -103,7 +105,9 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
 
       if (mounted) {
         scaffoldMessenger.showSnackBar(
-          SnackBar(content: Text('${product.name} deleted successfully')),
+          SnackBar(
+              content: Text(AppLocalizations.of(context)!
+                  .productDeletedSuccessfully(product.name))),
         );
       }
     } catch (e) {
@@ -140,7 +144,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Seller Dashboard'),
+        title: Text(AppLocalizations.of(context)!.sellerDashboardTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -211,26 +215,26 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
               });
             }
           },
-          items: const [
+          items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.inventory),
-              label: 'Products',
+              icon: const Icon(Icons.inventory),
+              label: AppLocalizations.of(context)!.productsTab,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_bag),
-              label: 'Orders',
+              icon: const Icon(Icons.shopping_bag),
+              label: AppLocalizations.of(context)!.ordersTab,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.directions_car),
-              label: 'Transports',
+              icon: const Icon(Icons.directions_car),
+              label: AppLocalizations.of(context)!.transportsTab,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.eco),
-              label: 'Organic',
+              icon: const Icon(Icons.eco),
+              label: AppLocalizations.of(context)!.organicTab,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.handyman),
-              label: 'Services',
+              icon: const Icon(Icons.handyman),
+              label: AppLocalizations.of(context)!.servicesTab,
             ),
           ],
         ),

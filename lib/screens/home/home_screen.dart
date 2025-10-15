@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../home/home_content_screen.dart';
 import '../../widgets/app_scaffold.dart';
 import '../../providers/auth_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -56,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      title: 'Home',
+      title: AppLocalizations.of(context)!.homeTitle,
       body: const HomeContentScreen(),
       currentIndex: _currentIndex,
       onBottomNavItemTapped: _onBottomNavItemTapped,

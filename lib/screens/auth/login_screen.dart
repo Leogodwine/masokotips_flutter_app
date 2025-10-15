@@ -6,6 +6,7 @@ import 'package:flutter/gestures.dart';
 import '../../widgets/loading_button.dart';
 import '../../widgets/api_error_widget.dart';
 import 'forgot_password_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -81,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: Text(AppLocalizations.of(context)!.login),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -113,7 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // Welcome Text
                   Text(
-                    'Welcome Back',
+                    AppLocalizations.of(context)!.welcomeBack,
                     style: theme.textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -123,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 8),
 
                   Text(
-                    'Sign in to continue',
+                    AppLocalizations.of(context)!.signInToContinue,
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: Colors.grey[600],
                     ),
@@ -144,8 +145,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     keyboardType: TextInputType.text,
                     textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
-                      labelText: 'Username',
-                      hintText: 'Enter your username',
+                      labelText: AppLocalizations.of(context)!.username,
+                      hintText: AppLocalizations.of(context)!.enterUsername,
                       prefixIcon: const Icon(Icons.person_outline),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -154,10 +155,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your username';
+                        return AppLocalizations.of(context)!.usernameRequired;
                       }
                       if (value.length < 3) {
-                        return 'Username must be at least 3 characters';
+                        return AppLocalizations.of(context)!.usernameMinLength;
                       }
                       return null;
                     },
@@ -171,8 +172,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     obscureText: _obscurePassword,
                     textInputAction: TextInputAction.done,
                     decoration: InputDecoration(
-                      labelText: 'Password',
-                      hintText: 'Enter your password',
+                      labelText: AppLocalizations.of(context)!.password,
+                      hintText: AppLocalizations.of(context)!.enterPassword,
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
                         icon: Icon(
@@ -194,7 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
+                        return AppLocalizations.of(context)!.passwordRequired;
                       }
                       return null;
                     },
@@ -214,7 +215,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                       },
                       child: Text(
-                        'Forgot Password?',
+                        AppLocalizations.of(context)!.forgotPassword,
                         style: TextStyle(
                           color: theme.colorScheme.primary,
                           fontWeight: FontWeight.w600,
@@ -228,7 +229,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Login Button
                   LoadingButton(
                     isLoading: _isLoading,
-                    text: 'SIGN IN',
+                    text: AppLocalizations.of(context)!.signIn,
                     onPressed: _login,
                   ),
 
@@ -238,11 +239,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   Center(
                     child: RichText(
                       text: TextSpan(
-                        text: 'Don\'t have an account? ',
+                        text: AppLocalizations.of(context)!.noAccount,
                         style: TextStyle(color: Colors.grey[700]),
                         children: [
                           TextSpan(
-                            text: 'REGISTER',
+                            text: AppLocalizations.of(context)!.register,
                             style: TextStyle(
                               color: theme.colorScheme.primary,
                               fontWeight: FontWeight.bold,
