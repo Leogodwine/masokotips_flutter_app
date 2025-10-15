@@ -1,0 +1,1504 @@
+{
+  "@@locale": "sw",
+  "appTitle": "maSOKOtips",
+  "@appTitle": {
+    "description": "Translation for appTitle"
+  },
+  "login": "INGIA",
+  "@login": {
+    "description": "Translation for login"
+  },
+  "welcomeBack": "Karibu Tena",
+  "@welcomeBack": {
+    "description": "Translation for welcomeBack"
+  },
+  "signInToContinue": "Ingia ili kuendelea",
+  "@signInToContinue": {
+    "description": "Translation for signInToContinue"
+  },
+  "username": "Jina la mtumiaji",
+  "@username": {
+    "description": "Translation for username"
+  },
+  "enterUsername": "Ingiza jina lako la mtumiaji",
+  "@enterUsername": {
+    "description": "Translation for enterUsername"
+  },
+  "usernameRequired": "Tafadhali ingiza jina lako la mtumiaji",
+  "@usernameRequired": {
+    "description": "Translation for usernameRequired"
+  },
+  "usernameMinLength": "Jina la mtumiaji lazima liwe angalau herufi 3",
+  "@usernameMinLength": {
+    "description": "Translation for usernameMinLength"
+  },
+  "password": "Nenosiri",
+  "@password": {
+    "description": "Translation for password"
+  },
+  "enterPassword": "Ingiza nenosiri lako",
+  "@enterPassword": {
+    "description": "Translation for enterPassword"
+  },
+  "passwordRequired": "Tafadhali ingiza nenosiri lako",
+  "@passwordRequired": {
+    "description": "Translation for passwordRequired"
+  },
+  "forgotPassword": "Umesahau Nenosiri?",
+  "@forgotPassword": {
+    "description": "Translation for forgotPassword"
+  },
+  "signIn": "INGIA",
+  "@signIn": {
+    "description": "Translation for signIn"
+  },
+  "noAccount": "Huna akaunti?",
+  "@noAccount": {
+    "description": "Translation for noAccount"
+  },
+  "register": "JISAJILI",
+  "@register": {
+    "description": "Translation for register"
+  },
+  "home": "Nyumbani",
+  "@home": {
+    "description": "Translation for home"
+  },
+  "profile": "Wasifu",
+  "@profile": {
+    "description": "Translation for profile"
+  },
+  "cart": "Mkokoteni",
+  "@cart": {
+    "description": "Translation for cart"
+  },
+  "orders": "Maagizo",
+  "@orders": {
+    "description": "Translation for orders"
+  },
+  "settings": "Mipangilio",
+  "@settings": {
+    "description": "Translation for settings"
+  },
+  "myProfile": "Wasifu Wangu",
+  "@myProfile": {
+    "description": "Translation for myProfile"
+  },
+  "guestUser": "Mtumiaji Mgeni",
+  "@guestUser": {
+    "description": "Translation for guestUser"
+  },
+  "loginRegister": "Ingia / Jisajili",
+  "@loginRegister": {
+    "description": "Translation for loginRegister"
+  },
+  "account": "Akaunti",
+  "@account": {
+    "description": "Translation for account"
+  },
+  "personalDetails": "Maelezo Binafsi",
+  "@personalDetails": {
+    "description": "Translation for personalDetails"
+  },
+  "requestAccountDeletion": "Omba Kufutwa kwa Akaunti",
+  "@requestAccountDeletion": {
+    "description": "Translation for requestAccountDeletion"
+  },
+  "sellerDashboard": "Dashibodi ya Muuzaji",
+  "@sellerDashboard": {
+    "description": "Translation for sellerDashboard"
+  },
+  "serviceProviderDashboard": "Dashibodi ya Mtoa Huduma",
+  "@serviceProviderDashboard": {
+    "description": "Translation for serviceProviderDashboard"
+  },
+  "manageAddresses": "Dhibiti Anwani",
+  "@manageAddresses": {
+    "description": "Translation for manageAddresses"
+  },
+  "myOrders": "Maagizo Yangu",
+  "@myOrders": {
+    "description": "Translation for myOrders"
+  },
+  "myFavorites": "Vipendwa Vyangu",
+  "@myFavorites": {
+    "description": "Translation for myFavorites"
+  },
+  "appSettings": "Mipangilio ya App",
+  "@appSettings": {
+    "description": "Translation for appSettings"
+  },
+  "notifications": "Arifa",
+  "@notifications": {
+    "description": "Translation for notifications"
+  },
+  "language": "Lugha",
+  "@language": {
+    "description": "Translation for language"
+  },
+  "englishKiswahili": "Kiingereza / Kiswahili",
+  "@englishKiswahili": {
+    "description": "Translation for englishKiswahili"
+  },
+  "helpSupport": "Msaada",
+  "@helpSupport": {
+    "description": "Translation for helpSupport"
+  },
+  "developerSettings": "Mipangilio ya Msanidi",
+  "@developerSettings": {
+    "description": "Translation for developerSettings"
+  },
+  "about": "Kuhusu",
+  "@about": {
+    "description": "Translation for about"
+  },
+  "privacyPolicy": "Sera ya Faragha",
+  "@privacyPolicy": {
+    "description": "Translation for privacyPolicy"
+  },
+  "marketInformation": "Habari za Soko",
+  "@marketInformation": {
+    "description": "Translation for marketInformation"
+  },
+  "logout": "Ondoka",
+  "@logout": {
+    "description": "Translation for logout"
+  },
+  "loginRequired": "Kuingia Kunahitajika",
+  "@loginRequired": {
+    "description": "Translation for loginRequired"
+  },
+  "loginRequiredMessage": "Unahitaji kuingia ili kupata kipengele hiki. Je, ungependa kuingia sasa?",
+  "@loginRequiredMessage": {
+    "description": "Translation for loginRequiredMessage"
+  },
+  "later": "BAADAYE",
+  "@later": {
+    "description": "Translation for later"
+  },
+  "loginButton": "INGIA",
+  "@loginButton": {
+    "description": "Text for login button"
+  },
+  "admin": "Msimamizi",
+  "@admin": {
+    "description": "Translation for admin"
+  },
+  "seller": "Muuzaji",
+  "@seller": {
+    "description": "Translation for seller"
+  },
+  "serviceProvider": "Mtoa Huduma",
+  "@serviceProvider": {
+    "description": "Translation for serviceProvider"
+  },
+  "buyer": "Mnunuzi",
+  "@buyer": {
+    "description": "Translation for buyer"
+  },
+  "editProfile": "Hariri Wasifu",
+  "@editProfile": {
+    "description": "Translation for editProfile"
+  },
+  "addresses": "Anwani",
+  "@addresses": {
+    "description": "Translation for addresses"
+  },
+  "logoutConfirmation": "Je, una uhakika unataka kutoka?",
+  "@logoutConfirmation": {
+    "description": "Translation for logoutConfirmation"
+  },
+  "homeTitle": "Nyumbani",
+  "@homeTitle": {
+    "description": "Translation for homeTitle"
+  },
+  "appName": "maSOKOtips",
+  "@appName": {
+    "description": "Translation for appName"
+  },
+  "appSubtitle": "Soko kuu la Kilimo la Tanzania",
+  "@appSubtitle": {
+    "description": "Translation for appSubtitle"
+  },
+  "poweredBy": "Inaendeshwa na: COSTECH",
+  "@poweredBy": {
+    "description": "Translation for poweredBy"
+  },
+  "costech": "COSTECH",
+  "@costech": {
+    "description": "Translation for costech"
+  },
+  "serviceProviderUnavailable": "Dashibodi ya mtoa huduma haipatikani kwa sasa",
+  "@serviceProviderUnavailable": {
+    "description": "Translation for serviceProviderUnavailable"
+  },
+  "notificationsComingSoon": "Mipangilio ya arifa itakuja hivi karibuni",
+  "@notificationsComingSoon": {
+    "description": "Translation for notificationsComingSoon"
+  },
+  "helpSupportComingSoon": "Msaada utakuja hivi karibuni",
+  "@helpSupportComingSoon": {
+    "description": "Translation for helpSupportComingSoon"
+  },
+  "noEmailApp": "Hakuna programu ya barua pepe iliyopatikana kutuma ombi",
+  "@noEmailApp": {
+    "description": "Translation for noEmailApp"
+  },
+  "couldNotOpenLink": "Haikuweza kufungua kiungo",
+  "@couldNotOpenLink": {
+    "description": "Translation for couldNotOpenLink"
+  },
+  "loggedOutSuccessfully": "Umetoka kwa mafanikio",
+  "@loggedOutSuccessfully": {
+    "description": "Translation for loggedOutSuccessfully"
+  },
+  "logoutFailed": "Kutoka kumeshindikana",
+  "@logoutFailed": {
+    "description": "Translation for logoutFailed"
+  },
+  "masokoTips": "Masoko Tips",
+  "@masokoTips": {
+    "description": "Translation for masokoTips"
+  },
+  "copyright": "© 2023 Masoko Tips - Haki zote zimehifadhiwa",
+  "@copyright": {
+    "description": "Translation for copyright"
+  },
+  "aboutDescription": "Masoko Tips ni jukwaa linalounganisha wanunuzi na wauzaji wa bidhaa za kilimo. Dhamira yetu ni kukuza kilimo endelevu na mazoea ya biashara ya haki.",
+  "@aboutDescription": {
+    "description": "Translation for aboutDescription"
+  },
+  "aboutContact": "Kwa maelezo zaidi, wasiliana nasi kwa support@masokotips.com",
+  "@aboutContact": {
+    "description": "Translation for aboutContact"
+  },
+  "pleaseLoginToEditProfile": "Tafadhali ingia ili kuhariri wasifu wako",
+  "@pleaseLoginToEditProfile": {
+    "description": "Translation for pleaseLoginToEditProfile"
+  },
+  "errorPickingImage": "Kosa katika kuchagua picha",
+  "@errorPickingImage": {
+    "description": "Translation for errorPickingImage"
+  },
+  "photoLibrary": "Maktaba ya Picha",
+  "@photoLibrary": {
+    "description": "Translation for photoLibrary"
+  },
+  "camera": "Kamera",
+  "@camera": {
+    "description": "Translation for camera"
+  },
+  "removePhoto": "Ondoa Picha",
+  "@removePhoto": {
+    "description": "Translation for removePhoto"
+  },
+  "profileUpdatedSuccessfully": "Wasifu umesasishwa kwa mafanikio",
+  "@profileUpdatedSuccessfully": {
+    "description": "Translation for profileUpdatedSuccessfully"
+  },
+  "failedToUpdateProfile": "Imeshindikana kusasisha wasifu",
+  "@failedToUpdateProfile": {
+    "description": "Translation for failedToUpdateProfile"
+  },
+  "emailAlreadyRegistered": "Barua pepe hii tayari imesajiliwa. Tafadhali tumia barua pepe tofauti.",
+  "@emailAlreadyRegistered": {
+    "description": "Translation for emailAlreadyRegistered"
+  },
+  "fullName": "Jina Kamili",
+  "@fullName": {
+    "description": "Translation for fullName"
+  },
+  "phoneNumber": "Nambari ya Simu",
+  "@phoneNumber": {
+    "description": "Translation for phoneNumber"
+  },
+  "bio": "Wasifu",
+  "@bio": {
+    "description": "Translation for bio"
+  },
+  "tellUsAboutYourself": "Tuambie kuhusu wewe",
+  "@tellUsAboutYourself": {
+    "description": "Translation for tellUsAboutYourself"
+  },
+  "saveChanges": "HIFADHI MABADILIKO",
+  "@saveChanges": {
+    "description": "Translation for saveChanges"
+  },
+  "failedToLoadAddresses": "Imeshindikana kupakia anwani",
+  "@failedToLoadAddresses": {
+    "description": "Translation for failedToLoadAddresses"
+  },
+  "deleteAddress": "Futa Anwani",
+  "@deleteAddress": {
+    "description": "Translation for deleteAddress"
+  },
+  "confirmDeleteAddress": "Je, una uhakika unataka kufuta anwani hii?",
+  "@confirmDeleteAddress": {
+    "description": "Translation for confirmDeleteAddress"
+  },
+  "cancel": "GHAIRI",
+  "@cancel": {
+    "description": "Translation for cancel"
+  },
+  "delete": "FUTA",
+  "@delete": {
+    "description": "Translation for delete"
+  },
+  "addressDeleted": "Anwani imefutwa",
+  "@addressDeleted": {
+    "description": "Translation for addressDeleted"
+  },
+  "defaultAddressUpdated": "Anwani chaguo-msingi imesasishwa",
+  "@defaultAddressUpdated": {
+    "description": "Translation for defaultAddressUpdated"
+  },
+  "noAddressesFound": "Hakuna anwani zilizopatikana",
+  "@noAddressesFound": {
+    "description": "Translation for noAddressesFound"
+  },
+  "addNewAddress": "Ongeza Anwani Mpya",
+  "@addNewAddress": {
+    "description": "Translation for addNewAddress"
+  },
+  "edit": "Hariri",
+  "@edit": {
+    "description": "Translation for edit"
+  },
+  "setAsDefault": "Weka kama Chaguo-msingi",
+  "@setAsDefault": {
+    "description": "Translation for setAsDefault"
+  },
+  "addAddress": "Ongeza Anwani",
+  "@addAddress": {
+    "description": "Translation for addAddress"
+  },
+  "editAddress": "Hariri Anwani",
+  "@editAddress": {
+    "description": "Translation for editAddress"
+  },
+  "addressName": "Jina la Anwani",
+  "@addressName": {
+    "description": "Translation for addressName"
+  },
+  "addressNameHint": "Nyumbani, Kazi, n.k.",
+  "@addressNameHint": {
+    "description": "Translation for addressNameHint"
+  },
+  "streetAddress": "Anwani ya Mtaa",
+  "@streetAddress": {
+    "description": "Translation for streetAddress"
+  },
+  "streetAddressHint": "123 Mtaa Kuu",
+  "@streetAddressHint": {
+    "description": "Translation for streetAddressHint"
+  },
+  "city": "Jiji",
+  "@city": {
+    "description": "Translation for city"
+  },
+  "stateProvince": "Jimbo/Mkoa",
+  "@stateProvince": {
+    "description": "Translation for stateProvince"
+  },
+  "zipPostalCode": "Msimbo wa Posta",
+  "@zipPostalCode": {
+    "description": "Translation for zipPostalCode"
+  },
+  "country": "Nchi",
+  "@country": {
+    "description": "Translation for country"
+  },
+  "setAsDefaultAddress": "Weka kama anwani chaguo-msingi",
+  "@setAsDefaultAddress": {
+    "description": "Translation for setAsDefaultAddress"
+  },
+  "defaultAddressDescription": "Anwani hii itachaguliwa kwa chaguo-msingi wakati wa malipo",
+  "@defaultAddressDescription": {
+    "description": "Translation for defaultAddressDescription"
+  },
+  "saveAddress": "HIFADHI ANWANI",
+  "@saveAddress": {
+    "description": "Translation for saveAddress"
+  },
+  "enterAddressName": "Tafadhali ingiza jina la anwani",
+  "@enterAddressName": {
+    "description": "Translation for enterAddressName"
+  },
+  "enterStreetAddress": "Tafadhali ingiza anwani ya mtaa",
+  "@enterStreetAddress": {
+    "description": "Translation for enterStreetAddress"
+  },
+  "enterCity": "Tafadhali ingiza jiji",
+  "@enterCity": {
+    "description": "Translation for enterCity"
+  },
+  "enterState": "Tafadhali ingiza jimbo",
+  "@enterState": {
+    "description": "Translation for enterState"
+  },
+  "enterZipCode": "Tafadhali ingiza msimbo wa posta",
+  "@enterZipCode": {
+    "description": "Translation for enterZipCode"
+  },
+  "enterCountry": "Tafadhali ingiza nchi",
+  "@enterCountry": {
+    "description": "Translation for enterCountry"
+  },
+  "description": "Maelezo",
+  "@description": {
+    "description": "Translation for description"
+  },
+  "addToCart": "Ongeza kwenye Mkokoteni",
+  "@addToCart": {
+    "description": "Translation for addToCart"
+  },
+  "relatedProducts": "Bidhaa Zinazohusiana",
+  "@relatedProducts": {
+    "description": "Label for the related products section"
+  },
+  "noRelatedProducts": "Hakuna bidhaa zinazohusiana zinazopatikana",
+  "@noRelatedProducts": {
+    "description": "Translation for noRelatedProducts"
+  },
+  "addedToCart": "{productName} imeongezwa kwenye mkokoteni",
+  "@addedToCart": {
+    "description": "Translation for addedToCart",
+    "placeholders": {
+      "productName": {"type": "String"}
+    }
+  },
+  "failedToAddToCart": "Imeshindikana kuongeza kwenye mkokoteni: {error}",
+  "@failedToAddToCart": {
+    "description": "Translation for failedToAddToCart",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "noProductsInCategory": "Hakuna bidhaa zinazopatikana katika kategoria hii",
+  "@noProductsInCategory": {
+    "description": "Translation for noProductsInCategory"
+  },
+  "checkBackLater": "Tafadhali rudi baadaye",
+  "@checkBackLater": {
+    "description": "Translation for checkBackLater"
+  },
+  "errorLoadingProducts": "Imeshindikana kupakia bidhaa. Angalia muunganisho wako na jaribu tena.",
+  "@errorLoadingProducts": {
+    "description": "Translation for errorLoadingProducts"
+  },
+  "retry": "JARIBU TENGA",
+  "@retry": {
+    "description": "Translation for retry"
+  },
+  "inStock": "{stock} katika hifadhi",
+  "@inStock": {
+    "description": "Translation for inStock",
+    "placeholders": {
+      "stock": {"type": "num"}
+    }
+  },
+  "organicProducts": "Bidhaa za Kikaboni",
+  "@organicProducts": {
+    "description": "Translation for organicProducts"
+  },
+  "sortAndFilter": "Panga na Chuja",
+  "@sortAndFilter": {
+    "description": "Translation for sortAndFilter"
+  },
+  "sortBy": "Panga Kwa",
+  "@sortBy": {
+    "description": "Translation for sortBy"
+  },
+  "nameAZ": "Jina (A-Z)",
+  "@nameAZ": {
+    "description": "Translation for nameAZ"
+  },
+  "nameZA": "Jina (Z-A)",
+  "@nameZA": {
+    "description": "Translation for nameZA"
+  },
+  "priceLowHigh": "Bei (Ndogo-Kubwa)",
+  "@priceLowHigh": {
+    "description": "Translation for priceLowHigh"
+  },
+  "priceHighLow": "Bei (Kubwa-Ndogo)",
+  "@priceHighLow": {
+    "description": "Translation for priceHighLow"
+  },
+  "showInStockOnly": "Onyesha Zinazopatikana Pekee",
+  "@showInStockOnly": {
+    "description": "Translation for showInStockOnly"
+  },
+  "close": "Funga",
+  "@close": {
+    "description": "Translation for close"
+  },
+  "searchOrganicProducts": "Tafuta bidhaa za kikaboni...",
+  "@searchOrganicProducts": {
+    "description": "Translation for searchOrganicProducts"
+  },
+  "errorLoadingOrganicProducts": "Kosa katika kupakia bidhaa za kikaboni: {error}",
+  "@errorLoadingOrganicProducts": {
+    "description": "Translation for errorLoadingOrganicProducts",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "noOrganicProductsFound": "Hakuna bidhaa za kikaboni zilizopatikana",
+  "@noOrganicProductsFound": {
+    "description": "Translation for noOrganicProductsFound"
+  },
+  "deleteProduct": "Futa Bidhaa",
+  "@deleteProduct": {
+    "description": "Translation for deleteProduct"
+  },
+  "confirmDeleteProduct": "Je, una uhakika unataka kufuta {productName}?",
+  "@confirmDeleteProduct": {
+    "description": "Translation for confirmDeleteProduct",
+    "placeholders": {
+      "productName": {"type": "String"}
+    }
+  },
+  "productDeletedSuccessfully": "{productName} imefutwa kwa mafanikio",
+  "@productDeletedSuccessfully": {
+    "description": "Translation for productDeletedSuccessfully",
+    "placeholders": {
+      "productName": {"type": "String"}
+    }
+  },
+  "errorDeletingProduct": "Kosa katika kufuta bidhaa: {error}",
+  "@errorDeletingProduct": {
+    "description": "Translation for errorDeletingProduct",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "shoppingCart": "Mkokoteni wa Manunuzi",
+  "@shoppingCart": {
+    "description": "Translation for shoppingCart"
+  },
+  "clearCart": "Futa Mkokoteni",
+  "@clearCart": {
+    "description": "Translation for clearCart"
+  },
+  "confirmClearCart": "Je, una uhakika unataka kufuta mkokoteni wako?",
+  "@confirmClearCart": {
+    "description": "Translation for confirmClearCart"
+  },
+  "pleaseLoginToViewCart": "Tafadhali ingia ili kuona mkokoteni wako",
+  "@pleaseLoginToViewCart": {
+    "description": "Translation for pleaseLoginToViewCart"
+  },
+  "yourCartIsEmpty": "Mkokoteni wako ni tupu",
+  "@yourCartIsEmpty": {
+    "description": "Translation for yourCartIsEmpty"
+  },
+  "continueShopping": "Endelea Kununua",
+  "@continueShopping": {
+    "description": "Translation for continueShopping"
+  },
+  "itemRemovedFromCart": "Bidhaa imeondolewa kutoka mkokoteni",
+  "@itemRemovedFromCart": {
+    "description": "Translation for itemRemovedFromCart"
+  },
+  "removeItem": "Ondoa Bidhaa",
+  "@removeItem": {
+    "description": "Translation for removeItem"
+  },
+  "confirmRemoveItem": "Je, una uhakika unataka kuondoa bidhaa hii kutoka mkokoteni?",
+  "@confirmRemoveItem": {
+    "description": "Translation for confirmRemoveItem"
+  },
+  "total": "Jumla:",
+  "@total": {
+    "description": "Translation for total"
+  },
+  "proceedToCheckout": "Endelea kwa Malipo",
+  "@proceedToCheckout": {
+    "description": "Translation for proceedToCheckout"
+  },
+  "checkout": "Malipo",
+  "@checkout": {
+    "description": "Translation for checkout"
+  },
+  "pleaseLoginToPlaceOrder": "Tafadhali ingia ili kuweka agizo",
+  "@pleaseLoginToPlaceOrder": {
+    "description": "Translation for pleaseLoginToPlaceOrder"
+  },
+  "failedToPlaceOrder": "Imeshindikana kuweka agizo: {error}",
+  "@failedToPlaceOrder": {
+    "description": "Translation for failedToPlaceOrder",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "orderSummary": "Muhtasari wa Agizo",
+  "@orderSummary": {
+    "description": "Translation for orderSummary"
+  },
+  "deliveryInformation": "Maelezo ya Uwasilishaji",
+  "@deliveryInformation": {
+    "description": "Translation for deliveryInformation"
+  },
+  "deliveryMethod": "Njia ya Uwasilishaji",
+  "@deliveryMethod": {
+    "description": "Translation for deliveryMethod"
+  },
+  "standardDelivery": "Uwasilishaji wa Kawaida",
+  "@standardDelivery": {
+    "description": "Translation for standardDelivery"
+  },
+  "standardDeliveryTime": "Siku 3-5 za kazi",
+  "@standardDeliveryTime": {
+    "description": "Translation for standardDeliveryTime"
+  },
+  "expressDelivery": "Uwasilishaji wa Haraka",
+  "@expressDelivery": {
+    "description": "Translation for expressDelivery"
+  },
+  "expressDeliveryTime": "Siku 1-2 za kazi",
+  "@expressDeliveryTime": {
+    "description": "Translation for expressDeliveryTime"
+  },
+  "deliveryAddress": "Anwani ya Uwasilishaji",
+  "@deliveryAddress": {
+    "description": "Translation for deliveryAddress"
+  },
+  "pleaseSelectDeliveryAddress": "Tafadhali chagua anwani ya uwasilishaji",
+  "@pleaseSelectDeliveryAddress": {
+    "description": "Translation for pleaseSelectDeliveryAddress"
+  },
+  "phoneNumberHint": "+255 123 456 789",
+  "@phoneNumberHint": {
+    "description": "Translation for phoneNumberHint"
+  },
+  "phoneNumberRequired": "Nambari ya simu inahitajika",
+  "@phoneNumberRequired": {
+    "description": "Translation for phoneNumberRequired"
+  },
+  "paymentMethod": "Njia ya Malipo",
+  "@paymentMethod": {
+    "description": "Translation for paymentMethod"
+  },
+  "cashOnDelivery": "Malipo ya Fedha kwa Uwasilishaji",
+  "@cashOnDelivery": {
+    "description": "Translation for cashOnDelivery"
+  },
+  "cashOnDeliveryDescription": "Lipa unapopokea agizo lako",
+  "@cashOnDeliveryDescription": {
+    "description": "Translation for cashOnDeliveryDescription"
+  },
+  "creditDebitCard": "Kadi ya Mkopo/Kadi ya Debit",
+  "@creditDebitCard": {
+    "description": "Translation for creditDebitCard"
+  },
+  "creditDebitCardDescription": "Malipo salama ya mtandaoni",
+  "@creditDebitCardDescription": {
+    "description": "Translation for creditDebitCardDescription"
+  },
+  "orderNotesOptional": "Maelezo ya Agizo (Hiari)",
+  "@orderNotesOptional": {
+    "description": "Translation for orderNotesOptional"
+  },
+  "orderNotesHint": "Maagizo maalum yoyote kwa agizo lako...",
+  "@orderNotesHint": {
+    "description": "Translation for orderNotesHint"
+  },
+  "placeOrder": "WEKA AGIZO - TZS {total}",
+  "@placeOrder": {
+    "description": "Translation for placeOrder",
+    "placeholders": {
+      "total": {"type": "num"}
+    }
+  },
+  "selectAddress": "Chagua Anwani",
+  "@selectAddress": {
+    "description": "Translation for selectAddress"
+  },
+  "sellerDashboardTitle": "Dashibodi ya Muuzaji",
+  "@sellerDashboardTitle": {
+    "description": "Translation for sellerDashboardTitle"
+  },
+  "productsTab": "Bidhaa",
+  "@productsTab": {
+    "description": "Translation for productsTab"
+  },
+  "ordersTab": "Maagizo",
+  "@ordersTab": {
+    "description": "Translation for ordersTab"
+  },
+  "transportsTab": "Usafiri",
+  "@transportsTab": {
+    "description": "Translation for transportsTab"
+  },
+  "organicTab": "Kikaboni",
+  "@organicTab": {
+    "description": "Translation for organicTab"
+  },
+  "servicesTab": "Huduma",
+  "@servicesTab": {
+    "description": "Translation for servicesTab"
+  },
+  "addProduct": "Ongeza Bidhaa",
+  "@addProduct": {
+    "description": "Translation for addProduct"
+  },
+  "noProductsFound": "Hakuna bidhaa zilizopatikana",
+  "@noProductsFound": {
+    "description": "Translation for noProductsFound"
+  },
+  "filterByCategory": "Chuja Kwa Kategoria",
+  "@filterByCategory": {
+    "description": "Translation for filterByCategory"
+  },
+  "outOfStock": "Imekwisha",
+  "@outOfStock": {
+    "description": "Translation for outOfStock"
+  },
+  "failedToDeleteProduct": "Imeshindikana kufuta bidhaa: {error}",
+  "@failedToDeleteProduct": {
+    "description": "Translation for failedToDeleteProduct",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "failedToLoadProducts": "Imeshindikana kupakia bidhaa: {error}",
+  "@failedToLoadProducts": {
+    "description": "Translation for failedToLoadProducts",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "addNewProduct": "Ongeza Bidhaa Mpya",
+  "@addNewProduct": {
+    "description": "Translation for addNewProduct"
+  },
+  "productName": "Jina la Bidhaa",
+  "@productName": {
+    "description": "Translation for productName"
+  },
+  "enterProductName": "Tafadhali ingiza jina la bidhaa",
+  "@enterProductName": {
+    "description": "Translation for enterProductName"
+  },
+  "productDescription": "Maelezo",
+  "@productDescription": {
+    "description": "Translation for productDescription"
+  },
+  "enterDescription": "Tafadhali ingiza maelezo",
+  "@enterDescription": {
+    "description": "Translation for enterDescription"
+  },
+  "productPrice": "Bei",
+  "@productPrice": {
+    "description": "Translation for productPrice"
+  },
+  "required": "Inahitajika",
+  "@required": {
+    "description": "Translation for required"
+  },
+  "invalid": "Batili",
+  "@invalid": {
+    "description": "Translation for invalid"
+  },
+  "stock": "Hifadhi",
+  "@stock": {
+    "description": "Translation for stock"
+  },
+  "enterStockQuantity": "Tafadhali ingiza idadi ya hifadhi",
+  "@enterStockQuantity": {
+    "description": "Translation for enterStockQuantity"
+  },
+  "invalidStockQuantity": "Idadi batili ya hifadhi",
+  "@invalidStockQuantity": {
+    "description": "Translation for invalidStockQuantity"
+  },
+  "category": "Kategoria",
+  "@category": {
+    "description": "Translation for category"
+  },
+  "productImages": "Picha za Bidhaa",
+  "@productImages": {
+    "description": "Translation for productImages"
+  },
+  "addImages": "Ongeza Picha",
+  "@addImages": {
+    "description": "Translation for addImages"
+  },
+  "imagesSelected": "Picha {count} zimechaguliwa",
+  "@imagesSelected": {
+    "description": "Translation for imagesSelected",
+    "placeholders": {
+      "count": {"type": "num"}
+    }
+  },
+  "productAddedSuccessfully": "Bidhaa imeongezwa kwa mafanikio",
+  "@productAddedSuccessfully": {
+    "description": "Translation for productAddedSuccessfully"
+  },
+  "failedToAddProduct": "Imeshindikana kuongeza bidhaa: {error}",
+  "@failedToAddProduct": {
+    "description": "Translation for failedToAddProduct",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "editProduct": "Hariri Bidhaa",
+  "@editProduct": {
+    "description": "Translation for editProduct"
+  },
+  "enterProductDescription": "Tafadhali ingiza maelezo ya bidhaa",
+  "@enterProductDescription": {
+    "description": "Translation for enterProductDescription"
+  },
+  "invalidPrice": "Bei batili",
+  "@invalidPrice": {
+    "description": "Translation for invalidPrice"
+  },
+  "updateProduct": "Sasisha Bidhaa",
+  "@updateProduct": {
+    "description": "Translation for updateProduct"
+  },
+  "productUpdatedSuccessfully": "Bidhaa imesasishwa kwa mafanikio",
+  "@productUpdatedSuccessfully": {
+    "description": "Translation for productUpdatedSuccessfully"
+  },
+  "productDeleted": "Bidhaa imefutwa kwa mafanikio",
+  "@productDeleted": {
+    "description": "Translation for productDeleted"
+  },
+  "myOrganicProducts": "Bidhaa Zangu za Kikaboni",
+  "@myOrganicProducts": {
+    "description": "Translation for myOrganicProducts"
+  },
+  "apiServiceNotInitialized": "Huduma ya API haijaanzishwa",
+  "@apiServiceNotInitialized": {
+    "description": "Translation for apiServiceNotInitialized"
+  },
+  "failedToFetchOrganicProducts": "Imeshindikana kupata bidhaa za kikaboni",
+  "@failedToFetchOrganicProducts": {
+    "description": "Translation for failedToFetchOrganicProducts"
+  },
+  "noOrganicProductsYet": "Hakuna Bidhaa za Kikaboni Bado",
+  "@noOrganicProductsYet": {
+    "description": "Translation for noOrganicProductsYet"
+  },
+  "startAddingOrganicProduct": "Anza kwa kuongeza bidhaa yako ya kwanza ya kikaboni",
+  "@startAddingOrganicProduct": {
+    "description": "Translation for startAddingOrganicProduct"
+  },
+  "addOrganicProduct": "Ongeza Bidhaa ya Kikaboni",
+  "@addOrganicProduct": {
+    "description": "Translation for addOrganicProduct"
+  },
+  "stockLabel": "Hifadhi: {stock}",
+  "@stockLabel": {
+    "description": "Translation for stockLabel",
+    "placeholders": {
+      "stock": {"type": "num"}
+    }
+  },
+  "certified": "Imethibitishwa: {certification}",
+  "@certified": {
+    "description": "Translation for certified",
+    "placeholders": {
+      "certification": {"type": "String"}
+    }
+  },
+  "active": "Inayotumika",
+  "@active": {
+    "description": "Translation for active"
+  },
+  "inactive": "Isiyotumika",
+  "@inactive": {
+    "description": "Translation for inactive"
+  },
+  "featured": "Iliyoangaziwa",
+  "@featured": {
+    "description": "Translation for featured"
+  },
+  "deleteOrganicProduct": "Futa Bidhaa ya Kikaboni",
+  "@deleteOrganicProduct": {
+    "description": "Translation for deleteOrganicProduct"
+  },
+  "confirmDeleteOrganicProduct": "Je, una uhakika unataka kufuta \"{productName}\"? Kitendo hiki hakiwezi kutenduliwa.",
+  "@confirmDeleteOrganicProduct": {
+    "description": "Translation for confirmDeleteOrganicProduct",
+    "placeholders": {
+      "productName": {"type": "String"}
+    }
+  },
+  "failedToDeleteOrganicProduct": "Imeshindikana kufuta bidhaa: {error}",
+  "@failedToDeleteOrganicProduct": {
+    "description": "Translation for failedToDeleteOrganicProduct",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "myTransportServices": "Huduma Zangu za Usafiri",
+  "@myTransportServices": {
+    "description": "Translation for myTransportServices"
+  },
+  "addTransport": "Ongeza Usafiri",
+  "@addTransport": {
+    "description": "Translation for addTransport"
+  },
+  "errorLoadingTransports": "Kosa katika Kupakia Usafiri",
+  "@errorLoadingTransports": {
+    "description": "Translation for errorLoadingTransports"
+  },
+  "noTransportServicesYet": "Hakuna Huduma za Usafiri Bado",
+  "@noTransportServicesYet": {
+    "description": "Translation for noTransportServicesYet"
+  },
+  "addTransportServicesDescription": "Ongeza huduma zako za usafiri ili kuanza kutoa usafirishaji na usafiri kwa wateja.",
+  "@addTransportServicesDescription": {
+    "description": "Translation for addTransportServicesDescription"
+  },
+  "addYourFirstTransport": "Ongeza Usafiri Wako wa Kwanza",
+  "@addYourFirstTransport": {
+    "description": "Translation for addYourFirstTransport"
+  },
+  "capacityKg": "Uwezo wa {capacity} kg",
+  "@capacityKg": {
+    "description": "Translation for capacityKg",
+    "placeholders": {
+      "capacity": {"type": "num"}
+    }
+  },
+  "pricePerKg": "TZS {price}/kg",
+  "@pricePerKg": {
+    "description": "Translation for pricePerKg",
+    "placeholders": {
+      "price": {"type": "num"}
+    }
+  },
+  "noDescriptionAvailable": "Hakuna maelezo yanayopatikana",
+  "@noDescriptionAvailable": {
+    "description": "Translation for noDescriptionAvailable"
+  },
+  "deleteTransportService": "Futa Huduma ya Usafiri",
+  "@deleteTransportService": {
+    "description": "Translation for deleteTransportService"
+  },
+  "confirmDeleteTransport": "Je, una uhakika unataka kufuta \"{title}\"? Kitendo hiki hakiwezi kutenduliwa.",
+  "@confirmDeleteTransport": {
+    "description": "Translation for confirmDeleteTransport",
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "transportDeletedSuccessfully": "{title} imefutwa kwa mafanikio",
+  "@transportDeletedSuccessfully": {
+    "description": "Translation for transportDeletedSuccessfully",
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "failedToDeleteTransport": "Imeshindikana kufuta usafiri: {error}",
+  "@failedToDeleteTransport": {
+    "description": "Translation for failedToDeleteTransport",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "editTransportService": "Hariri Huduma ya Usafiri",
+  "@editTransportService": {
+    "description": "Translation for editTransportService"
+  },
+  "save": "HIFADHI",
+  "@save": {
+    "description": "Translation for save"
+  },
+  "basicInformation": "Maelezo ya Msingi",
+  "@basicInformation": {
+    "description": "Translation for basicInformation"
+  },
+  "serviceTitle": "Kichwa cha Huduma",
+  "@serviceTitle": {
+    "description": "Translation for serviceTitle"
+  },
+  "serviceTitleHint": "mfano, Lori la Usafirishaji la Kuaminika",
+  "@serviceTitleHint": {
+    "description": "Translation for serviceTitleHint"
+  },
+  "describeService": "Eleza huduma yako ya usafiri...",
+  "@describeService": {
+    "description": "Translation for describeService"
+  },
+  "enterServiceTitle": "Tafadhali ingiza kichwa cha huduma",
+  "@enterServiceTitle": {
+    "description": "Translation for enterServiceTitle"
+  },
+  "enterServiceDescription": "Tafadhali ingiza maelezo",
+  "@enterServiceDescription": {
+    "description": "Translation for enterServiceDescription"
+  },
+  "vehicleDetails": "Maelezo ya Gari",
+  "@vehicleDetails": {
+    "description": "Translation for vehicleDetails"
+  },
+  "vehicleType": "Aina ya Gari",
+  "@vehicleType": {
+    "description": "Translation for vehicleType"
+  },
+  "vehicleLocation": "Mahali pa Gari",
+  "@vehicleLocation": {
+    "description": "Translation for vehicleLocation"
+  },
+  "vehicleLocationHint": "mfano, Dar es Salaam, Tanzania",
+  "@vehicleLocationHint": {
+    "description": "Translation for vehicleLocationHint"
+  },
+  "enterVehicleLocation": "Tafadhali ingiza mahali pa gari",
+  "@enterVehicleLocation": {
+    "description": "Translation for enterVehicleLocation"
+  },
+  "pricePerKm": "Bei kwa KM",
+  "@pricePerKm": {
+    "description": "Translation for pricePerKm"
+  },
+  "enterPrice": "Ingiza bei",
+  "@enterPrice": {
+    "description": "Translation for enterPrice"
+  },
+  "enterValidPrice": "Ingiza bei sahihi",
+  "@enterValidPrice": {
+    "description": "Translation for enterValidPrice"
+  },
+  "capacityKgLabel": "Uwezo (kg)",
+  "@capacityKgLabel": {
+    "description": "Translation for capacityKgLabel"
+  },
+  "enterCapacity": "Ingiza uwezo",
+  "@enterCapacity": {
+    "description": "Translation for enterCapacity"
+  },
+  "enterValidCapacity": "Ingiza uwezo sahihi",
+  "@enterValidCapacity": {
+    "description": "Translation for enterValidCapacity"
+  },
+  "contactInformation": "Maelezo ya Mawasiliano",
+  "@contactInformation": {
+    "description": "Translation for contactInformation"
+  },
+  "contactPhone": "Simu ya Mawasiliano",
+  "@contactPhone": {
+    "description": "Translation for contactPhone"
+  },
+  "contactPhoneHint": "mfano, +255 123 456 789",
+  "@contactPhoneHint": {
+    "description": "Translation for contactPhoneHint"
+  },
+  "enterContactPhone": "Tafadhali ingiza simu ya mawasiliano",
+  "@enterContactPhone": {
+    "description": "Translation for enterContactPhone"
+  },
+  "status": "Hali",
+  "@status": {
+    "description": "Translation for status"
+  },
+  "updateTransportService": "Sasisha Huduma ya Usafiri",
+  "@updateTransportService": {
+    "description": "Translation for updateTransportService"
+  },
+  "transportUpdatedSuccessfully": "Huduma ya usafiri imesasishwa kwa mafanikio!",
+  "@transportUpdatedSuccessfully": {
+    "description": "Translation for transportUpdatedSuccessfully"
+  },
+  "failedToUpdateTransport": "Imeshindikana kusasisha usafiri: {error}",
+  "@failedToUpdateTransport": {
+    "description": "Translation for failedToUpdateTransport",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "sellerOrders": "Maagizo ya Muuzaji",
+  "@sellerOrders": {
+    "description": "Translation for sellerOrders"
+  },
+  "errorLoadingOrders": "Kosa katika Kupakia Maagizo",
+  "@errorLoadingOrders": {
+    "description": "Translation for errorLoadingOrders"
+  },
+  "noOrdersYet": "Hakuna Maagizo Bado",
+  "@noOrdersYet": {
+    "description": "Translation for noOrdersYet"
+  },
+  "ordersDescription": "Maagizo kutoka kwa wateja yataonekana hapa mara watakapoanza kununua bidhaa zako.",
+  "@ordersDescription": {
+    "description": "Translation for ordersDescription"
+  },
+  "refreshOrders": "Onyesha Maagizo Upya",
+  "@refreshOrders": {
+    "description": "Translation for refreshOrders"
+  },
+  "orderNumber": "Agizo #{id}",
+  "@orderNumber": {
+    "description": "Translation for orderNumber",
+    "placeholders": {
+      "id": {"type": "String"}
+    }
+  },
+  "totalAmount": "Jumla: TZS {amount}",
+  "@totalAmount": {
+    "description": "Translation for totalAmount",
+    "placeholders": {
+      "amount": {"type": "num"}
+    }
+  },
+  "itemsCount": "Vipengee: {count}",
+  "@itemsCount": {
+    "description": "Translation for itemsCount",
+    "placeholders": {
+      "count": {"type": "num"}
+    }
+  },
+  "orderDate": "Tarehe: {date}",
+  "@orderDate": {
+    "description": "Translation for orderDate",
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+  "markAsProcessing": "Weka kama Inachakatwa",
+  "@markAsProcessing": {
+    "description": "Translation for markAsProcessing"
+  },
+  "markAsShipped": "Weka kama Imesafirishwa",
+  "@markAsShipped": {
+    "description": "Translation for markAsShipped"
+  },
+  "markAsDelivered": "Weka kama Imefikishwa",
+  "@markAsDelivered": {
+    "description": "Translation for markAsDelivered"
+  },
+  "orderDelivered": "Agizo Limefikishwa",
+  "@orderDelivered": {
+    "description": "Translation for orderDelivered"
+  },
+  "orderCancelled": "Agizo Limeghairiwa",
+  "@orderCancelled": {
+    "description": "Translation for orderCancelled"
+  },
+  "orderStatusUpdated": "Hali ya agizo imesasishwa kuwa {status}",
+  "@orderStatusUpdated": {
+    "description": "Translation for orderStatusUpdated",
+    "placeholders": {
+      "status": {"type": "String"}
+    }
+  },
+  "failedToUpdateOrderStatus": "Imeshindikana kusasisha hali ya agizo",
+  "@failedToUpdateOrderStatus": {
+    "description": "Translation for failedToUpdateOrderStatus"
+  },
+  "errorUpdatingOrderStatus": "Kosa katika kusasisha hali ya agizo: {error}",
+  "@errorUpdatingOrderStatus": {
+    "description": "Translation for errorUpdatingOrderStatus",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "emailLabel": "Barua pepe: {email}",
+  "@emailLabel": {
+    "description": "Translation for emailLabel",
+    "placeholders": {
+      "email": {"type": "String"}
+    }
+  },
+  "phoneLabel": "Simu: {phone}",
+  "@phoneLabel": {
+    "description": "Translation for phoneLabel",
+    "placeholders": {
+      "phone": {"type": "String"}
+    }
+  },
+  "addressLabel": "Anwani: {address}",
+  "@addressLabel": {
+    "description": "Translation for addressLabel",
+    "placeholders": {
+      "address": {"type": "String"}
+    }
+  },
+  "serviceCategories": "Kategoria za Huduma",
+  "@serviceCategories": {
+    "description": "Translation for serviceCategories"
+  },
+  "services": "Huduma",
+  "@services": {
+    "description": "Translation for services"
+  },
+  "noServicesAvailable": "Hakuna huduma zinazopatikana",
+  "@noServicesAvailable": {
+    "description": "Translation for noServicesAvailable"
+  },
+  "chat": "Ongea",
+  "@chat": {
+    "description": "Translation for chat"
+  },
+  "noTitle": "Hakuna Kichwa",
+  "@noTitle": {
+    "description": "Translation for noTitle"
+  },
+  "notAvailable": "Hapana",
+  "@notAvailable": {
+    "description": "Translation for notAvailable"
+  },
+  "addNewService": "Ongeza Huduma Mpya",
+  "@addNewService": {
+    "description": "Translation for addNewService"
+  },
+  "createYourService": "Unda Huduma Yako",
+  "@createYourService": {
+    "description": "Translation for createYourService"
+  },
+  "fillServiceDetails": "Jaza maelezo ili kutoa huduma yako ya kilimo",
+  "@fillServiceDetails": {
+    "description": "Translation for fillServiceDetails"
+  },
+  "serviceTitleExample": "mfano, Usanikishaji wa Mfumo wa Umwagiliaji",
+  "@serviceTitleExample": {
+    "description": "Translation for serviceTitleExample"
+  },
+  "enterTitle": "Tafadhali ingiza kichwa",
+  "@enterTitle": {
+    "description": "Translation for enterTitle"
+  },
+  "describeServiceDetail": "Eleza huduma yako kwa undani...",
+  "@describeServiceDetail": {
+    "description": "Translation for describeServiceDetail"
+  },
+  "priceTzs": "Bei (TZS)",
+  "@priceTzs": {
+    "description": "Translation for priceTzs"
+  },
+  "enterServicePrice": "Ingiza bei ya huduma",
+  "@enterServicePrice": {
+    "description": "Translation for enterServicePrice"
+  },
+  "enterValidServicePrice": "Tafadhali ingiza bei sahihi",
+  "@enterValidServicePrice": {
+    "description": "Translation for enterValidServicePrice"
+  },
+  "agriculturalServiceCategory": "Kategoria ya Huduma ya Kilimo",
+  "@agriculturalServiceCategory": {
+    "description": "Translation for agriculturalServiceCategory"
+  },
+  "selectCategory": "Chagua kategoria",
+  "@selectCategory": {
+    "description": "Translation for selectCategory"
+  },
+  "loadingCategories": "Inapakia kategoria...",
+  "@loadingCategories": {
+    "description": "Translation for loadingCategories"
+  },
+  "serviceImage": "Picha ya Huduma",
+  "@serviceImage": {
+    "description": "Translation for serviceImage"
+  },
+  "addImageToService": "Ongeza picha ili kufanya huduma yako ivutie zaidi",
+  "@addImageToService": {
+    "description": "Translation for addImageToService"
+  },
+  "chooseImage": "Chagua Picha",
+  "@chooseImage": {
+    "description": "Translation for chooseImage"
+  },
+  "creatingService": "Inaunda Huduma...",
+  "@creatingService": {
+    "description": "Translation for creatingService"
+  },
+  "createService": "Unda Huduma",
+  "@createService": {
+    "description": "Translation for createService"
+  },
+  "selectCategoryError": "Tafadhali chagua kategoria",
+  "@selectCategoryError": {
+    "description": "Translation for selectCategoryError"
+  },
+  "failedToLoadCategories": "Imeshindikana kupakia kategoria: {error}",
+  "@failedToLoadCategories": {
+    "description": "Translation for failedToLoadCategories",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "editService": "Hariri Huduma",
+  "@editService": {
+    "description": "Translation for editService"
+  },
+  "changeServiceImage": "Badilisha Picha ya Huduma",
+  "@changeServiceImage": {
+    "description": "Translation for changeServiceImage"
+  },
+  "updateService": "Sasisha Huduma",
+  "@updateService": {
+    "description": "Translation for updateService"
+  },
+  "myAgriculturalServices": "Huduma Zangu za Kilimo",
+  "@myAgriculturalServices": {
+    "description": "Translation for myAgriculturalServices"
+  },
+  "serviceProviderRoleRequired": "Unahitaji kuwa na jukumu la Mtoa Huduma ili kudhibiti huduma.",
+  "@serviceProviderRoleRequired": {
+    "description": "Translation for serviceProviderRoleRequired"
+  },
+  "failedToLoadServices": "Imeshindikana kupakia huduma: {error}",
+  "@failedToLoadServices": {
+    "description": "Translation for failedToLoadServices",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "noServicesYet": "Hakuna Huduma Bado",
+  "@noServicesYet": {
+    "description": "Translation for noServicesYet"
+  },
+  "startOfferingServices": "Anza kutoa huduma za kilimo kwa wakulima na kukuza biashara yako",
+  "@startOfferingServices": {
+    "description": "Translation for startOfferingServices"
+  },
+  "addYourFirstService": "Ongeza Huduma Yako ya Kwanza",
+  "@addYourFirstService": {
+    "description": "Translation for addYourFirstService"
+  },
+  "noDescription": "Hakuna Maelezo",
+  "@noDescription": {
+    "description": "Translation for noDescription"
+  },
+  "servicePrice": "TZS {price}",
+  "@servicePrice": {
+    "description": "Translation for servicePrice",
+    "placeholders": {
+      "price": {"type": "num"}
+    }
+  },
+  "pending": "Inasubiri",
+  "@pending": {
+    "description": "Translation for pending"
+  },
+  "editServiceLabel": "Hariri Huduma",
+  "@editServiceLabel": {
+    "description": "Translation for editServiceLabel"
+  },
+  "deleteServiceLabel": "Futa Huduma",
+  "@deleteServiceLabel": {
+    "description": "Translation for deleteServiceLabel"
+  },
+  "confirmDeleteService": "Je, una uhakika unataka kufuta \"{title}\"?",
+  "@confirmDeleteService": {
+    "description": "Translation for confirmDeleteService",
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "serviceDeletedSuccessfully": "Huduma imefutwa kwa mafanikio",
+  "@serviceDeletedSuccessfully": {
+    "description": "Translation for serviceDeletedSuccessfully"
+  },
+  "failedToDeleteService": "Imeshindikana kufuta huduma: {error}",
+  "@failedToDeleteService": {
+    "description": "Translation for failedToDeleteService",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "addService": "Ongeza Huduma",
+  "@addService": {
+    "description": "Translation for addService"
+  },
+  "welcomeTo": "Karibu katika",
+  "@welcomeTo": {
+    "description": "Translation for welcomeTo"
+  },
+  "agricultureDescription": "Kila kitu unachohitaji kujua kuhusu kilimo kiko hapa",
+  "@agricultureDescription": {
+    "description": "Translation for agricultureDescription"
+  },
+  "searchProducts": "Tafuta bidhaa...",
+  "@searchProducts": {
+    "description": "Translation for searchProducts"
+  },
+  "categories": "Kategoria",
+  "@categories": {
+    "description": "Translation for categories"
+  },
+  "seeAll": "Ona Zote",
+  "@seeAll": {
+    "description": "Translation for seeAll"
+  },
+  "noCategoriesAvailable": "Hakuna kategoria zinazopatikana",
+  "@noCategoriesAvailable": {
+    "description": "Translation for noCategoriesAvailable"
+  },
+  "marketNews": "Habari za Soko",
+  "@marketNews": {
+    "description": "Translation for marketNews"
+  },
+  "loadingMarketNews": "Inapakia habari za soko...",
+  "@loadingMarketNews": {
+    "description": "Translation for loadingMarketNews"
+  },
+  "failedToLoadMarketNews": "Imeshindikana kupakia habari za soko",
+  "@failedToLoadMarketNews": {
+    "description": "Translation for failedToLoadMarketNews"
+  },
+  "tapToRetry": "Gusa ili kujaribu tena",
+  "@tapToRetry": {
+    "description": "Translation for tapToRetry"
+  },
+  "stayUpdatedMarketNews": "Endelea Kupata Habari za Soko",
+  "@stayUpdatedMarketNews": {
+    "description": "Translation for stayUpdatedMarketNews"
+  },
+  "marketNewsDescription": "Pata mwenendo wa hivi karibuni wa soko la kilimo, bei, na maarifa ili kufanya maamuzi ya busara.",
+  "@marketNewsDescription": {
+    "description": "Translation for marketNewsDescription"
+  },
+  "exploreNews": "Chunguza Habari",
+  "@exploreNews": {
+    "description": "Translation for exploreNews"
+  },
+  "featuredProducts": "Bidhaa Zilizotangazwa",
+  "@featuredProducts": {
+    "description": "Translation for featuredProducts"
+  },
+  "noFeaturedProductsAvailable": "Hakuna bidhaa zilizotangazwa zinazopatikana",
+  "@noFeaturedProductsAvailable": {
+    "description": "Translation for noFeaturedProductsAvailable"
+  },
+  "errorLoadingFeaturedProducts": "Kosa katika kupakia bidhaa zilizotangazwa: {error}",
+  "@errorLoadingFeaturedProducts": {
+    "description": "Translation for errorLoadingFeaturedProducts",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "failedToLoadMarketInformation": "Imeshindikana kupakia habari za soko.",
+  "@failedToLoadMarketInformation": {
+    "description": "Translation for failedToLoadMarketInformation"
+  },
+  "removedFromWishlist": "Imeondolewa kutoka kwenye orodha ya vipendwa",
+  "@removedFromWishlist": {
+    "description": "Translation for removedFromWishlist"
+  },
+  "addedToWishlist": "Imeongezwa kwenye orodha ya vipendwa",
+  "@addedToWishlist": {
+    "description": "Translation for addedToWishlist"
+  },
+  "productAddedToCart": "{productName} imeongezwa kwenye mkokoteni",
+  "@productAddedToCart": {
+    "description": "Translation for productAddedToCart",
+    "placeholders": {
+      "productName": {"type": "String"}
+    }
+  },
+  "viewCart": "Ona Mkokoteni",
+  "@viewCart": {
+    "description": "Translation for viewCart"
+  },
+  "noCategoriesFound": "Hakuna kategoria zilizopatikana",
+  "@noCategoriesFound": {
+    "description": "Translation for noCategoriesFound"
+  }
+}
