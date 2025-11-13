@@ -1,0 +1,24 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../wamp64/www/masoko_tips_api"
+		}
+	],
+	"settings": {
+		"postman.settings.dotenv-detection-notification-visibility": false,
+		"askcodi.apiKey": "lEeA9mZDrky11BYUESgW"
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+		{
+			"name": "Flutter: Attach to Device",
+			"type": "dart",
+			"request": "attach"
+		}
+		]
+	}
+}

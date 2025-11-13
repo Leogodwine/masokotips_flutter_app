@@ -1,0 +1,1059 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../models/market_info.dart';
+import '../../services/market_info_service.dart';
+import '../../providers/auth_provider.dart';
+import '../../widgets/error_handler.dart';
+import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import '../../utils/image_upload_helper.dart';
+import 'package:image_picker/image_picker.dart';
+
+class MarketInfoManagementScreen extends StatefulWidget {
+  const MarketInfoManagementScreen({super.key});
+
+  @override
+  State<MarketInfoManagementScreen> createState() =>
+      _MarketInfoManagementScreenState();
+}
+
+class _MarketInfoManagementScreenState
+    extends State<MarketInfoManagementScreen> {
+  final MarketInfoService _marketInfoService = MarketInfoService();
+  List<MarketInfo> _marketInfoList = [];
+  bool _isLoading = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    final authProvider = context.read<AuthProvider>();
+    if (authProvider.token != null) {
+      _marketInfoService.setAuthToken(authProvider.token!);
+      _loadMarketInfo();
+    }
+  }
+
+  Future<void> _loadMarketInfo() async {
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+    }
+
+    try {
+      final marketInfo = await _marketInfoService.getAllMarketInfo();
+      if (mounted) {
+        setState(() {
+          _marketInfoList = marketInfo;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _deleteMarketInfo(MarketInfo marketInfo) async {
+    try {
+      await _marketInfoService.deleteMarketInfo(marketInfo.id.toString());
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Market information deleted successfully')),
+        );
+        _loadMarketInfo(); // Refresh the list
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to delete market information: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _openAddMarketInfoScreen() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    // Check if user is authenticated
+    if (!authProvider.isAuthenticated || authProvider.token == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please login to add market information'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        // Navigate to admin login screen instead of regular login
+        Navigator.pushNamed(context, '/admin/login');
+      }
+      return;
+    }
+
+    // Check if user has admin role
+    if (authProvider.user == null ||
+        !authProvider.user!.roles.contains('admin')) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Only administrators can add market information'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
+    }
+
+    // Set the auth token for the market info service
+    _marketInfoService.setAuthToken(authProvider.token!);
+
+    // Navigate to add market info screen
+    if (mounted) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AddMarketInfoScreen(
+            onMarketInfoAdded: (marketInfo) {
+              setState(() {
+                _marketInfoList.add(marketInfo);
+              });
+            },
+            marketInfoService: _marketInfoService,
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _openEditMarketInfoScreen(MarketInfo marketInfo) async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    if (authProvider.token == null || authProvider.token!.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please login to edit market information'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        // Navigate to admin login screen instead of regular login
+        Navigator.pushNamed(context, '/admin/login');
+      }
+      return;
+    }
+
+    // Check if user has admin role
+    if (!authProvider.user!.roles.contains('admin')) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Only administrators can edit market information'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
+    }
+
+    // Set the auth token for the market info service
+    _marketInfoService.setAuthToken(authProvider.token!);
+
+    // Navigate to edit market info screen
+    if (mounted) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => EditMarketInfoScreen(
+            marketInfo: marketInfo,
+            onMarketInfoUpdated: (updatedMarketInfo) {
+              setState(() {
+                final index = _marketInfoList
+                    .indexWhere((info) => info.id == updatedMarketInfo.id);
+                if (index != -1) {
+                  _marketInfoList[index] = updatedMarketInfo;
+                }
+              });
+            },
+            marketInfoService: _marketInfoService,
+          ),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Market Information Management'),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _error != null
+              ? ErrorHandler(
+                  message: _error!,
+                  onRetry: _loadMarketInfo,
+                )
+              : RefreshIndicator(
+                  onRefresh: _loadMarketInfo,
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: _marketInfoList.isEmpty
+                            ? Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.info_outline,
+                                      size: 64,
+                                      color: Colors.grey[400],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      'No market information yet',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Add your first market information to get started',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(color: Colors.grey[600]),
+                                    ),
+                                    const SizedBox(height: 24),
+                                    ElevatedButton.icon(
+                                      onPressed: _openAddMarketInfoScreen,
+                                      icon: const Icon(Icons.add),
+                                      label:
+                                          const Text('Add Market Information'),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : ListView.builder(
+                                padding: const EdgeInsets.all(16),
+                                itemCount: _marketInfoList.length,
+                                itemBuilder: (context, index) {
+                                  final marketInfo = _marketInfoList[index];
+                                  return Card(
+                                    margin: const EdgeInsets.only(bottom: 16),
+                                    elevation: 2,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        // Image section
+                                        ClipRRect(
+                                          borderRadius: const BorderRadius.only(
+                                            topLeft: Radius.circular(12),
+                                            topRight: Radius.circular(12),
+                                          ),
+                                          child: Image.network(
+                                            marketInfo.imageUrl,
+                                            height: 180,
+                                            width: double.infinity,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (context, error, stackTrace) =>
+                                                    Container(
+                                              height: 180,
+                                              color: Colors.grey[300],
+                                              child: const Center(
+                                                child: Icon(
+                                                  Icons.image_not_supported,
+                                                  size: 48,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+
+                                        // Content section
+                                        Padding(
+                                          padding: const EdgeInsets.all(16),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              // Title and date row
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      marketInfo.title,
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .titleLarge
+                                                          ?.copyWith(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    '${marketInfo.createdAt.day}/${marketInfo.createdAt.month}/${marketInfo.createdAt.year}',
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .bodySmall
+                                                        ?.copyWith(
+                                                            color: Colors
+                                                                .grey[600]),
+                                                  ),
+                                                ],
+                                              ),
+
+                                              const SizedBox(height: 12),
+
+                                              // Content
+                                              Text(
+                                                marketInfo.content,
+                                                maxLines: 3,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyMedium,
+                                              ),
+
+                                              const SizedBox(height: 16),
+
+                                              // Tags row
+                                              Wrap(
+                                                spacing: 8,
+                                                runSpacing: 8,
+                                                children: [
+                                                  if (marketInfo
+                                                      .location.isNotEmpty)
+                                                    Chip(
+                                                      materialTapTargetSize:
+                                                          MaterialTapTargetSize
+                                                              .shrinkWrap,
+                                                      avatar: const Icon(
+                                                        Icons.location_on,
+                                                        size: 16,
+                                                        color: Colors.blue,
+                                                      ),
+                                                      label: Text(
+                                                        marketInfo.location,
+                                                        style: const TextStyle(
+                                                            fontSize: 12),
+                                                      ),
+                                                      backgroundColor:
+                                                          Colors.blue[50],
+                                                      labelStyle: TextStyle(
+                                                        color: Colors.blue[800],
+                                                      ),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              4),
+                                                    ),
+                                                  if (marketInfo
+                                                      .category.isNotEmpty)
+                                                    Chip(
+                                                      materialTapTargetSize:
+                                                          MaterialTapTargetSize
+                                                              .shrinkWrap,
+                                                      avatar: const Icon(
+                                                        Icons.category,
+                                                        size: 16,
+                                                        color: Colors.green,
+                                                      ),
+                                                      label: Text(
+                                                        marketInfo.category,
+                                                        style: const TextStyle(
+                                                            fontSize: 12),
+                                                      ),
+                                                      backgroundColor:
+                                                          Colors.green[50],
+                                                      labelStyle: TextStyle(
+                                                        color:
+                                                            Colors.green[800],
+                                                      ),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              4),
+                                                    ),
+                                                  if (marketInfo.isFeatured)
+                                                    Chip(
+                                                      materialTapTargetSize:
+                                                          MaterialTapTargetSize
+                                                              .shrinkWrap,
+                                                      avatar: const Icon(
+                                                        Icons.star,
+                                                        size: 16,
+                                                        color: Colors.amber,
+                                                      ),
+                                                      label: const Text(
+                                                        'Featured',
+                                                        style: TextStyle(
+                                                            fontSize: 12),
+                                                      ),
+                                                      backgroundColor:
+                                                          Colors.amber[50],
+                                                      labelStyle: TextStyle(
+                                                        color:
+                                                            Colors.amber[800],
+                                                      ),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              4),
+                                                    ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+
+                                        // Actions row
+                                        Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              8, 0, 8, 8),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              TextButton.icon(
+                                                onPressed: () =>
+                                                    _openEditMarketInfoScreen(
+                                                        marketInfo),
+                                                icon: const Icon(
+                                                  Icons.edit_outlined,
+                                                ),
+                                                label: const Text('Edit'),
+                                              ),
+                                              TextButton.icon(
+                                                onPressed: () {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (context) =>
+                                                        AlertDialog(
+                                                      title: const Text(
+                                                          'Delete Market Information'),
+                                                      content: const Text(
+                                                          'Are you sure you want to delete this market information?'),
+                                                      actions: [
+                                                        TextButton(
+                                                          onPressed: () =>
+                                                              Navigator.pop(
+                                                                  context),
+                                                          child: const Text(
+                                                              'CANCEL'),
+                                                        ),
+                                                        TextButton(
+                                                          onPressed: () {
+                                                            Navigator.pop(
+                                                                context);
+                                                            _deleteMarketInfo(
+                                                                marketInfo);
+                                                          },
+                                                          style: TextButton
+                                                              .styleFrom(
+                                                            foregroundColor:
+                                                                Colors.red,
+                                                          ),
+                                                          child: const Text(
+                                                              'DELETE'),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                },
+                                                icon: const Icon(
+                                                  Icons.delete_outline,
+                                                ),
+                                                label: const Text('Delete'),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        PopupMenuButton<String>(
+                                          onSelected: (value) {
+                                            if (value == 'edit') {
+                                              _openEditMarketInfoScreen(
+                                                  marketInfo);
+                                            } else if (value == 'delete') {
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) =>
+                                                    AlertDialog(
+                                                  title: const Text(
+                                                      'Delete Market Information'),
+                                                  content: const Text(
+                                                      'Are you sure you want to delete this market information?'),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () =>
+                                                          Navigator.pop(
+                                                              context),
+                                                      child:
+                                                          const Text('CANCEL'),
+                                                    ),
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(context);
+                                                        _deleteMarketInfo(
+                                                            marketInfo);
+                                                      },
+                                                      style:
+                                                          TextButton.styleFrom(
+                                                        foregroundColor:
+                                                            Colors.red,
+                                                      ),
+                                                      child:
+                                                          const Text('DELETE'),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          itemBuilder: (context) => [
+                                            const PopupMenuItem<String>(
+                                              value: 'edit',
+                                              child: Row(
+                                                children: [
+                                                  Icon(Icons.edit),
+                                                  SizedBox(width: 8),
+                                                  Text('Edit'),
+                                                ],
+                                              ),
+                                            ),
+                                            const PopupMenuItem<String>(
+                                              value: 'delete',
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.delete,
+                                                    color: Colors.red,
+                                                  ),
+                                                  SizedBox(width: 8),
+                                                  Text(
+                                                    'Delete',
+                                                    style: TextStyle(
+                                                      color: Colors.red,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                      ),
+                    ],
+                  ),
+                ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _openAddMarketInfoScreen,
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class AddMarketInfoScreen extends StatefulWidget {
+  final Function(MarketInfo) onMarketInfoAdded;
+  final MarketInfoService marketInfoService;
+
+  const AddMarketInfoScreen({
+    super.key,
+    required this.onMarketInfoAdded,
+    required this.marketInfoService,
+  });
+
+  @override
+  State<AddMarketInfoScreen> createState() => _AddMarketInfoScreenState();
+}
+
+class _AddMarketInfoScreenState extends State<AddMarketInfoScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _titleController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _contactController = TextEditingController();
+  final _locationController = TextEditingController();
+  XFile? _imageFile;
+  bool _isLoading = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+    _contactController.dispose();
+    _locationController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final imageFile = await ImageUploadHelper.pickImage();
+
+    if (imageFile != null) {
+      setState(() {
+        _imageFile = imageFile;
+      });
+    }
+  }
+
+  Future<void> _submitForm() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+
+      try {
+        String? imageUrl;
+        if (_imageFile != null) {
+          // Create a temporary market info to get an ID
+          final tempMarketInfo = await widget.marketInfoService.addMarketInfo(
+            title: _titleController.text,
+            description: _descriptionController.text,
+            content: _descriptionController.text,
+            contact: _contactController.text,
+            location: _locationController.text.isNotEmpty
+                ? _locationController.text
+                : null,
+          );
+
+          // Upload the image
+          imageUrl = await widget.marketInfoService.uploadMarketInfoImage(
+            tempMarketInfo.id.toString(),
+            _imageFile!.path,
+          );
+        }
+
+        // Create the final market info with the image URL
+        final marketInfo = await widget.marketInfoService.addMarketInfo(
+          title: _titleController.text,
+          description: _descriptionController.text,
+          content: _descriptionController.text,
+          contact: _contactController.text,
+          location: _locationController.text.isNotEmpty
+              ? _locationController.text
+              : null,
+          imageUrl: imageUrl,
+        );
+
+        widget.onMarketInfoAdded(marketInfo);
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        setState(() {
+          _error = e.toString();
+        });
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Add Market News'),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextFormField(
+                      controller: _titleController,
+                      decoration: const InputDecoration(
+                        labelText: 'Title',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a title';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _descriptionController,
+                      decoration: const InputDecoration(
+                        labelText: 'Description',
+                        border: OutlineInputBorder(),
+                      ),
+                      maxLines: 3,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a description';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _contactController,
+                      decoration: const InputDecoration(
+                        labelText: 'Contact Information',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter contact information';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _locationController,
+                      decoration: const InputDecoration(
+                        labelText: 'Location (Optional)',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    if (_imageFile != null)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: kIsWeb
+                            ? Image.network(
+                                _imageFile!.path,
+                                height: 200,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  debugPrint('Error loading image: $error');
+                                  return Container(
+                                    height: 200,
+                                    color: Colors.grey[300],
+                                    child: const Center(
+                                      child:
+                                          Icon(Icons.error_outline, size: 48),
+                                    ),
+                                  );
+                                },
+                              )
+                            : Image.file(
+                                File(_imageFile!.path),
+                                height: 200,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  debugPrint('Error loading image: $error');
+                                  return Container(
+                                    height: 200,
+                                    color: Colors.grey[300],
+                                    child: const Center(
+                                      child:
+                                          Icon(Icons.error_outline, size: 48),
+                                    ),
+                                  );
+                                },
+                              ),
+                      ),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: _pickImage,
+                      icon: const Icon(Icons.image),
+                      label: const Text('Pick Image'),
+                    ),
+                    const SizedBox(height: 16),
+                    if (_error != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Text(
+                          _error!,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ElevatedButton(
+                      onPressed: _submitForm,
+                      child: const Text('Add Market Information'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+    );
+  }
+}
+
+class EditMarketInfoScreen extends StatefulWidget {
+  final MarketInfo marketInfo;
+  final Function(MarketInfo) onMarketInfoUpdated;
+  final MarketInfoService marketInfoService;
+
+  const EditMarketInfoScreen({
+    super.key,
+    required this.marketInfo,
+    required this.onMarketInfoUpdated,
+    required this.marketInfoService,
+  });
+
+  @override
+  State<EditMarketInfoScreen> createState() => _EditMarketInfoScreenState();
+}
+
+class _EditMarketInfoScreenState extends State<EditMarketInfoScreen> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _titleController;
+  late final TextEditingController _contentController;
+  late final TextEditingController _locationController;
+  late final TextEditingController _categoryController;
+  XFile? _imageFile;
+  bool _isLoading = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(text: widget.marketInfo.title);
+    _contentController = TextEditingController(text: widget.marketInfo.content);
+    _locationController =
+        TextEditingController(text: widget.marketInfo.location);
+    _categoryController =
+        TextEditingController(text: widget.marketInfo.category);
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _contentController.dispose();
+    _locationController.dispose();
+    _categoryController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final imageFile = await ImageUploadHelper.pickImage();
+
+    if (imageFile != null) {
+      setState(() {
+        _imageFile = imageFile;
+      });
+    }
+  }
+
+  Future<void> _submitForm() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+
+      try {
+        String? imageUrl;
+        if (_imageFile != null) {
+          imageUrl = await widget.marketInfoService.uploadMarketInfoImage(
+            widget.marketInfo.id.toString(),
+            _imageFile!.path,
+          );
+        }
+
+        final updatedMarketInfo =
+            await widget.marketInfoService.updateMarketInfo(
+          id: widget.marketInfo.id.toString(),
+          title: _titleController.text,
+          content: _contentController.text,
+          description: _contentController.text,
+          imageUrl: imageUrl ?? widget.marketInfo.imageUrl,
+          location: _locationController.text.isNotEmpty
+              ? _locationController.text
+              : null,
+          category: _categoryController.text.isNotEmpty
+              ? _categoryController.text
+              : null,
+        );
+
+        widget.onMarketInfoUpdated(updatedMarketInfo);
+
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        setState(() {
+          _error = e.toString();
+        });
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Edit Market Information'),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (_error != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Text(
+                    _error!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+              TextFormField(
+                controller: _titleController,
+                decoration: const InputDecoration(
+                  labelText: 'Title',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a title';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _contentController,
+                decoration: const InputDecoration(
+                  labelText: 'Content',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 5,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter content';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _locationController,
+                decoration: const InputDecoration(
+                  labelText: 'Location (Optional)',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _categoryController,
+                decoration: const InputDecoration(
+                  labelText: 'Category (Optional)',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: _pickImage,
+                icon: const Icon(Icons.image),
+                label: const Text('Change Image'),
+              ),
+              if (_imageFile != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: kIsWeb
+                        ? Image.network(
+                            _imageFile!.path,
+                            height: 200,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              debugPrint('Error loading image: $error');
+                              return Container(
+                                height: 200,
+                                color: Colors.grey[300],
+                                child: const Center(
+                                  child: Icon(Icons.error_outline, size: 48),
+                                ),
+                              );
+                            },
+                          )
+                        : Image.file(
+                            File(_imageFile!.path),
+                            height: 200,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              debugPrint('Error loading image: $error');
+                              return Container(
+                                height: 200,
+                                color: Colors.grey[300],
+                                child: const Center(
+                                  child: Icon(Icons.error_outline, size: 48),
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  widget.marketInfo.imageUrl,
+                  height: 200,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    debugPrint('Error loading image: $error');
+                    return Container(
+                      height: 200,
+                      color: Colors.grey[300],
+                      child: const Center(
+                        child: Icon(Icons.error_outline, size: 48),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _isLoading ? null : _submitForm,
+                child: _isLoading
+                    ? const CircularProgressIndicator()
+                    : const Text('Update Market Information'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
