@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../models/market_info.dart';
 import 'api_service.dart';
+import '../models/market_info.dart';
 import '../utils/logger.dart';
 
 class MarketInfoService {
@@ -9,34 +9,24 @@ class MarketInfoService {
 
   MarketInfoService(this._apiService);
 
+  /// Fetches the public list of market information.
+  ///
   Future<List<MarketInfo>> getMarketInfo() async {
     try {
-      final uri = Uri.parse('${_apiService.baseUrl}/market-info');
-      Log.d('MarketInfoService: Fetching market info from: $uri');
-
-      final response = await http.get(
-        uri,
-        headers: _apiService.headers,
-      );
-
-      Log.d('MarketInfoService: Response status: ${response.statusCode}');
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body)['data'];
+      Log.d('MarketInfoService: Fetching public market info via ApiService.');
+      // Delegate the network call to the ApiService
+      final response = await _apiService.getPublicRequest('market-info');
+      // The ApiService already handles status code checks and initial JSON decoding.
+      if (response.containsKey('data')) {
+        final List<dynamic> data = response['data'];
         final marketInfoList =
             data.map((json) => MarketInfo.fromJson(json)).toList();
         Log.d(
             'MarketInfoService: Successfully parsed ${marketInfoList.length} market info items');
         return marketInfoList;
       } else {
-        // If the user is not authenticated, the API will return a 401.
-        // In this case, we should return an empty list instead of throwing an error.
-        if (response.statusCode == 401) {
-          return [];
-        }
-        Log.e(
-            'MarketInfoService: Failed to load market info. Status code: ${response.statusCode}, Body: ${response.body}');
-        throw Exception('Failed to load market information');
+        Log.e('MarketInfoService: API response does not contain a "data" key.');
+        throw Exception('Invalid data format from server.');
       }
     } catch (e) {
       Log.e('MarketInfoService: Error fetching market info: $e');

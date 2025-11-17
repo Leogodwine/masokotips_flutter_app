@@ -33,6 +33,14 @@ class ApiService {
         if (_authToken != null) 'Authorization': 'Bearer $_authToken',
       };
 
+  Map<String, String> get _publicHeaders => {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        // Add a common browser User-Agent to try and bypass server-side bot detection.
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+      };
+
   // Generic GET method
   Future<Map<String, dynamic>> getRequest(String endpoint) async {
     try {
@@ -48,6 +56,25 @@ class ApiService {
       }
     } catch (e) {
       Log.e('Error in GET request: $e');
+      rethrow;
+    }
+  }
+
+  // Generic public GET method (no auth token)
+  Future<Map<String, dynamic>> getPublicRequest(String endpoint) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/$endpoint'),
+        headers: _publicHeaders,
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to fetch public data: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error in public GET request: $e');
       rethrow;
     }
   }

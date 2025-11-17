@@ -567,7 +567,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                               const SizedBox(height: 16),
                               Text(
                                 localizations
-                                    .noCategoriesAvailable, // TODO: Replace with a specific 'noMarketNewsAvailable' key
+                                    .failedToLoadMarketNews, // TODO: Replace with a specific 'noMarketNewsAvailable' key
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: Colors.grey[600],
