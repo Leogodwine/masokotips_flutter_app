@@ -381,6 +381,7 @@
     "marketNews":  "Market News",
     "loadingMarketNews":  "Loading market news...",
     "failedToLoadMarketNews":  "Failed to load market news",
+    "noMarketNewsAvailable":  "No market news available",
     "tapToRetry":  "Tap to retry",
     "stayUpdatedMarketNews":  "Stay Updated with Market News",
     "marketNewsDescription":  "Get the latest agricultural market trends, prices, and insights to make informed decisions.",
@@ -1528,11 +1529,14 @@
                                "description":  "Description for loadingMarketNews"
                            },
     "@failedToLoadMarketNews":  {
-                                    "description":  "Description for failedToLoadMarketNews"
-                                },
+                                     "description":  "Description for failedToLoadMarketNews"
+                                 },
+    "@noMarketNewsAvailable":  {
+                                     "description":  "Description for noMarketNewsAvailable"
+                                 },
     "@tapToRetry":  {
-                        "description":  "Description for tapToRetry"
-                    },
+                         "description":  "Description for tapToRetry"
+                     },
     "@stayUpdatedMarketNews":  {
                                    "description":  "Description for stayUpdatedMarketNews"
                                },

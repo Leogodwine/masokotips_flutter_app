@@ -1440,6 +1440,10 @@
     "description": "Translation for loadingMarketNews"
   },
   "failedToLoadMarketNews": "Imeshindikana kupakia habari za soko",
+  "noMarketNewsAvailable": "Hakuna habari za soko zinazopatikana",
+  "@noMarketNewsAvailable": {
+    "description": "Translation for noMarketNewsAvailable"
+  },
   "@failedToLoadMarketNews": {
     "description": "Translation for failedToLoadMarketNews"
   },
