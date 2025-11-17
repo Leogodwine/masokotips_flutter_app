@@ -8,8 +8,11 @@ class MarketInfoProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
-  MarketInfoProvider({MarketInfoService? marketInfoService})
-      : _marketInfoService = marketInfoService ?? MarketInfoService();
+  MarketInfoProvider({required MarketInfoService marketInfoService})
+      : _marketInfoService = marketInfoService;
+
+  // Expose the service for screens that need direct access
+  MarketInfoService get marketInfoService => _marketInfoService;
 
   List<MarketInfo> get marketInfoList => _marketInfoList;
   bool get isLoading => _isLoading;
@@ -19,7 +22,7 @@ class MarketInfoProvider extends ChangeNotifier {
     _setLoadingState(true);
 
     try {
-      _marketInfoList = await _marketInfoService.getAllMarketInfo();
+      _marketInfoList = await _marketInfoService.getMarketInfo();
       _setErrorState(null);
     } catch (e) {
       _setErrorState(e.toString());
@@ -28,30 +31,53 @@ class MarketInfoProvider extends ChangeNotifier {
     }
   }
 
+  Future<List<MarketInfo>> fetchMarketInfo() async {
+    _setLoadingState(true);
+    try {
+      _marketInfoList = await _marketInfoService.getMarketInfo();
+      _setErrorState(null);
+      return _marketInfoList;
+    } catch (e) {
+      _setErrorState(e.toString());
+      rethrow;
+    } finally {
+      _setLoadingState(false);
+    }
+  }
+
+  Future<void> deleteMarketInfo(String id) async {
+    await _marketInfoService.deleteMarketInfo(id);
+    _marketInfoList.removeWhere((info) => info.id.toString() == id);
+    _notifySafely();
+  }
+
   Future<void> addMarketInfo({
     required String title,
     required String description,
     required String content,
-    String? imageUrl,
+    required String contact,
     String? location,
     String? category,
-    String? contact,
+    String? imageUrl,
   }) async {
+    _setLoadingState(true);
     try {
-      final marketInfo = await _marketInfoService.addMarketInfo(
+      final newInfo = await _marketInfoService.addMarketInfo(
         title: title,
         description: description,
         content: content,
-        imageUrl: imageUrl,
+        contact: contact,
         location: location,
         category: category,
-        contact: contact,
+        imageUrl: imageUrl,
       );
-      _marketInfoList.add(marketInfo);
-      _notifySafely();
+      _marketInfoList.add(newInfo);
+      _setErrorState(null);
     } catch (e) {
       _setErrorState(e.toString());
       rethrow;
+    } finally {
+      _setLoadingState(false);
     }
   }
 
@@ -60,45 +86,25 @@ class MarketInfoProvider extends ChangeNotifier {
     required String title,
     required String description,
     required String content,
-    String? imageUrl,
     String? location,
     String? category,
-    String? contact,
+    String? imageUrl,
   }) async {
-    try {
-      final updatedMarketInfo = await _marketInfoService.updateMarketInfo(
-        id: id,
-        title: title,
-        description: description,
-        content: content,
-        imageUrl: imageUrl,
-        location: location,
-        category: category,
-        contact: contact,
-      );
-      final index =
-          _marketInfoList.indexWhere((info) => info.id.toString() == id);
-      if (index != -1) {
-        _marketInfoList[index] = updatedMarketInfo;
-        _notifySafely();
-      }
-    } catch (e) {
-      _setErrorState(e.toString());
-      rethrow;
+    final updatedInfo = await _marketInfoService.updateMarketInfo(
+      id: id,
+      title: title,
+      description: description,
+      content: content,
+      location: location,
+      category: category,
+      imageUrl: imageUrl,
+    );
+    final index =
+        _marketInfoList.indexWhere((info) => info.id.toString() == id);
+    if (index != -1) {
+      _marketInfoList[index] = updatedInfo;
+      _notifySafely();
     }
-  }
-
-  Future<void> deleteMarketInfo(String id) async {
-    try {
-      await _marketInfoService.deleteMarketInfo(id);
-      await loadMarketInfo();
-    } catch (e) {
-      _setErrorState(e.toString());
-    }
-  }
-
-  void setAuthToken(String token) {
-    _marketInfoService.setAuthToken(token);
   }
 
   // Helper to set loading state

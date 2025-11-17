@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import '../models/market_info.dart';
-import '../screens/market_info/market_info_detail_screen.dart';
 import 'cached_network_image_with_cors.dart';
 
 class MarketInfoCard extends StatelessWidget {
   final MarketInfo marketInfo;
   final double? width;
   final double? height;
+  final VoidCallback? onTap;
 
   const MarketInfoCard({
     super.key,
     required this.marketInfo,
     this.width,
     this.height,
+    this.onTap,
   });
 
   @override
@@ -27,24 +28,7 @@ class MarketInfoCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
         ),
         child: InkWell(
-          onTap: () {
-            // Add safety check to ensure context is still valid
-            if (context.mounted) {
-              debugPrint(
-                  'MarketInfoCard: Navigating to detail screen for: ${marketInfo.title}');
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MarketInfoDetailScreen(
-                    marketInfo: marketInfo,
-                  ),
-                ),
-              );
-            } else {
-              debugPrint(
-                  'MarketInfoCard: Context not mounted, skipping navigation');
-            }
-          },
+          onTap: onTap,
           borderRadius: BorderRadius.circular(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,69 +173,6 @@ class MarketInfoCard extends StatelessWidget {
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 6), // Minimal spacing after title
-            // Location & Category
-            Row(
-              children: [
-                Icon(
-                  Icons.location_on,
-                  size: 12, // Smaller icon
-                  color: Colors.grey[500],
-                ),
-                const SizedBox(width: 4),
-                Flexible(
-                  child: Text(
-                    marketInfo.location.isNotEmpty
-                        ? marketInfo.location
-                        : 'Market News',
-                    style: TextStyle(
-                      fontSize: 11, // Smaller font
-                      color: Colors.grey[600],
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                if (marketInfo.category.isNotEmpty) ...[
-                  const SizedBox(width: 6), // Reduced spacing
-                  Icon(
-                    Icons.category,
-                    size: 12, // Smaller icon
-                    color: Colors.grey[500],
-                  ),
-                  const SizedBox(width: 4),
-                  Flexible(
-                    child: Text(
-                      marketInfo.category,
-                      style: TextStyle(
-                        fontSize: 11, // Smaller font
-                        color: Colors.grey[600],
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-            const SizedBox(height: 4), // Minimal spacing before read more
-            // Read more indicator
-            const Row(
-              children: [
-                Text(
-                  'Read more',
-                  style: TextStyle(
-                    fontSize: 11, // Smaller font
-                    color: Color(0xFF1C592B), // Dark green
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(width: 4),
-                Icon(
-                  Icons.arrow_forward,
-                  size: 11, // Smaller icon
-                  color: Color(0xFF1C592B), // Dark green
-                ),
-              ],
             ),
           ],
         ),

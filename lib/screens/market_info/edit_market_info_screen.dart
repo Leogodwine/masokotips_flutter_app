@@ -17,6 +17,7 @@ class _EditMarketInfoScreenState extends State<EditMarketInfoScreen> {
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
   late TextEditingController _locationController;
+  late TextEditingController _contactController;
   late TextEditingController _categoryController;
   bool _isLoading = false;
 
@@ -29,6 +30,8 @@ class _EditMarketInfoScreenState extends State<EditMarketInfoScreen> {
         TextEditingController(text: widget.marketInfo?.description ?? '');
     _locationController =
         TextEditingController(text: widget.marketInfo?.location ?? '');
+    _contactController =
+        TextEditingController(text: widget.marketInfo?.contact ?? '');
     _categoryController =
         TextEditingController(text: widget.marketInfo?.category ?? '');
   }
@@ -38,6 +41,7 @@ class _EditMarketInfoScreenState extends State<EditMarketInfoScreen> {
     _titleController.dispose();
     _descriptionController.dispose();
     _locationController.dispose();
+    _contactController.dispose();
     _categoryController.dispose();
     super.dispose();
   }
@@ -56,6 +60,7 @@ class _EditMarketInfoScreenState extends State<EditMarketInfoScreen> {
           title: _titleController.text,
           description: _descriptionController.text,
           content: _descriptionController.text,
+          contact: _contactController.text,
           location: _locationController.text,
           category: _categoryController.text,
         );
@@ -65,6 +70,7 @@ class _EditMarketInfoScreenState extends State<EditMarketInfoScreen> {
           title: _titleController.text,
           description: _descriptionController.text,
           content: _descriptionController.text,
+          // contact is not part of update in the service method, so it's omitted here
           location: _locationController.text,
           category: _categoryController.text,
         );
@@ -128,6 +134,20 @@ class _EditMarketInfoScreenState extends State<EditMarketInfoScreen> {
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter a description';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _contactController,
+              decoration: const InputDecoration(
+                labelText: 'Contact',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter contact information';
                 }
                 return null;
               },

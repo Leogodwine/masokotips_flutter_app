@@ -16,6 +16,7 @@ import 'providers/organic_product_provider.dart';
 import 'providers/locale_provider.dart';
 import 'services/organic_product_service.dart';
 import 'services/api_service.dart';
+import 'services/market_info_service.dart';
 import 'config/api_config.dart';
 
 import 'screens/splash_screen.dart';
@@ -73,9 +74,22 @@ class _MyAppState extends State<MyApp> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => MarketInfoProvider()),
-        ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (context) => AuthProvider()),
+        ProxyProvider<AuthProvider, ApiService>(
+          create: (context) =>
+              ApiService(baseUrl: ApiConfig.baseUrl, apiKey: ''),
+          update: (context, auth, previous) {
+            final apiService =
+                previous ?? ApiService(baseUrl: ApiConfig.baseUrl, apiKey: '');
+            if (auth.token != null) {
+              apiService.setAuthToken(auth.token!);
+            }
+            return apiService;
+          },
+        ),
+        ChangeNotifierProvider(
+            create: (context) =>
+                ProductProvider(apiService: context.read<ApiService>())),
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => WishlistProvider()),
         ChangeNotifierProvider(create: (_) => TransportProvider()),
@@ -95,6 +109,13 @@ class _MyAppState extends State<MyApp> {
             }
             return ordersProvider;
           },
+        ),
+        ChangeNotifierProxyProvider<ApiService, MarketInfoProvider>(
+          create: (context) => MarketInfoProvider(
+              marketInfoService: MarketInfoService(context.read<ApiService>())),
+          update: (context, apiService, previous) => MarketInfoProvider(
+            marketInfoService: MarketInfoService(apiService),
+          ),
         ),
         ChangeNotifierProxyProvider<AuthProvider, OrganicProductProvider>(
           create: (context) => OrganicProductProvider(OrganicProductService()),

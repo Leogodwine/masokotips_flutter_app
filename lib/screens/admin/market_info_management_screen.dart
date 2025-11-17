@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/market_info.dart';
+import '../../providers/market_info_provider.dart';
 import '../../services/market_info_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/error_handler.dart';
@@ -19,7 +20,6 @@ class MarketInfoManagementScreen extends StatefulWidget {
 
 class _MarketInfoManagementScreenState
     extends State<MarketInfoManagementScreen> {
-  final MarketInfoService _marketInfoService = MarketInfoService();
   List<MarketInfo> _marketInfoList = [];
   bool _isLoading = false;
   String? _error;
@@ -27,11 +27,7 @@ class _MarketInfoManagementScreenState
   @override
   void initState() {
     super.initState();
-    final authProvider = context.read<AuthProvider>();
-    if (authProvider.token != null) {
-      _marketInfoService.setAuthToken(authProvider.token!);
-      _loadMarketInfo();
-    }
+    _loadMarketInfo();
   }
 
   Future<void> _loadMarketInfo() async {
@@ -43,7 +39,8 @@ class _MarketInfoManagementScreenState
     }
 
     try {
-      final marketInfo = await _marketInfoService.getAllMarketInfo();
+      final marketInfo =
+          await context.read<MarketInfoProvider>().fetchMarketInfo();
       if (mounted) {
         setState(() {
           _marketInfoList = marketInfo;
@@ -62,7 +59,9 @@ class _MarketInfoManagementScreenState
 
   Future<void> _deleteMarketInfo(MarketInfo marketInfo) async {
     try {
-      await _marketInfoService.deleteMarketInfo(marketInfo.id.toString());
+      await context
+          .read<MarketInfoProvider>()
+          .deleteMarketInfo(marketInfo.id.toString());
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -111,9 +110,6 @@ class _MarketInfoManagementScreenState
       return;
     }
 
-    // Set the auth token for the market info service
-    _marketInfoService.setAuthToken(authProvider.token!);
-
     // Navigate to add market info screen
     if (mounted) {
       await Navigator.push(
@@ -125,7 +121,8 @@ class _MarketInfoManagementScreenState
                 _marketInfoList.add(marketInfo);
               });
             },
-            marketInfoService: _marketInfoService,
+            marketInfoService:
+                context.read<MarketInfoProvider>().marketInfoService,
           ),
         ),
       );
@@ -161,9 +158,6 @@ class _MarketInfoManagementScreenState
       return;
     }
 
-    // Set the auth token for the market info service
-    _marketInfoService.setAuthToken(authProvider.token!);
-
     // Navigate to edit market info screen
     if (mounted) {
       await Navigator.push(
@@ -180,7 +174,8 @@ class _MarketInfoManagementScreenState
                 }
               });
             },
-            marketInfoService: _marketInfoService,
+            marketInfoService:
+                context.read<MarketInfoProvider>().marketInfoService,
           ),
         ),
       );

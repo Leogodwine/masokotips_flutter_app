@@ -17,6 +17,7 @@ import '../categories/subcategories_screen.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:masoko_tips/screens/market_info/market_info_screen.dart';
 import '../../widgets/market_info_card.dart';
+import 'package:masoko_tips/screens/market_info/market_info_detail_screen.dart';
 import '../../widgets/friendly_error_display.dart';
 
 class HomeContentScreen extends StatefulWidget {
@@ -163,7 +164,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.15),
+                          color: Colors.white.withAlpha(38),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(
@@ -219,7 +220,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                             fontSize: 18,
                             height: 1.4,
                             fontWeight: FontWeight.w400,
-                            color: Colors.white.withValues(alpha: 0.9),
+                            color: Colors.white.withValues(),
                           ),
                           textAlign: TextAlign.start,
                         ),
@@ -245,15 +246,8 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                         hintText: localizations.searchProducts,
                         prefixIcon:
                             const Icon(Icons.search, color: Colors.grey),
-                        suffixIcon: Container(
-                          margin: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(Icons.tune,
-                              color: Colors.grey, size: 20),
-                        ),
+                        suffixIcon: const Icon(Icons.tune,
+                            color: Colors.grey, size: 20),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
@@ -293,9 +287,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .primaryColor
-                              .withValues(alpha: 0.1),
+                          color: Theme.of(context).primaryColor.withValues(),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
@@ -415,8 +407,9 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
+                        // Line 409
                         crossAxisCount: 2,
-                        childAspectRatio: 1.2,
+                        childAspectRatio: 0.7,
                         crossAxisSpacing: 16,
                         mainAxisSpacing: 16,
                       ),
@@ -454,9 +447,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .primaryColor
-                              .withValues(alpha: 0.1),
+                          color: Theme.of(context).primaryColor.withValues(),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
@@ -501,29 +492,15 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                   Consumer<MarketInfoProvider>(
                     builder: (context, marketInfoProvider, child) {
                       if (marketInfoProvider.isLoading) {
-                        return Container(
-                          height: 220,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[50],
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: Colors.grey[200]!,
-                              width: 1,
-                            ),
-                          ),
+                        return SizedBox(
+                          height: 240,
                           child: Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 const CircularProgressIndicator(),
                                 const SizedBox(height: 16),
-                                Text(
-                                  localizations.loadingMarketNews,
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 14,
-                                  ),
-                                ),
+                                Text(localizations.loadingMarketNews),
                               ],
                             ),
                           ),
@@ -572,127 +549,62 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                           ),
                         );
                       }
+                      //Market News Card
 
                       final marketInfoList = marketInfoProvider.marketInfoList;
 
                       if (marketInfoList.isEmpty) {
-                        return Card(
-                          elevation: 3,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const MarketInfoScreen(),
-                                ),
-                              );
-                            },
-                            borderRadius: BorderRadius.circular(16),
-                            child: Container(
-                              height: 180,
-                              padding: const EdgeInsets.all(24),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Theme.of(context)
-                                        .primaryColor
-                                        .withValues(alpha: 0.1),
-                                    Theme.of(context)
-                                        .primaryColor
-                                        .withValues(alpha: 0.05),
-                                  ],
+                        return Center(
+                            child: Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.newspaper_outlined,
+                                size: 64,
+                                color: Colors.grey[400],
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                localizations
+                                    .noCategoriesAvailable, // TODO: Replace with a specific 'noMarketNewsAvailable' key
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[600],
                                 ),
                               ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 60,
-                                    height: 60,
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context)
-                                          .primaryColor
-                                          .withValues(alpha: 0.15),
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    child: Icon(
-                                      Icons.newspaper,
-                                      size: 30,
-                                      color: Theme.of(context).primaryColor,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 20),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          localizations.stayUpdatedMarketNews,
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                            color:
-                                                Theme.of(context).primaryColor,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          localizations.marketNewsDescription,
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey[600],
-                                            height: 1.4,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 16),
-                                        Row(
-                                          children: [
-                                            Text(
-                                              localizations.exploreNews,
-                                              style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .primaryColor,
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Icon(
-                                              Icons.arrow_forward,
-                                              size: 16,
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            ],
                           ),
-                        );
+                        ));
                       }
 
                       return SizedBox(
-                        height: 240,
+                        height: 260,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 8),
                           itemCount: marketInfoList.length,
                           itemBuilder: (context, index) {
                             final marketInfo = marketInfoList[index];
-                            return MarketInfoCard(marketInfo: marketInfo);
+                            return Container(
+                              width: 300,
+                              margin: const EdgeInsets.symmetric(horizontal: 8),
+                              child: MarketInfoCard(
+                                marketInfo: marketInfo,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          MarketInfoDetailScreen(
+                                        marketInfo: marketInfo,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            );
                           },
                         ),
                       );
@@ -701,6 +613,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                 ],
               ),
             ),
+
             const SizedBox(height: 24),
             // Featured Products Section
             Container(
@@ -897,35 +810,38 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                           ),
                                         ],
                                       ),
-                                      const SizedBox(height: 8),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 8.0),
-                                        child: Text(
-                                          product.name,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 15,
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                product.name,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 15,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                'TZS ${product.price.toStringAsFixed(2)}',
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Theme.of(context)
+                                                      .primaryColor,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(height: 4),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 8.0),
-                                        child: Text(
-                                          'TZS ${product.price.toStringAsFixed(2)}',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color:
-                                                Theme.of(context).primaryColor,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      const Spacer(),
                                       Padding(
                                         padding: const EdgeInsets.only(
                                             right: 8.0, bottom: 8.0),
@@ -1039,86 +955,86 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                 ),
               );
             },
-            child: Padding(
-              padding: const EdgeInsets.all(12), // Only one padding
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Center(
-                    child: Container(
-                      width: imageSize, // Adjusted size
-                      height: imageSize,
-
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: category.imageUrl != null &&
-                                category.imageUrl!.isNotEmpty
-                            ? Image.network(
-                                category.imageUrl!,
-                                fit: BoxFit.cover,
-                                loadingBuilder:
-                                    (context, child, loadingProgress) {
-                                  if (loadingProgress == null) return child;
-                                  return Container(
-                                    color: Colors.grey[200],
-                                    child: const Center(
-                                      child: CircularProgressIndicator(
-                                          strokeWidth: 2),
-                                    ),
-                                  );
-                                },
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Image.asset(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.all(12), // Only one padding
+                child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: imageSize, // Adjusted size
+                          height: imageSize,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: category.imageUrl != null &&
+                                    category.imageUrl!.isNotEmpty
+                                ? Image.network(
+                                    category.imageUrl!,
+                                    fit: BoxFit.cover,
+                                    loadingBuilder:
+                                        (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return Container(
+                                        color: Colors.grey[200],
+                                        child: const Center(
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2),
+                                        ),
+                                      );
+                                    },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Image.asset(
+                                        _getCategoryImage(category.name),
+                                        fit: BoxFit.cover,
+                                      );
+                                    },
+                                  )
+                                : Image.asset(
                                     _getCategoryImage(category.name),
                                     fit: BoxFit.cover,
-                                  );
-                                },
-                              )
-                            : Image.asset(
-                                _getCategoryImage(category.name),
-                                fit: BoxFit.cover,
-                              ),
+                                  ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 8), // Less space
-                  Text(
-                    category.name,
-                    style: TextStyle(
-                      fontSize: constraints.maxWidth > 200 ? 16 : 14,
-                      fontWeight: FontWeight.bold,
-                      height: 1.2, // Add line height for better readability
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 4),
-                  // Display subcategory count
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color:
-                          Theme.of(context).primaryColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '${category.subcategoriesCount} ${category.subcategoriesCount == 1 ? 'subcategory' : 'subcategories'}',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Theme.of(context).primaryColor,
-                        fontWeight: FontWeight.w500,
+                      const SizedBox(height: 8), // Less space
+                      Text(
+                        category.name,
+                        style: TextStyle(
+                          fontSize: constraints.maxWidth > 200 ? 16 : 14,
+                          fontWeight: FontWeight.bold,
+                          height: 1.2, // Add line height for better readability
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
                       ),
-                    ),
-                  ),
-                ],
+                      const SizedBox(height: 4),
+                      // Display subcategory count
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor.withAlpha(25),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          '${category.subcategoriesCount} ${category.subcategoriesCount == 1 ? 'subcategory' : 'subcategories'}',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ]),
               ),
             ),
           ),

@@ -24,9 +24,12 @@ class ApiService {
     _authToken = token;
   }
 
-  Map<String, String> get _headers => {
+  Map<String, String> get headers => {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        // Add a common browser User-Agent to try and bypass server-side bot detection.
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
         if (_authToken != null) 'Authorization': 'Bearer $_authToken',
       };
 
@@ -35,7 +38,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/$endpoint'),
-        headers: _headers,
+        headers: headers,
       );
 
       if (response.statusCode == 200) {
@@ -54,7 +57,7 @@ class ApiService {
     try {
       final response = await http.delete(
         Uri.parse('$baseUrl/$endpoint'),
-        headers: _headers,
+        headers: headers,
       );
 
       if (response.statusCode == 200 || response.statusCode == 204) {
@@ -73,7 +76,7 @@ class ApiService {
       final uri = Uri.parse('$baseUrl/health');
       Log.e('Checking API connection at: $uri');
 
-      final response = await http.get(uri, headers: _headers);
+      final response = await http.get(uri, headers: headers);
       Log.e('Health check response status: ${response.statusCode}');
 
       return response.statusCode == 200;
@@ -97,10 +100,7 @@ class ApiService {
 
       final response = await http.post(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: headers,
         body: jsonEncode(requestBody),
       );
 
@@ -219,10 +219,7 @@ class ApiService {
 
       final response = await http.post(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: headers,
         body: jsonEncode(requestBody),
       );
 
@@ -244,7 +241,7 @@ class ApiService {
       final url = Uri.parse('$baseUrl/user/logout');
       final response = await http.post(
         url,
-        headers: await _getAuthHeaders(),
+        headers: headers,
       );
 
       if (response.statusCode != 200) {
@@ -264,7 +261,7 @@ class ApiService {
 
       final response = await http.post(
         url,
-        headers: _headers,
+        headers: headers,
         body: jsonEncode(requestBody),
       );
 
@@ -290,7 +287,7 @@ class ApiService {
       final url = Uri.parse('$baseUrl/user');
       final response = await http.get(
         url,
-        headers: await _getAuthHeaders(),
+        headers: headers,
       );
 
       if (response.statusCode == 200) {
@@ -317,7 +314,7 @@ class ApiService {
       final request = http.MultipartRequest('POST', url);
 
       // Add authentication headers
-      request.headers.addAll(await _getAuthHeaders());
+      request.headers.addAll(headers);
 
       // Add fields to the request
       request.fields['name'] = name;
@@ -355,7 +352,7 @@ class ApiService {
       final url = Uri.parse('$baseUrl/profile/avatar');
       final request = http.MultipartRequest('POST', url);
 
-      request.headers.addAll(await _getAuthHeaders());
+      request.headers.addAll(headers);
       request.files.add(await http.MultipartFile.fromPath('avatar', imagePath));
 
       final response = await request.send();
@@ -373,15 +370,6 @@ class ApiService {
     throw Exception('Change password endpoint not implemented in API yet');
   }
 
-  // Get authentication headers
-  Future<Map<String, String>> _getAuthHeaders() async {
-    return {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-    };
-  }
-
   // Fetch related products
   Future<List<Product>> getRelatedProducts(int productId) async {
     try {
@@ -391,10 +379,7 @@ class ApiService {
 
       final response = await http.get(
         uri,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: headers,
       );
 
       Log.e('ApiService: Response status code: ${response.statusCode}');
@@ -436,10 +421,7 @@ class ApiService {
         'per_page': perPage.toString(),
       });
 
-      final response = await http.get(uri, headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      });
+      final response = await http.get(uri, headers: headers);
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body)['products'];
@@ -461,11 +443,7 @@ class ApiService {
       Log.e('Fetching products for category: $categoryId');
       Log.e('Request URL: $uri');
 
-      final response = await http.get(uri, headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-      });
+      final response = await http.get(uri, headers: headers);
 
       Log.e('Response status: ${response.statusCode}');
       Log.e('Response body: ${response.body}');
@@ -528,11 +506,7 @@ class ApiService {
       Log.e('Fetching organic products for category: $categoryId');
       Log.e('Request URL: $uri');
 
-      final response = await http.get(uri, headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-      });
+      final response = await http.get(uri, headers: headers);
 
       Log.e('Organic products response status: ${response.statusCode}');
       Log.e('Organic products response body: ${response.body}');
@@ -595,11 +569,7 @@ class ApiService {
 
       final response = await http.get(
         uri,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-        },
+        headers: headers,
       );
 
       Log.e('ApiService: Response status: ${response.statusCode}');
@@ -648,11 +618,7 @@ class ApiService {
 
       final response = await http.get(
         uri,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-        },
+        headers: headers,
       );
 
       Log.e(
@@ -664,6 +630,8 @@ class ApiService {
       final contentType = response.headers['content-type'] ?? '';
 
       if (!contentType.contains('application/json')) {
+        Log.e(
+            'ApiService: Unexpected content type: $contentType. Body: ${response.body}');
         throw Exception('Unexpected response type: $contentType');
       }
 
@@ -710,11 +678,7 @@ class ApiService {
 
       final response = await http.get(
         uri,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-        },
+        headers: headers,
       );
 
       Log.e('ApiService: Response status: ${response.statusCode}');
@@ -725,6 +689,8 @@ class ApiService {
       final contentType = response.headers['content-type'] ?? '';
 
       if (!contentType.contains('application/json')) {
+        Log.e(
+            'ApiService: Unexpected content type: $contentType. Body: ${response.body}');
         throw Exception('Unexpected response type: $contentType');
       }
 
@@ -760,10 +726,7 @@ class ApiService {
       final url = Uri.parse('$baseUrl/products/$productId');
       final response = await http.get(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: headers,
       );
 
       if (response.statusCode == 200) {
@@ -784,10 +747,7 @@ class ApiService {
       final url = Uri.parse('$baseUrl/products');
       final response = await http.post(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: headers,
         body: jsonEncode(product.toJson()),
       );
 
@@ -805,7 +765,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/transports'),
-        headers: await _getAuthHeaders(),
+        headers: headers,
       );
 
       if (response.statusCode == 200) {
@@ -823,7 +783,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/transports/$transportId'),
-        headers: await _getAuthHeaders(),
+        headers: headers,
       );
 
       if (response.statusCode == 200) {
@@ -841,7 +801,7 @@ class ApiService {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/transports'),
-        headers: await _getAuthHeaders(),
+        headers: headers,
         body: json.encode(transport.toJson()),
       );
 
@@ -948,11 +908,11 @@ class ApiService {
       };
 
       Log.e('Order request body: ${json.encode(requestBody)}');
-      Log.e('Request headers: $_headers');
+      Log.e('Request headers: $headers');
 
       final response = await http.post(
         uri,
-        headers: _headers,
+        headers: headers,
         body: json.encode(requestBody),
       );
 
@@ -979,7 +939,7 @@ class ApiService {
       final uri = Uri.parse('$baseUrl/buyer/orders');
       Log.e('Fetching user orders from: $uri');
 
-      final response = await http.get(uri, headers: _headers);
+      final response = await http.get(uri, headers: headers);
       Log.e('Orders response status: ${response.statusCode}');
       Log.e('Orders response body: ${response.body}');
 
@@ -1020,7 +980,7 @@ class ApiService {
       final uri = Uri.parse('$baseUrl/buyer/orders');
       Log.e('Fetching user orders from: $uri');
 
-      final response = await http.get(uri, headers: _headers);
+      final response = await http.get(uri, headers: headers);
       Log.e('Orders response status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
@@ -1061,7 +1021,7 @@ class ApiService {
       final uri = Uri.parse('$baseUrl/buyer/orders/$orderId');
       Log.e('Fetching order from: $uri');
 
-      final response = await http.get(uri, headers: _headers);
+      final response = await http.get(uri, headers: headers);
       Log.e('Order response status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
@@ -1084,7 +1044,7 @@ class ApiService {
       final uri = Uri.parse('$baseUrl/buyer/orders/$orderId/cancel');
       Log.e('Cancelling order at: $uri');
 
-      final response = await http.put(uri, headers: _headers);
+      final response = await http.put(uri, headers: headers);
       Log.e('Cancel order response status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
@@ -1108,7 +1068,7 @@ class ApiService {
       final uri = Uri.parse('$baseUrl/seller/orders');
       Log.e('Fetching seller orders from: $uri');
 
-      final response = await http.get(uri, headers: _headers);
+      final response = await http.get(uri, headers: headers);
       Log.e('Seller orders response status: ${response.statusCode}');
       Log.e('Seller orders response body: ${response.body}');
 
@@ -1139,7 +1099,7 @@ class ApiService {
 
       final response = await http.put(
         uri,
-        headers: _headers,
+        headers: headers,
         body: json.encode({'status': status}),
       );
 
@@ -1168,7 +1128,7 @@ class ApiService {
       Log.e('Fetching seller organic products...');
       final response = await http.get(
         Uri.parse('$baseUrl/seller/organic-products'),
-        headers: _headers,
+        headers: headers,
       );
 
       Log.e('Seller organic products response status: ${response.statusCode}');
@@ -1192,7 +1152,7 @@ class ApiService {
       Log.e('Creating organic product: ${productData['name']}');
       final response = await http.post(
         Uri.parse('$baseUrl/seller/organic-products'),
-        headers: _headers,
+        headers: headers,
         body: json.encode(productData),
       );
 
@@ -1217,7 +1177,7 @@ class ApiService {
       Log.e('Updating organic product: $productId');
       final response = await http.put(
         Uri.parse('$baseUrl/seller/organic-products/$productId'),
-        headers: _headers,
+        headers: headers,
         body: json.encode(productData),
       );
 
@@ -1241,7 +1201,7 @@ class ApiService {
       Log.e('Deleting organic product: $productId');
       final response = await http.delete(
         Uri.parse('$baseUrl/seller/organic-products/$productId'),
-        headers: _headers,
+        headers: headers,
       );
 
       Log.e('Delete organic product response status: ${response.statusCode}');
@@ -1267,7 +1227,7 @@ class ApiService {
         Uri.parse('$baseUrl/seller/organic-products/upload-image'),
       );
 
-      request.headers.addAll(_headers);
+      request.headers.addAll(headers);
       request.files
           .add(await http.MultipartFile.fromPath('image', imageFile.path));
 
@@ -1296,7 +1256,7 @@ class ApiService {
       final uri = Uri.parse('$baseUrl/categories/4/subcategories');
       Log.e('Fetching organic product subcategories from: $uri');
 
-      final response = await http.get(uri, headers: _headers);
+      final response = await http.get(uri, headers: headers);
 
       Log.e(
           'Organic product categories response status: ${response.statusCode}');
@@ -1353,7 +1313,7 @@ class ApiService {
       final uri = Uri.parse('$baseUrl/categories/5/subcategories');
       Log.e('Fetching agricultural service subcategories from: $uri');
 
-      final response = await http.get(uri, headers: _headers);
+      final response = await http.get(uri, headers: headers);
 
       Log.e(
           'Agricultural service categories response status: ${response.statusCode}');
@@ -1387,7 +1347,7 @@ class ApiService {
       Log.e('Fetching transport categories...');
       final response = await http.get(
         Uri.parse('$baseUrl/public/categories'),
-        headers: _headers,
+        headers: headers,
       );
 
       Log.e('Transport categories response status: ${response.statusCode}');
@@ -1410,7 +1370,7 @@ class ApiService {
       Log.e('Fetching seller transports...');
       final response = await http.get(
         Uri.parse('$baseUrl/seller/transports'),
-        headers: _headers,
+        headers: headers,
       );
 
       Log.e('Seller transports response status: ${response.statusCode}');
@@ -1434,7 +1394,7 @@ class ApiService {
       Log.e('Creating transport: $transportData');
       final response = await http.post(
         Uri.parse('$baseUrl/seller/transports'),
-        headers: _headers,
+        headers: headers,
         body: json.encode(transportData),
       );
 
@@ -1458,7 +1418,7 @@ class ApiService {
       Log.e('Updating transport $transportId: $transportData');
       final response = await http.put(
         Uri.parse('$baseUrl/seller/transports/$transportId'),
-        headers: _headers,
+        headers: headers,
         body: json.encode(transportData),
       );
 
@@ -1487,7 +1447,7 @@ class ApiService {
       Log.e('Deleting transport $transportId...');
       final response = await http.delete(
         Uri.parse('$baseUrl/seller/transports/$transportId'),
-        headers: _headers,
+        headers: headers,
       );
 
       Log.e('Delete transport response status: ${response.statusCode}');
@@ -1510,7 +1470,7 @@ class ApiService {
         Uri.parse('$baseUrl/seller/transports/upload-image'),
       );
 
-      request.headers.addAll(_headers);
+      request.headers.addAll(headers);
       request.files
           .add(await http.MultipartFile.fromPath('image', imageFile.path));
 
@@ -1538,7 +1498,7 @@ class ApiService {
       Log.e('Fetching user roles...');
       final response = await http.get(
         Uri.parse('$baseUrl/user/roles'),
-        headers: _headers,
+        headers: headers,
       );
 
       Log.e('Get user roles response status: ${response.statusCode}');
@@ -1560,7 +1520,7 @@ class ApiService {
       Log.e('Adding user role: $role...');
       final response = await http.post(
         Uri.parse('$baseUrl/user/roles'),
-        headers: _headers,
+        headers: headers,
         body: json.encode({'role': role}),
       );
 
@@ -1583,7 +1543,7 @@ class ApiService {
       Log.e('Removing user role: $role...');
       final response = await http.delete(
         Uri.parse('$baseUrl/user/roles'),
-        headers: _headers,
+        headers: headers,
         body: json.encode({'role': role}),
       );
 
