@@ -6,6 +6,7 @@ import '../models/organic_product.dart';
 import '../models/category.dart' as models;
 import '../providers/organic_product_provider.dart';
 import '../providers/auth_provider.dart';
+import '../services/category_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 
@@ -59,25 +60,78 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
     _isActive = widget.product?.isActive ?? true;
     _isFeatured = widget.product?.isFeatured ?? false;
     _images = widget.product?.images ?? [];
-    _loadSubcategories().then((_) {
-      if (widget.product != null) {
-        setState(() {
-          _selectedCategoryId = widget.product!.categoryId;
-        });
-      }
-    });
+    _loadSubcategories();
   }
 
   Future<void> _loadSubcategories() async {
-    // Get the Organic Products category (ID: 5) and its subcategories
-    final organicCategory = models.Category(
-      id: 5,
-      name: 'Organic Products',
-      slug: 'organic-products',
-      isActive: true,
-      sortOrder: 5,
-      icon: 'eco',
-      subcategories: [
+    try {
+      final categoryService = CategoryService();
+      final authProvider = context.read<AuthProvider>();
+      if (authProvider.token != null) {
+        categoryService.setAuthToken(authProvider.token!);
+      }
+
+      debugPrint('Loading categories from API...');
+      // Load all categories from API
+      final allCategories = await categoryService.getCategories();
+      debugPrint('Loaded ${allCategories.length} categories from API');
+
+      // Use all categories (don't filter, as the API may not return all categories consistently)
+      final categoriesToUse = allCategories;
+
+      debugPrint('Using all ${categoriesToUse.length} categories:');
+      for (var cat in categoriesToUse) {
+        debugPrint('  - ID: ${cat.id}, Name: ${cat.name}, Slug: ${cat.slug}');
+      }
+
+      setState(() {
+        _subcategories = categoriesToUse;
+
+        // Always set _selectedCategoryId safely after categories are loaded
+        if (_subcategories.isNotEmpty) {
+          if (widget.product != null) {
+            final productCategoryId = widget.product!.categoryId;
+            debugPrint('Product categoryId: $productCategoryId');
+            debugPrint(
+                'Available category IDs: ${_subcategories.map((c) => c.id).toList()}');
+
+            final categoryExists =
+                _subcategories.any((cat) => cat.id == productCategoryId);
+            if (categoryExists) {
+              _selectedCategoryId = productCategoryId;
+              debugPrint(
+                  'Category exists, setting selectedCategoryId to $productCategoryId');
+            } else {
+              // Category doesn't exist in loaded categories, set to null to prevent crash
+              _selectedCategoryId = null;
+              debugPrint(
+                  'Category $productCategoryId not found in loaded categories, setting selectedCategoryId to null');
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                        'Product category not found in current categories. Please select a category.'),
+                    backgroundColor: Colors.orange,
+                  ),
+                );
+              }
+            }
+          } else {
+            // For new products, select the first category
+            _selectedCategoryId = _subcategories.first.id;
+            debugPrint(
+                'New product, setting selectedCategoryId to ${_subcategories.first.id}');
+          }
+        } else {
+          // No categories available
+          _selectedCategoryId = null;
+          debugPrint('No categories available, selectedCategoryId set to null');
+        }
+      });
+    } catch (e) {
+      debugPrint('Error loading categories: $e');
+      // Fallback to hardcoded categories if API fails
+      final fallbackCategories = [
         models.Category(
             id: 1,
             name: 'Organic Vegetables',
@@ -114,17 +168,43 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
             slug: 'organic-livestock-and-poultry',
             isActive: true,
             sortOrder: 6),
-      ],
-    );
-    setState(() {
-      _subcategories = organicCategory.subcategories ?? [];
-      // If we're editing and no category is selected, select the first one
-      if (widget.product != null &&
-          _selectedCategoryId == null &&
-          _subcategories.isNotEmpty) {
-        _selectedCategoryId = _subcategories.first.id;
+      ];
+
+      setState(() {
+        _subcategories = fallbackCategories;
+        _selectedCategoryId = null; // Reset first
+
+        // Always set _selectedCategoryId safely after categories are loaded
+        if (_subcategories.isNotEmpty) {
+          if (widget.product != null) {
+            final productCategoryId = widget.product!.categoryId;
+            final categoryExists =
+                _subcategories.any((cat) => cat.id == productCategoryId);
+            if (categoryExists) {
+              _selectedCategoryId = productCategoryId;
+            } else {
+              // Category doesn't exist in fallback, keep as null
+              debugPrint(
+                  'Product category $productCategoryId not found in fallback categories');
+            }
+          } else {
+            _selectedCategoryId = _subcategories.first.id;
+          }
+        } else {
+          debugPrint('No fallback categories available');
+        }
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                'Failed to load categories: $e. Using default categories.'),
+            backgroundColor: Colors.orange,
+          ),
+        );
       }
-    });
+    }
   }
 
   @override

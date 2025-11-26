@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../models/user.dart';
 import '../models/service.dart';
@@ -22,6 +23,15 @@ class AdminService {
     _dio = Dio(BaseOptions(baseUrl: baseUrl));
     _dio.options.connectTimeout = const Duration(seconds: 5);
     _dio.options.receiveTimeout = const Duration(seconds: 3);
+
+    // Set enhanced headers for all Dio requests
+    _dio.options.headers.addAll({
+      'Accept': 'application/json, text/plain, */*',
+      'Accept-Language': 'en-US,en;q=0.9',
+      'User-Agent': _userAgent,
+      'Origin': baseUrl.replaceAll('/api', ''),
+      'Referer': baseUrl.replaceAll('/api', ''),
+    });
   }
 
   void setAuthToken(String token) {
@@ -33,6 +43,21 @@ class AdminService {
   bool isAuthenticated() {
     return _authToken != null;
   }
+
+  // User-Agent header to identify as legitimate mobile app
+  static const String _userAgent =
+      'Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36';
+
+  // Enhanced headers to bypass bot detection
+  Map<String, String> get _enhancedHeaders => {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'User-Agent': _userAgent,
+        'Origin': baseUrl.replaceAll('/api', ''),
+        'Referer': baseUrl.replaceAll('/api', ''),
+        if (_authToken != null) 'Authorization': 'Bearer $_authToken',
+      };
 
   // Admin Authentication
   Future<Map<String, dynamic>> login(String email, String password) async {
@@ -99,11 +124,12 @@ class AdminService {
     try {
       final response = await _dio.get('/admin/dashboard');
       Log.d('Dashboard data response status: ${response.statusCode}');
-      
+
       if (response.statusCode == 200) {
         return response.data;
       } else {
-        throw Exception('Failed to get dashboard data: ${response.statusCode} - ${response.data['message'] ?? 'Unknown error'}');
+        throw Exception(
+            'Failed to get dashboard data: ${response.statusCode} - ${response.data['message'] ?? 'Unknown error'}');
       }
     } catch (e) {
       Log.e('Error fetching dashboard data: $e');
@@ -116,27 +142,25 @@ class AdminService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/admin/users'),
-        headers: {
-          'Authorization': 'Bearer $_authToken',
-          'Accept': 'application/json',
-        },
+        headers: _enhancedHeaders,
       );
 
       Log.d('Users API response: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        
+
         // Check for different possible response structures
         if (data is Map<String, dynamic>) {
           // Check if response has 'data' field
           if (data.containsKey('data')) {
             final List<dynamic> usersJson = data['data'];
             return usersJson.map((json) => User.fromJson(json)).toList();
-          } 
+          }
           // Check if response has 'users' field (as in the UserController.index method)
-          else if (data.containsKey('users') && data['users'] is Map<String, dynamic> && 
-                  data['users'].containsKey('data')) {
+          else if (data.containsKey('users') &&
+              data['users'] is Map<String, dynamic> &&
+              data['users'].containsKey('data')) {
             final List<dynamic> usersJson = data['users']['data'];
             return usersJson.map((json) => User.fromJson(json)).toList();
           }
@@ -146,11 +170,12 @@ class AdminService {
             return usersJson.map((json) => User.fromJson(json)).toList();
           }
         }
-        
+
         Log.e('Unexpected API response structure: $data');
         return [];
       } else {
-        Log.e('Failed API call with status: ${response.statusCode}, body: ${response.body}');
+        Log.e(
+            'Failed API call with status: ${response.statusCode}, body: ${response.body}');
         throw Exception('Failed to get users: ${response.body}');
       }
     } catch (e) {
@@ -244,23 +269,58 @@ class AdminService {
         .join('\n');
   }
 
-
   Future<void> deleteUser(int userId) async {
-    try {
-      final response = await http.delete(
-        Uri.parse('$baseUrl/admin/users/$userId'),
-        headers: {
-          'Authorization': 'Bearer $_authToken',
-          'Accept': 'application/json',
-        },
-      );
+    const int maxRetries = 3;
+    int retryCount = 0;
 
-      if (response.statusCode != 200) {
-        throw Exception('Failed to delete user: ${response.body}');
+    while (retryCount < maxRetries) {
+      try {
+        Log.d('Attempting to delete user $userId (attempt ${retryCount + 1})');
+
+        final response = await http
+            .delete(
+              Uri.parse('$baseUrl/admin/users/$userId'),
+              headers: _enhancedHeaders,
+            )
+            .timeout(const Duration(seconds: 10));
+
+        if (response.statusCode == 200 || response.statusCode == 204) {
+          Log.d('Successfully deleted user $userId');
+          return;
+        } else if (response.statusCode == 404) {
+          throw Exception('User not found');
+        } else if (response.statusCode == 403) {
+          throw Exception('Permission denied to delete user');
+        } else {
+          throw Exception(
+              'Failed to delete user: HTTP ${response.statusCode} - ${response.body}');
+        }
+      } catch (e) {
+        retryCount++;
+        Log.e('Error deleting user (attempt $retryCount): $e');
+
+        // Check if it's a network error that we should retry
+        final errorString = e.toString().toLowerCase();
+        final shouldRetry = errorString.contains('connection reset by peer') ||
+            errorString.contains('connection closed') ||
+            errorString.contains('timeout') ||
+            errorString.contains('network') ||
+            errorString.contains('socket');
+
+        if (shouldRetry && retryCount < maxRetries) {
+          Log.d('Retrying delete operation in ${retryCount * 2} seconds...');
+          await Future.delayed(Duration(seconds: retryCount * 2));
+          continue;
+        }
+
+        // If we've exhausted retries or it's not a retryable error
+        if (retryCount >= maxRetries) {
+          throw Exception(
+              'Failed to delete user after $maxRetries attempts: $e');
+        } else {
+          throw Exception('Error deleting user: $e');
+        }
       }
-    } catch (e) {
-      Log.e('Error deleting user: $e');
-      throw Exception('Failed to delete user: $e');
     }
   }
 
@@ -269,10 +329,7 @@ class AdminService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/admin/services'),
-        headers: {
-          'Authorization': 'Bearer $_authToken',
-          'Accept': 'application/json',
-        },
+        headers: _enhancedHeaders,
       );
 
       if (response.statusCode == 200) {
@@ -349,21 +406,58 @@ class AdminService {
   }
 
   Future<void> deleteService(int serviceId) async {
-    try {
-      final response = await http.delete(
-        Uri.parse('$baseUrl/admin/services/$serviceId'),
-        headers: {
-          'Authorization': 'Bearer $_authToken',
-          'Accept': 'application/json',
-        },
-      );
+    const int maxRetries = 3;
+    int retryCount = 0;
 
-      if (response.statusCode != 200) {
-        throw Exception('Failed to delete service: ${response.body}');
+    while (retryCount < maxRetries) {
+      try {
+        Log.d(
+            'Attempting to delete service $serviceId (attempt ${retryCount + 1})');
+
+        final response = await http
+            .delete(
+              Uri.parse('$baseUrl/admin/services/$serviceId'),
+              headers: _enhancedHeaders,
+            )
+            .timeout(const Duration(seconds: 10));
+
+        if (response.statusCode == 200 || response.statusCode == 204) {
+          Log.d('Successfully deleted service $serviceId');
+          return;
+        } else if (response.statusCode == 404) {
+          throw Exception('Service not found');
+        } else if (response.statusCode == 403) {
+          throw Exception('Permission denied to delete service');
+        } else {
+          throw Exception(
+              'Failed to delete service: HTTP ${response.statusCode} - ${response.body}');
+        }
+      } catch (e) {
+        retryCount++;
+        Log.e('Error deleting service (attempt $retryCount): $e');
+
+        // Check if it's a network error that we should retry
+        final errorString = e.toString().toLowerCase();
+        final shouldRetry = errorString.contains('connection reset by peer') ||
+            errorString.contains('connection closed') ||
+            errorString.contains('timeout') ||
+            errorString.contains('network') ||
+            errorString.contains('socket');
+
+        if (shouldRetry && retryCount < maxRetries) {
+          Log.d('Retrying delete operation in ${retryCount * 2} seconds...');
+          await Future.delayed(Duration(seconds: retryCount * 2));
+          continue;
+        }
+
+        // If we've exhausted retries or it's not a retryable error
+        if (retryCount >= maxRetries) {
+          throw Exception(
+              'Failed to delete service after $maxRetries attempts: $e');
+        } else {
+          throw Exception('Error deleting service: $e');
+        }
       }
-    } catch (e) {
-      Log.e('Error deleting service: $e');
-      throw Exception('Failed to delete service: $e');
     }
   }
 
@@ -372,10 +466,7 @@ class AdminService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/admin/market-info'),
-        headers: {
-          'Authorization': 'Bearer $_authToken',
-          'Accept': 'application/json',
-        },
+        headers: _enhancedHeaders,
       );
 
       if (response.statusCode == 200) {
@@ -457,21 +548,58 @@ class AdminService {
   }
 
   Future<void> deleteMarketInfo(int marketInfoId) async {
-    try {
-      final response = await http.delete(
-        Uri.parse('$baseUrl/admin/market-info/$marketInfoId'),
-        headers: {
-          'Authorization': 'Bearer $_authToken',
-          'Accept': 'application/json',
-        },
-      );
+    const int maxRetries = 3;
+    int retryCount = 0;
 
-      if (response.statusCode != 200) {
-        throw Exception('Failed to delete market info: ${response.body}');
+    while (retryCount < maxRetries) {
+      try {
+        Log.d(
+            'Attempting to delete market info $marketInfoId (attempt ${retryCount + 1})');
+
+        final response = await http
+            .delete(
+              Uri.parse('$baseUrl/admin/market-info/$marketInfoId'),
+              headers: _enhancedHeaders,
+            )
+            .timeout(const Duration(seconds: 10));
+
+        if (response.statusCode == 200 || response.statusCode == 204) {
+          Log.d('Successfully deleted market info $marketInfoId');
+          return;
+        } else if (response.statusCode == 404) {
+          throw Exception('Market info not found');
+        } else if (response.statusCode == 403) {
+          throw Exception('Permission denied to delete market info');
+        } else {
+          throw Exception(
+              'Failed to delete market info: HTTP ${response.statusCode} - ${response.body}');
+        }
+      } catch (e) {
+        retryCount++;
+        Log.e('Error deleting market info (attempt $retryCount): $e');
+
+        // Check if it's a network error that we should retry
+        final errorString = e.toString().toLowerCase();
+        final shouldRetry = errorString.contains('connection reset by peer') ||
+            errorString.contains('connection closed') ||
+            errorString.contains('timeout') ||
+            errorString.contains('network') ||
+            errorString.contains('socket');
+
+        if (shouldRetry && retryCount < maxRetries) {
+          Log.d('Retrying delete operation in ${retryCount * 2} seconds...');
+          await Future.delayed(Duration(seconds: retryCount * 2));
+          continue;
+        }
+
+        // If we've exhausted retries or it's not a retryable error
+        if (retryCount >= maxRetries) {
+          throw Exception(
+              'Failed to delete market info after $maxRetries attempts: $e');
+        } else {
+          throw Exception('Error deleting market info: $e');
+        }
       }
-    } catch (e) {
-      Log.e('Error deleting market info: $e');
-      throw Exception('Failed to delete market info: $e');
     }
   }
 
@@ -480,11 +608,7 @@ class AdminService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/products'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-        },
+        headers: _enhancedHeaders,
       );
 
       if (response.statusCode == 200) {
@@ -742,21 +866,58 @@ class AdminService {
   }
 
   Future<void> deleteProduct(int productId) async {
-    try {
-      final response = await http.delete(
-        Uri.parse('$baseUrl/admin/products/$productId'),
-        headers: {
-          'Authorization': 'Bearer $_authToken',
-          'Accept': 'application/json',
-        },
-      );
+    const int maxRetries = 3;
+    int retryCount = 0;
 
-      if (response.statusCode != 200 && response.statusCode != 204) {
-        throw Exception('Failed to delete product: ${response.body}');
+    while (retryCount < maxRetries) {
+      try {
+        Log.d(
+            'Attempting to delete product $productId (attempt ${retryCount + 1})');
+
+        final response = await http
+            .delete(
+              Uri.parse('$baseUrl/admin/products/$productId'),
+              headers: _enhancedHeaders,
+            )
+            .timeout(const Duration(seconds: 10));
+
+        if (response.statusCode == 200 || response.statusCode == 204) {
+          Log.d('Successfully deleted product $productId');
+          return;
+        } else if (response.statusCode == 404) {
+          throw Exception('Product not found');
+        } else if (response.statusCode == 403) {
+          throw Exception('Permission denied to delete product');
+        } else {
+          throw Exception(
+              'Failed to delete product: HTTP ${response.statusCode} - ${response.body}');
+        }
+      } catch (e) {
+        retryCount++;
+        Log.e('Error deleting product (attempt $retryCount): $e');
+
+        // Check if it's a network error that we should retry
+        final errorString = e.toString().toLowerCase();
+        final shouldRetry = errorString.contains('connection reset by peer') ||
+            errorString.contains('connection closed') ||
+            errorString.contains('timeout') ||
+            errorString.contains('network') ||
+            errorString.contains('socket');
+
+        if (shouldRetry && retryCount < maxRetries) {
+          Log.d('Retrying delete operation in ${retryCount * 2} seconds...');
+          await Future.delayed(Duration(seconds: retryCount * 2));
+          continue;
+        }
+
+        // If we've exhausted retries or it's not a retryable error
+        if (retryCount >= maxRetries) {
+          throw Exception(
+              'Failed to delete product after $maxRetries attempts: $e');
+        } else {
+          throw Exception('Error deleting product: $e');
+        }
       }
-    } catch (e) {
-      Log.e('Error deleting product: $e');
-      throw Exception('Failed to delete product: $e');
     }
   }
 
@@ -799,24 +960,63 @@ class AdminService {
   }
 
   Future<bool> deleteTransport(int id) async {
-    try {
-      final response = await _dio.delete(
-        '$baseUrl/admin/transports/$id',
-      );
-      return response.statusCode == 200;
-    } catch (e) {
-      throw Exception('Failed to delete transport: $e');
+    const int maxRetries = 3;
+    int retryCount = 0;
+
+    while (retryCount < maxRetries) {
+      try {
+        Log.d('Attempting to delete transport $id (attempt ${retryCount + 1})');
+
+        final response = await _dio.delete(
+          '$baseUrl/admin/transports/$id',
+        );
+
+        if (response.statusCode == 200 || response.statusCode == 204) {
+          Log.d('Successfully deleted transport $id');
+          return true;
+        } else if (response.statusCode == 404) {
+          throw Exception('Transport not found');
+        } else if (response.statusCode == 403) {
+          throw Exception('Permission denied to delete transport');
+        } else {
+          throw Exception(
+              'Failed to delete transport: HTTP ${response.statusCode}');
+        }
+      } catch (e) {
+        retryCount++;
+        Log.e('Error deleting transport (attempt $retryCount): $e');
+
+        // Check if it's a network error that we should retry
+        final errorString = e.toString().toLowerCase();
+        final shouldRetry = errorString.contains('connection reset by peer') ||
+            errorString.contains('connection closed') ||
+            errorString.contains('timeout') ||
+            errorString.contains('network') ||
+            errorString.contains('socket');
+
+        if (shouldRetry && retryCount < maxRetries) {
+          Log.d('Retrying delete operation in ${retryCount * 2} seconds...');
+          await Future.delayed(Duration(seconds: retryCount * 2));
+          continue;
+        }
+
+        // If we've exhausted retries or it's not a retryable error
+        if (retryCount >= maxRetries) {
+          throw Exception(
+              'Failed to delete transport after $maxRetries attempts: $e');
+        } else {
+          throw Exception('Failed to delete transport: $e');
+        }
+      }
     }
+    return false;
   }
 
   Future<List<OrganicProduct>> getOrganicProducts() async {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/admin/organic-products'),
-        headers: {
-          'Authorization': 'Bearer $_authToken',
-          'Accept': 'application/json',
-        },
+        headers: _enhancedHeaders,
       );
 
       Log.d('Organic Products API Response: ${response.body}');
@@ -849,21 +1049,58 @@ class AdminService {
   }
 
   Future<void> deleteOrganicProduct(int productId) async {
-    try {
-      final response = await http.delete(
-        Uri.parse('$baseUrl/admin/organic-products/$productId'),
-        headers: {
-          'Authorization': 'Bearer $_authToken',
-          'Accept': 'application/json',
-        },
-      );
+    const int maxRetries = 3;
+    int retryCount = 0;
 
-      if (response.statusCode != 200) {
-        throw Exception('Failed to delete organic product: ${response.body}');
+    while (retryCount < maxRetries) {
+      try {
+        Log.d(
+            'Attempting to delete organic product $productId (attempt ${retryCount + 1})');
+
+        final response = await http
+            .delete(
+              Uri.parse('$baseUrl/admin/organic-products/$productId'),
+              headers: _enhancedHeaders,
+            )
+            .timeout(const Duration(seconds: 10));
+
+        if (response.statusCode == 200 || response.statusCode == 204) {
+          Log.d('Successfully deleted organic product $productId');
+          return;
+        } else if (response.statusCode == 404) {
+          throw Exception('Organic product not found');
+        } else if (response.statusCode == 403) {
+          throw Exception('Permission denied to delete organic product');
+        } else {
+          throw Exception(
+              'Failed to delete organic product: HTTP ${response.statusCode} - ${response.body}');
+        }
+      } catch (e) {
+        retryCount++;
+        Log.e('Error deleting organic product (attempt $retryCount): $e');
+
+        // Check if it's a network error that we should retry
+        final errorString = e.toString().toLowerCase();
+        final shouldRetry = errorString.contains('connection reset by peer') ||
+            errorString.contains('connection closed') ||
+            errorString.contains('timeout') ||
+            errorString.contains('network') ||
+            errorString.contains('socket');
+
+        if (shouldRetry && retryCount < maxRetries) {
+          Log.d('Retrying delete operation in ${retryCount * 2} seconds...');
+          await Future.delayed(Duration(seconds: retryCount * 2));
+          continue;
+        }
+
+        // If we've exhausted retries or it's not a retryable error
+        if (retryCount >= maxRetries) {
+          throw Exception(
+              'Failed to delete organic product after $maxRetries attempts: $e');
+        } else {
+          throw Exception('Error deleting organic product: $e');
+        }
       }
-    } catch (e) {
-      Log.e('Error deleting organic product: $e');
-      throw Exception('Error deleting organic product: $e');
     }
   }
 
@@ -937,23 +1174,118 @@ class AdminService {
     }
   }
 
-  Future<OrganicProduct> createOrganicProduct(OrganicProduct product) async {
+  Future<OrganicProduct> createOrganicProduct(OrganicProduct product,
+      {File? imageFile}) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/admin/organic-products'),
-        headers: {
-          'Authorization': 'Bearer $_authToken',
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: json.encode(product.toJson()),
-      );
+      if (imageFile != null) {
+        // Use Dio with FormData when image is provided (same as regular products)
+        final formData = FormData.fromMap({
+          'name': product.name,
+          'slug': product.slug,
+          'description': product.description,
+          'price': product.price.toString(),
+          'stock': product.stock.toString(),
+          'is_active': product.isActive ? 1 : 0,
+          'is_featured': product.isFeatured ? 1 : 0,
+          'seller_id': product.sellerId.toString(),
+          'category_id': product.categoryId.toString(),
+          'certification': product.certification,
+          'origin': product.origin,
+          'storage_conditions': product.storageConditions,
+          'shelf_life': product.shelfLife,
+        });
 
-      if (response.statusCode == 201) {
-        final data = json.decode(response.body);
-        return OrganicProduct.fromJson(data['data']);
+        // Add image file (use 'images[]' field as expected by backend validation)
+        if (kIsWeb) {
+          final bytes = await imageFile.readAsBytes();
+          formData.files.add(MapEntry(
+            'images[]',
+            MultipartFile.fromBytes(
+              bytes,
+              filename: 'image.jpg',
+            ),
+          ));
+        } else {
+          formData.files.add(MapEntry(
+            'images[]',
+            await MultipartFile.fromFile(
+              imageFile.path,
+              filename: 'image.jpg',
+            ),
+          ));
+        }
+
+        try {
+          final response = await _dio.post(
+            '/admin/organic-products',
+            data: formData,
+            options: Options(
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'multipart/form-data',
+              },
+            ),
+          );
+
+          Log.d('Response status: ${response.statusCode}');
+          Log.d('Response data: ${response.data}');
+
+          if (response.statusCode == 201) {
+            Log.d('Organic product created successfully');
+            final responseData = response.data['data'] as Map<String, dynamic>;
+            return OrganicProduct.fromJson(responseData);
+          } else {
+            Log.e(
+                'Failed to create organic product - Status: ${response.statusCode}');
+            Log.e('Response data: ${response.data}');
+
+            String errorMessage = 'Failed to create organic product';
+            if (response.data is Map && response.data.containsKey('message')) {
+              errorMessage = response.data['message'];
+            } else if (response.data is Map &&
+                response.data.containsKey('error')) {
+              errorMessage = response.data['error'];
+            }
+
+            throw Exception('Failed to create organic product: $errorMessage');
+          }
+        } on DioException catch (dioError) {
+          Log.e(
+              'DioException during organic product creation: ${dioError.message}');
+          Log.e('DioException response: ${dioError.response?.data}');
+          Log.e('DioException status: ${dioError.response?.statusCode}');
+
+          if (dioError.response?.statusCode == 500) {
+            String errorMessage =
+                'Server error occurred while creating organic product';
+            if (dioError.response?.data is Map) {
+              final data = dioError.response!.data as Map;
+              if (data.containsKey('message')) {
+                errorMessage = data['message'];
+              } else if (data.containsKey('error')) {
+                errorMessage = data['error'];
+              }
+            }
+            throw Exception('Failed to create organic product: $errorMessage');
+          } else {
+            throw Exception(
+                'Failed to create organic product: ${dioError.message}');
+          }
+        }
       } else {
-        throw Exception('Failed to create organic product: ${response.body}');
+        // Use regular JSON request when no image
+        final response = await http.post(
+          Uri.parse('$baseUrl/admin/organic-products'),
+          headers: _enhancedHeaders,
+          body: json.encode(product.toJson()),
+        );
+
+        if (response.statusCode == 201) {
+          final data = json.decode(response.body);
+          return OrganicProduct.fromJson(data['data']);
+        } else {
+          throw Exception('Failed to create organic product: ${response.body}');
+        }
       }
     } catch (e) {
       Log.e('Error creating organic product: $e');
@@ -961,27 +1293,99 @@ class AdminService {
     }
   }
 
-  Future<OrganicProduct> updateOrganicProduct(OrganicProduct product) async {
+  Future<OrganicProduct> updateOrganicProduct(OrganicProduct product,
+      {File? imageFile}) async {
     try {
-      final response = await http.put(
-        Uri.parse('$baseUrl/admin/organic-products/${product.id}'),
-        headers: {
-          'Authorization': 'Bearer $_authToken',
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: json.encode(product.toJson()),
-      );
+      final url = '$baseUrl/admin/organic-products/${product.id}';
+      Log.d('Updating organic product at: $url');
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return OrganicProduct.fromJson(data['data']);
+      if (imageFile != null) {
+        // Use multipart request if there is an image
+        final formData = FormData.fromMap({
+          'name': product.name,
+          'description': product.description,
+          'price': product.price.toString(),
+          'stock': product.stock.toString(),
+          'category_id': product.categoryId.toString(),
+          'certification': product.certification,
+          'origin': product.origin,
+          'storage_conditions': product.storageConditions,
+          'shelf_life': product.shelfLife,
+          'is_active': product.isActive ? '1' : '0',
+          'is_featured': product.isFeatured ? '1' : '0',
+          'seller_id': product.sellerId.toString(),
+          '_method': 'PUT', // Method spoofing for Laravel
+        });
+
+        // Add image file
+        formData.files.add(MapEntry(
+          'image', // The field name should be 'image' not 'images[]'
+          await MultipartFile.fromFile(
+            imageFile.path,
+            filename: 'image.jpg',
+          ),
+        ));
+
+        final response = await _dio.post(
+          url,
+          data: formData,
+          options: Options(headers: {'Content-Type': 'multipart/form-data'}),
+        );
+
+        if (response.statusCode == 200) {
+          return OrganicProduct.fromJson(response.data['data']);
+        } else {
+          throw Exception(
+              'Failed to update organic product: ${response.data['message'] ?? response.statusMessage}');
+        }
       } else {
-        throw Exception('Failed to update organic product: ${response.body}');
+        // Use regular JSON request if no image
+        final response = await _dio.put(
+          url,
+          data: product.toJson(),
+        );
+
+        if (response.statusCode == 200) {
+          return OrganicProduct.fromJson(response.data['data']);
+        } else {
+          throw Exception(
+              'Failed to update organic product: ${response.data['message'] ?? response.statusMessage}');
+        }
       }
     } catch (e) {
       Log.e('Error updating organic product: $e');
       throw Exception('Error updating organic product: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> uploadOrganicProductImage(File imageFile) async {
+    try {
+      Log.d('Uploading organic product image...');
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$baseUrl/admin/organic-products/upload-image'),
+      );
+
+      request.headers.addAll(_enhancedHeaders);
+      request.files
+          .add(await http.MultipartFile.fromPath('image', imageFile.path));
+
+      var response = await request.send();
+      var responseBody = await response.stream.bytesToString();
+
+      Log.d(
+          'Upload organic product image response status: ${response.statusCode}');
+      Log.d('Upload organic product image response body: $responseBody');
+
+      if (response.statusCode == 200) {
+        return json.decode(responseBody);
+      } else {
+        throw Exception(
+            'Failed to upload organic product image: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error uploading organic product image: $e');
+      rethrow;
     }
   }
 }

@@ -16,6 +16,10 @@ class AdminAuthService {
     baseUrl = ApiConfig.baseUrl;
   }
 
+  // User-Agent header to identify as legitimate mobile app
+  static const String _userAgent =
+      'Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36';
+
   String get getBaseUrl => baseUrl;
 
   String? get authToken => _authToken;
@@ -97,7 +101,11 @@ class AdminAuthService {
         Uri.parse('$baseUrl/admin/login'),
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          'Accept': 'application/json, text/plain, */*',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'User-Agent': _userAgent,
+          'Origin': baseUrl.replaceAll('/api', ''),
+          'Referer': baseUrl.replaceAll('/api', ''),
         },
         body: json.encode({
           'email': email,
@@ -144,7 +152,11 @@ class AdminAuthService {
         Uri.parse('$baseUrl/admin/login'),
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          'Accept': 'application/json, text/plain, */*',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'User-Agent': _userAgent,
+          'Origin': baseUrl.replaceAll('/api', ''),
+          'Referer': baseUrl.replaceAll('/api', ''),
         },
         body: json.encode({
           'username': username,
@@ -194,6 +206,11 @@ class AdminAuthService {
         Uri.parse('$baseUrl/admin/create'),
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/plain, */*',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'User-Agent': _userAgent,
+          'Origin': baseUrl.replaceAll('/api', ''),
+          'Referer': baseUrl.replaceAll('/api', ''),
           if (_authToken != null) 'Authorization': 'Bearer $_authToken',
         },
         body: json.encode({
@@ -237,7 +254,11 @@ class AdminAuthService {
             Uri.parse('$baseUrl/user/logout'),
             headers: {
               'Authorization': 'Bearer $_authToken',
-              'Accept': 'application/json',
+              'Accept': 'application/json, text/plain, */*',
+              'Accept-Language': 'en-US,en;q=0.9',
+              'User-Agent': _userAgent,
+              'Origin': baseUrl.replaceAll('/api', ''),
+              'Referer': baseUrl.replaceAll('/api', ''),
             },
           );
 
@@ -283,7 +304,11 @@ class AdminAuthService {
         Uri.parse('$baseUrl/admin/dashboard'),
         headers: {
           'Authorization': 'Bearer $_authToken',
-          'Accept': 'application/json',
+          'Accept': 'application/json, text/plain, */*',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'User-Agent': _userAgent,
+          'Origin': baseUrl.replaceAll('/api', ''),
+          'Referer': baseUrl.replaceAll('/api', ''),
         },
       );
 

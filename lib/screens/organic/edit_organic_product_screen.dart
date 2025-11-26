@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:masoko_tips/widgets/cached_network_image_with_cors.dart';
+import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:masoko_tips/models/organic_product.dart';
 import 'package:masoko_tips/providers/admin_provider.dart';
 import 'package:masoko_tips/providers/auth_provider.dart';
 import 'package:masoko_tips/theme/app_theme.dart';
 import 'package:masoko_tips/widgets/custom_app_bar.dart';
+import 'package:masoko_tips/models/category.dart' as models;
+import 'package:masoko_tips/providers/category_provider.dart';
 import 'package:provider/provider.dart';
 
 class EditOrganicProductScreen extends StatefulWidget {
@@ -29,14 +35,10 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
   bool _isActive = true;
   bool _isFeatured = false;
   int _selectedCategoryId = 1;
-  final List<Map<String, dynamic>> _categories = [
-    {'id': 1, 'name': 'Organic Vegetables'},
-    {'id': 2, 'name': 'Organic Fruits'},
-    {'id': 3, 'name': 'Organic Spices'},
-    {'id': 4, 'name': 'Organic Cash Crops'},
-    {'id': 5, 'name': 'Organic Cereals'},
-    {'id': 6, 'name': 'Organic Livestock and Poultry'},
-  ];
+  List<models.Category> _categories = [];
+  bool _isLoadingCategories = false;
+  File? _selectedImage;
+  String? _existingImageUrl;
 
   @override
   void initState() {
@@ -58,6 +60,110 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
     _isActive = widget.product?.isActive ?? true;
     _isFeatured = widget.product?.isFeatured ?? false;
     _selectedCategoryId = widget.product?.categoryId ?? 1;
+    _existingImageUrl = widget.product?.imageUrl;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_categories.isEmpty && !_isLoadingCategories) {
+      _loadCategories();
+    }
+  }
+
+  Future<void> _loadCategories() async {
+    setState(() => _isLoadingCategories = true);
+    try {
+      final categoryProvider =
+          Provider.of<CategoryProvider>(context, listen: false);
+
+      // First load main categories to find "Organic Products"
+      await categoryProvider.loadMainCategories();
+
+      // Find the "Organic Products" category
+      final organicProductsCategory =
+          categoryProvider.mainCategories.firstWhere(
+        (cat) => cat.name == 'Organic Products',
+        orElse: () => throw Exception('Organic Products category not found'),
+      );
+
+      // Load subcategories for Organic Products
+      await categoryProvider.loadSubcategories(organicProductsCategory.id);
+
+      _categories = categoryProvider.subcategories;
+
+      // If the selected category is not in the list, set to first available
+      if (_categories.isNotEmpty &&
+          !_categories.any((cat) => cat.id == _selectedCategoryId)) {
+        setState(() => _selectedCategoryId = _categories.first.id);
+      }
+    } catch (e) {
+      debugPrint('Error loading organic product categories: $e');
+      // Fallback to hardcoded categories if API fails
+      _categories = [
+        models.Category(
+            id: 26,
+            name: 'Organic Vegetables',
+            slug: 'organic-vegetables',
+            isActive: true,
+            sortOrder: 1),
+        models.Category(
+            id: 27,
+            name: 'Organic Fruits',
+            slug: 'organic-fruits',
+            isActive: true,
+            sortOrder: 2),
+        models.Category(
+            id: 28,
+            name: 'Organic Spices',
+            slug: 'organic-spices',
+            isActive: true,
+            sortOrder: 3),
+        models.Category(
+            id: 29,
+            name: 'Organic Cash Crops',
+            slug: 'organic-cash-crops',
+            isActive: true,
+            sortOrder: 4),
+        models.Category(
+            id: 30,
+            name: 'Organic Cereals',
+            slug: 'organic-cereals',
+            isActive: true,
+            sortOrder: 5),
+        models.Category(
+            id: 31,
+            name: 'Organic Livestock and Poultry',
+            slug: 'organic-livestock-and-poultry',
+            isActive: true,
+            sortOrder: 6),
+      ];
+    } finally {
+      setState(() => _isLoadingCategories = false);
+    }
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+      if (image != null) {
+        setState(() {
+          _selectedImage = File(image.path);
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error picking image: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -159,8 +265,8 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                 value: _selectedCategoryId,
                 items: _categories.map((category) {
                   return DropdownMenuItem<int>(
-                    value: category['id'],
-                    child: Text(category['name']),
+                    value: category.id,
+                    child: Text(category.name),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -217,6 +323,147 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                   return null;
                 },
               ),
+              const SizedBox(height: 16),
+              // Image Upload Section
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey[300]!),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.image_outlined,
+                      size: 48,
+                      color: Colors.grey[600],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Product Image',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Add an image to make your product more appealing',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: _pickImage,
+                      icon: const Icon(Icons.upload),
+                      label: const Text('Choose Image'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryColor,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (_selectedImage != null || _existingImageUrl != null) ...[
+                const SizedBox(height: 20),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Stack(
+                      children: [
+                        if (_selectedImage != null)
+                          kIsWeb
+                              ? Image.network(
+                                  _selectedImage!.path,
+                                  height: 200,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      height: 200,
+                                      color: Colors.grey[300],
+                                      child: const Center(
+                                        child:
+                                            Icon(Icons.error_outline, size: 48),
+                                      ),
+                                    );
+                                  },
+                                )
+                              : Image.file(
+                                  _selectedImage!,
+                                  height: 200,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      height: 200,
+                                      color: Colors.grey[300],
+                                      child: const Center(
+                                        child:
+                                            Icon(Icons.error_outline, size: 48),
+                                      ),
+                                    );
+                                  },
+                                )
+                        else if (_existingImageUrl != null)
+                          CachedNetworkImageWithCors(
+                            imageUrl: _existingImageUrl ?? '',
+                            height: 200,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.6),
+                              shape: BoxShape.circle,
+                            ),
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _selectedImage = null;
+                                  if (_existingImageUrl != null) {
+                                    _existingImageUrl = null;
+                                  }
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 16),
               SwitchListTile(
                 title: const Text('Active'),
@@ -301,6 +548,10 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
   void _saveProduct() async {
     if (!_formKey.currentState!.validate()) return;
 
+    // Get provider references before async operations
+    final adminProvider = Provider.of<AdminProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
     final product = OrganicProduct(
       id: widget.product?.id ?? 0,
       name: _nameController.text,
@@ -308,9 +559,10 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
       description: _descriptionController.text,
       price: double.parse(_priceController.text),
       stock: int.parse(_stockController.text),
+      imageUrl: _existingImageUrl,
       isActive: _isActive,
       isFeatured: _isFeatured,
-      sellerId: context.read<AuthProvider>().user?.id ?? 1,
+      sellerId: authProvider.user?.id ?? 1,
       categoryId: _selectedCategoryId,
       certification: _certificationController.text,
       origin: _originController.text,
@@ -322,7 +574,8 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
 
     try {
       if (widget.product == null) {
-        await context.read<AdminProvider>().addOrganicProduct(product);
+        await adminProvider.addOrganicProduct(product,
+            imageFile: _selectedImage);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -332,7 +585,8 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
           );
         }
       } else {
-        await context.read<AdminProvider>().updateOrganicProduct(product);
+        await adminProvider.updateOrganicProduct(product,
+            imageFile: _selectedImage);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

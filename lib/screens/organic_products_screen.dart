@@ -3,12 +3,11 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../providers/organic_product_provider.dart';
 import '../models/organic_product.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../widgets/loading_indicator.dart';
 import '../widgets/error_view.dart';
 import '../widgets/empty_state_view.dart';
-import 'edit_organic_product_screen.dart';
+import '../widgets/cached_network_image_with_cors.dart';
 
 class OrganicProductsScreen extends StatefulWidget {
   const OrganicProductsScreen({Key? key}) : super(key: key);
@@ -78,7 +77,13 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'organic_product_add_button',
         onPressed: () {
-          Navigator.pushNamed(context, '/organic-products/add');
+          // Capture provider before async operation
+          final provider = context.read<OrganicProductProvider>();
+          Navigator.pushNamed(context, '/organic-products/add').then((_) {
+            if (mounted) {
+              provider.loadProducts();
+            }
+          });
         },
         icon: const Icon(Icons.add),
         label: const Text('Add Product'),
@@ -109,12 +114,9 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
               message: 'Add your first organic product to get started',
               actionLabel: 'Add Product',
               onAction: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const EditOrganicProductScreen(),
-                  ),
-                ).then((_) {
+                // Capture provider before async operation
+                final provider = context.read<OrganicProductProvider>();
+                Navigator.pushNamed(context, '/organic-products/add').then((_) {
                   if (mounted) {
                     provider.loadProducts();
                   }
@@ -171,12 +173,12 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
+          // Capture provider before async operation
           final provider = context.read<OrganicProductProvider>();
-          Navigator.push(
+          Navigator.pushNamed(
             context,
-            MaterialPageRoute(
-              builder: (context) => EditOrganicProductScreen(product: product),
-            ),
+            '/organic-products/edit',
+            arguments: product,
           ).then((_) {
             if (mounted) {
               provider.loadProducts();
@@ -193,7 +195,7 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  CachedNetworkImage(
+                  CachedNetworkImageWithCors(
                     imageUrl: product.imageUrl ?? '',
                     fit: BoxFit.cover,
                     width: double.infinity,
@@ -323,15 +325,13 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
                             // Edit button - minimal
                             GestureDetector(
                               onTap: () {
+                                // Capture provider before async operation
                                 final provider =
                                     context.read<OrganicProductProvider>();
-                                Navigator.push(
+                                Navigator.pushNamed(
                                   context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        EditOrganicProductScreen(
-                                            product: product),
-                                  ),
+                                  '/organic-products/edit',
+                                  arguments: product,
                                 ).then((_) {
                                   if (mounted) {
                                     provider.loadProducts();

@@ -81,13 +81,11 @@ class RecentActivities {
   Map<String, dynamic> toJson() => _$RecentActivitiesToJson(this);
 }
 
-@JsonSerializable()
 class LatestUser {
   final int id;
   final String name;
   final String email;
   final String role;
-  @JsonKey(name: 'created_at')
   final String createdAt;
 
   LatestUser({
@@ -98,10 +96,31 @@ class LatestUser {
     required this.createdAt,
   });
 
-  factory LatestUser.fromJson(Map<String, dynamic> json) =>
-      _$LatestUserFromJson(json);
+  factory LatestUser.fromJson(Map<String, dynamic> json) {
+    // Handle ID conversion from string or num
+    int parseId(dynamic idValue) {
+      if (idValue is int) return idValue;
+      if (idValue is String) return int.tryParse(idValue) ?? 0;
+      if (idValue is num) return idValue.toInt();
+      return 0;
+    }
 
-  Map<String, dynamic> toJson() => _$LatestUserToJson(this);
+    return LatestUser(
+      id: parseId(json['id']),
+      name: json['name'] as String? ?? '',
+      email: json['email'] as String? ?? '',
+      role: json['role'] as String? ?? '',
+      createdAt: json['created_at'] as String? ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'email': email,
+        'role': role,
+        'created_at': createdAt,
+      };
 }
 
 @JsonSerializable()

@@ -1,3 +1,4 @@
+import 'dart:io';
 import '../models/user.dart';
 import '../models/service.dart';
 import '../models/market_info.dart';
@@ -667,13 +668,15 @@ class AdminProvider with ChangeNotifier {
     }
   }
 
-  Future<OrganicProduct> addOrganicProduct(OrganicProduct product) async {
+  Future<OrganicProduct> addOrganicProduct(OrganicProduct product,
+      {File? imageFile}) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      final response = await _adminService.createOrganicProduct(product);
+      final response = await _adminService.createOrganicProduct(product,
+          imageFile: imageFile);
       _organicProducts.add(response);
       return response;
     } catch (e) {
@@ -685,13 +688,15 @@ class AdminProvider with ChangeNotifier {
     }
   }
 
-  Future<OrganicProduct> updateOrganicProduct(OrganicProduct product) async {
+  Future<OrganicProduct> updateOrganicProduct(OrganicProduct product,
+      {File? imageFile}) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      final response = await _adminService.updateOrganicProduct(product);
+      final response = await _adminService.updateOrganicProduct(product,
+          imageFile: imageFile);
       final index = _organicProducts.indexWhere((p) => p.id == product.id);
       if (index != -1) {
         _organicProducts[index] = response;
@@ -763,6 +768,15 @@ class AdminProvider with ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<Map<String, dynamic>> uploadOrganicProductImage(File imageFile) async {
+    try {
+      return await _adminService.uploadOrganicProductImage(imageFile);
+    } catch (e) {
+      _error = e.toString();
+      rethrow;
     }
   }
 }

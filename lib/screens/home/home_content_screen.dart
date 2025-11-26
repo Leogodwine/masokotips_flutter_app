@@ -19,6 +19,7 @@ import 'package:masoko_tips/screens/market_info/market_info_screen.dart';
 import '../../widgets/market_info_card.dart';
 import 'package:masoko_tips/screens/market_info/market_info_detail_screen.dart';
 import '../../widgets/friendly_error_display.dart';
+import '../../utils/image_upload_helper.dart';
 
 class HomeContentScreen extends StatefulWidget {
   const HomeContentScreen({Key? key}) : super(key: key);
@@ -290,9 +291,9 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                           color: Theme.of(context).primaryColor.withValues(),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.category,
-                          color: Theme.of(context).primaryColor,
+                          color: Colors.white,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -409,7 +410,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                           const SliverGridDelegateWithFixedCrossAxisCount(
                         // Line 409
                         crossAxisCount: 2,
-                        childAspectRatio: 0.7,
+                        childAspectRatio: 0.85,
                         crossAxisSpacing: 16,
                         mainAxisSpacing: 16,
                       ),
@@ -450,9 +451,9 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                           color: Theme.of(context).primaryColor.withValues(),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.trending_up,
-                          color: Theme.of(context).primaryColor,
+                          color: Colors.white,
                           size: 20,
                         ),
                       ),
@@ -717,7 +718,9 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                           Hero(
                                             tag: 'home-featured-${product.id}',
                                             child: Image.network(
-                                              product.firstImageUrl,
+                                              ImageUploadHelper
+                                                  .constructFullImageUrl(
+                                                      product.firstImageUrl),
                                               height: 160,
                                               width: double.infinity,
                                               fit: BoxFit.cover,
@@ -954,87 +957,85 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                 ),
               );
             },
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.all(12), // Only one padding
-                child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Center(
-                        child: Container(
-                          width: imageSize, // Adjusted size
-                          height: imageSize,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: category.imageUrl != null &&
-                                    category.imageUrl!.isNotEmpty
-                                ? Image.network(
-                                    category.imageUrl!,
-                                    fit: BoxFit.cover,
-                                    loadingBuilder:
-                                        (context, child, loadingProgress) {
-                                      if (loadingProgress == null) return child;
-                                      return Container(
-                                        color: Colors.grey[200],
-                                        child: const Center(
-                                          child: CircularProgressIndicator(
-                                              strokeWidth: 2),
-                                        ),
-                                      );
-                                    },
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Image.asset(
-                                        _getCategoryImage(category.name),
-                                        fit: BoxFit.cover,
-                                      );
-                                    },
-                                  )
-                                : Image.asset(
-                                    _getCategoryImage(category.name),
-                                    fit: BoxFit.cover,
-                                  ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8), // Less space
-                      Text(
-                        category.name,
-                        style: TextStyle(
-                          fontSize: constraints.maxWidth > 200 ? 16 : 14,
-                          fontWeight: FontWeight.bold,
-                          height: 1.2, // Add line height for better readability
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 4),
-                      // Display subcategory count
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 2),
+            child: Padding(
+              padding: const EdgeInsets.all(12), // Only one padding
+              child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: imageSize, // Adjusted size
+                        height: imageSize,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor.withAlpha(25),
+                          color: Theme.of(context).primaryColor,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Text(
-                          '${category.subcategoriesCount} ${category.subcategoriesCount == 1 ? 'subcategory' : 'subcategories'}',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Theme.of(context).primaryColor,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: category.imageUrl != null &&
+                                  category.imageUrl!.isNotEmpty
+                              ? Image.network(
+                                  ImageUploadHelper.constructFullImageUrl(
+                                      category.imageUrl!),
+                                  fit: BoxFit.cover,
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return Container(
+                                      color: Colors.grey[200],
+                                      child: const Center(
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 2),
+                                      ),
+                                    );
+                                  },
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                      _getCategoryImage(category.name),
+                                      fit: BoxFit.cover,
+                                    );
+                                  },
+                                )
+                              : Image.asset(
+                                  _getCategoryImage(category.name),
+                                  fit: BoxFit.cover,
+                                ),
                         ),
                       ),
-                    ]),
-              ),
+                    ),
+                    const SizedBox(height: 8), // Less space
+                    Text(
+                      category.name,
+                      style: TextStyle(
+                        fontSize: constraints.maxWidth > 200 ? 16 : 14,
+                        fontWeight: FontWeight.bold,
+                        height: 1.2, // Add line height for better readability
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 4),
+                    // Display subcategory count
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor.withAlpha(25),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '${category.subcategoriesCount} ${category.subcategoriesCount == 1 ? 'subcategory' : 'subcategories'}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ]),
             ),
           ),
         );

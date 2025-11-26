@@ -52,6 +52,7 @@ import 'screens/settings/language_settings_screen.dart';
 
 import 'services/service_service.dart';
 import 'models/transport.dart';
+import 'models/organic_product.dart';
 
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -158,8 +159,11 @@ class _MyAppState extends State<MyApp> {
               '/organic-products': (context) => const OrganicProductsScreen(),
               '/organic-products/add': (context) =>
                   const EditOrganicProductScreen(),
-              '/organic-products/edit': (context) =>
-                  const EditOrganicProductScreen(),
+              '/organic-products/edit': (context) {
+                final product = ModalRoute.of(context)!.settings.arguments
+                    as OrganicProduct;
+                return EditOrganicProductScreen(product: product);
+              },
               '/transport/list': (context) =>
                   const TransportListScreen(category: 'all'),
               '/transport/add': (context) => const AddTransportScreen(),

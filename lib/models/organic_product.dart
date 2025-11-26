@@ -1,9 +1,12 @@
+import '../config/api_config.dart';
+
 class OrganicProduct {
   final int id;
   final String name;
   final String slug;
   final String? description;
   final double price;
+  final String? unit;
   final int stock;
   final String? imageUrl;
   final List<String>? images;
@@ -27,6 +30,7 @@ class OrganicProduct {
     required this.slug,
     this.description,
     required this.price,
+    this.unit,
     required this.stock,
     this.imageUrl,
     this.images,
@@ -46,14 +50,28 @@ class OrganicProduct {
   });
 
   factory OrganicProduct.fromJson(Map<String, dynamic> json) {
+    String? imageUrl = json['image_url'];
+    if (imageUrl != null && imageUrl.isNotEmpty) {
+      if (!imageUrl.startsWith('http')) {
+        // Assuming ApiConfig.baseUrl is like 'http://domain.com/api'
+        final baseUrl = ApiConfig.baseUrl.replaceAll('/api', '');
+        if (imageUrl.startsWith('/storage/')) {
+          imageUrl = '$baseUrl$imageUrl';
+        } else {
+          imageUrl = '$baseUrl/storage/$imageUrl';
+        }
+      }
+    }
+
     return OrganicProduct(
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
       slug: json['slug'] ?? '',
       description: json['description'],
       price: double.tryParse(json['price']?.toString() ?? '0') ?? 0.0,
+      unit: json['unit'],
       stock: int.tryParse(json['stock']?.toString() ?? '0') ?? 0,
-      imageUrl: json['image_url'],
+      imageUrl: imageUrl,
       images: json['images']?.cast<String>(),
       isActive: json['is_active'] == 1 || json['is_active'] == true,
       isFeatured: json['is_featured'] == 1 || json['is_featured'] == true,
@@ -74,12 +92,13 @@ class OrganicProduct {
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    final Map<String, dynamic> data = {
       'id': id,
       'name': name,
       'slug': slug,
       'description': description,
       'price': price,
+      'unit': unit,
       'stock': stock,
       'image_url': imageUrl,
       'images': images,
@@ -89,12 +108,18 @@ class OrganicProduct {
       'category_id': categoryId,
       'certification': certification,
       'origin': origin,
-      'harvest_date': harvestDate?.toIso8601String(),
       'storage_conditions': storageConditions,
       'shelf_life': shelfLife,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
+
+    // Only include harvest_date if it's not null
+    if (harvestDate != null) {
+      data['harvest_date'] = harvestDate!.toIso8601String();
+    }
+
+    return data;
   }
 
   OrganicProduct copyWith({
@@ -103,6 +128,7 @@ class OrganicProduct {
     String? slug,
     String? description,
     double? price,
+    String? unit,
     int? stock,
     String? imageUrl,
     List<String>? images,
@@ -126,6 +152,7 @@ class OrganicProduct {
       slug: slug ?? this.slug,
       description: description ?? this.description,
       price: price ?? this.price,
+      unit: unit ?? this.unit,
       stock: stock ?? this.stock,
       imageUrl: imageUrl ?? this.imageUrl,
       images: images ?? this.images,

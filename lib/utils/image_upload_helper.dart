@@ -3,9 +3,26 @@ import 'dart:async';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import '../config/api_config.dart';
 
-/// A utility class to help with image uploads across the app
+/// A utility class to help with image uploads and URL handling across the app
 class ImageUploadHelper {
+  /// Constructs a full URL from a potentially relative URL
+  static String constructFullImageUrl(String imageUrl) {
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      // Already a full URL
+      return imageUrl;
+    } else if (imageUrl.startsWith('/')) {
+      // Relative URL - prepend base domain
+      final baseUrl = ApiConfig.baseUrl.replaceAll('/api', '');
+      return '$baseUrl$imageUrl';
+    } else {
+      // Assume it's a relative path and prepend base domain
+      final baseUrl = ApiConfig.baseUrl.replaceAll('/api', '');
+      return '$baseUrl/$imageUrl';
+    }
+  }
+
   /// Picks an image from the gallery and returns an XFile object
   static Future<XFile?> pickImage() async {
     final picker = ImagePicker();

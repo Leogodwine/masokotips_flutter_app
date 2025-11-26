@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/category.dart';
 import 'api_service.dart';
 import '../utils/logger.dart';
+import '../config/api_config.dart';
 
 class CategoryService {
   late final ApiService _apiService;
@@ -10,8 +11,8 @@ class CategoryService {
 
   CategoryService() {
     _apiService = ApiService(
-      baseUrl: 'https://masokotips.com', // This should be configurable
-      apiKey: 'your-api-key', // This should be configurable
+      baseUrl: ApiConfig.baseUrl,
+      apiKey: ApiConfig.apiKey,
     );
   }
 
@@ -22,7 +23,7 @@ class CategoryService {
 
   Future<List<Category>> getCategories() async {
     try {
-      final url = Uri.parse('${_apiService.baseUrl}/api/categories');
+      final url = Uri.parse('${_apiService.baseUrl}/categories');
       Log.d('Fetching categories from: $url');
 
       final response = await http.get(
@@ -50,7 +51,7 @@ class CategoryService {
 
   Future<Category> getCategory(int id) async {
     try {
-      final url = Uri.parse('${_apiService.baseUrl}/api/categories/$id');
+      final url = Uri.parse('${_apiService.baseUrl}/categories/$id');
       Log.d('Fetching category from: $url');
 
       final response = await http.get(

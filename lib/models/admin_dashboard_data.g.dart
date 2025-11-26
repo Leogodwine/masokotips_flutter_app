@@ -66,23 +66,6 @@ Map<String, dynamic> _$RecentActivitiesToJson(RecentActivities instance) =>
       'latest_users': instance.latestUsers,
     };
 
-LatestUser _$LatestUserFromJson(Map<String, dynamic> json) => LatestUser(
-      id: (json['id'] as num).toInt(),
-      name: json['name'] as String,
-      email: json['email'] as String,
-      role: json['role'] as String,
-      createdAt: json['created_at'] as String,
-    );
-
-Map<String, dynamic> _$LatestUserToJson(LatestUser instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
-      'email': instance.email,
-      'role': instance.role,
-      'created_at': instance.createdAt,
-    };
-
 QuickLinks _$QuickLinksFromJson(Map<String, dynamic> json) => QuickLinks(
       users: (json['users'] as List<dynamic>)
           .map((e) => Link.fromJson(e as Map<String, dynamic>))

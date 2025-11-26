@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/cart_provider.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'product_details_screen.dart';
+import '../../widgets/cached_network_image_with_cors.dart';
 
 class CategoryProductsScreen extends StatefulWidget {
   final int categoryId;
@@ -167,9 +167,9 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
               padding: const EdgeInsets.all(16),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                childAspectRatio: 0.75,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
+                childAspectRatio: 0.8, // Slightly taller to accommodate content
+                crossAxisSpacing: 12, // Reduced spacing
+                mainAxisSpacing: 12, // Reduced spacing
               ),
               itemCount: products.length,
               itemBuilder: (context, index) {
@@ -190,59 +190,78 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CachedNetworkImage(
-                          imageUrl: product.imageUrl,
-                          height: 160,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => Container(
-                            height: 160,
-                            color: Colors.grey[100],
-                            child: const Center(
-                              child: CircularProgressIndicator(),
+                        // Make image height responsive to available space
+                        Expanded(
+                          flex: 3, // Give image 3/4 of available space
+                          child: CachedNetworkImageWithCors(
+                            imageUrl: product.imageUrl,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Container(
+                              color: Colors.grey[100],
+                              child: const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) => Container(
+                              color: Colors.grey[100],
+                              child: const Icon(Icons.error),
                             ),
                           ),
-                          errorWidget: (context, url, error) => Container(
-                            height: 160,
-                            color: Colors.grey[100],
-                            child: const Icon(Icons.error),
-                          ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                product.name,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.2,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'TZS ${product.price.toStringAsFixed(2)}',
-                                style: TextStyle(
-                                  color: Theme.of(context).primaryColor,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              if ((product.stock ?? 0) > 0) ...[
-                                const SizedBox(height: 4),
-                                Text(
-                                  'In Stock: ${product.stock}',
-                                  style: TextStyle(
-                                    color: Colors.green[700],
-                                    fontSize: 12,
+                        // Make text content fit in remaining space
+                        Expanded(
+                          flex: 2, // Give text 1/4 of available space
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.all(8.0), // Reduced padding
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize:
+                                  MainAxisSize.min, // Important: don't expand
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    product.name,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 12, // Slightly smaller font
+                                      fontWeight: FontWeight.w600,
+                                      height: 1.2,
+                                    ),
                                   ),
                                 ),
+                                const SizedBox(height: 2), // Reduced spacing
+                                Flexible(
+                                  child: Text(
+                                    'TZS ${product.price.toStringAsFixed(2)}',
+                                    style: TextStyle(
+                                      color: Theme.of(context).primaryColor,
+                                      fontSize: 14, // Slightly smaller font
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                if ((product.stock ?? 0) > 0) ...[
+                                  const SizedBox(height: 2), // Reduced spacing
+                                  Flexible(
+                                    child: Text(
+                                      'In Stock: ${product.stock}',
+                                      style: TextStyle(
+                                        color: Colors.green[700],
+                                        fontSize:
+                                            10, // Smaller font for stock info
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
                               ],
-                            ],
+                            ),
                           ),
                         ),
                       ],

@@ -61,23 +61,23 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
       case 'organic products':
         return 'assets/images/vegetables.webp';
       case 'fruits':
-        return 'assets/images/fruits.webp';
+        return 'assets/images/vegetables.webp';
       case 'vegetables':
         return 'assets/images/vegetables.webp';
       case 'grains':
-        return 'assets/images/grains.webp';
+        return 'assets/images/cereals.webp';
       case 'livestock and poultry':
         return 'assets/images/livestock_and_poultry.webp';
       case 'seeds and seedling':
         return 'assets/images/seed.webp';
       case 'seeds':
-        return 'assets/images/seeds.webp';
+        return 'assets/images/seed.webp';
 
       //Organic Products
       case 'organic vegetables':
         return 'assets/images/vegetables.webp';
       case 'organic fruits':
-        return 'assets/images/fruits.webp';
+        return 'assets/images/vegetables.webp';
       case 'organic cereals':
         return 'assets/images/cereals.webp';
       case 'organic spices':
@@ -85,9 +85,9 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
       case 'organic cash crops':
         return 'assets/images/cash_crops.webp';
       case 'organic grains':
-        return 'assets/images/grains.webp';
+        return 'assets/images/cereals.webp';
       case 'organic seeds':
-        return 'assets/images/seeds.webp';
+        return 'assets/images/seed.webp';
       case 'organic livestock and poultry':
         return 'assets/images/livestock_and_poultry.webp';
 
@@ -95,7 +95,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
       case 'tandem':
         return 'assets/images/tandum.webp';
       case 'kirikuu':
-        return 'assets/images/kirikuu.webp';
+        return 'assets/images/tractor_trailers.webp';
       case 'flatbed trucks':
         return 'assets/images/flatbed.webp';
       case 'tanker':
@@ -113,7 +113,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
       case 'pickups trucks':
         return 'assets/images/pickup.webp';
       case 'fuso':
-        return 'assets/images/fuso.webp';
+        return 'assets/images/tractor_trailers.webp';
       case 'semi trailers':
         return 'assets/images/semi_trailers.webp';
       case 'tracker trailers':
@@ -124,7 +124,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
         return 'assets/images/packaging.webp';
 
       case 'hydroponics':
-        return 'assets/images/irrigation.webp';
+        return 'assets/images/fertilizer.webp';
 
       case 'fertilizer':
         return 'assets/images/fertilizer.webp';
@@ -133,7 +133,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
         return 'assets/images/organic_manure.webp';
 
       case 'irrigation services':
-        return 'assets/images/irrigation.webp';
+        return 'assets/images/fertilizer.webp';
 
       case 'machinery':
         return 'assets/images/tanker.webp';
@@ -142,13 +142,13 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
         return 'assets/images/beehive.webp';
 
       case 'food and beverage':
-        return 'assets/images/fruits.webp';
+        return 'assets/images/vegetables.webp';
 
       case 'cold rooms services':
         return 'assets/images/cold_rooms.webp';
 
       case 'machinery and rental services':
-        return 'assets/images/machinery_rental.jpg';
+        return 'assets/images/machinery_rental.webp';
 
       case 'financial services':
         return 'assets/images/financial.webp';
