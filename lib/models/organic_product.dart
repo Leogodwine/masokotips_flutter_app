@@ -51,16 +51,26 @@ class OrganicProduct {
 
   factory OrganicProduct.fromJson(Map<String, dynamic> json) {
     String? imageUrl = json['image_url'];
+
+    // Processing image URL
+
     if (imageUrl != null && imageUrl.isNotEmpty) {
       if (!imageUrl.startsWith('http')) {
         // Assuming ApiConfig.baseUrl is like 'http://domain.com/api'
         final baseUrl = ApiConfig.baseUrl.replaceAll('/api', '');
         if (imageUrl.startsWith('/storage/')) {
           imageUrl = '$baseUrl$imageUrl';
+        } else if (imageUrl.startsWith('/')) {
+          imageUrl = '$baseUrl$imageUrl';
         } else {
           imageUrl = '$baseUrl/storage/$imageUrl';
         }
+        // Converted relative image URL to absolute
+      } else {
+        // Image URL is already absolute
       }
+    } else {
+      // Image URL is null or empty
     }
 
     return OrganicProduct(
@@ -110,14 +120,14 @@ class OrganicProduct {
       'origin': origin,
       'storage_conditions': storageConditions,
       'shelf_life': shelfLife,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
     };
 
-    // Only include harvest_date if it's not null
+    // Include DateTime fields
     if (harvestDate != null) {
       data['harvest_date'] = harvestDate!.toIso8601String();
     }
+    data['created_at'] = createdAt.toIso8601String();
+    data['updated_at'] = updatedAt.toIso8601String();
 
     return data;
   }

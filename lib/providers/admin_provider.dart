@@ -7,14 +7,16 @@ import '../models/organic_product.dart';
 import '../models/transport.dart';
 import '../services/admin_service.dart';
 import '../services/admin_auth_service.dart';
+import '../config/api_config.dart';
 import '../models/admin_dashboard_data.dart';
-import '../utils/logger.dart';
+import '../utils/logger.dart' as log_util;
 import '../models/category.dart' as models;
 import 'package:flutter/material.dart';
 
 class AdminProvider with ChangeNotifier {
-  final AdminService _adminService = AdminService();
-  final AdminAuthService _adminAuthService = AdminAuthService();
+  final AdminService _adminService = AdminService(baseUrl: ApiConfig.baseUrl);
+  final AdminAuthService _adminAuthService =
+      AdminAuthService(baseUrl: ApiConfig.baseUrl);
   bool _isLoading = false;
   String? _error;
   bool _isAdmin = false;
@@ -33,33 +35,33 @@ class AdminProvider with ChangeNotifier {
 
   Future<void> _initializeAuth() async {
     try {
-      Log.d('Initializing admin auth');
+      log_util.Log.d('Initializing admin auth');
       await _adminAuthService.initializeAuthToken();
       final token = _adminAuthService.authToken;
 
       if (token != null && token.isNotEmpty) {
-        Log.d('Auth token found: ${token.substring(0, 10)}...');
+        log_util.Log.d('Auth token found: ${token.substring(0, 10)}...');
         setAuthToken(token);
-        Log.d('Auth token set in services');
+        log_util.Log.d('Auth token set in services');
 
         // Verify the token is valid by making a test request
         try {
           await loadDashboardData();
-          Log.d('Auth token verified successfully');
+          log_util.Log.d('Auth token verified successfully');
         } catch (e) {
-          Log.e('Auth token verification failed: $e');
+          log_util.Log.e('Auth token verification failed: $e');
           // Clear invalid token
           await _adminAuthService.logoutAdmin();
           _isAdmin = false;
           _dashboardData = null;
         }
       } else {
-        Log.d('No valid auth token found');
+        log_util.Log.d('No valid auth token found');
         _isAdmin = false;
         _dashboardData = null;
       }
     } catch (e, stackTrace) {
-      Log.e('Error initializing auth: $e\n$stackTrace');
+      log_util.Log.e('Error initializing auth: $e\n$stackTrace');
       _isAdmin = false;
       _dashboardData = null;
     }
@@ -80,7 +82,7 @@ class AdminProvider with ChangeNotifier {
   void setAuthToken(String token) {
     _adminService.setAuthToken(token);
     _adminAuthService.setAuthToken(token);
-    Log.d('Auth token set in both services');
+    log_util.Log.d('Auth token set in both services');
   }
 
   Future<bool> login(String username, String password) async {
@@ -89,26 +91,26 @@ class AdminProvider with ChangeNotifier {
       _error = null;
       notifyListeners();
 
-      Log.d('Attempting admin login for username: $username');
+      log_util.Log.d('Attempting admin login for username: $username');
 
       final response = await _adminAuthService.loginAdmin(username, password);
-      Log.d('Login response: $response');
+      log_util.Log.d('Login response: $response');
 
       if (response['success'] == true) {
         final token = response['token'] as String?;
         if (token != null) {
           setAuthToken(token);
-          Log.d('Auth token set successfully');
+          log_util.Log.d('Auth token set successfully');
           await loadDashboardData();
           return true;
         } else {
-          Log.e('Login successful but no token received');
+          log_util.Log.e('Login successful but no token received');
           _error = 'Login successful but no token received';
           return false;
         }
       } else {
         final errorMessage = response['message'] ?? 'Invalid credentials';
-        Log.e('Login failed: $errorMessage');
+        log_util.Log.e('Login failed: $errorMessage');
         _error = errorMessage;
         return false;
       }
@@ -116,7 +118,7 @@ class AdminProvider with ChangeNotifier {
       final errorMessage = e is Map<String, dynamic>
           ? e['message']?.toString() ?? e.toString()
           : e.toString();
-      Log.e('Error during login: $errorMessage\n$stackTrace');
+      log_util.Log.e('Error during login: $errorMessage\n$stackTrace');
       _error = 'Login failed: $errorMessage';
       return false;
     } finally {
@@ -156,11 +158,11 @@ class AdminProvider with ChangeNotifier {
       _error = null;
       notifyListeners();
 
-      Log.d('Starting to load dashboard data');
+      log_util.Log.d('Starting to load dashboard data');
 
       if (_adminAuthService.authToken == null ||
           _adminAuthService.authToken!.isEmpty) {
-        Log.e('No valid auth token available for dashboard request');
+        log_util.Log.e('No valid auth token available for dashboard request');
         _error = 'Not authenticated. Please login again.';
         _isAdmin = false;
         _dashboardData = null;
@@ -168,17 +170,18 @@ class AdminProvider with ChangeNotifier {
       }
 
       final response = await _adminAuthService.getDashboardData();
-      Log.d('Dashboard response received: ${response.toString()}');
+      log_util.Log.d('Dashboard response received: ${response.toString()}');
 
       final dashboardData = response; // Already a Map<String, dynamic>
-      Log.d('Parsing dashboard data: ${dashboardData.toString()}');
+      log_util.Log.d('Parsing dashboard data: ${dashboardData.toString()}');
 
       // Ensure all required fields are present
       if (!dashboardData.containsKey('stats') ||
           !dashboardData.containsKey('recent_activities') ||
           !dashboardData.containsKey('quick_links') ||
           !dashboardData.containsKey('last_updated')) {
-        Log.e('Invalid dashboard data structure: Missing required fields');
+        log_util.Log.e(
+            'Invalid dashboard data structure: Missing required fields');
         _error = 'Invalid dashboard data structure';
         return;
       }
@@ -186,15 +189,15 @@ class AdminProvider with ChangeNotifier {
       _dashboardData = AdminDashboardData.fromJson(dashboardData);
       _error = null;
       _isAdmin = true;
-      Log.d('Dashboard data loaded and parsed successfully');
+      log_util.Log.d('Dashboard data loaded and parsed successfully');
     } catch (e, stackTrace) {
-      Log.e('Error loading dashboard data: $e\n$stackTrace');
-      Log.e('Error type: ${e.runtimeType}');
-      Log.e('Error string: "${e.toString()}"');
+      log_util.Log.e('Error loading dashboard data: $e\n$stackTrace');
+      log_util.Log.e('Error type: ${e.runtimeType}');
+      log_util.Log.e('Error string: "${e.toString()}"');
 
       // Check for specific backend SQL error
       final errorString = e.toString().toLowerCase();
-      Log.d('Checking error string: "$errorString"');
+      log_util.Log.d('Checking error string: "$errorString"');
       if (errorString.contains('column not found') ||
           errorString.contains('unknown column') ||
           errorString.contains('sqlstate[42s22]') ||
@@ -204,9 +207,9 @@ class AdminProvider with ChangeNotifier {
           errorString.contains('database') ||
           (errorString.contains('role') &&
               errorString.contains('where clause'))) {
-        Log.w(
+        log_util.Log.w(
             'Backend database schema issue detected. This should be fixed in the backend API.');
-        Log.w('Original error: $e');
+        log_util.Log.w('Original error: $e');
 
         _error =
             'Backend database schema issue. The API needs to be updated to use the correct column names.';
@@ -219,9 +222,9 @@ class AdminProvider with ChangeNotifier {
         // For any other dashboard-related errors
         if (errorString.contains('dashboard') ||
             errorString.contains('stats')) {
-          Log.w(
+          log_util.Log.w(
               'Dashboard-related error detected. This should be fixed in the backend API.');
-          Log.w('Original error: $e');
+          log_util.Log.w('Original error: $e');
 
           _error =
               'Dashboard API error. Please contact the administrator to fix the backend.';
@@ -300,17 +303,43 @@ class AdminProvider with ChangeNotifier {
   }
 
   Future<void> loadOrganicProducts() async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
     try {
+      _isLoading = true;
+      _error = null;
+
+      // Check authentication before making admin request
+      if (_adminAuthService.authToken == null ||
+          _adminAuthService.authToken!.isEmpty) {
+        log_util.Log.e(
+            'No valid auth token available for organic products request');
+        _error = 'Not authenticated. Please login as admin first.';
+        _isAdmin = false;
+        return;
+      }
+
+      // Delay notifying listeners until after the current frame (like loadProducts method)
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
+
       _organicProducts = await _adminService.getOrganicProducts();
     } catch (e) {
       _error = e.toString();
+      log_util.Log.e('Error loading organic products: $e');
+
+      // Check if it's an authentication error
+      if (e.toString().toLowerCase().contains('unauthenticated') ||
+          e.toString().toLowerCase().contains('401')) {
+        log_util.Log.w('Authentication failed - clearing auth state');
+        await _adminAuthService.logoutAdmin();
+        _isAdmin = false;
+        _error = 'Session expired. Please login again.';
+      }
     } finally {
       _isLoading = false;
-      notifyListeners();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
     }
   }
 
@@ -507,9 +536,9 @@ class AdminProvider with ChangeNotifier {
   Future<Product> updateProduct(
       int productId, Map<String, dynamic> productData) async {
     try {
-      Log.d('AdminProvider - updateProduct:');
-      Log.d('- is_active: ${productData['is_active']}');
-      Log.d('- is_featured: ${productData['is_featured']}');
+      log_util.Log.d('AdminProvider - updateProduct:');
+      log_util.Log.d('- is_active: ${productData['is_active']}');
+      log_util.Log.d('- is_featured: ${productData['is_featured']}');
 
       _isLoading = true;
       _error = null;
@@ -606,7 +635,7 @@ class AdminProvider with ChangeNotifier {
       _error = null;
       notifyListeners();
 
-      Log.d('Logging out admin...');
+      log_util.Log.d('Logging out admin...');
 
       // Clear auth token and session
       await _adminAuthService.logoutAdmin();
@@ -622,9 +651,9 @@ class AdminProvider with ChangeNotifier {
       _transports = [];
       _categories = [];
 
-      Log.d('Admin logout completed');
+      log_util.Log.d('Admin logout completed');
     } catch (e, stackTrace) {
-      Log.e('Error during admin logout: $e\n$stackTrace');
+      log_util.Log.e('Error during admin logout: $e\n$stackTrace');
       rethrow;
     } finally {
       _isLoading = false;
@@ -634,7 +663,7 @@ class AdminProvider with ChangeNotifier {
 
   Future<List<models.Category>> getCategories() async {
     try {
-      Log.d('Starting to load categories');
+      log_util.Log.d('Starting to load categories');
       _isLoading = true;
       _error = null;
 
@@ -643,17 +672,18 @@ class AdminProvider with ChangeNotifier {
         notifyListeners();
       });
 
-      Log.d('Calling _adminService.getCategories()');
+      log_util.Log.d('Calling _adminService.getCategories()');
       final categories = await _adminService.getCategories();
-      Log.d(
+      log_util.Log.d(
           'Categories received from service: ${categories.length} categories');
 
       _categories = categories;
-      Log.d('Categories set in provider: ${_categories.length} categories');
+      log_util.Log.d(
+          'Categories set in provider: ${_categories.length} categories');
 
       return categories;
     } catch (e, stackTrace) {
-      Log.e('Error loading categories: $e\n$stackTrace');
+      log_util.Log.e('Error loading categories: $e\n$stackTrace');
       _error = e.toString();
       return [];
     } finally {
@@ -664,19 +694,19 @@ class AdminProvider with ChangeNotifier {
         notifyListeners();
       });
 
-      Log.d('Categories loading completed');
+      log_util.Log.d('Categories loading completed');
     }
   }
 
   Future<OrganicProduct> addOrganicProduct(OrganicProduct product,
-      {File? imageFile}) async {
+      {List<File>? imageFiles}) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
       final response = await _adminService.createOrganicProduct(product,
-          imageFile: imageFile);
+          imageFiles: imageFiles);
       _organicProducts.add(response);
       return response;
     } catch (e) {
@@ -689,21 +719,31 @@ class AdminProvider with ChangeNotifier {
   }
 
   Future<OrganicProduct> updateOrganicProduct(OrganicProduct product,
-      {File? imageFile}) async {
+      {List<File>? imageFiles}) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
+      // Updating organic product
+
       final response = await _adminService.updateOrganicProduct(product,
-          imageFile: imageFile);
+          imageFiles: imageFiles);
+
+      // Update response received
+
       final index = _organicProducts.indexWhere((p) => p.id == product.id);
       if (index != -1) {
         _organicProducts[index] = response;
+        // Updated product in provider list
+      } else {
+        // Product not found in provider list
       }
+
       return response;
     } catch (e) {
       _error = e.toString();
+      // Error in updateOrganicProduct
       rethrow;
     } finally {
       _isLoading = false;

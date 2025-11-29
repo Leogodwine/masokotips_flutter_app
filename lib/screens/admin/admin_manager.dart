@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/admin_auth_service.dart';
+import '../../config/api_config.dart';
 import './admin_dashboard_screen.dart';
 import './market_info_management_screen.dart';
 import './admin_user_management_screen.dart';
@@ -12,7 +13,8 @@ import './create_admin_screen.dart';
 /// A utility class that provides a central way to manage admin functionality
 /// across the application.
 class AdminManager {
-  static final AdminAuthService _adminAuthService = AdminAuthService();
+  static final AdminAuthService _adminAuthService =
+      AdminAuthService(baseUrl: ApiConfig.baseUrl);
 
   /// Checks if a user is an admin and has a valid admin session
   static Future<bool> isAdmin(BuildContext context) async {

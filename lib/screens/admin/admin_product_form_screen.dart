@@ -60,25 +60,35 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
 
       // Find the Products category and ensure it has its subcategories
       Log.d('Looking for Products category (id: 1)');
-      final productsCategory = categories.firstWhere(
+
+      // First try to find the Products category from API
+      final apiProductsCategory = categories.firstWhere(
         (category) => category.id == 1,
-        orElse: () {
-          Log.d('Products category not found, creating default');
-          return models.Category(
-            id: 1,
-            name: 'Products',
-            subcategories: [
-              models.Category(id: 11, name: 'Vegetables'),
-              models.Category(id: 12, name: 'Fruits'),
-              models.Category(id: 13, name: 'Spices'),
-              models.Category(id: 14, name: 'Cash Crops'),
-              models.Category(id: 15, name: 'Cereals'),
-              models.Category(id: 16, name: 'Seeds and Seedling'),
-              models.Category(id: 17, name: 'Livestock and poultry'),
-            ],
-          );
-        },
+        orElse: () => models.Category(id: 1, name: 'Products'),
       );
+
+      // Check if the API category has subcategories, if not use our default subcategories
+      models.Category productsCategory;
+      if (apiProductsCategory.subcategories == null ||
+          apiProductsCategory.subcategories!.isEmpty) {
+        Log.d('API Products category has no subcategories, using defaults');
+        productsCategory = models.Category(
+          id: 1,
+          name: 'Products',
+          subcategories: [
+            models.Category(id: 6, name: 'Vegetables'),
+            models.Category(id: 7, name: 'Fruits'),
+            models.Category(id: 8, name: 'Spices'),
+            models.Category(id: 9, name: 'Cash Crops'),
+            models.Category(id: 10, name: 'Cereals'),
+            models.Category(id: 11, name: 'Seeds and Seedling'),
+            models.Category(id: 12, name: 'Livestock and poultry'),
+          ],
+        );
+      } else {
+        Log.d('API Products category has subcategories, using them');
+        productsCategory = apiProductsCategory;
+      }
 
       Log.d(
           'Products category found/created with ${productsCategory.subcategories?.length ?? 0} subcategories');
@@ -130,13 +140,13 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
               id: 1,
               name: 'Products',
               subcategories: [
-                models.Category(id: 11, name: 'Vegetables'),
-                models.Category(id: 12, name: 'Fruits'),
-                models.Category(id: 13, name: 'Spices'),
-                models.Category(id: 14, name: 'Cash Crops'),
-                models.Category(id: 15, name: 'Cereals'),
-                models.Category(id: 16, name: 'Seeds and Seedling'),
-                models.Category(id: 17, name: 'Livestock and poultry'),
+                models.Category(id: 6, name: 'Vegetables'),
+                models.Category(id: 7, name: 'Fruits'),
+                models.Category(id: 8, name: 'Spices'),
+                models.Category(id: 9, name: 'Cash Crops'),
+                models.Category(id: 10, name: 'Cereals'),
+                models.Category(id: 11, name: 'Seeds and Seedling'),
+                models.Category(id: 12, name: 'Livestock and poultry'),
               ],
             ),
           ];
@@ -244,13 +254,13 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
         id: 1,
         name: 'Products',
         subcategories: [
-          models.Category(id: 11, name: 'Vegetables'),
-          models.Category(id: 12, name: 'Fruits'),
-          models.Category(id: 13, name: 'Spices'),
-          models.Category(id: 14, name: 'Cash Crops'),
-          models.Category(id: 15, name: 'Cereals'),
-          models.Category(id: 16, name: 'Seeds and Seedling'),
-          models.Category(id: 17, name: 'Livestock and poultry'),
+          models.Category(id: 6, name: 'Vegetables'),
+          models.Category(id: 7, name: 'Fruits'),
+          models.Category(id: 8, name: 'Spices'),
+          models.Category(id: 9, name: 'Cash Crops'),
+          models.Category(id: 10, name: 'Cereals'),
+          models.Category(id: 11, name: 'Seeds and Seedling'),
+          models.Category(id: 12, name: 'Livestock and poultry'),
         ],
       ),
     );
@@ -316,26 +326,29 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
                             ),
                             const SizedBox(height: 16),
                             TextFormField(
-  controller: _priceController,
-  decoration: const InputDecoration(
-    labelText: 'Price',
-    border: OutlineInputBorder(),
-    prefix: Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8.0),
-      child: Text('TZS', style: TextStyle(fontWeight: FontWeight.bold)),
-    ),
-  ),
-  keyboardType: TextInputType.number,
-  validator: (value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter a price';
-    }
-    if (double.tryParse(value) == null) {
-      return 'Please enter a valid price';
-    }
-    return null;
-  },
-),
+                              controller: _priceController,
+                              decoration: const InputDecoration(
+                                labelText: 'Price',
+                                border: OutlineInputBorder(),
+                                prefix: Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 8.0),
+                                  child: Text('TZS',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                              ),
+                              keyboardType: TextInputType.number,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter a price';
+                                }
+                                if (double.tryParse(value) == null) {
+                                  return 'Please enter a valid price';
+                                }
+                                return null;
+                              },
+                            ),
                             const SizedBox(height: 16),
                             TextFormField(
                               controller: _stockController,
@@ -472,6 +485,7 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
                                       child: Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
+                                        mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Icon(
                                             _isFeatured
@@ -480,17 +494,22 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
                                             color: _isFeatured
                                                 ? Colors.amber
                                                 : Colors.grey,
+                                            size: 16,
                                           ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            _isFeatured
-                                                ? 'Featured'
-                                                : 'Not Featured',
-                                            style: TextStyle(
-                                              color: _isFeatured
-                                                  ? Colors.amber
-                                                  : Colors.grey,
-                                              fontWeight: FontWeight.bold,
+                                          const SizedBox(width: 4),
+                                          Flexible(
+                                            child: Text(
+                                              _isFeatured
+                                                  ? 'Featured'
+                                                  : 'Not Featured',
+                                              style: TextStyle(
+                                                color: _isFeatured
+                                                    ? Colors.amber
+                                                    : Colors.grey,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
                                         ],

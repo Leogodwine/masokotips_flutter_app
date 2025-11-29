@@ -3,24 +3,19 @@ import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
 import '../utils/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../config/api_config.dart';
 
 class AdminAuthService {
   String? _authToken;
-  late String baseUrl;
+  final String baseUrl;
   static const String _adminTokenKey = 'admin_auth_token';
-  static const String _adminSessionKey = 'admin_session_id';
+  static const String _adminSessionKey = 'admin_session_key';
   static const int _sessionTimeoutMinutes = 30;
 
-  AdminAuthService() {
-    baseUrl = ApiConfig.baseUrl;
-  }
+  AdminAuthService({required this.baseUrl});
 
   // User-Agent header to identify as legitimate mobile app
   static const String _userAgent =
       'Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36';
-
-  String get getBaseUrl => baseUrl;
 
   String? get authToken => _authToken;
 
@@ -32,11 +27,6 @@ class AdminAuthService {
       _authToken = token;
       Log.d('Admin auth token initialized from storage');
     }
-  }
-
-  void setBaseUrl(String url) {
-    baseUrl = url;
-    Log.d('Admin API base URL set to: $baseUrl');
   }
 
   void setAuthToken(String token) {

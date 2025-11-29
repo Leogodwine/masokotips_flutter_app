@@ -7,22 +7,28 @@ import '../models/market_info.dart';
 import '../models/product.dart';
 import '../models/organic_product.dart';
 import '../models/transport.dart';
-import '../utils/logger.dart';
-import '../config/api_config.dart';
 import 'package:dio/dio.dart';
 import '../models/category.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import '../utils/logger.dart';
+import 'network_service.dart';
 
 class AdminService {
   String? _authToken;
-  String baseUrl = ApiConfig.baseUrl;
+  final String baseUrl;
   late Dio _dio;
+  final NetworkService _networkService = NetworkService.instance;
 
-  AdminService() {
+  AdminService({required this.baseUrl}) {
+    _initializeDio();
+  }
+
+  void _initializeDio() {
     _dio = Dio(BaseOptions(baseUrl: baseUrl));
-    _dio.options.connectTimeout = const Duration(seconds: 5);
-    _dio.options.receiveTimeout = const Duration(seconds: 3);
+    _dio.options.connectTimeout = const Duration(seconds: 30);
+    _dio.options.receiveTimeout = const Duration(seconds: 60);
+    _dio.options.sendTimeout = const Duration(seconds: 60);
 
     // Set enhanced headers for all Dio requests
     _dio.options.headers.addAll({
@@ -31,12 +37,15 @@ class AdminService {
       'User-Agent': _userAgent,
       'Origin': baseUrl.replaceAll('/api', ''),
       'Referer': baseUrl.replaceAll('/api', ''),
+      'Connection': 'keep-alive',
+      'Cache-Control': 'no-cache',
     });
   }
 
   void setAuthToken(String token) {
     _authToken = token;
     _dio.options.headers['Authorization'] = 'Bearer $token';
+    _networkService.setAuthToken(token);
     Log.d('Auth token set in AdminService: ${token.substring(0, 10)}...');
   }
 
@@ -607,7 +616,7 @@ class AdminService {
   Future<List<Product>> getProducts() async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/products'),
+        Uri.parse('$baseUrl/admin/products'),
         headers: _enhancedHeaders,
       );
 
@@ -631,102 +640,182 @@ class AdminService {
     }
 
     try {
-      final request = http.MultipartRequest(
-        'POST',
-        Uri.parse('$baseUrl/admin/products/$productId'),
-      );
-
-      // Add headers
-      request.headers['Authorization'] = 'Bearer $_authToken';
-
-      // Add non-file fields
-      Log.d('Product update data before sending:');
+      Log.d('Updating product $productId with data:');
       Log.d('- is_active: ${productData['is_active']}');
       Log.d('- is_featured: ${productData['is_featured']}');
 
-      request.fields.addAll({
-        '_method': 'PUT',
-        'name': productData['name'],
-        'description': productData['description'],
-        'price': productData['price'].toString(),
-        'stock': productData['stock'].toString(),
-        'unit': productData['unit'],
-        'category_id': productData['category_id'].toString(),
-        'is_active': productData['is_active'] is bool
-            ? (productData['is_active'] ? '1' : '0')
-            : productData['is_active'].toString(),
-        'is_featured': productData['is_featured'] is bool
-            ? (productData['is_featured'] ? '1' : '0')
-            : productData['is_featured'].toString(),
-      });
+      final url = '$baseUrl/admin/products/$productId';
+      Log.d('Update Product URL: $url');
 
-      // Log the request data
-      Log.d('Update Product Request Data:');
-      Log.d('- is_active: ${request.fields['is_active']}');
-      Log.d('- is_featured: ${request.fields['is_featured']}');
+      // Check if images are being updated
+      if (productData['images'] != null &&
+          productData['images'] is List<XFile> &&
+          (productData['images'] as List<XFile>).isNotEmpty) {
+        // Use multipart request if there are images
+        final formData = FormData.fromMap({
+          'name': productData['name'],
+          'description': productData['description'],
+          'price': productData['price'].toString(),
+          'stock': productData['stock'].toString(),
+          'unit': productData['unit'],
+          'category_id': productData['category_id'].toString(),
+          'is_active': productData['is_active'] is bool
+              ? (productData['is_active'] ? 1 : 0)
+              : productData['is_active'],
+          'is_featured': productData['is_featured'] is bool
+              ? (productData['is_featured'] ? 1 : 0)
+              : productData['is_featured'],
+          '_method': 'PUT', // Method spoofing for Laravel
+        });
 
-      // Handle images
-      if (productData['images'] != null) {
+        // Add image files using indexed field names for proper array handling
         final List<XFile> images = productData['images'] as List<XFile>;
         for (var i = 0; i < images.length; i++) {
+          // Check file size before upload to prevent timeout issues
+          final fileInfo = await images[i].length();
+          if (fileInfo > 2 * 1024 * 1024) {
+            // 2MB limit
+            Log.w(
+                'Image ${images[i].name} is large (${(fileInfo / 1024 / 1024).toStringAsFixed(1)}MB). Consider using smaller images.');
+          }
+
+          final filename = images[i].path.split('/').last.isNotEmpty
+              ? images[i].path.split('/').last
+              : 'image_$i.jpg';
+
           if (kIsWeb) {
+            // Web platform - use bytes
             final bytes = await images[i].readAsBytes();
-            request.files.add(
-              http.MultipartFile.fromBytes(
-                'images[]',
+            formData.files.add(MapEntry(
+              'images[$i]', // Use indexed field names
+              MultipartFile.fromBytes(
                 bytes,
-                filename: 'image_$i.jpg',
+                filename: filename,
               ),
-            );
+            ));
           } else {
-            request.files.add(
-              await http.MultipartFile.fromPath(
-                'images[]',
+            // Mobile platform - use file path
+            formData.files.add(MapEntry(
+              'images[$i]', // Use indexed field names
+              await MultipartFile.fromFile(
                 images[i].path,
-                filename: 'image_$i.jpg',
+                filename: filename,
               ),
-            );
+            ));
           }
         }
-      }
 
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
+        Log.d('Using multipart form data for product update with images');
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        Log.d('Product updated successfully');
-        Log.d('Response data: $data');
-        if (data['success'] == true && data['data'] != null) {
-          // Ensure is_featured is included in the response data
-          final responseData = data['data'] as Map<String, dynamic>;
-          Log.d('Raw is_featured value: ${responseData['is_featured']}');
-          Log.d(
-              'Raw is_featured type: ${responseData['is_featured'].runtimeType}');
+        final response = await _dio.post(
+          url,
+          data: formData,
+          options: Options(
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'multipart/form-data',
+              'Authorization': 'Bearer $_authToken',
+              'User-Agent': _userAgent,
+              'Origin': baseUrl.replaceAll('/api', ''),
+              'Referer': baseUrl.replaceAll('/api', ''),
+            },
+            sendTimeout: const Duration(seconds: 60),
+            receiveTimeout: const Duration(seconds: 60),
+            validateStatus: (status) => status! < 500,
+          ),
+        );
 
-          if (!responseData.containsKey('is_featured')) {
-            responseData['is_featured'] = productData['is_featured'];
+        if (response.statusCode == 200) {
+          final responseData = response.data['data'];
+          if (responseData is Map<String, dynamic>) {
+            Log.d('Product updated successfully with multipart form data');
+            return Product.fromJson(responseData);
+          } else {
+            throw Exception('Invalid response data format');
           }
-          // Convert is_featured to boolean if it's a string
-          if (responseData['is_featured'] is String) {
-            responseData['is_featured'] = responseData['is_featured'] == '1';
-          } else if (responseData['is_featured'] is int) {
-            responseData['is_featured'] = responseData['is_featured'] == 1;
-          }
-          Log.d('Processed is_featured value: ${responseData['is_featured']}');
-          Log.d(
-              'Processed is_featured type: ${responseData['is_featured'].runtimeType}');
-
-          return Product.fromJson(responseData);
         } else {
-          throw Exception('Failed to update product: ${data['message']}');
+          String errorMessage = 'Failed to update product';
+          if (response.data is Map) {
+            final data = response.data as Map;
+            if (data.containsKey('message')) {
+              errorMessage = data['message'];
+            } else if (data.containsKey('error')) {
+              errorMessage = data['error'];
+            }
+          }
+          throw Exception('Failed to update product: $errorMessage');
         }
       } else {
-        Log.e('Failed to update product: ${response.body}');
-        throw Exception('Failed to update product: ${response.body}');
+        // Use regular JSON request if no images
+        Log.d('Using JSON request for product update without images');
+
+        final response = await http.put(
+          Uri.parse(url),
+          headers: {
+            'Authorization': 'Bearer $_authToken',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'User-Agent': _userAgent,
+            'Origin': baseUrl.replaceAll('/api', ''),
+            'Referer': baseUrl.replaceAll('/api', ''),
+          },
+          body: json.encode({
+            'name': productData['name'],
+            'description': productData['description'],
+            'price': productData['price'].toString(),
+            'stock': productData['stock'].toString(),
+            'unit': productData['unit'],
+            'category_id': productData['category_id'].toString(),
+            'is_active': productData['is_active'] is bool
+                ? (productData['is_active'] ? 1 : 0)
+                : productData['is_active'],
+            'is_featured': productData['is_featured'] is bool
+                ? (productData['is_featured'] ? 1 : 0)
+                : productData['is_featured'],
+          }),
+        );
+
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+          Log.d('Product updated successfully');
+          Log.d('Response data: $data');
+          if (data['success'] == true && data['data'] != null) {
+            final responseData = data['data'] as Map<String, dynamic>;
+            return Product.fromJson(responseData);
+          } else {
+            throw Exception('Failed to update product: ${data['message']}');
+          }
+        } else {
+          Log.e('Failed to update product: ${response.body}');
+          throw Exception('Failed to update product: ${response.body}');
+        }
       }
     } catch (e) {
       Log.e('Error updating product: $e');
+
+      // Re-throw DioException with better error messages
+      if (e is DioException) {
+        if (e.response?.statusCode == 500) {
+          String errorMessage = 'Server error occurred while updating product';
+          if (e.response?.data is Map) {
+            final data = e.response!.data as Map;
+            if (data.containsKey('message')) {
+              errorMessage = data['message'];
+            } else if (data.containsKey('error')) {
+              errorMessage = data['error'];
+            }
+          }
+          throw Exception('Failed to update product: $errorMessage');
+        } else if (e.response?.statusCode == 422) {
+          final data = e.response?.data as Map?;
+          final message = data?['message'] ?? 'Validation failed';
+          throw Exception('Validation error: $message');
+        } else {
+          throw Exception('Failed to update product: ${e.message}');
+        }
+      }
+
+      // For other exceptions
       throw Exception('Error updating product: $e');
     }
   }
@@ -754,13 +843,13 @@ class AdminService {
         final categories = await getCategories();
         final defaultCategories = [
           Category(id: 1, name: 'Products', subcategories: [
-            Category(id: 11, name: 'Vegetables'),
+            Category(id: 6, name: 'Vegetables'),
+            Category(id: 7, name: 'Fruits'),
+            Category(id: 8, name: 'Spices'),
+            Category(id: 9, name: 'Cash Crops'),
+            Category(id: 10, name: 'Cereals'),
+            Category(id: 11, name: 'Seeds and Seedling'),
             Category(id: 12, name: 'Livestock and poultry'),
-            Category(id: 13, name: 'Spices'),
-            Category(id: 14, name: 'Cash Crops'),
-            Category(id: 15, name: 'Cereals'),
-            Category(id: 16, name: 'Seeds and Seedling'),
-            Category(id: 17, name: 'Fruits'),
           ]),
         ];
 
@@ -782,11 +871,15 @@ class AdminService {
         rethrow;
       }
 
-      // Generate slug from name
-      final slug = name
+      // Generate unique slug from name with timestamp
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final baseSlug = name
           .toLowerCase()
           .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
           .replaceAll(RegExp(r'^-|-$'), '');
+      final slug = '$baseSlug-$timestamp';
+
+      Log.d('Generated unique slug: $slug');
 
       final formData = FormData.fromMap({
         'name': name,
@@ -800,30 +893,34 @@ class AdminService {
         'is_featured': isFeatured ? 1 : 0,
       });
 
-      // Handle image uploads
-      if (kIsWeb) {
-        // Web platform
-        for (var image in images) {
-          final bytes = await image.readAsBytes();
-          formData.files.add(MapEntry(
-            'images[]',
-            MultipartFile.fromBytes(
-              bytes,
-              filename: image.name,
-            ),
-          ));
+      // Handle image uploads - only add files if images are provided
+      if (images.isNotEmpty) {
+        Log.d('Adding ${images.length} images to form data');
+        for (var i = 0; i < images.length; i++) {
+          if (kIsWeb) {
+            // Web platform - use bytes
+            final bytes = await images[i].readAsBytes();
+            formData.files.add(MapEntry(
+              'images[$i]', // Use indexed field names for proper array handling
+              MultipartFile.fromBytes(
+                bytes,
+                filename: images[i].name,
+              ),
+            ));
+          } else {
+            // Mobile platform - use file path
+            formData.files.add(MapEntry(
+              'images[$i]', // Use indexed field names for proper array handling
+              await MultipartFile.fromFile(
+                images[i].path,
+                filename: images[i].name,
+              ),
+            ));
+          }
         }
       } else {
-        // Mobile platform
-        for (var image in images) {
-          formData.files.add(MapEntry(
-            'images[]',
-            await MultipartFile.fromFile(
-              image.path,
-              filename: image.name,
-            ),
-          ));
-        }
+        Log.d('No images provided, sending empty images array');
+        formData.fields.add(const MapEntry('images', '[]'));
       }
 
       final response = await _dio.post(
@@ -921,6 +1018,7 @@ class AdminService {
     }
   }
 
+  // Transport Management
   Future<List<Transport>> getTransports() async {
     try {
       final response = await _dio.get('/admin/transports');
@@ -1012,39 +1110,68 @@ class AdminService {
     return false;
   }
 
+  // Organic Product Management
   Future<List<OrganicProduct>> getOrganicProducts() async {
+    // Check authentication first (like other admin methods)
+    if (_authToken == null) {
+      throw Exception('Not authenticated. Please login as admin first.');
+    }
+
     try {
+      Log.d('Fetching organic products from: $baseUrl/admin/organic-products');
       final response = await http.get(
         Uri.parse('$baseUrl/admin/organic-products'),
         headers: _enhancedHeaders,
       );
 
-      Log.d('Organic Products API Response: ${response.body}');
+      Log.d('Organic products response status: ${response.statusCode}');
+      Log.d('Organic products response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        Log.d('Decoded API Response: $data');
+        // Check if response is actually JSON (not HTML)
+        final responseBody = response.body.trim();
+        if (!responseBody.startsWith('{') && !responseBody.startsWith('[')) {
+          throw Exception(
+              'Server returned non-JSON response. This might be an authentication or routing issue.');
+        }
 
+        final data = json.decode(responseBody);
+
+        // Handle different response formats
         if (data['data'] is Map) {
           final paginatedData = data['data'];
           final productsList = paginatedData['data'] as List;
-          Log.d('Products List: $productsList');
           return productsList
               .map((json) => OrganicProduct.fromJson(json))
               .toList();
         } else {
           final productsList = data['data'] as List;
-          Log.d('Products List: $productsList');
           return productsList
               .map((json) => OrganicProduct.fromJson(json))
               .toList();
         }
+      } else if (response.statusCode == 401) {
+        throw Exception('Authentication failed. Please login again.');
+      } else if (response.statusCode == 403) {
+        throw Exception(
+            'Access denied. You do not have permission to view organic products.');
+      } else if (response.statusCode == 404) {
+        throw Exception(
+            'Organic products endpoint not found. Please check the server configuration.');
       } else {
-        throw Exception('Failed to load organic products: ${response.body}');
+        throw Exception(
+            'Failed to load organic products: HTTP ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
       Log.e('Error loading organic products: $e');
-      throw Exception('Error loading organic products: $e');
+
+      // Provide more specific error messages
+      if (e.toString().contains('FormatException')) {
+        throw Exception(
+            'Server returned an invalid response. This could be due to authentication issues or server misconfiguration.');
+      }
+
+      rethrow; // Re-throw the original exception with proper context
     }
   }
 
@@ -1104,36 +1231,72 @@ class AdminService {
     }
   }
 
+  // Category Management
   Future<List<Category>> getCategories() async {
     try {
       Log.d('AdminService: Starting to fetch categories');
-      final response = await _dio.get('/admin/categories');
+
+      // Try the public categories endpoint first (most likely to work)
+      try {
+        final response = await _dio.get('/public/categories');
+        Log.d(
+            'AdminService: Public categories response received: ${response.data.toString()}');
+
+        if (response.statusCode == 200) {
+          final Map<String, dynamic> responseData = response.data;
+          if (responseData['success'] == true) {
+            final List<dynamic> data = responseData['data'];
+            Log.d(
+                'AdminService: Parsing ${data.length} categories from public endpoint');
+
+            final categories =
+                data.map((item) => Category.fromJson(item)).toList();
+            Log.d(
+                'AdminService: Successfully parsed ${categories.length} categories from public endpoint');
+            return categories;
+          }
+        }
+      } catch (e) {
+        Log.w(
+            'AdminService: Public categories endpoint failed, trying general categories: $e');
+      }
+
+      // Try the general categories endpoint
+      final response = await _dio.get('/categories');
       Log.d(
-          'AdminService: Categories response received: ${response.data.toString()}');
+          'AdminService: General categories response received: ${response.data.toString()}');
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = response.data;
-        if (responseData['success'] == true) {
-          final List<dynamic> data = responseData['data'];
-          Log.d('AdminService: Parsing ${data.length} categories');
+        // Handle different response formats
+        final dynamic responseData = response.data;
+
+        if (responseData is Map<String, dynamic>) {
+          if (responseData.containsKey('data') &&
+              responseData['data'] is List) {
+            final List<dynamic> data = responseData['data'];
+            Log.d(
+                'AdminService: Parsing ${data.length} categories from general endpoint');
+
+            final categories =
+                data.map((item) => Category.fromJson(item)).toList();
+            Log.d(
+                'AdminService: Successfully parsed ${categories.length} categories from general endpoint');
+            return categories;
+          }
+        } else if (responseData is List<dynamic>) {
+          // Direct list response
+          final List<dynamic> data = responseData;
+          Log.d(
+              'AdminService: Parsing ${data.length} categories from direct list');
 
           final categories =
               data.map((item) => Category.fromJson(item)).toList();
-          Log.d(
-              'AdminService: Successfully parsed ${categories.length} categories');
           return categories;
-        } else {
-          Log.e(
-              'AdminService: Failed to fetch categories: ${responseData['message']}');
-          throw Exception(
-              responseData['message'] ?? 'Failed to fetch categories');
         }
-      } else {
-        Log.e(
-            'AdminService: Failed to fetch categories: HTTP ${response.statusCode}');
-        throw Exception(
-            'Failed to fetch categories: HTTP ${response.statusCode}');
       }
+
+      // If we get here, all endpoints failed
+      throw Exception('All category endpoints failed');
     } catch (e, stackTrace) {
       Log.e('AdminService: Error fetching categories: $e\n$stackTrace');
       // Return default categories if API fails
@@ -1143,42 +1306,80 @@ class AdminService {
           id: 1,
           name: 'Products',
           subcategories: [
-            Category(id: 11, name: 'Vegetables'),
+            Category(id: 6, name: 'Vegetables'),
+            Category(id: 7, name: 'Fruits'),
+            Category(id: 8, name: 'Spices'),
+            Category(id: 9, name: 'Cash Crops'),
+            Category(id: 10, name: 'Cereals'),
+            Category(id: 11, name: 'Seeds and Seedling'),
             Category(id: 12, name: 'Livestock and poultry'),
-            Category(id: 13, name: 'Spices'),
-            Category(id: 14, name: 'Cash Crops'),
-            Category(id: 15, name: 'Cereals'),
-            Category(id: 16, name: 'Seeds and Seedling'),
-            Category(id: 17, name: 'Fruits'),
-          ],
-        ),
-        Category(
-          id: 2,
-          name: 'Services',
-          subcategories: [
-            Category(id: 21, name: 'Transport'),
-            Category(id: 22, name: 'Storage'),
-            Category(id: 23, name: 'Processing'),
           ],
         ),
         Category(
           id: 3,
+          name: 'Market Information',
+          subcategories: [],
+        ),
+        Category(
+          id: 4,
           name: 'Transport',
           subcategories: [
-            Category(id: 31, name: 'Tandem'),
-            Category(id: 32, name: 'Truck'),
-            Category(id: 33, name: 'Motorcycle'),
+            Category(id: 13, name: 'Tandem'),
+            Category(id: 14, name: 'Kirikuu'),
+            Category(id: 15, name: 'Flatbed Trucks'),
+            Category(id: 16, name: 'Tanker'),
+            Category(id: 17, name: 'Refrigerator Truck'),
+            Category(id: 18, name: 'Box Truck'),
+            Category(id: 19, name: 'Liftgate Truck'),
+            Category(id: 20, name: 'Van'),
+            Category(id: 21, name: 'Container Hauler'),
+            Category(id: 22, name: 'Pickups Trucks'),
+            Category(id: 23, name: 'Fuso'),
+            Category(id: 24, name: 'Semi Trailers'),
+            Category(id: 25, name: 'Tracker Trailers'),
+          ],
+        ),
+        Category(
+          id: 5,
+          name: 'Organic Products',
+          subcategories: [
+            Category(id: 26, name: 'Organic Vegetables'),
+            Category(id: 27, name: 'Organic Fruits'),
+            Category(id: 28, name: 'Organic Spices'),
+            Category(id: 29, name: 'Organic Cash Crops'),
+            Category(id: 30, name: 'Organic Cereals'),
+            Category(id: 31, name: 'Organic Livestock and Poultry'),
+          ],
+        ),
+        Category(
+          id: 6,
+          name: 'Agricultural Services',
+          subcategories: [
+            Category(id: 32, name: 'Packaging Materials'),
+            Category(id: 33, name: 'Hydroponics'),
+            Category(id: 34, name: 'Fertilizer'),
+            Category(id: 35, name: 'Organic Manure'),
+            Category(id: 36, name: 'Machinery'),
+            Category(id: 37, name: 'Beehive and Aquatic'),
+            Category(id: 38, name: 'Food and Beverage'),
+            Category(id: 39, name: 'Cold Rooms Services'),
+            Category(id: 40, name: 'Machinery and Rental Services'),
+            Category(id: 41, name: 'Agronomist Services'),
+            Category(id: 42, name: 'Financial Services'),
+            Category(id: 43, name: 'Irrigation Services'),
+            Category(id: 44, name: 'Branding and Consultation Services'),
           ],
         ),
       ];
     }
   }
 
+  // Organic Product CRUD Operations
   Future<OrganicProduct> createOrganicProduct(OrganicProduct product,
-      {File? imageFile}) async {
+      {List<File>? imageFiles}) async {
     try {
-      if (imageFile != null) {
-        // Use Dio with FormData when image is provided (same as regular products)
+      if (imageFiles != null && imageFiles.isNotEmpty) {
+        // Use Dio with FormData when images are provided (same as regular products)
         final formData = FormData.fromMap({
           'name': product.name,
           'slug': product.slug,
@@ -1193,26 +1394,37 @@ class AdminService {
           'origin': product.origin,
           'storage_conditions': product.storageConditions,
           'shelf_life': product.shelfLife,
+          if (product.harvestDate != null)
+            'harvest_date': product.harvestDate!.toIso8601String(),
         });
 
-        // Add image file (use 'images[]' field as expected by backend validation)
-        if (kIsWeb) {
-          final bytes = await imageFile.readAsBytes();
-          formData.files.add(MapEntry(
-            'images[]',
-            MultipartFile.fromBytes(
-              bytes,
-              filename: 'image.jpg',
-            ),
-          ));
-        } else {
-          formData.files.add(MapEntry(
-            'images[]',
-            await MultipartFile.fromFile(
-              imageFile.path,
-              filename: 'image.jpg',
-            ),
-          ));
+        // Add image files using indexed field names for proper array handling
+        for (var i = 0; i < imageFiles.length; i++) {
+          final imageFile = imageFiles[i];
+          if (kIsWeb) {
+            final bytes = await imageFile.readAsBytes();
+            final filename = imageFile.path.split('/').last.isNotEmpty
+                ? imageFile.path.split('/').last
+                : 'image_$i.jpg';
+            formData.files.add(MapEntry(
+              'images[$i]', // Use indexed field names
+              MultipartFile.fromBytes(
+                bytes,
+                filename: filename,
+              ),
+            ));
+          } else {
+            final filename = imageFile.path.split('/').last.isNotEmpty
+                ? imageFile.path.split('/').last
+                : 'image_$i.jpg';
+            formData.files.add(MapEntry(
+              'images[$i]', // Use indexed field names
+              await MultipartFile.fromFile(
+                imageFile.path,
+                filename: filename,
+              ),
+            ));
+          }
         }
 
         try {
@@ -1223,7 +1435,12 @@ class AdminService {
               headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'multipart/form-data',
+                'Authorization': 'Bearer $_authToken',
+                'User-Agent': _userAgent,
+                'Origin': baseUrl.replaceAll('/api', ''),
+                'Referer': baseUrl.replaceAll('/api', ''),
               },
+              validateStatus: (status) => status! < 500,
             ),
           );
 
@@ -1274,10 +1491,21 @@ class AdminService {
         }
       } else {
         // Use regular JSON request when no image
+        final productJson = product.toJson();
+
+        // Remove fields that might cause serialization issues
+        productJson.remove('created_at');
+        productJson.remove('updated_at');
+
+        // Also remove any null DateTime fields to prevent namespace issues
+        if (productJson['harvest_date'] == null) {
+          productJson.remove('harvest_date');
+        }
+
         final response = await http.post(
           Uri.parse('$baseUrl/admin/organic-products'),
           headers: _enhancedHeaders,
-          body: json.encode(product.toJson()),
+          body: json.encode(productJson),
         );
 
         if (response.statusCode == 201) {
@@ -1294,13 +1522,13 @@ class AdminService {
   }
 
   Future<OrganicProduct> updateOrganicProduct(OrganicProduct product,
-      {File? imageFile}) async {
+      {List<File>? imageFiles}) async {
     try {
       final url = '$baseUrl/admin/organic-products/${product.id}';
       Log.d('Updating organic product at: $url');
 
-      if (imageFile != null) {
-        // Use multipart request if there is an image
+      if (imageFiles != null && imageFiles.isNotEmpty) {
+        // Use multipart request if there are images
         final formData = FormData.fromMap({
           'name': product.name,
           'description': product.description,
@@ -1317,39 +1545,69 @@ class AdminService {
           '_method': 'PUT', // Method spoofing for Laravel
         });
 
-        // Add image file
-        formData.files.add(MapEntry(
-          'image', // The field name should be 'image' not 'images[]'
-          await MultipartFile.fromFile(
-            imageFile.path,
-            filename: 'image.jpg',
-          ),
-        ));
+        // Add image files using indexed field names for proper array handling
+        for (var i = 0; i < imageFiles.length; i++) {
+          final imageFile = imageFiles[i];
+          final filename = imageFile.path.split('/').last.isNotEmpty
+              ? imageFile.path.split('/').last
+              : 'image_$i.jpg';
+          formData.files.add(MapEntry(
+            'images[$i]', // Use indexed field names for proper array handling
+            await MultipartFile.fromFile(
+              imageFile.path,
+              filename: filename,
+            ),
+          ));
+        }
 
+        // Increase timeout for image uploads
         final response = await _dio.post(
           url,
           data: formData,
-          options: Options(headers: {'Content-Type': 'multipart/form-data'}),
+          options: Options(
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              'Authorization': 'Bearer $_authToken',
+              'User-Agent': _userAgent,
+              'Origin': baseUrl.replaceAll('/api', ''),
+              'Referer': baseUrl.replaceAll('/api', ''),
+            },
+            sendTimeout: const Duration(seconds: 30),
+            receiveTimeout: const Duration(seconds: 30),
+          ),
         );
 
         if (response.statusCode == 200) {
-          return OrganicProduct.fromJson(response.data['data']);
+          final responseData = response.data['data'];
+          return OrganicProduct.fromJson(responseData);
         } else {
           throw Exception(
               'Failed to update organic product: ${response.data['message'] ?? response.statusMessage}');
         }
       } else {
         // Use regular JSON request if no image
-        final response = await _dio.put(
-          url,
-          data: product.toJson(),
+        final productJson = product.toJson();
+
+        // Remove fields that might cause serialization issues
+        productJson.remove('created_at');
+        productJson.remove('updated_at');
+
+        // Also remove any null DateTime fields to prevent namespace issues
+        if (productJson['harvest_date'] == null) {
+          productJson.remove('harvest_date');
+        }
+
+        final response = await http.put(
+          Uri.parse(url),
+          headers: _enhancedHeaders,
+          body: json.encode(productJson),
         );
 
         if (response.statusCode == 200) {
-          return OrganicProduct.fromJson(response.data['data']);
+          final data = json.decode(response.body);
+          return OrganicProduct.fromJson(data['data']);
         } else {
-          throw Exception(
-              'Failed to update organic product: ${response.data['message'] ?? response.statusMessage}');
+          throw Exception('Failed to update organic product: ${response.body}');
         }
       }
     } catch (e) {

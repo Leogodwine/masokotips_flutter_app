@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/admin_auth_service.dart';
+import '../../config/api_config.dart';
 import '../../utils/logger.dart';
 
 class AdminLoginScreen extends StatefulWidget {
@@ -17,7 +18,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
-  final _adminAuthService = AdminAuthService();
+  final _adminAuthService = AdminAuthService(baseUrl: ApiConfig.baseUrl);
 
   @override
   void dispose() {

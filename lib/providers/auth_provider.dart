@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
+import '../services/network_service.dart';
 import '../services/transport_service.dart';
 import '../models/user.dart';
 import '../config/api_config.dart';
+import '../utils/logger.dart';
 
 class AuthProvider with ChangeNotifier {
   late final ApiService _apiService;
+  final NetworkService _networkService = NetworkService.instance;
   final TransportService _transportService = TransportService();
   String? _token;
   User? _user;
@@ -16,6 +19,9 @@ class AuthProvider with ChangeNotifier {
       baseUrl: ApiConfig.baseUrl,
       apiKey: ApiConfig.apiKey,
     );
+
+    // Initialize network service
+    _networkService.initialize();
   }
 
   String? get token => _token;
@@ -70,8 +76,10 @@ class AuthProvider with ChangeNotifier {
         _token = response['token'];
         await _saveToken(_token!);
 
-        // Set the auth token in TransportService
+        // Set the auth token in all services
         _transportService.setAuthToken(_token!);
+        _networkService.setAuthToken(_token!);
+        _apiService.setAuthToken(_token!);
 
         // Create user object from the response
         if (response['user'] != null) {
@@ -79,10 +87,12 @@ class AuthProvider with ChangeNotifier {
         }
 
         notifyListeners();
+        Log.d('✅ Login successful for user: ${_user?.name ?? username}');
       } else {
         throw Exception('Invalid response format: Token not found');
       }
     } catch (e) {
+      Log.e('❌ Login failed: $e');
       throw Exception('Login failed: $e');
     }
   }

@@ -441,21 +441,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const Divider(height: 1),
                     ListTile(
-                      leading: const Icon(Icons.code),
-                      title:
-                          Text(AppLocalizations.of(context)!.developerSettings),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                                'Developer settings are not available in production'),
-                          ),
-                        );
-                      },
-                    ),
-                    const Divider(height: 1),
-                    ListTile(
                       leading: const Icon(Icons.info_outline),
                       title: Text(AppLocalizations.of(context)!.about),
                       trailing: const Icon(Icons.chevron_right),

@@ -39,6 +39,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
   bool _isLoadingCategories = false;
   File? _selectedImage;
   String? _existingImageUrl;
+  bool _isRemovingExistingImage = false;
 
   @override
   void initState() {
@@ -146,11 +147,18 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
   Future<void> _pickImage() async {
     try {
       final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+        maxWidth: 1200,
+        maxHeight: 1200,
+      );
 
       if (image != null) {
         setState(() {
           _selectedImage = File(image.path);
+          // Clear the existing image removal flag when selecting a new image
+          _isRemovingExistingImage = false;
         });
       }
     } catch (e) {
@@ -334,9 +342,17 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                 child: Column(
                   children: [
                     Icon(
-                      Icons.image_outlined,
+                      _selectedImage != null ||
+                              (_existingImageUrl != null &&
+                                  !_isRemovingExistingImage)
+                          ? Icons.check_circle_outline
+                          : Icons.image_outlined,
                       size: 48,
-                      color: Colors.grey[600],
+                      color: (_selectedImage != null ||
+                              (_existingImageUrl != null &&
+                                  !_isRemovingExistingImage))
+                          ? Colors.green
+                          : Colors.grey[600],
                     ),
                     const SizedBox(height: 12),
                     Text(
@@ -349,34 +365,78 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Add an image to make your product more appealing',
+                      _selectedImage != null
+                          ? 'New image selected'
+                          : (_existingImageUrl != null &&
+                                  !_isRemovingExistingImage)
+                              ? 'Existing image will be kept'
+                              : _isRemovingExistingImage
+                                  ? 'Image will be removed'
+                                  : 'Add an image to make your product more appealing',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey[600],
+                        color: (_selectedImage != null ||
+                                (_existingImageUrl != null &&
+                                    !_isRemovingExistingImage))
+                            ? Colors.green[600]
+                            : (_isRemovingExistingImage
+                                ? Colors.orange[600]
+                                : Colors.grey[600]),
                       ),
                     ),
                     const SizedBox(height: 16),
-                    ElevatedButton.icon(
-                      onPressed: _pickImage,
-                      icon: const Icon(Icons.upload),
-                      label: const Text('Choose Image'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryColor,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: _pickImage,
+                          icon: const Icon(Icons.upload),
+                          label: const Text('Choose Image'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primaryColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
+                        if (_isRemovingExistingImage &&
+                            widget.product?.imageUrl != null) ...[
+                          const SizedBox(width: 12),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                _isRemovingExistingImage = false;
+                                _existingImageUrl = widget.product?.imageUrl;
+                              });
+                            },
+                            icon: const Icon(Icons.undo),
+                            label: const Text('Undo Remove'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ],
                 ),
               ),
-              if (_selectedImage != null || _existingImageUrl != null) ...[
+              if (_selectedImage != null ||
+                  (_existingImageUrl != null && !_isRemovingExistingImage)) ...[
                 const SizedBox(height: 20),
                 Container(
                   decoration: BoxDecoration(
@@ -393,6 +453,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                     borderRadius: BorderRadius.circular(12),
                     child: Stack(
                       children: [
+                        // Show selected image if available, otherwise show existing image
                         if (_selectedImage != null)
                           kIsWeb
                               ? Image.network(
@@ -427,13 +488,41 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                                     );
                                   },
                                 )
-                        else if (_existingImageUrl != null)
+                        else if (_existingImageUrl != null &&
+                            !_isRemovingExistingImage)
                           CachedNetworkImageWithCors(
                             imageUrl: _existingImageUrl ?? '',
                             height: 200,
                             width: double.infinity,
                             fit: BoxFit.cover,
                           ),
+
+                        // Image type indicator
+                        if (_selectedImage != null)
+                          Positioned(
+                            top: 8,
+                            left: 8,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.withValues(alpha: 0.8),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Text(
+                                'NEW',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                        // Remove button
                         Positioned(
                           top: 8,
                           right: 8,
@@ -450,8 +539,12 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                               ),
                               onPressed: () {
                                 setState(() {
-                                  _selectedImage = null;
-                                  if (_existingImageUrl != null) {
+                                  if (_selectedImage != null) {
+                                    // Remove newly selected image
+                                    _selectedImage = null;
+                                  } else if (_existingImageUrl != null) {
+                                    // Mark existing image for removal
+                                    _isRemovingExistingImage = true;
                                     _existingImageUrl = null;
                                   }
                                 });
@@ -559,7 +652,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
       description: _descriptionController.text,
       price: double.parse(_priceController.text),
       stock: int.parse(_stockController.text),
-      imageUrl: _existingImageUrl,
+      imageUrl: _isRemovingExistingImage ? null : _existingImageUrl,
       isActive: _isActive,
       isFeatured: _isFeatured,
       sellerId: authProvider.user?.id ?? 1,
@@ -575,7 +668,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
     try {
       if (widget.product == null) {
         await adminProvider.addOrganicProduct(product,
-            imageFile: _selectedImage);
+            imageFiles: _selectedImage != null ? [_selectedImage!] : null);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -586,7 +679,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
         }
       } else {
         await adminProvider.updateOrganicProduct(product,
-            imageFile: _selectedImage);
+            imageFiles: _selectedImage != null ? [_selectedImage!] : null);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -596,6 +689,12 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
           );
         }
       }
+
+      // Reset the removal flag after successful save
+      setState(() {
+        _isRemovingExistingImage = false;
+      });
+
       if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {
