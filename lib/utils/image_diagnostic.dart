@@ -52,6 +52,24 @@ class ImageDiagnostic {
         return;
       }
 
+      // Check if response is HTML (redirect page)
+      final firstChars = String.fromCharCodes(bytes.take(100));
+      if (firstChars.contains('<!DOCTYPE') ||
+          firstChars.contains('<html') ||
+          firstChars.contains('<!doctype') ||
+          firstChars.contains('<?xml')) {
+        debugPrint('🔴 CRITICAL: Server returned HTML page instead of image!');
+        debugPrint('   This indicates the image file is missing or moved.');
+        debugPrint(
+            '   Response starts with: ${firstChars.substring(0, firstChars.length < 100 ? firstChars.length : 100)}');
+        debugPrint(
+            '\n💡 SOLUTION: Check if the image file exists on the server.');
+        debugPrint('   File path might be: ${uri.path}');
+        debugPrint(
+            '   Server might be redirecting missing files to main site.');
+        return;
+      }
+
       // Check file signature (magic numbers)
       debugPrint('\n🔍 File Signature Analysis:');
       _analyzeFileSignature(bytes);

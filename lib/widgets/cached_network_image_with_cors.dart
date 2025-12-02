@@ -27,7 +27,6 @@ class CachedNetworkImageWithCors extends StatelessWidget {
   Widget build(BuildContext context) {
     // If imageUrl is null or empty, return a placeholder immediately.
     if (imageUrl.isEmpty) {
-      debugPrint('⚠️ Image URL is empty, showing placeholder');
       return errorWidget?.call(context, imageUrl, 'Empty URL') ??
           _buildDefaultPlaceholder('No image', context);
     }
@@ -48,15 +47,6 @@ class CachedNetworkImageWithCors extends StatelessWidget {
       debugPrint('❌ Invalid image URL format: $fullImageUrl, Error: $e');
       return errorWidget?.call(context, fullImageUrl, e) ??
           _buildDefaultPlaceholder('Invalid image URL', context);
-    }
-
-    if (kDebugMode) {
-      debugPrint('✅ Attempting to load image from URL: $fullImageUrl');
-    }
-
-    // Run diagnostic if enabled
-    if (enableDiagnostic && kDebugMode) {
-      ImageDiagnostic.diagnoseImageUrl(fullImageUrl);
     }
 
     return CachedNetworkImage(
@@ -113,19 +103,28 @@ class CachedNetworkImageWithCors extends StatelessWidget {
             error.toString().contains('401')) {
           errorMessage = 'Access denied to image';
         } else if (error.toString().contains('EncodingError')) {
-          errorMessage = 'Invalid image format';
+          errorMessage = 'Image not available';
           debugInfo =
-              'The image file may be corrupted or in an unsupported format';
+              'The server may have returned a web page instead of an image file. This often happens when the image file is missing or moved.';
         } else if (error.toString().contains('timeout')) {
           errorMessage = 'Loading timeout';
           debugInfo = 'The image is taking too long to load';
         }
 
+        // Special detection for HTML responses (most common case)
+        if (error.toString().contains('EncodingError') ||
+            error.toString().contains('Invalid image format')) {
+          errorMessage = 'Image file not found';
+          debugInfo =
+              'The server returned a web page instead of an image. The image file may have been moved or deleted.';
+        }
+
         // Provide actionable debug info (only in debug mode and for critical errors)
-        if (kDebugMode &&
-            debugInfo.isNotEmpty &&
-            errorMessage.contains('timeout')) {
+        if (kDebugMode && debugInfo.isNotEmpty) {
           debugPrint('💡 Debug Info: $debugInfo');
+          debugPrint('💡 URL: $fullImageUrl');
+          debugPrint(
+              '💡 This indicates the image file is missing on the server');
         }
 
         return errorWidget?.call(context, fullImageUrl, error) ??
