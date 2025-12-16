@@ -44,7 +44,7 @@ class SubscriptionService {
     Log.d('HEADERS ${res.headers}');
     Log.d('BODY ${res.body}');
 
-    if (res.statusCode != 200) {
+    if (res.statusCode != 200 && res.statusCode != 201) {
       Log.e('Server error: ${res.statusCode}');
       return null;
     }
