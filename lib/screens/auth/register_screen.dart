@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/loading_button.dart';
 import '../../widgets/api_error_widget.dart';
+import '../subscription/subscription_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -20,6 +21,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _confirmPasswordController = TextEditingController();
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
+  final _locationController = TextEditingController();
+  final _countryController = TextEditingController();
 
   String _selectedRole = 'buyer'; // Default role
   bool _obscurePassword = true;
@@ -36,6 +39,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _confirmPasswordController.dispose();
     _phoneController.dispose();
     _addressController.dispose();
+    _locationController.dispose();
+    _countryController.dispose();
     super.dispose();
   }
 
@@ -49,23 +54,43 @@ class _RegisterScreenState extends State<RegisterScreen> {
       try {
         final authProvider = context.read<AuthProvider>();
 
+        // 1. Register the user
         await authProvider.register(
           _nameController.text,
           _usernameController.text,
           _emailController.text,
           _passwordController.text,
           role: _selectedRole,
+          phone: _phoneController.text,
+          location: _locationController.text,
+          country: _countryController.text,
+        );
+
+        // 2. Automatically log the user in so that subscription APIs have a token
+        await authProvider.login(
+          _usernameController.text,
+          _passwordController.text,
         );
 
         if (mounted) {
-          // Registration was successful
+          // Registration & login were successful - redirect to subscription screen
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Registration successful! You can now login.'),
+              content: Text(
+                  'Registration successful! Please complete your subscription.'),
               backgroundColor: Colors.green,
             ),
           );
-          Navigator.pop(context); // Return to login screen
+
+          // Navigate to subscription screen with the selected role
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SubscriptionScreen(
+                preSelectedType: _selectedRole,
+              ),
+            ),
+          );
         }
       } catch (e) {
         String errorMsg = e.toString();
@@ -251,13 +276,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   const SizedBox(height: 16),
 
+                  // Location Field
+                  TextFormField(
+                    controller: _locationController,
+                    textInputAction: TextInputAction.next,
+                    decoration: InputDecoration(
+                      labelText: 'Location',
+                      hintText: 'Enter your city/region',
+                      prefixIcon: const Icon(Icons.location_city_outlined),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your location';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Country Field
+                  TextFormField(
+                    controller: _countryController,
+                    textInputAction: TextInputAction.next,
+                    decoration: InputDecoration(
+                      labelText: 'Country',
+                      hintText: 'Enter your country',
+                      prefixIcon: const Icon(Icons.public_outlined),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your country';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 16),
+
                   // Address Field
                   TextFormField(
                     controller: _addressController,
                     textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
                       labelText: 'Address',
-                      hintText: 'Enter your address',
+                      hintText: 'Enter your detailed address',
                       prefixIcon: const Icon(Icons.location_on_outlined),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),

@@ -1,5 +1,5 @@
-import 'package:json_annotation/json_annotation.dart';
 import 'dart:convert';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:masoko_tips/widgets/int_converter.dart';
 
 part 'user.g.dart';
@@ -8,15 +8,21 @@ part 'user.g.dart';
 class User {
   @StringToIntConverter()
   final int id;
+
   final String name;
   final String email;
 
+  /// Backend sends: "phone"
+  /// Used by subscriptions & AzamPay
   @JsonKey(name: 'phone')
   final String? phoneNumber;
 
   final String? avatar;
+
+  /// Normalized roles list
   final List<String> roles;
 
+  /// Not serialized – local only
   @JsonKey(includeFromJson: false, includeToJson: false)
   String? avatarPath;
 
@@ -29,6 +35,7 @@ class User {
   @JsonKey(name: 'updated_at')
   final DateTime updatedAt;
 
+  /// Sometimes returned during auth
   final String? token;
 
   User({
@@ -45,6 +52,7 @@ class User {
     this.avatarPath,
   });
 
+  /// Robust role parsing (string | json string | list | null)
   factory User.fromJson(Map<String, dynamic> json) {
     final rolesRaw = json['roles'] ?? json['role'];
 
@@ -52,7 +60,12 @@ class User {
 
     if (rolesRaw is String) {
       try {
-        parsedRoles = List<String>.from(jsonDecode(rolesRaw));
+        final decoded = jsonDecode(rolesRaw);
+        if (decoded is List) {
+          parsedRoles = decoded.map((e) => e.toString()).toList();
+        } else {
+          parsedRoles = [rolesRaw];
+        }
       } catch (_) {
         parsedRoles = [rolesRaw];
       }
@@ -70,9 +83,12 @@ class User {
 
   Map<String, dynamic> toJson() => _$UserToJson(this);
 
+  // ---------------------------------------------------------------------------
+  // ROLE HELPERS
+  // ---------------------------------------------------------------------------
+
   bool hasRole(String role) => roles.contains(role);
 
-  // Role management methods
   bool get isBuyer => hasRole('buyer');
   bool get isSeller => hasRole('seller');
   bool get isServiceProvider => hasRole('service_provider');
@@ -82,11 +98,12 @@ class User {
 
   String? get primaryRole => roles.isNotEmpty ? roles.first : null;
 
-  bool get canAccessSellerFeatures => isSeller;
-  bool get canAccessServiceProviderFeatures => isServiceProvider;
+  // ---------------------------------------------------------------------------
+  // FEATURE ACCESS
+  // ---------------------------------------------------------------------------
 
   List<String> get accessibleFeatures {
-    List<String> features = [];
+    final features = <String>[];
 
     if (isBuyer) {
       features.add('buying');
@@ -96,20 +113,30 @@ class User {
       features.addAll([
         'selling_products',
         'selling_transport',
-        'selling_organic_products'
+        'selling_organic_products',
       ]);
     }
 
     if (isServiceProvider) {
-      features.addAll(['providing_services', 'managing_bookings']);
+      features.addAll([
+        'providing_services',
+        'managing_bookings',
+      ]);
     }
 
     if (isAdmin) {
-      features.addAll(['admin_panel', 'user_management']);
+      features.addAll([
+        'admin_panel',
+        'user_management',
+      ]);
     }
 
     return features;
   }
+
+  // ---------------------------------------------------------------------------
+  // COPY
+  // ---------------------------------------------------------------------------
 
   User copyWith({
     int? id,

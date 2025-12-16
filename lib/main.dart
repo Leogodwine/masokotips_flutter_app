@@ -14,6 +14,7 @@ import 'providers/admin_provider.dart';
 import 'providers/orders_provider.dart';
 import 'providers/organic_product_provider.dart';
 import 'providers/locale_provider.dart';
+import 'providers/subscription_provider.dart';
 import 'services/organic_product_service.dart';
 import 'services/api_service.dart';
 import 'services/market_info_service.dart';
@@ -76,6 +77,7 @@ class _MyAppState extends State<MyApp> {
       providers: [
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
         ChangeNotifierProvider(create: (context) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
         ProxyProvider<AuthProvider, ApiService>(
           create: (context) =>
               ApiService(baseUrl: ApiConfig.baseUrl, apiKey: ''),

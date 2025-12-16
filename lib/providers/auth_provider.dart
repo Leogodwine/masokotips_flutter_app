@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../services/api_service.dart';
 import '../services/network_service.dart';
 import '../services/transport_service.dart';
@@ -11,8 +12,10 @@ class AuthProvider with ChangeNotifier {
   late final ApiService _apiService;
   final NetworkService _networkService = NetworkService.instance;
   final TransportService _transportService = TransportService();
+
   String? _token;
   User? _user;
+  bool _isInitialized = false;
 
   AuthProvider() {
     _apiService = ApiService(
@@ -20,22 +23,145 @@ class AuthProvider with ChangeNotifier {
       apiKey: ApiConfig.apiKey,
     );
 
-    // Initialize network service
     _networkService.initialize();
+    loadToken(); // 🔥 critical
   }
+
+  // ---------------------------------------------------------------------------
+  // GETTERS
+  // ---------------------------------------------------------------------------
 
   String? get token => _token;
   User? get user => _user;
-
   bool get isAuthenticated => _token != null;
+  bool get isInitialized => _isInitialized;
 
-  // Update user profile
+  // ---------------------------------------------------------------------------
+  // AUTH – LOGIN
+  // ---------------------------------------------------------------------------
+
+  Future<void> login(String username, String password) async {
+    try {
+      final response = await _apiService.login(username, password);
+
+      if (response['token'] == null) {
+        throw Exception('Login response missing token');
+      }
+
+      _token = response['token'];
+      await _saveToken(_token!);
+
+      _applyTokenToServices(_token!);
+
+      if (response['user'] != null) {
+        _user = User.fromJson(response['user']);
+      } else {
+        await fetchUserProfile();
+      }
+
+      notifyListeners();
+      Log.d('✅ Login successful: ${_user?.name ?? username}');
+    } catch (e) {
+      Log.e('❌ Login failed: $e');
+      rethrow;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // AUTH – REGISTER (NO AUTO LOGIN)
+  // ---------------------------------------------------------------------------
+
+  Future<void> register(
+    String name,
+    String username,
+    String email,
+    String password, {
+    String role = 'buyer',
+    String? phone,
+    String? location,
+    String? country,
+  }) async {
+    try {
+      await _apiService.register(
+        name,
+        username,
+        email,
+        password,
+        role: role,
+        phone: phone,
+        location: location,
+        country: country,
+      );
+    } catch (e) {
+      throw Exception('Registration failed: $e');
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // LOAD TOKEN (CRITICAL FOR SUBSCRIPTIONS)
+  // ---------------------------------------------------------------------------
+
+  Future<void> loadToken() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _token = prefs.getString('auth_token');
+
+      if (_token != null) {
+        _applyTokenToServices(_token!);
+        await fetchUserProfile();
+      }
+
+      _isInitialized = true;
+      notifyListeners();
+    } catch (e) {
+      Log.e('Error loading auth token: $e');
+      _isInitialized = true;
+      notifyListeners();
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // LOGOUT
+  // ---------------------------------------------------------------------------
+
+  Future<void> logout() async {
+    try {
+      final token = _token;
+
+      _token = null;
+      _user = null;
+      await _clearToken();
+
+      notifyListeners();
+
+      if (token != null) {
+        _apiService.setAuthToken(token);
+        await _apiService.logout();
+      }
+    } catch (e) {
+      Log.e('Logout error: $e');
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // USER PROFILE
+  // ---------------------------------------------------------------------------
+
+  Future<void> fetchUserProfile() async {
+    try {
+      _user = await _apiService.getUserProfile();
+      notifyListeners();
+    } catch (e) {
+      Log.e('Fetch profile failed: $e');
+    }
+  }
+
   Future<void> updateProfile({
     required String name,
     required String email,
     String? phone,
     String? bio,
-    String? avatarPath, // Added avatarPath parameter
+    String? avatarPath,
   }) async {
     try {
       _user = await _apiService.updateProfile(
@@ -43,15 +169,18 @@ class AuthProvider with ChangeNotifier {
         email: email,
         phone: phone,
         bio: bio,
-        avatarPath: avatarPath, // Pass avatarPath to ApiService
+        avatarPath: avatarPath,
       );
       notifyListeners();
     } catch (e) {
-      throw Exception('Failed to update profile: $e');
+      throw Exception('Profile update failed: $e');
     }
   }
 
-  // Change password
+  // ---------------------------------------------------------------------------
+  // PASSWORD
+  // ---------------------------------------------------------------------------
+
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,
@@ -62,199 +191,65 @@ class AuthProvider with ChangeNotifier {
         newPassword,
       );
     } catch (e) {
-      throw Exception('Failed to change password: $e');
+      throw Exception('Password change failed: $e');
     }
   }
 
-  // Login
-  Future<void> login(String username, String password) async {
+  Future<void> resetPassword(String email) async {
     try {
-      final response = await _apiService.login(username, password);
-
-      // Handle the response format from Laravel
-      if (response['token'] != null) {
-        _token = response['token'];
-        await _saveToken(_token!);
-
-        // Set the auth token in all services
-        _transportService.setAuthToken(_token!);
-        _networkService.setAuthToken(_token!);
-        _apiService.setAuthToken(_token!);
-
-        // Create user object from the response
-        if (response['user'] != null) {
-          _user = User.fromJson(response['user']);
-        }
-
-        notifyListeners();
-        Log.d('✅ Login successful for user: ${_user?.name ?? username}');
-      } else {
-        throw Exception('Invalid response format: Token not found');
-      }
+      await _apiService.resetPassword(email);
     } catch (e) {
-      Log.e('❌ Login failed: $e');
-      throw Exception('Login failed: $e');
+      throw Exception('Reset password failed: $e');
     }
   }
 
-  // Register
-  Future<void> register(
-      String name, String username, String email, String password,
-      {String role = 'buyer'}) async {
-    try {
-      await _apiService.register(name, username, email, password, role: role);
-    } catch (e) {
-      throw Exception('Registration failed: $e');
-    }
+  // ---------------------------------------------------------------------------
+  // ROLE MANAGEMENT
+  // ---------------------------------------------------------------------------
+
+  Future<Map<String, dynamic>> getUserRoles() async {
+    return await _apiService.getUserRoles();
   }
 
-  // Create admin account
-  Future<void> createAdminAccount(
-      String name, String username, String email, String password) async {
-    try {
-      await _apiService.register(name, username, email, password,
-          role: 'admin');
-    } catch (e) {
-      throw Exception('Failed to create admin account: $e');
-    }
+  Future<void> addUserRole(String role) async {
+    await _apiService.addUserRole(role);
+    await fetchUserProfile();
   }
 
-  // Logout
-  Future<void> logout() async {
-    try {
-      // First, get the current token before logging out
-      final currentToken = _token;
-
-      // Clear local state first
-      _token = null;
-      _user = null;
-      await _clearToken();
-      notifyListeners();
-
-      try {
-        // Then attempt to log out on the server with the token we just had
-        if (currentToken != null) {
-          _apiService.setAuthToken(currentToken);
-          await _apiService.logout();
-        }
-      } catch (e) {
-        // Even if server logout fails, we've already cleared local state
-        // so we'll just log the error but not throw it
-        debugPrint(
-            'Error during server logout (continuing with local logout): $e');
-      }
-    } catch (e) {
-      debugPrint('Error during logout: $e');
-      // Re-throw the error so the UI can handle it
-      rethrow;
-    }
+  Future<void> removeUserRole(String role) async {
+    await _apiService.removeUserRole(role);
+    await fetchUserProfile();
   }
 
-  // Fetch user profile
-  Future<void> fetchUserProfile() async {
-    try {
-      _user = await _apiService.getUserProfile();
-      notifyListeners();
-    } catch (e) {
-      throw Exception('Failed to fetch user profile: $e');
-    }
+  // ---------------------------------------------------------------------------
+  // HELPERS
+  // ---------------------------------------------------------------------------
+
+  void _applyTokenToServices(String token) {
+    _apiService.setAuthToken(token);
+    _transportService.setAuthToken(token);
+    _networkService.setAuthToken(token);
   }
 
-  // Duplicate changePassword method removed
-
-  // Upload profile image
-  Future<void> uploadProfileImage(String imagePath) async {
-    try {
-      await _apiService.uploadProfileImage(imagePath);
-      await fetchUserProfile(); // Refresh user profile after upload
-    } catch (e) {
-      throw Exception('Failed to upload profile image: $e');
-    }
-  }
-
-  // Save token to shared preferences
   Future<void> _saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('auth_token', token);
   }
 
-  // Clear token from shared preferences
   Future<void> _clearToken() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token');
   }
 
-  // Load token from shared preferences
-  Future<void> loadToken() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      _token = prefs.getString('auth_token');
-      if (_token != null) {
-        // Set the auth token in TransportService
-        _transportService.setAuthToken(_token!);
-        try {
-          await fetchUserProfile();
-        } catch (e) {
-          debugPrint('Error fetching user profile: $e');
-          // Continue even if profile fetch fails
-        }
-      }
-      notifyListeners();
-    } catch (e) {
-      debugPrint('Error loading token: $e');
-      // Continue even if token loading fails
-    }
-  }
+  // ---------------------------------------------------------------------------
+  // CONVENIENCE FLAGS
+  // ---------------------------------------------------------------------------
 
-  // Role Management Methods
-  Future<Map<String, dynamic>> getUserRoles() async {
-    try {
-      return await _apiService.getUserRoles();
-    } catch (e) {
-      throw Exception('Failed to fetch user roles: $e');
-    }
-  }
-
-  Future<void> addUserRole(String role) async {
-    try {
-      await _apiService.addUserRole(role);
-
-      // Update user profile to refresh roles
-      await fetchUserProfile();
-
-      notifyListeners();
-    } catch (e) {
-      throw Exception('Failed to add role: $e');
-    }
-  }
-
-  Future<void> removeUserRole(String role) async {
-    try {
-      await _apiService.removeUserRole(role);
-
-      // Update user profile to refresh roles
-      await fetchUserProfile();
-
-      notifyListeners();
-    } catch (e) {
-      throw Exception('Failed to remove role: $e');
-    }
-  }
-
-  // Reset password
-  Future<void> resetPassword(String email) async {
-    try {
-      await _apiService.resetPassword(email);
-    } catch (e) {
-      throw Exception('Failed to send reset password email: $e');
-    }
-  }
-
-  // Convenience methods for role checking
   bool get isBuyer => _user?.isBuyer ?? false;
   bool get isSeller => _user?.isSeller ?? false;
   bool get isServiceProvider => _user?.isServiceProvider ?? false;
   bool get isAdmin => _user?.isAdmin ?? false;
   bool get hasMultipleRoles => _user?.hasMultipleRoles ?? false;
+
   List<String> get accessibleFeatures => _user?.accessibleFeatures ?? [];
 }

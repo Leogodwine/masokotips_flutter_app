@@ -229,7 +229,10 @@ class ApiService {
   // Register
   Future<void> register(
       String name, String username, String email, String password,
-      {String role = 'buyer'}) async {
+      {String role = 'buyer',
+      String? phone,
+      String? location,
+      String? country}) async {
     try {
       final url = Uri.parse('$baseUrl/auth/register');
       final requestBody = {
@@ -239,6 +242,9 @@ class ApiService {
         'password': password,
         'password_confirmation': password,
         'role': role,
+        if (phone != null) 'phone': phone,
+        if (location != null) 'location': location,
+        if (country != null) 'country': country,
       };
 
       Log.e('Registration request URL: $url');
