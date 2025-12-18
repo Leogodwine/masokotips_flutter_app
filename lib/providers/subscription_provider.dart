@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../models/subscription.dart';
 import '../models/azam_checkout_result.dart';
-import '../models/checkout_status_result.dart';
+import '../models/subscription_status_result.dart';
 import '../services/subscription_service.dart';
 import '../utils/logger.dart';
 
@@ -164,14 +164,46 @@ class SubscriptionProvider with ChangeNotifier {
   // ---------------------------------------------------------------------------
   // CHECK AZAMPAY CHECKOUT STATUS
   // ---------------------------------------------------------------------------
-  Future<AzamPayCheckoutStatusResult?> checkCheckoutStatus(
-    String transactionId,
+  Future<SubscriptionStatusResult?> checkCheckoutStatus(
+    int subscriptionId,
   ) async {
     try {
-      return await _subscriptionService
-          .checkAzamPayCheckoutStatus(transactionId);
+      final data =
+          await _subscriptionService.checkSubscriptionStatus(subscriptionId);
+
+      if (data != null && data['success'] == true) {
+        return SubscriptionStatusResult.fromJson(data['data']);
+      }
+
+      return null;
     } catch (e) {
       Log.e('Checkout status failed: $e');
+      return null;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // CHECK SUBSCRIPTION STATUS
+  // ---------------------------------------------------------------------------
+  Future<SubscriptionStatusResult?> checkSubscriptionStatus(
+      int subscriptionId) async {
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final data =
+          await _subscriptionService.checkSubscriptionStatus(subscriptionId);
+
+      if (data != null && data['success'] == true) {
+        return SubscriptionStatusResult.fromJson(data['data']);
+      } else {
+        _errorMessage = data?['message'] ?? 'Failed to check status';
+        notifyListeners();
+        return null;
+      }
+    } catch (e) {
+      _errorMessage = 'An error occurred while checking subscription status.';
+      notifyListeners();
       return null;
     }
   }

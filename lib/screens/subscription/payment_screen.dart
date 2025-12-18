@@ -2,7 +2,7 @@
 // NEW CHECKOUT VERSION — No manual entry required
 
 import '../../models/subscription.dart';
-import '../../models/checkout_status_result.dart';
+import '../../models/subscription_status_result.dart';
 import '../../providers/subscription_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -41,15 +41,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
         listen: false,
       );
 
-      final AzamPayCheckoutStatusResult? result =
-          await provider.checkCheckoutStatus(widget.transactionId);
+      final SubscriptionStatusResult? result =
+          await provider.checkCheckoutStatus(int.parse(widget.transactionId));
 
       if (!mounted) return;
 
       if (result != null) {
         setState(() => _paymentStatus = result.status);
 
-        if (result.isPaid) {
+        if (result.isActive) {
           _showSuccessDialog();
         } else if (result.status == "FAILED") {
           _showFailedDialog();
