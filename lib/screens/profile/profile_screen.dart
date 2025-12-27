@@ -6,6 +6,7 @@ import 'dart:io';
 import 'edit_profile_screen.dart';
 import './address_management_screen.dart';
 import '../seller/seller_dashboard_screen.dart';
+import './admin_login_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -383,6 +384,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
                         Navigator.pushNamed(context, '/wishlist');
+                      },
+                    ),
+                    const Divider(height: 1),
+                    // Admin Login Access
+                    ListTile(
+                      leading: const Icon(Icons.admin_panel_settings),
+                      title: const Text('Admin Login'),
+                      subtitle: const Text('Access admin dashboard'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AdminLoginScreen(),
+                          ),
+                        );
                       },
                     ),
                   ],
