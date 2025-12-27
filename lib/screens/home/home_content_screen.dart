@@ -6,6 +6,8 @@ import '../../providers/category_provider.dart';
 import '../../providers/market_info_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/wishlist_provider.dart';
+import '../../providers/auth_provider.dart'; // Add auth provider import
+import '../../screens/auth/register_screen.dart'; // Add register screen import
 import 'package:masoko_tips/screens/cart/cart_screen.dart';
 import '../../models/category.dart';
 import 'package:masoko_tips/screens/products/product_list_screen.dart';
@@ -118,8 +120,57 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+
     return Scaffold(
-      body: _buildContent(),
+      body: Stack(
+        children: [
+          _buildContent(),
+          // Floating Action Button for Registration
+          if (!authProvider.isAuthenticated)
+            Positioned(
+              bottom: 80,
+              right: 16,
+              child: FloatingActionButton.extended(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Start Your Journey'),
+                      content: const Text(
+                        'Sign up to access premium features, exclusive content, and personalized recommendations.',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Browse First'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const RegisterScreen(),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orange,
+                          ),
+                          child: const Text('Register Now'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                backgroundColor: Colors.orange,
+                icon: const Icon(Icons.star),
+                label: const Text('Get Started'),
+              ),
+            ),
+        ],
+      ),
     );
   }
 

@@ -14,6 +14,7 @@ class AppScaffold extends StatelessWidget {
   final Function(int)? onBottomNavItemTapped;
   final bool showBackButton;
   final VoidCallback? onBackPressed;
+  final bool showAuthActions; // New parameter to control auth button visibility
 
   String _getUserInitial(String? name) {
     if (name != null && name.isNotEmpty) {
@@ -32,6 +33,7 @@ class AppScaffold extends StatelessWidget {
     this.onBottomNavItemTapped,
     this.showBackButton = true,
     this.onBackPressed,
+    this.showAuthActions = true, // Default to true for backward compatibility
   });
 
   void _handleProtectedRoute(BuildContext context, int index) {
@@ -123,106 +125,122 @@ class AppScaffold extends StatelessWidget {
             },
           ),
           ...?actions,
-          Consumer<AuthProvider>(
-            builder: (context, authProvider, child) {
-              if (authProvider.isAuthenticated) {
-                // User profile dropdown and admin login for authenticated users
-                return Row(
-                  children: [
-                    // Admin login button
-                    IconButton(
-                      icon: const Icon(Icons.admin_panel_settings),
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/admin/login');
-                      },
-                    ),
-                    // User profile dropdown
-                    PopupMenuButton<String>(
-                      icon: CircleAvatar(
-                        radius: 16,
-                        backgroundColor: Colors.white,
-                        child: Text(
-                          _getUserInitial(authProvider.user?.name),
-                          style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+          if (showAuthActions) ...[
+            // Only show default auth actions if showAuthActions is true
+            Consumer<AuthProvider>(
+              builder: (context, authProvider, child) {
+                if (authProvider.isAuthenticated) {
+                  // User profile dropdown and admin login for authenticated users
+                  return Row(
+                    children: [
+                      // Admin login button
+                      IconButton(
+                        icon: const Icon(Icons.admin_panel_settings),
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/admin/login');
+                        },
                       ),
-                      onSelected: (value) async {
-                        switch (value) {
-                          case 'profile':
-                            Navigator.pushNamed(context, '/profile');
-                            break;
-                          case 'orders':
-                            Navigator.pushNamed(context, '/orders');
-                            break;
-                          case 'logout':
-                            authProvider.logout();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Logged out successfully'),
-                              ),
-                            );
-                            break;
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        PopupMenuItem(
-                          value: 'profile',
-                          child: Row(
-                            children: [
-                              const Icon(Icons.person),
-                              const SizedBox(width: 8),
-                              Text(authProvider.user?.name ?? 'Profile'),
-                            ],
+                      // User profile dropdown
+                      PopupMenuButton<String>(
+                        icon: CircleAvatar(
+                          radius: 16,
+                          backgroundColor: Colors.white,
+                          child: Text(
+                            _getUserInitial(authProvider.user?.name),
+                            style: TextStyle(
+                              color: Theme.of(context).primaryColor,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                        const PopupMenuItem(
-                          value: 'orders',
-                          child: Row(
-                            children: [
-                              Icon(Icons.shopping_bag),
-                              SizedBox(width: 8),
-                              Text('My Orders'),
-                            ],
+                        onSelected: (value) async {
+                          switch (value) {
+                            case 'profile':
+                              Navigator.pushNamed(context, '/profile');
+                              break;
+                            case 'orders':
+                              Navigator.pushNamed(context, '/orders');
+                              break;
+                            case 'admin_login':
+                              Navigator.pushNamed(context, '/admin/login');
+                              break;
+                            case 'logout':
+                              authProvider.logout();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Logged out successfully'),
+                                ),
+                              );
+                              break;
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          PopupMenuItem(
+                            value: 'profile',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.person),
+                                const SizedBox(width: 8),
+                                Text(authProvider.user?.name ?? 'Profile'),
+                              ],
+                            ),
                           ),
-                        ),
-                        const PopupMenuItem(
-                          value: 'logout',
-                          child: Row(
-                            children: [
-                              Icon(Icons.logout),
-                              SizedBox(width: 8),
-                              Text('Logout'),
-                            ],
+                          const PopupMenuItem(
+                            value: 'orders',
+                            child: Row(
+                              children: [
+                                Icon(Icons.shopping_bag),
+                                SizedBox(width: 8),
+                                Text('My Orders'),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                );
-              } else {
-                // Login and Admin buttons for unauthenticated users
-                return Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.admin_panel_settings),
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/admin/login');
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.login),
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/login');
-                      },
-                    ),
-                  ],
-                );
-              }
-            },
-          ),
+                          const PopupMenuItem(
+                            value: 'admin_login',
+                            child: Row(
+                              children: [
+                                Icon(Icons.admin_panel_settings),
+                                SizedBox(width: 8),
+                                Text('Admin Login'),
+                              ],
+                            ),
+                          ),
+                          const PopupMenuItem(
+                            value: 'logout',
+                            child: Row(
+                              children: [
+                                Icon(Icons.logout),
+                                SizedBox(width: 8),
+                                Text('Logout'),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                } else {
+                  // Login and Admin buttons for unauthenticated users
+                  return Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.admin_panel_settings),
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/admin/login');
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.login),
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/login');
+                        },
+                      ),
+                    ],
+                  );
+                }
+              },
+            ),
+          ],
         ],
       ),
       drawer: const CustomDrawer(),

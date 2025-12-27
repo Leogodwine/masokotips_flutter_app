@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import '../home/home_content_screen.dart';
 import '../../widgets/app_scaffold.dart';
 import '../../providers/auth_provider.dart';
+import '../../screens/auth/register_screen.dart'; // Add register screen import
+import '../../screens/auth/login_screen.dart'; // Add login screen import
+import '../../screens/subscription/subscription_screen.dart'; // Add subscription screen import
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -56,11 +59,82 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+
     return AppScaffold(
       title: AppLocalizations.of(context)!.homeTitle,
       body: const HomeContentScreen(),
       currentIndex: _currentIndex,
       onBottomNavItemTapped: _onBottomNavItemTapped,
+      showAuthActions:
+          false, // Disable default auth buttons since we have custom ones
+      actions: [
+        // Prominent Register/Login buttons
+        if (!authProvider.isAuthenticated) ...[
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const RegisterScreen(),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              ),
+              child: const Text('Register'),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: OutlinedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LoginScreen(),
+                  ),
+                );
+              },
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.white,
+                side: const BorderSide(color: Colors.white),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              ),
+              child: const Text('Login'),
+            ),
+          ),
+        ] else ...[
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SubscriptionScreen(),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              ),
+              child: const Text('Subscribe Now'),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }
