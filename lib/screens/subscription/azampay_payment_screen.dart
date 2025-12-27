@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -5,6 +6,8 @@ import '../../models/subscription.dart';
 import '../../providers/subscription_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/logger.dart';
+import '../subscription/azampay_processing_screen.dart';
+import '../../config/api_config.dart';
 
 class AzamPayPaymentScreen extends StatefulWidget {
   final Subscription subscription;
@@ -19,18 +22,38 @@ class AzamPayPaymentScreen extends StatefulWidget {
 }
 
 class _AzamPayPaymentScreenState extends State<AzamPayPaymentScreen> {
-  String? _transactionId;
-
   bool _loading = true;
-  bool _checkingStatus = false;
+
+  // Polling state
+  Timer? _pollingTimer;
+  bool _isPolling = false;
+  int _pollingAttempts = 0;
+  static const Duration _pollingInterval = Duration(seconds: 5);
+  static const int _maxPollingAttempts = 36; // 3 minutes (36 * 5s)
+  // TEMP or UI-selected value
+  static const String apiBaseUrl = ApiConfig.baseUrl;
+  String selectedMno = 'TIGO';
 
   @override
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _startCheckout();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _startCheckout();
+
+      if (mounted) {
+        setState(() => _loading = false);
+        _startPolling();
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    // Ensure the timer is cancelled when the screen is disposed
+    // to prevent memory leaks and background execution.
+    _stopPolling();
+    super.dispose();
   }
 
   // ---------------------------------------------------------------------------
@@ -65,51 +88,124 @@ class _AzamPayPaymentScreenState extends State<AzamPayPaymentScreen> {
         subscriptionId: widget.subscription.id,
         amount: amount,
         phone: phone.toString(),
+        // IMPORTANT: provider (AIRTEL/VODACOM/TIGO/HALOTEL)
+        //provider: provider.selectedMno,
+        provider: selectedMno,
       );
 
       if (!mounted) return;
 
-      if (result != null && result.success && result.checkoutUrl.isNotEmpty) {
-        setState(() {
-          _transactionId = result.transactionId;
-          _loading = false;
-        });
-      } else {
+      if (result == null || !result.success || result.externalId == null) {
         _fail(result?.message ?? 'Failed to initiate payment.');
+        return;
       }
-    } catch (e) {
-      Log.e('Checkout init error: $e');
+
+      // 🚀 MOVE TO PROCESSING SCREEN
+      final processingResult = await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => AzamPayProcessingScreen(
+            baseUrl: apiBaseUrl,
+            token: Provider.of<AuthProvider>(context, listen: false).token!,
+            externalId: result.externalId!,
+          ),
+        ),
+      );
+
+      if (!mounted) return;
+
+      if (processingResult != null && processingResult['success'] == true) {
+        // Payment confirmed → go to dashboard / success screen
+        Navigator.pushReplacementNamed(context, '/dashboard');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              processingResult?['message'] ?? 'Payment not confirmed yet.',
+            ),
+          ),
+        );
+      }
+    } catch (e, st) {
+      Log.e('Checkout init error', e, st);
       _fail('Unable to start payment.');
     }
   }
 
   // ---------------------------------------------------------------------------
+  // POLLING LOGIC
+  // ---------------------------------------------------------------------------
+  void _startPolling() {
+    if (_isPolling) return;
+
+    setState(() {
+      _isPolling = true;
+      _pollingAttempts = 0;
+    });
+
+    Log.i('🔄 Starting automatic subscription status polling...');
+
+    _pollingTimer = Timer.periodic(_pollingInterval, (timer) async {
+      if (!mounted) {
+        _stopPolling();
+        return;
+      }
+
+      _pollingAttempts++;
+
+      if (_pollingAttempts >= _maxPollingAttempts) {
+        Log.w('⏰ Polling timeout reached');
+        _stopPolling();
+        if (mounted) {
+          setState(() {}); // Update UI to show manual check button
+          _showSnack(
+            'Payment verification timed out. Please check your payment status.',
+          );
+        }
+        return;
+      }
+
+      // Use isPolling=true to prevent UI feedback on each check
+      await _checkFinalStatus(isPolling: true);
+    });
+  }
+
+  void _stopPolling() {
+    _pollingTimer?.cancel();
+    _pollingTimer = null;
+    _isPolling = false;
+  }
+
+  // ---------------------------------------------------------------------------
   // CHECK FINAL STATUS
   // ---------------------------------------------------------------------------
-  Future<void> _checkFinalStatus() async {
-    if (_transactionId == null || _transactionId!.isEmpty) return;
-
-    setState(() => _checkingStatus = true);
-
+  // ---------------------------------------------------------------------------
+// CHECK FINAL STATUS
+// ---------------------------------------------------------------------------
+  Future<void> _checkFinalStatus({bool isPolling = false}) async {
     final provider = Provider.of<SubscriptionProvider>(context, listen: false);
 
-    final result = await provider.checkCheckoutStatus(_transactionId!);
+    Log.i('📡 Checking subscription status for ID: ${widget.subscription.id}');
+
+    final result =
+        await provider.checkSubscriptionStatus(widget.subscription.id);
 
     if (!mounted) return;
 
-    setState(() => _checkingStatus = false);
-
     if (result == null) {
-      _showSnack('Unable to verify payment.');
+      Log.w('⚠️ Subscription status check returned null');
       return;
     }
 
-    if (result.isPaid) {
+    Log.i('📡 Subscription status: ${result.status}');
+
+    if (result.status == 'active') {
+      _stopPolling();
+      setState(() => _loading = false);
       _showSuccess();
-    } else if (result.status == 'FAILED') {
+    } else if (result.status == 'failed') {
+      _stopPolling();
+      setState(() => _loading = false);
       _showSnack('Payment failed. Please try again.');
-    } else {
-      _showSnack('Payment pending. Please try again.');
     }
   }
 
@@ -139,8 +235,10 @@ class _AzamPayPaymentScreenState extends State<AzamPayPaymentScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pop(context); // dialog
-              Navigator.pop(context); // screen
+              _stopPolling();
+              // Pop twice to close the dialog and the payment screen
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
             },
             child: const Text('Continue'),
           ),
@@ -156,51 +254,16 @@ class _AzamPayPaymentScreenState extends State<AzamPayPaymentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('AzamPay Payment'),
+        title: const Text('Processing Payment'),
+        automaticallyImplyLeading: false,
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.phone_android,
-                    size: 72,
-                    color: Colors.green,
-                  ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Payment Request Sent',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Please check your phone and approve the payment to continue.',
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 32),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _checkingStatus ? null : _checkFinalStatus,
-                      child: _checkingStatus
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Text('I have completed payment'),
-                    ),
-                  ),
-                ],
+          : const Center(
+              child: Text(
+                'Waiting for payment approval...\n'
+                'Please approve on your phone.',
+                textAlign: TextAlign.center,
               ),
             ),
     );

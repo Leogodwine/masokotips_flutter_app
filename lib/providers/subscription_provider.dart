@@ -1,15 +1,17 @@
-// providers/subscription_provider.dart
-
 import 'package:flutter/foundation.dart';
 
 import '../models/subscription.dart';
 import '../models/azam_checkout_result.dart';
 import '../models/subscription_status_result.dart';
+
 import '../services/subscription_service.dart';
+import '../services/azampay_service.dart';
+
 import '../utils/logger.dart';
 
 class SubscriptionProvider with ChangeNotifier {
   final SubscriptionService _subscriptionService = SubscriptionService();
+  final AzamPayService _azamPayService = AzamPayService(); // 🔑 AzamPay
 
   // STATE
   List<SubscriptionPackage>? _packages;
@@ -33,9 +35,9 @@ class SubscriptionProvider with ChangeNotifier {
     return _currentSubscriptions?[type]?.isActive ?? false;
   }
 
-  // ---------------------------------------------------------------------------
-  // LOAD SUBSCRIPTION PACKAGES
-  // ---------------------------------------------------------------------------
+  /* ============================================================
+   | LOAD SUBSCRIPTION PACKAGES
+   ============================================================ */
   Future<void> loadPackages() async {
     try {
       _setLoading(true);
@@ -49,7 +51,8 @@ class SubscriptionProvider with ChangeNotifier {
             .toList();
       } else {
         _setError(
-            response?['message'] ?? 'Failed to load subscription packages');
+          response?['message'] ?? 'Failed to load subscription packages',
+        );
       }
     } catch (e) {
       Log.e('Load packages error: $e');
@@ -60,13 +63,9 @@ class SubscriptionProvider with ChangeNotifier {
     }
   }
 
-  Future<Map<String, dynamic>?> getSubscriptionPackages() async {
-    return await _subscriptionService.getSubscriptionPackages();
-  }
-
-  // ---------------------------------------------------------------------------
-  // LOAD USER SUBSCRIPTIONS
-  // ---------------------------------------------------------------------------
+  /* ============================================================
+   | LOAD USER SUBSCRIPTIONS
+   ============================================================ */
   Future<void> loadUserSubscriptions() async {
     try {
       _setLoading(true);
@@ -99,13 +98,12 @@ class SubscriptionProvider with ChangeNotifier {
 
   bool needsSubscription(String? role) {
     if (role == null) return true;
-    if (hasActiveSubscriptionFor(role)) return false;
-    return true;
+    return !hasActiveSubscriptionFor(role);
   }
 
-  // ---------------------------------------------------------------------------
-  // CREATE SUBSCRIPTION
-  // ---------------------------------------------------------------------------
+  /* ============================================================
+   | CREATE SUBSCRIPTION
+   ============================================================ */
   Future<Subscription?> createSubscription({
     required String subscriptionType,
     required String duration,
@@ -139,54 +137,34 @@ class SubscriptionProvider with ChangeNotifier {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // START AZAMPAY CHECKOUT
-  // ---------------------------------------------------------------------------
+  /* ============================================================
+   | START AZAMPAY CHECKOUT (AUTHORITATIVE)
+   ============================================================ */
   Future<AzamCheckoutResult?> startCheckout({
     required int subscriptionId,
     required int amount,
     required String phone,
-    String? email,
+    required String provider, // 🔑 AIRTEL / VODACOM / TIGO / HALOTEL
   }) async {
     try {
-      return await _subscriptionService.startAzamPayCheckout(
+      return await _azamPayService.startCheckout(
         subscriptionId: subscriptionId,
         amount: amount,
         phone: phone,
-        email: email,
+        provider: provider,
       );
     } catch (e) {
-      Log.e('Checkout start failed: $e');
+      Log.e('AzamPay checkout start failed: $e');
       return null;
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // CHECK AZAMPAY CHECKOUT STATUS
-  // ---------------------------------------------------------------------------
-  Future<SubscriptionStatusResult?> checkCheckoutStatus(
+  /* ============================================================
+   | CHECK SUBSCRIPTION STATUS (READ-ONLY)
+   ============================================================ */
+  Future<SubscriptionStatusResult?> checkSubscriptionStatus(
     int subscriptionId,
   ) async {
-    try {
-      final data =
-          await _subscriptionService.checkSubscriptionStatus(subscriptionId);
-
-      if (data != null && data['success'] == true) {
-        return SubscriptionStatusResult.fromJson(data['data']);
-      }
-
-      return null;
-    } catch (e) {
-      Log.e('Checkout status failed: $e');
-      return null;
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // CHECK SUBSCRIPTION STATUS
-  // ---------------------------------------------------------------------------
-  Future<SubscriptionStatusResult?> checkSubscriptionStatus(
-      int subscriptionId) async {
     _errorMessage = null;
     notifyListeners();
 
@@ -194,13 +172,20 @@ class SubscriptionProvider with ChangeNotifier {
       final data =
           await _subscriptionService.checkSubscriptionStatus(subscriptionId);
 
-      if (data != null && data['success'] == true) {
-        return SubscriptionStatusResult.fromJson(data['data']);
-      } else {
+      if (data == null || data['success'] != true) {
         _errorMessage = data?['message'] ?? 'Failed to check status';
         notifyListeners();
         return null;
       }
+
+      final subscriptionJson = data['data']?['subscription'];
+      if (subscriptionJson == null) {
+        _errorMessage = 'Subscription data missing from response';
+        notifyListeners();
+        return null;
+      }
+
+      return SubscriptionStatusResult.fromJson(subscriptionJson);
     } catch (e) {
       _errorMessage = 'An error occurred while checking subscription status.';
       notifyListeners();
@@ -209,8 +194,15 @@ class SubscriptionProvider with ChangeNotifier {
   }
 
   // ---------------------------------------------------------------------------
-  // HELPERS
-  // ---------------------------------------------------------------------------
+// GET SUBSCRIPTION PACKAGES (REQUIRED BY subscription_screen.dart)
+// ---------------------------------------------------------------------------
+  Future<Map<String, dynamic>?> getSubscriptionPackages() async {
+    return await _subscriptionService.getSubscriptionPackages();
+  }
+
+  /* ============================================================
+   | HELPERS
+   ============================================================ */
   void _setLoading(bool value) => _isLoading = value;
   void _setError(String value) => _errorMessage = value;
   void _clearError() => _errorMessage = null;

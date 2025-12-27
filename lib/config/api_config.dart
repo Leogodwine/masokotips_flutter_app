@@ -1,6 +1,6 @@
 class ApiConfig {
   // Set to true for production, false for development
-  static const bool isProduction = true; // Changed to false for development
+  static const bool isProduction = true; // Back to production for live testing
 
   static const String baseUrl = isProduction
       ? 'https://masokotips.com/api' // Production URL

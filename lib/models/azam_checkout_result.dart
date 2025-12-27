@@ -1,22 +1,21 @@
+// lib/models/azam_checkout_result.dart
+
 class AzamCheckoutResult {
   final bool success;
-  final String checkoutUrl;
-  final String transactionId;
-  final String message;
+  final String? externalId; // 🔑 REQUIRED FOR POLLING
+  final String? message;
 
   AzamCheckoutResult({
     required this.success,
-    required this.checkoutUrl,
-    required this.transactionId,
-    required this.message,
+    this.externalId,
+    this.message,
   });
 
   factory AzamCheckoutResult.fromJson(Map<String, dynamic> json) {
     return AzamCheckoutResult(
       success: json['success'] == true,
-      checkoutUrl: json['checkout_url'] ?? json['payment_url'] ?? '',
-      transactionId: json['transaction_id'] ?? json['external_id'] ?? '',
-      message: json['message'] ?? '',
+      externalId: json['externalId'],
+      message: json['message'],
     );
   }
 }

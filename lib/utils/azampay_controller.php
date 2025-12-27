@@ -4,133 +4,109 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AzamPayController extends Controller
 {
     /**
-     * Handle AzamPay payment callback
+     * -------------------------------------------------
+     * AzamPay Webhook Callback
+     * -------------------------------------------------
+     * This endpoint is called asynchronously by AzamPay
+     * after the user approves or rejects the payment.
+     *
+     * IMPORTANT:
+     * - Must always return HTTP 200
+     * - Must not redirect
+     * - Must not throw uncaught exceptions
      */
     public function handleCallback(Request $request)
     {
         try {
-            Log::info('AzamPay Callback Received', [
-                'payload' => $request->all(),
-                'headers' => $request->headers->all(),
-                'timestamp' => now()
+            // Log EVERYTHING for audit/debug (safe)
+            Log::channel('single')->info('🔔 AZAMPAY CALLBACK RECEIVED', [
+                'timestamp' => now()->toDateTimeString(),
+                'method'    => $request->method(),
+                'ip'        => $request->ip(),
+                'headers'   => $request->headers->all(),
+                'payload'   => $request->all(),
             ]);
 
-            // Get the callback data
-            $data = $request->all();
-            
-            // Validate required fields
-            if (!isset($data['external_id']) || !isset($data['status'])) {
-                Log::error('Invalid AzamPay callback data', $data);
-                return response()->json(['error' => 'Invalid callback data'], 400);
+            $payload = $request->all();
+
+            /**
+             * Accept both camelCase and snake_case
+             * because providers are inconsistent
+             */
+            $externalId = $payload['external_id']
+                ?? $payload['externalId']
+                ?? null;
+
+            $status = strtolower($payload['status'] ?? '');
+
+            if (!$externalId || !$status) {
+                Log::error('❌ Invalid AzamPay callback payload', $payload);
+
+                // Always return 200 to avoid retries
+                return response()->json(['success' => false], 200);
             }
 
-            // Find the subscription by external ID
+            /**
+             * Find subscription by external_id
+             * This MUST have been saved during checkout initiation
+             */
             $subscription = DB::table('subscriptions')
-                ->where('external_id', $data['external_id'])
+                ->where('external_id', $externalId)
                 ->first();
 
             if (!$subscription) {
-                Log::error('Subscription not found for external ID', ['external_id' => $data['external_id']]);
-                return response()->json(['error' => 'Subscription not found'], 404);
+                Log::error('❌ Subscription not found for AzamPay callback', [
+                    'external_id' => $externalId,
+                ]);
+
+                return response()->json(['success' => false], 200);
             }
 
-            // Update subscription status based on payment result
-            $updateData = [
-                'status' => $this->mapAzamPayStatus($data['status']),
-                'payment_reference' => $data['transaction_id'] ?? null,
-                'payment_date' => now(),
-                'updated_at' => now()
-            ];
+            /**
+             * Map AzamPay status → internal status
+             */
+            $newStatus = match ($status) {
+                'success', 'completed' => 'active',
+                'failed', 'rejected'   => 'failed',
+                default                => 'pending',
+            };
 
-            // Add metadata
-            $metadata = json_decode($subscription->metadata ?? '{}', true);
-            $metadata['azampay_callback'] = $data;
-            $metadata['callback_received_at'] = now()->toISOString();
-            $updateData['metadata'] = json_encode($metadata);
-
+            /**
+             * Update subscription
+             */
             DB::table('subscriptions')
                 ->where('id', $subscription->id)
-                ->update($updateData);
+                ->update([
+                    'status'       => $newStatus,
+                    'payment_date' => $newStatus === 'active' ? now() : null,
+                    'updated_at'   => now(),
+                ]);
 
-            Log::info('Subscription updated via AzamPay callback', [
+            Log::channel('single')->info('✅ Subscription updated via AzamPay', [
                 'subscription_id' => $subscription->id,
-                'external_id' => $data['external_id'],
-                'status' => $updateData['status']
+                'external_id'     => $externalId,
+                'status'          => $newStatus,
             ]);
 
-            // Return success response
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Callback processed successfully'
+            // AzamPay REQUIREMENT: always return 200
+            return response()->json(['success' => true], 200);
+
+        } catch (\Throwable $e) {
+
+            Log::channel('single')->error('🔥 AzamPay callback exception', [
+                'error'   => $e->getMessage(),
+                'trace'   => $e->getTraceAsString(),
+                'payload' => $request->all(),
             ]);
 
-        } catch (\Exception $e) {
-            Log::error('Error processing AzamPay callback', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'payload' => $request->all()
-            ]);
-
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Internal server error'
-            ], 500);
-        }
-    }
-
-    /**
-     * Map AzamPay status to our subscription status
-     */
-    private function mapAzamPayStatus($azamPayStatus)
-    {
-        switch (strtolower($azamPayStatus)) {
-            case 'success':
-            case 'completed':
-                return 'completed';
-            case 'failed':
-            case 'failed':
-                return 'failed';
-            case 'pending':
-            case 'processing':
-                return 'pending';
-            default:
-                return 'pending';
-        }
-    }
-
-    /**
-     * Get payment status for a transaction
-     */
-    public function getPaymentStatus($transactionId)
-    {
-        try {
-            // This would typically call AzamPay API to check status
-            // For now, return mock data
-            
-            Log::info('Checking AzamPay payment status', ['transaction_id' => $transactionId]);
-            
-            return response()->json([
-                'success' => true,
-                'status' => 'pending',
-                'message' => 'Status check completed'
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Error checking payment status', [
-                'transaction_id' => $transactionId,
-                'error' => $e->getMessage()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Error checking payment status'
-            ], 500);
+            // Never expose errors to AzamPay
+            return response()->json(['success' => false], 200);
         }
     }
 }

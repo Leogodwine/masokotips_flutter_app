@@ -1,21 +1,19 @@
 // subscription/payment_screen.dart
-// NEW CHECKOUT VERSION — No manual entry required
+// FINAL VERSION — Initiates payment only
 
-import '../../models/subscription.dart';
-import '../../models/subscription_status_result.dart';
-import '../../providers/subscription_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../models/subscription.dart';
+import '../../providers/subscription_provider.dart';
 import '../../utils/logger.dart';
 
 class PaymentScreen extends StatefulWidget {
   final Subscription subscription;
-  final String transactionId;
 
   const PaymentScreen({
     super.key,
     required this.subscription,
-    required this.transactionId,
   });
 
   @override
@@ -23,113 +21,72 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-  String _paymentStatus = "PENDING";
-  bool _isChecking = false;
+  bool _isLoading = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _checkStatus(); // auto-check on load
-  }
-
-  Future<void> _checkStatus() async {
-    setState(() => _isChecking = true);
+  Future<void> _startCheckout() async {
+    setState(() => _isLoading = true);
 
     try {
-      final provider = Provider.of<SubscriptionProvider>(
-        context,
-        listen: false,
+      final subscriptionProvider =
+          Provider.of<SubscriptionProvider>(context, listen: false);
+
+      final int amount = widget.subscription.amount?.round() ?? 0;
+
+      if (amount <= 0) {
+        _showError('Invalid subscription amount.');
+        return;
+      }
+
+      final phone = widget.subscription.metadata?['phone'];
+
+      if (phone == null || phone.toString().isEmpty) {
+        _showError('Phone number is required.');
+        return;
+      }
+
+      // TEMP — replace with dropdown later
+      const String selectedMno = 'AIRTEL';
+
+      Log.i(
+        'Starting AzamPay checkout → '
+        'subscription=${widget.subscription.id}, '
+        'amount=$amount, phone=$phone, provider=$selectedMno',
       );
 
-      final SubscriptionStatusResult? result =
-          await provider.checkCheckoutStatus(int.parse(widget.transactionId));
+      final result = await subscriptionProvider.startCheckout(
+        subscriptionId: widget.subscription.id,
+        amount: amount,
+        phone: phone.toString(),
+        provider: selectedMno, // MUST be TIGO / AIRTEL / VODACOM / HALOTEL
+      );
 
       if (!mounted) return;
 
-      if (result != null) {
-        setState(() => _paymentStatus = result.status);
-
-        if (result.isActive) {
-          _showSuccessDialog();
-        } else if (result.status == "FAILED") {
-          _showFailedDialog();
-        }
-      } else {
-        _showError("Could not check payment status");
+      if (result == null || !result.success || result.externalId == null) {
+        _showError(result?.message ?? 'Failed to initiate payment.');
+        return;
       }
+
+      // 🔥 MOVE TO PROCESSING SCREEN
+      Navigator.pushReplacementNamed(
+        context,
+        '/azampay-processing',
+        arguments: result.externalId,
+      );
     } catch (e) {
-      Log.e("Error checking payment status: $e");
-      _showError("Unexpected error occurred");
+      Log.e('Payment initiation error: $e');
+      _showError('Unable to start payment.');
     } finally {
       if (mounted) {
-        setState(() => _isChecking = false);
+        setState(() => _isLoading = false);
       }
     }
   }
 
   void _showError(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
-  }
-
-  void _showSuccessDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => AlertDialog(
-        title: const Text("Payment Successful"),
-        content: const Text("Your subscription is now active."),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context); // close dialog
-              Navigator.pop(context); // close screen
-            },
-            child: const Text("Continue"),
-          )
-        ],
-      ),
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg)),
     );
-  }
-
-  void _showFailedDialog() {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Payment Failed"),
-        content: const Text(
-            "Your payment could not be completed. Please try again."),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context); // close dialog
-            },
-            child: const Text("OK"),
-          )
-        ],
-      ),
-    );
-  }
-
-  IconData get _statusIcon {
-    switch (_paymentStatus) {
-      case "SUCCESS":
-        return Icons.check_circle;
-      case "FAILED":
-        return Icons.error;
-      default:
-        return Icons.pending;
-    }
-  }
-
-  Color get _statusColor {
-    switch (_paymentStatus) {
-      case "SUCCESS":
-        return Colors.green;
-      case "FAILED":
-        return Colors.red;
-      default:
-        return Colors.orange;
-    }
   }
 
   @override
@@ -138,13 +95,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Payment Status"),
+        title: const Text('Confirm Payment'),
       ),
-      body: SingleChildScrollView(
+      body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // Subscription Summary
+            // Subscription summary
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -163,7 +120,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            "${widget.subscription.amount?.toStringAsFixed(0)} ${widget.subscription.currency}",
+                            '${widget.subscription.amount?.toStringAsFixed(0)} '
+                            '${widget.subscription.currency}',
                             style: theme.textTheme.headlineSmall?.copyWith(
                               color: theme.primaryColor,
                               fontWeight: FontWeight.bold,
@@ -177,70 +135,31 @@ class _PaymentScreenState extends State<PaymentScreen> {
               ),
             ),
 
-            const SizedBox(height: 20),
+            const Spacer(),
 
-            // Status Card
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  children: [
-                    Icon(
-                      _statusIcon,
-                      size: 72,
-                      color: _statusColor,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      _paymentStatus == "SUCCESS"
-                          ? "Payment Successful"
-                          : _paymentStatus == "FAILED"
-                              ? "Payment Failed"
-                              : "Payment Pending",
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: _statusColor,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      "Transaction ID: ${widget.transactionId}",
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Check Again Button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _isChecking ? null : _checkStatus,
-                child: _isChecking
+                onPressed: _isLoading ? null : _startCheckout,
+                child: _isLoading
                     ? const SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
-                          color: Colors.white,
                           strokeWidth: 2,
+                          color: Colors.white,
                         ),
                       )
-                    : const Text("Re-check Payment Status"),
+                    : const Text('Confirm & Pay'),
               ),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
-            // Help
             Text(
-              "If your payment is still pending, please wait a moment and try again.",
+              'You will receive a payment request on your phone.',
+              style: theme.textTheme.bodySmall,
               textAlign: TextAlign.center,
-              style:
-                  theme.textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
             ),
           ],
         ),

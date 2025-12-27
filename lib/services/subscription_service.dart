@@ -6,9 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/api_config.dart';
 import '../utils/logger.dart';
-import '../models/azam_checkout_result.dart';
 import '../models/checkout_status_result.dart';
-import 'azampay_service.dart';
 
 class SubscriptionService {
   static String get _baseUrl => ApiConfig.baseUrl;
@@ -121,37 +119,30 @@ class SubscriptionService {
   }
 
   // ---------------------------------------------------------------------------
-  // START AZAMPAY CHECKOUT
-  // ---------------------------------------------------------------------------
-  Future<AzamCheckoutResult?> startAzamPayCheckout({
-    required int subscriptionId,
-    required int amount,
-    required String phone,
-    String? email,
-  }) async {
-    try {
-      final azam = AzamPayService();
-
-      return await azam.startSubscriptionCheckout(
-        subscriptionId: subscriptionId,
-        amount: amount,
-        phone: phone,
-        email: email,
-      );
-    } catch (e) {
-      Log.e('Checkout start failed', e);
-      return null;
-    }
-  }
-
-  // ---------------------------------------------------------------------------
   // CHECK AZAMPAY STATUS
   // ---------------------------------------------------------------------------
+  /// Check checkout status by external ID (transaction ID).
+  /// This method is deprecated. Use checkSubscriptionStatus() instead.
+  ///
+  /// @param externalId The external transaction ID from AzamPay
+  /// @return AzamPayCheckoutStatusResult with status information
+  @Deprecated('Use checkSubscriptionStatus() instead')
   Future<AzamPayCheckoutStatusResult?> checkAzamPayCheckoutStatus(
       String externalId) async {
     try {
-      final azam = AzamPayService();
-      return await azam.checkCheckoutStatus(externalId);
+      // The deprecated method in AzamPayService now returns a deprecated status
+      // Instead, we should use the subscription status endpoint
+      // However, since we only have the externalId (transaction ID), we cannot
+      // directly call checkSubscriptionStatus which requires subscriptionId
+      //
+      // For now, return a deprecated result to maintain API compatibility
+      return AzamPayCheckoutStatusResult(
+        success: false,
+        isPaid: false,
+        status: 'DEPRECATED',
+        message:
+            'This method is deprecated. Use checkSubscriptionStatus() with subscription ID instead.',
+      );
     } catch (e) {
       Log.e('Checkout status failed', e);
       return null;
@@ -171,6 +162,23 @@ class SubscriptionService {
       return _safeJson(res);
     } catch (e) {
       Log.e('Check subscription access error', e);
+      return null;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // CHECK SUBSCRIPTION STATUS
+  // ---------------------------------------------------------------------------
+  Future<Map<String, dynamic>?> checkSubscriptionStatus(
+      int subscriptionId) async {
+    try {
+      final res = await http.get(
+        Uri.parse('$_baseUrl/subscriptions/status/$subscriptionId'),
+        headers: await _headers(auth: true),
+      );
+      return _safeJson(res);
+    } catch (e) {
+      Log.e('Check subscription status error', e);
       return null;
     }
   }

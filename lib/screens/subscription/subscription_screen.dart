@@ -8,7 +8,6 @@ import '../../models/subscription.dart';
 import '../../providers/subscription_provider.dart';
 import '../../providers/auth_provider.dart';
 
-// UI
 import '../../widgets/loading_indicator.dart';
 import '../../widgets/api_error_widget.dart';
 import '../../utils/logger.dart';
