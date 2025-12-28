@@ -227,7 +227,7 @@ class ApiService {
   }
 
   // Register
-  Future<void> register(
+  Future<Map<String, dynamic>> register(
       String name, String username, String email, String password,
       {String role = 'buyer',
       String? phone,
@@ -259,7 +259,11 @@ class ApiService {
       Log.e('Registration response status: ${response.statusCode}');
       Log.e('Registration response body: ${response.body}');
 
-      if (response.statusCode != 201) {
+      if (response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+        Log.e('Registration successful, returning data: $responseData');
+        return responseData;
+      } else {
         throw Exception('Failed to register: ${response.body}');
       }
     } catch (e) {

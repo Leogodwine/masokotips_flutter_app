@@ -120,6 +120,24 @@ class TransportDetailsScreen extends StatelessWidget {
               ),
             ),
             actions: [
+              // Subscribe Button
+              Container(
+                margin: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.star, color: Colors.white),
+                  onPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/subscription',
+                    );
+                  },
+                ),
+              ),
+              // Edit Button
               Container(
                 margin: const EdgeInsets.all(8),
                 decoration: BoxDecoration(

@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/loading_button.dart';
 import '../../widgets/api_error_widget.dart';
-import '../subscription/subscription_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -73,24 +72,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
 
         if (mounted) {
-          // Registration & login were successful - redirect to subscription screen
+          // Registration & login were successful - redirect to profile screen
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text(
-                  'Registration successful! Please complete your subscription.'),
+              content: Text('Registration successful! Welcome to maSOKOtips.'),
               backgroundColor: Colors.green,
             ),
           );
 
-          // Navigate to subscription screen with the selected role
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SubscriptionScreen(
-                preSelectedType: _selectedRole,
-              ),
-            ),
-          );
+          // Navigate to profile screen
+          Navigator.pushReplacementNamed(context, '/profile');
         }
       } catch (e) {
         String errorMsg = e.toString();

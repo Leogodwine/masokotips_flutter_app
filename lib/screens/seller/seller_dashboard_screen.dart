@@ -52,10 +52,19 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
       });
     } catch (e) {
       debugPrint('Error loading seller products: $e');
-      setState(() {
-        _errorMessage =
-            AppLocalizations.of(context)!.failedToLoadProducts(e.toString());
-      });
+
+      // Check if the error is due to missing seller role
+      if (e.toString().contains('403') ||
+          e.toString().contains('Unauthorized')) {
+        setState(() {
+          _errorMessage =
+              'You need to have a seller role to access this dashboard. Please contact support if you believe this is an error.';
+        });
+      } else {
+        setState(() {
+          _errorMessage = 'Error loading products: ${e.toString()}';
+        });
+      }
     } finally {
       setState(() {
         _isLoading = false;

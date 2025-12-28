@@ -7,6 +7,7 @@ import 'edit_profile_screen.dart';
 import './address_management_screen.dart';
 import '../seller/seller_dashboard_screen.dart';
 import './admin_login_screen.dart';
+import '../subscription/subscription_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -156,6 +157,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   );
                                 },
                               ),
+                            // Subscribe button - positioned after Seller Dashboard
+                            _buildQuickActionButton(
+                              context,
+                              icon: Icons.subscriptions,
+                              label: 'Subscribe',
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const SubscriptionScreen(),
+                                  ),
+                                );
+                              },
+                            ),
                             if (user.roles.contains('service_provider'))
                               _buildQuickActionButton(
                                 context,

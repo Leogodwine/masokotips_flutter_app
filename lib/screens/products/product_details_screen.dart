@@ -9,6 +9,7 @@ import '../../providers/product_provider.dart';
 import '../../providers/wishlist_provider.dart';
 import '../../screens/auth/login_screen.dart';
 import '../../utils/logger.dart';
+import '../../screens/subscription/subscription_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
@@ -114,6 +115,26 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               )
             : null,
         actions: [
+          // Subscribe button for authenticated users
+          Consumer<AuthProvider>(
+            builder: (context, authProvider, child) {
+              if (!authProvider.isAuthenticated) {
+                return const SizedBox.shrink();
+              }
+              return IconButton(
+                icon: const Icon(Icons.star, color: Colors.amber),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const SubscriptionScreen(),
+                    ),
+                  );
+                },
+                tooltip: 'Subscribe for Premium Features',
+              );
+            },
+          ),
           // Cart icon with badge
           Consumer<CartProvider>(
             builder: (context, cartProvider, child) {

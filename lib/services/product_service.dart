@@ -36,19 +36,25 @@ class ProductService {
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         debugPrint('Seller products response: $responseData');
-        final List<dynamic> data = responseData['data'];
+        final List<dynamic> data = responseData['data'] ?? [];
         debugPrint('Found ${data.length} products');
         if (data.isNotEmpty) {
           debugPrint('First product data: ${data[0]}');
         }
         return data.map((product) => Product.fromJson(product)).toList();
+      } else if (response.statusCode == 403) {
+        // User doesn't have seller role - return empty list instead of throwing error
+        debugPrint(
+            'User does not have seller role - returning empty products list');
+        return [];
       } else {
         throw Exception(
             'Failed to fetch seller products. Status code: ${response.statusCode}');
       }
     } catch (e) {
       debugPrint('Error fetching seller products: $e');
-      throw Exception('Error fetching seller products: $e');
+      // Return empty list instead of throwing error for better UX
+      return [];
     }
   }
 
