@@ -83,9 +83,9 @@ class AdminAuthService {
   }
 
   // Verify admin credentials with additional security
-  Future<bool> verifyAdminCredentials(String email, String password) async {
+  Future<bool> verifyAdminCredentials(String username, String password) async {
     try {
-      Log.d('Verifying admin credentials for email: $email');
+      Log.d('Verifying admin credentials for username: $username');
 
       final response = await http.post(
         Uri.parse('$baseUrl/admin/login'),
@@ -98,7 +98,7 @@ class AdminAuthService {
           'Referer': baseUrl.replaceAll('/api', ''),
         },
         body: json.encode({
-          'email': email,
+          'username': username,
           'password': password,
         }),
       );

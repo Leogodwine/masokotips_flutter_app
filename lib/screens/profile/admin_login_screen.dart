@@ -14,15 +14,16 @@ class AdminLoginScreen extends StatefulWidget {
 
 class _AdminLoginScreenState extends State<AdminLoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
   bool _isLoading = false;
   String? _errorMessage;
   final _adminAuthService = AdminAuthService(baseUrl: ApiConfig.baseUrl);
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -37,23 +38,24 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
       try {
-        Log.d('Attempting admin login for email: ${_emailController.text}');
+        Log.d(
+            'Attempting admin login for username: ${_usernameController.text}');
 
         final isVerified = await _adminAuthService.verifyAdminCredentials(
-          _emailController.text.trim(),
+          _usernameController.text.trim(),
           _passwordController.text,
         );
 
         if (!isVerified) {
           setState(() {
-            _errorMessage = 'Invalid email or password. Please try again.';
+            _errorMessage = 'Invalid username or password. Please try again.';
           });
           setState(() => _isLoading = false);
           return;
         }
 
         final adminLoginResponse = await _adminAuthService.loginAdmin(
-          _emailController.text.trim(),
+          _usernameController.text.trim(),
           _passwordController.text,
         );
 
@@ -61,7 +63,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
           Log.d('AdminAuthService login successful. Updating AuthProvider.');
 
           await authProvider.login(
-            _emailController.text.trim(),
+            _usernameController.text.trim(),
             _passwordController.text,
           );
 
@@ -140,19 +142,21 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 ),
               const SizedBox(height: 24),
               TextFormField(
-                controller: _emailController,
+                controller: _usernameController,
                 decoration: const InputDecoration(
-                  labelText: 'Email',
+                  labelText: 'Username',
+                  hintText: 'Enter your username',
+                  prefixIcon: Icon(Icons.person_outline),
                   border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.email),
                 ),
-                keyboardType: TextInputType.emailAddress,
+                keyboardType: TextInputType.text,
+                textInputAction: TextInputAction.next,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
+                    return 'Please enter your username';
                   }
-                  if (!value.contains('@')) {
-                    return 'Please enter a valid email';
+                  if (value.length < 3) {
+                    return 'Username must be at least 3 characters';
                   }
                   return null;
                 },
@@ -160,21 +164,34 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _passwordController,
-                decoration: const InputDecoration(
+                obscureText: _obscurePassword,
+                textInputAction: TextInputAction.done,
+                decoration: InputDecoration(
                   labelText: 'Password',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.lock),
+                  hintText: 'Enter your password',
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                      color: Colors.grey,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                  ),
+                  border: const OutlineInputBorder(),
                 ),
-                obscureText: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your password';
                   }
-                  if (value.length < 6) {
-                    return 'Password must be at least 6 characters';
-                  }
                   return null;
                 },
+                onFieldSubmitted: (_) => _login(),
               ),
               const SizedBox(height: 24),
               ElevatedButton(
