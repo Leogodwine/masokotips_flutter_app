@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/category_provider.dart';
-import '../categories/category_list_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../models/category.dart';
+
+import '../../providers/product_provider.dart';
+import '../../utils/logger.dart';
+import '../products/product_details_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({Key? key}) : super(key: key);
@@ -13,423 +15,339 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
-  List<String> _recentSearches = [];
-  static const String _recentSearchesKey = 'recent_searches';
-  static const int _maxRecentSearches = 5;
+  final TextEditingController _controller = TextEditingController();
 
-  // Define subcategories map with icons
-  final Map<String, Map<String, dynamic>> _categorySubcategories = {
-    'Products': {
-      'subcategories': [
-        'Vegetables',
-        'Fruits',
-        'Spices',
-        'Cash Crops',
-        'Cereals',
-        'Seeds and Seedling',
-        'Livestock and poultry'
-      ],
-      'icon': Icons.shopping_basket,
-      'color': Colors.green,
-    },
-    'Services': {
-      'subcategories': [
-        'Packaging Materials',
-        'Hydroponics',
-        'Fertilizer',
-        'Organic Manure',
-        'Machinery',
-        'Behive and Aquatic',
-        'Food and Beverage'
-      ],
-      'icon': Icons.miscellaneous_services,
-      'color': Colors.blue,
-    },
-    'Market Information': {
-      'subcategories': [],
-      'icon': Icons.trending_up,
-      'color': Colors.orange,
-    },
-    'Transport': {
-      'subcategories': [
-        'Tandem',
-        'Kirikuu',
-        'FlatbedTrucks',
-        'Tanker',
-        'Refrigerator Truck',
-        'Box Truck',
-        'Liftgate Truck',
-        'Van',
-        'Container Hauler',
-        'Pickups Trucks',
-        'Fuso',
-        'Semi Trailers',
-        'Tracker Trailers'
-      ],
-      'icon': Icons.local_shipping,
-      'color': Colors.purple,
-    },
-    'Organic Products': {
-      'subcategories': [
-        'Organic Vegetables',
-        'Organic Fruits',
-        'Organic Spices',
-        'Organic Cash Crops',
-        'Organic Cereals',
-        'Organic Livestock and Poultry'
-      ],
-      'icon': Icons.eco,
-      'color': Colors.teal,
-    },
-    'Agricultural Services': {
-      'subcategories': [
-        'Cold Rooms Services',
-        'Machinery and Rental Services',
-        'Agronomist Services',
-        'Financial Services',
-        'Irrigation Services',
-        'Branding and Consultation Services'
-      ],
-      'icon': Icons.agriculture,
-      'color': Colors.brown,
-    },
-  };
+  static const String _recentKey = 'recent_searches';
+  static const int _maxRecent = 6;
+
+  List<String> _recent = [];
+  String _query = '';
+  Timer? _debounce;
+
+  bool _isSearching = false;
+  String? _error;
 
   @override
   void initState() {
     super.initState();
-    _loadRecentSearches();
+    _loadRecent();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<CategoryProvider>().loadMainCategories();
-      }
+      // Auto focus for fast UX
+      FocusScope.of(context).requestFocus(FocusNode());
     });
-  }
-
-  Future<void> _loadRecentSearches() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _recentSearches = prefs.getStringList(_recentSearchesKey) ?? [];
-    });
-  }
-
-  Future<void> _saveRecentSearch(String query) async {
-    if (query.isEmpty) return;
-
-    setState(() {
-      _recentSearches.remove(query);
-      _recentSearches.insert(0, query);
-      if (_recentSearches.length > _maxRecentSearches) {
-        _recentSearches.removeLast();
-      }
-    });
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(_recentSearchesKey, _recentSearches);
-  }
-
-  Future<void> _clearRecentSearches() async {
-    setState(() {
-      _recentSearches.clear();
-    });
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_recentSearchesKey);
   }
 
   @override
   void dispose() {
-    _searchController.dispose();
+    _debounce?.cancel();
+    _controller.dispose();
     super.dispose();
   }
 
-  Widget _buildSearchBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withAlpha(26),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+  Future<void> _loadRecent() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() => _recent = prefs.getStringList(_recentKey) ?? []);
+  }
+
+  Future<void> _saveRecent(String q) async {
+    final query = q.trim();
+    if (query.isEmpty) return;
+
+    setState(() {
+      _recent.remove(query);
+      _recent.insert(0, query);
+      if (_recent.length > _maxRecent) _recent = _recent.sublist(0, _maxRecent);
+    });
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_recentKey, _recent);
+  }
+
+  Future<void> _clearRecent() async {
+    setState(() => _recent = []);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_recentKey);
+  }
+
+  void _onChanged(String value) {
+    final q = value.trim();
+
+    setState(() {
+      _query = q;
+      _error = null;
+    });
+
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 350), () {
+      _runSearch(q);
+    });
+  }
+
+  Future<void> _runSearch(String q) async {
+    final query = q.trim();
+    if (!mounted) return;
+
+    // Clear results when empty
+    if (query.isEmpty) {
+      setState(() {
+        _isSearching = false;
+        _error = null;
+      });
+
+      // Optional: clear provider results if you store them
+      // context.read<ProductProvider>().clearSearchResults();
+      return;
+    }
+
+    setState(() {
+      _isSearching = true;
+      _error = null;
+    });
+
+    try {
+      final provider = context.read<ProductProvider>();
+
+      // ✅ CHANGE THIS LINE ONLY if your provider uses a different method name:
+      // e.g. provider.search(query) or provider.searchProducts(query)
+      await provider.searchProducts(query);
+
+      await _saveRecent(query);
+
+      if (!mounted) return;
+      setState(() => _isSearching = false);
+    } catch (e) {
+      Log.e('Search error: $e');
+      if (!mounted) return;
+      setState(() {
+        _isSearching = false;
+        _error = 'Failed to search. Please try again.';
+      });
+    }
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      elevation: 0,
+      titleSpacing: 0,
+      title: Padding(
+        padding: const EdgeInsets.only(right: 12),
+        child: Container(
+          height: 44,
+          margin: const EdgeInsets.only(left: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(999),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(18),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: TextField(
+            controller: _controller,
+            autofocus: true,
+            textInputAction: TextInputAction.search,
+            onChanged: _onChanged,
+            onSubmitted: (v) => _runSearch(v),
+            decoration: InputDecoration(
+              hintText: 'Search products...',
+              prefixIcon: const Icon(Icons.search, size: 20),
+              suffixIcon: _query.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        _controller.clear();
+                        _onChanged('');
+                      },
+                    )
+                  : null,
+              border: InputBorder.none,
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            ),
+          ),
+        ),
+      ),
+      actions: [
+        if (_recent.isNotEmpty)
+          TextButton(
+            onPressed: _clearRecent,
+            child: const Text('Clear'),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildRecentChips() {
+    if (_recent.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Recent',
+            style: TextStyle(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _recent.map((r) {
+              return ActionChip(
+                label: Text(r),
+                avatar: const Icon(Icons.history, size: 16),
+                onPressed: () {
+                  _controller.text = r;
+                  _controller.selection = TextSelection.fromPosition(
+                    TextPosition(offset: r.length),
+                  );
+                  _onChanged(r);
+                },
+              );
+            }).toList(),
           ),
         ],
-      ),
-      child: TextField(
-        controller: _searchController,
-        style: const TextStyle(color: Colors.black87),
-        decoration: InputDecoration(
-          hintText: 'Search categories...',
-          hintStyle: TextStyle(color: Colors.grey[600]),
-          border: InputBorder.none,
-          icon: Icon(Icons.search, color: Theme.of(context).primaryColor),
-          suffixIcon: _searchQuery.isNotEmpty
-              ? IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: () {
-                    _searchController.clear();
-                    setState(() {
-                      _searchQuery = '';
-                    });
-                  },
-                )
-              : null,
-        ),
-        onChanged: (value) {
-          setState(() {
-            _searchQuery = value.toLowerCase();
-          });
-        },
-        onSubmitted: (value) {
-          if (value.isNotEmpty) {
-            _saveRecentSearch(value);
-          }
-        },
       ),
     );
   }
 
-  Widget _buildRecentSearches() {
-    if (_recentSearches.isEmpty) return const SizedBox.shrink();
+  Widget _buildBody() {
+    final productProvider = context.watch<ProductProvider>();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    // ✅ Adjust these getters to match your provider structure.
+    // Common patterns:
+    // - productProvider.searchResults
+    // - productProvider.products (filtered)
+    // - productProvider.searchedProducts
+    final results = productProvider.searchResults;
+
+    if (_error != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Icon(Icons.error_outline, size: 56, color: Colors.red[300]),
+              const SizedBox(height: 12),
               Text(
-                'Recent Searches',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                _error!,
+                textAlign: TextAlign.center,
               ),
-              TextButton.icon(
-                onPressed: _clearRecentSearches,
-                icon: const Icon(Icons.delete_outline),
-                label: const Text('Clear'),
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: () => _runSearch(_query),
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
               ),
             ],
           ),
         ),
-        SizedBox(
-          height: 40,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: _recentSearches.length,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: ActionChip(
-                  label: Text(_recentSearches[index]),
-                  avatar: const Icon(Icons.history, size: 16),
-                  onPressed: () {
-                    _searchController.text = _recentSearches[index];
-                    setState(() {
-                      _searchQuery = _recentSearches[index].toLowerCase();
-                    });
-                  },
+      );
+    }
+
+    if (_query.isEmpty) {
+      return ListView(
+        children: [
+          _buildRecentChips(),
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              'Start typing to search products',
+              style: TextStyle(color: Colors.grey[700]),
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (_isSearching) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (results.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.search_off,
+                  size: 72,
+                  color: Theme.of(context).primaryColor.withAlpha(140)),
+              const SizedBox(height: 12),
+              Text(
+                'No products found for "$_query"',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Try different keywords.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey[700]),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      itemCount: results.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      itemBuilder: (context, index) {
+        final product = results[index];
+
+        return Card(
+          elevation: 1.5,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          child: ListTile(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            title: Text(
+              product.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+            subtitle: Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                'TZS ${product.price.toStringAsFixed(0)}',
+                style: TextStyle(
+                  color: Theme.of(context).primaryColor,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            trailing: Icon(Icons.chevron_right, color: Colors.grey[500]),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ProductDetailsScreen(product: product),
                 ),
               );
             },
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: _buildSearchBar(),
-        elevation: 0,
-      ),
-      body: Consumer<CategoryProvider>(
-        builder: (context, categoryProvider, child) {
-          final allCategories = categoryProvider.mainCategories;
-
-          if (categoryProvider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (categoryProvider.error != null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: Colors.red[300],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Error: ${categoryProvider.error}',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.red[700]),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      categoryProvider.loadMainCategories();
-                    },
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('Retry'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          final filteredCategories = allCategories.where((category) {
-            return category.name.toLowerCase().contains(_searchQuery);
-          }).toList();
-
-          if (_searchQuery.isEmpty) {
-            return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildRecentSearches(),
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      'Browse Categories',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  ),
-                  ...filteredCategories
-                      .map((category) => _buildCategoryCard(category)),
-                ],
-              ),
-            );
-          }
-
-          if (filteredCategories.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.search_off,
-                    size: 80,
-                    color: Theme.of(context).primaryColor.withAlpha(128),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No categories found for "$_searchQuery"',
-                    style: Theme.of(context).textTheme.titleMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Try different keywords or browse all categories',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[600],
-                        ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: filteredCategories.length,
-            itemBuilder: (context, index) {
-              return _buildCategoryCard(filteredCategories[index]);
-            },
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildCategoryCard(Category category) {
-    final categoryInfo = _categorySubcategories[category.name];
-    final icon = categoryInfo?['icon'] as IconData? ?? Icons.category;
-    final color =
-        categoryInfo?['color'] as Color? ?? Theme.of(context).primaryColor;
-    final subcategories = categoryInfo?['subcategories'] as List<String>? ?? [];
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CategoryListScreen(
-                categoryId: category.id,
-                title: category.name,
-                subcategories: subcategories,
-              ),
-            ),
-          );
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: color.withAlpha(26),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: 32,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      category.name,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${subcategories.length} subcategories',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.chevron_right,
-                color: Colors.grey[400],
-              ),
-            ],
-          ),
-        ),
-      ),
+      appBar: _buildAppBar(),
+      body: _buildBody(),
     );
   }
 }

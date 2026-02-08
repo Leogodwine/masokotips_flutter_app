@@ -3,14 +3,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-class AzamPayProcessingScreen extends StatefulWidget {
+class ZenopayProcessingScreen extends StatefulWidget {
   final String baseUrl; // e.g. https://yourdomain.com
   final String token; // Sanctum token (Bearer)
   final String externalId; // returned by initiate
   final Duration pollInterval; // default 4s
   final Duration timeout; // default 90s
 
-  const AzamPayProcessingScreen({
+  const ZenopayProcessingScreen({
     super.key,
     required this.baseUrl,
     required this.token,
@@ -20,11 +20,11 @@ class AzamPayProcessingScreen extends StatefulWidget {
   });
 
   @override
-  State<AzamPayProcessingScreen> createState() =>
-      _AzamPayProcessingScreenState();
+  State<ZenopayProcessingScreen> createState() =>
+      _ZenoPayProcessingScreenState();
 }
 
-class _AzamPayProcessingScreenState extends State<AzamPayProcessingScreen> {
+class _ZenoPayProcessingScreenState extends State<ZenopayProcessingScreen> {
   Timer? _pollTimer;
   Timer? _timeoutTimer;
 
@@ -77,7 +77,7 @@ class _AzamPayProcessingScreenState extends State<AzamPayProcessingScreen> {
     if (_isDone) return;
 
     final uri =
-        Uri.parse('${widget.baseUrl}/api/azampay/status/${widget.externalId}');
+        Uri.parse('${widget.baseUrl}/api/zenopay/status/${widget.externalId}');
 
     try {
       final resp = await http.get(

@@ -13,7 +13,7 @@ import '../../widgets/api_error_widget.dart';
 import '../../utils/logger.dart';
 
 // SCREENS
-import 'azampay_payment_screen.dart';
+import 'zenopay_payment_screen.dart';
 
 // WIDGET COMPONENTS
 import 'widgets/header_section.dart';
@@ -103,7 +103,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   }
 
   // ---------------------------------------------------------------------------
-  // SUBSCRIBE → CREATE SUBSCRIPTION → AZAMPAY
+  // SUBSCRIBE → CREATE SUBSCRIPTION → ZENOPAY
   // ---------------------------------------------------------------------------
   Future<void> _subscribe() async {
     if (selectedPackage == null || selectedPlan == null) {
@@ -114,57 +114,58 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     }
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final phone = authProvider.user?.phoneNumber;
+    final rawPhone = authProvider.user?.phoneNumber;
 
-    if (phone == null || phone.isEmpty) {
+    if (rawPhone == null || rawPhone.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'Your phone number is required. Please update your profile.',
-          ),
+          content: Text('Your phone number is required. Update your profile.'),
         ),
       );
       return;
     }
 
+    String normalizePhone(String phone) {
+      phone = phone.replaceAll('+', '').trim();
+      if (phone.startsWith('0')) {
+        phone = '255${phone.substring(1)}';
+      }
+      return phone;
+    }
+
+    final phone = normalizePhone(rawPhone);
+
     setState(() => isSubscribing = true);
 
     try {
-      final subscriptionProvider =
+      final provider =
           Provider.of<SubscriptionProvider>(context, listen: false);
 
-      final subscription = await subscriptionProvider.createSubscription(
+      final subscription = await provider.createSubscription(
         subscriptionType: selectedPackage!.id,
         duration: selectedPlan!.duration,
-        paymentMethod: 'azampay', // ✅ ONLY VALID VALUE
-        phone: authProvider.user!.phoneNumber!,
+        paymentMethod: 'zenopay',
+        phone: phone,
       );
 
       if (!mounted) return;
 
       if (subscription != null) {
-        Navigator.pushReplacement(
+        Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => AzamPayPaymentScreen(
-              subscription: subscription,
-            ),
+            builder: (_) => ZenopayPaymentScreen(subscription: subscription),
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              subscriptionProvider.errorMessage ??
-                  'Failed to create subscription',
-            ),
-          ),
+              content: Text(provider.errorMessage ?? 'Failed to subscribe')),
         );
       }
     } catch (e) {
       Log.e('Subscription error: $e');
       if (!mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Unexpected error')),
       );

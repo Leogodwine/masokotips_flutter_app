@@ -11,7 +11,9 @@ import '../utils/logger.dart';
 
 class SubscriptionProvider with ChangeNotifier {
   final SubscriptionService _subscriptionService = SubscriptionService();
-  final AzamPayService _azamPayService = AzamPayService(); // 🔑 AzamPay
+
+  // Keep AzamPay service for backward compatibility (other screens still use it)
+  final AzamPayService _azamPayService = AzamPayService();
 
   // STATE
   List<SubscriptionPackage>? _packages;
@@ -51,8 +53,7 @@ class SubscriptionProvider with ChangeNotifier {
             .toList();
       } else {
         _setError(
-          response?['message'] ?? 'Failed to load subscription packages',
-        );
+            response?['message'] ?? 'Failed to load subscription packages');
       }
     } catch (e) {
       Log.e('Load packages error: $e');
@@ -117,7 +118,7 @@ class SubscriptionProvider with ChangeNotifier {
       final response = await _subscriptionService.createSubscription(
         subscriptionType: subscriptionType,
         duration: duration,
-        paymentMethod: paymentMethod,
+        paymentMethod: paymentMethod, // 'azampay' OR 'zenopay'
         phone: phone,
       );
 
@@ -138,13 +139,13 @@ class SubscriptionProvider with ChangeNotifier {
   }
 
   /* ============================================================
-   | START AZAMPAY CHECKOUT (AUTHORITATIVE)
+   | AZAMPAY CHECKOUT (KEEP FOR OLD SCREENS)
    ============================================================ */
-  Future<AzamCheckoutResult?> startCheckout({
+  Future<AzamCheckoutResult?> startAzamPayCheckout({
     required int subscriptionId,
     required int amount,
     required String phone,
-    required String provider, // 🔑 AIRTEL / VODACOM / TIGO / HALOTEL
+    required String provider, // AIRTEL/VODACOM/TIGO/HALOTEL
   }) async {
     try {
       return await _azamPayService.startCheckout(
@@ -160,11 +161,90 @@ class SubscriptionProvider with ChangeNotifier {
   }
 
   /* ============================================================
+   | ZENOPAY CHECKOUT (NEW)
+   ============================================================ */
+  Future<Map<String, dynamic>?> startZenopayCheckout({
+    required int subscriptionId,
+    required int amount,
+    required String phone,
+  }) async {
+    try {
+      final res = await _subscriptionService.startZenopayCheckout(
+        subscriptionId: subscriptionId,
+        amount: amount,
+        phone: phone,
+      );
+
+      if (res == null) {
+        return {'success': false, 'message': 'No response from server.'};
+      }
+
+      if (res['success'] == true) {
+        final data = (res['data'] as Map?)?.cast<String, dynamic>() ?? {};
+
+        return {
+          'success': true,
+          'message': res['message'] ?? 'Request in progress...',
+          'order_id': data['order_id'], // 🔥 FLATTENED
+          'subscription_id': data['subscription_id'],
+        };
+      }
+
+      return {
+        'success': false,
+        'message': res['message'] ?? 'Failed to initiate payment.',
+      };
+    } catch (e) {
+      Log.e('Zenopay checkout start failed: $e');
+      return {
+        'success': false,
+        'message': 'Connection error. Please try again.'
+      };
+    }
+  }
+
+  /* ============================================================
+   | BACKWARD COMPAT: keep old method name if other screens call it
+   ============================================================ */
+  @Deprecated(
+      'Use startAzamPayCheckout() for AzamPay or startZenopayCheckout() for Zenopay.')
+  Future<dynamic> startCheckout({
+    required int subscriptionId,
+    required int amount,
+    required String phone,
+    String? provider,
+    String paymentMethod = 'azampay',
+  }) async {
+    if (paymentMethod == 'zenopay') {
+      return startZenopayCheckout(
+        subscriptionId: subscriptionId,
+        amount: amount,
+        phone: phone,
+      );
+    }
+
+    return startAzamPayCheckout(
+      subscriptionId: subscriptionId,
+      amount: amount,
+      phone: phone,
+      provider: provider ?? 'TIGO',
+    );
+  }
+
+  Future<Map<String, dynamic>?> checkZenopayOrderStatus(String orderId) async {
+    try {
+      return await _subscriptionService.checkZenopayOrderStatus(orderId);
+    } catch (e) {
+      Log.e('Check Zenopay order status failed: $e');
+      return null;
+    }
+  }
+
+  /* ============================================================
    | CHECK SUBSCRIPTION STATUS (READ-ONLY)
    ============================================================ */
   Future<SubscriptionStatusResult?> checkSubscriptionStatus(
-    int subscriptionId,
-  ) async {
+      int subscriptionId) async {
     _errorMessage = null;
     notifyListeners();
 
@@ -178,14 +258,29 @@ class SubscriptionProvider with ChangeNotifier {
         return null;
       }
 
-      final subscriptionJson = data['data']?['subscription'];
-      if (subscriptionJson == null) {
-        _errorMessage = 'Subscription data missing from response';
-        notifyListeners();
-        return null;
+      // ✅ NEW API shape (your current Laravel):
+      // { success, is_active, status, subscription, message }
+      if (data.containsKey('status') && data.containsKey('is_active')) {
+        return SubscriptionStatusResult.fromJson(data.cast<String, dynamic>());
       }
 
-      return SubscriptionStatusResult.fromJson(subscriptionJson);
+      // ✅ BACKWARD COMPAT (older shape):
+      // { success, data: { subscription: {...} } }
+      final subscriptionJson = data['data']?['subscription'];
+      if (subscriptionJson is Map<String, dynamic>) {
+        return SubscriptionStatusResult.fromJson({
+          'success': true,
+          'is_active': subscriptionJson['status'] == 'active' ||
+              subscriptionJson['status'] == 'completed',
+          'status': subscriptionJson['status'] ?? 'UNKNOWN',
+          'message': data['message'],
+          'subscription': subscriptionJson,
+        });
+      }
+
+      _errorMessage = 'Subscription data missing from response';
+      notifyListeners();
+      return null;
     } catch (e) {
       _errorMessage = 'An error occurred while checking subscription status.';
       notifyListeners();
@@ -193,9 +288,7 @@ class SubscriptionProvider with ChangeNotifier {
     }
   }
 
-  // ---------------------------------------------------------------------------
-// GET SUBSCRIPTION PACKAGES (REQUIRED BY subscription_screen.dart)
-// ---------------------------------------------------------------------------
+  // For SubscriptionScreen compatibility
   Future<Map<String, dynamic>?> getSubscriptionPackages() async {
     return await _subscriptionService.getSubscriptionPackages();
   }

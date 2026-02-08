@@ -12,6 +12,7 @@ class ProductProvider with ChangeNotifier {
   List<Product> _products = [];
   List<Product> _featuredProducts = [];
   List<Product> _relatedProducts = [];
+  List<Product> _searchResults = [];
   bool _isLoading = false;
   String? _error;
 
@@ -32,6 +33,7 @@ class ProductProvider with ChangeNotifier {
   List<Product> get products => _products;
   List<Product> get featuredProducts => _featuredProducts;
   List<Product> get relatedProducts => _relatedProducts;
+  List<Product> get searchResults => _searchResults;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
@@ -183,7 +185,8 @@ class ProductProvider with ChangeNotifier {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        return data.map((json) => Product.fromJson(json)).toList();
+        _searchResults = data.map((json) => Product.fromJson(json)).toList();
+        return _searchResults;
       } else {
         throw Exception(
             'Failed to search products. Status code: ${response.statusCode}');
@@ -284,7 +287,7 @@ class ProductProvider with ChangeNotifier {
     try {
       Log.e('Loading related products for product: $productId');
       final products = await _apiService.getRelatedProducts(productId);
-      _products = products;
+      _relatedProducts = products;
       Log.e('Loaded ${products.length} related products');
     } catch (e) {
       Log.e('Error loading related products: $e');
