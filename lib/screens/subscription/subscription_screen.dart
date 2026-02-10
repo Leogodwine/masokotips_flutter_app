@@ -6,14 +6,13 @@ import '../../models/subscription.dart';
 
 // SERVICES / PROVIDERS
 import '../../providers/subscription_provider.dart';
-import '../../providers/auth_provider.dart';
 
 import '../../widgets/loading_indicator.dart';
 import '../../widgets/api_error_widget.dart';
 import '../../utils/logger.dart';
 
 // SCREENS
-import 'zenopay_payment_screen.dart';
+import 'zenopay_phone_input_screen.dart';
 
 // WIDGET COMPONENTS
 import 'widgets/header_section.dart';
@@ -103,7 +102,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   }
 
   // ---------------------------------------------------------------------------
-  // SUBSCRIBE → CREATE SUBSCRIPTION → ZENOPAY
+  // SUBSCRIBE → PHONE INPUT SCREEN
   // ---------------------------------------------------------------------------
   Future<void> _subscribe() async {
     if (selectedPackage == null || selectedPlan == null) {
@@ -113,65 +112,17 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       return;
     }
 
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final rawPhone = authProvider.user?.phoneNumber;
-
-    if (rawPhone == null || rawPhone.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Your phone number is required. Update your profile.'),
+    // Navigate to phone input screen
+    if (!mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ZenopayPhoneInputScreen(
+          package: selectedPackage!,
+          plan: selectedPlan!,
         ),
-      );
-      return;
-    }
-
-    String normalizePhone(String phone) {
-      phone = phone.replaceAll('+', '').trim();
-      if (phone.startsWith('0')) {
-        phone = '255${phone.substring(1)}';
-      }
-      return phone;
-    }
-
-    final phone = normalizePhone(rawPhone);
-
-    setState(() => isSubscribing = true);
-
-    try {
-      final provider =
-          Provider.of<SubscriptionProvider>(context, listen: false);
-
-      final subscription = await provider.createSubscription(
-        subscriptionType: selectedPackage!.id,
-        duration: selectedPlan!.duration,
-        paymentMethod: 'zenopay',
-        phone: phone,
-      );
-
-      if (!mounted) return;
-
-      if (subscription != null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ZenopayPaymentScreen(subscription: subscription),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(provider.errorMessage ?? 'Failed to subscribe')),
-        );
-      }
-    } catch (e) {
-      Log.e('Subscription error: $e');
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Unexpected error')),
-      );
-    } finally {
-      if (mounted) setState(() => isSubscribing = false);
-    }
+      ),
+    );
   }
 
   // ---------------------------------------------------------------------------

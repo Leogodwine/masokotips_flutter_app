@@ -138,6 +138,20 @@ class SubscriptionProvider with ChangeNotifier {
     }
   }
 
+  /// Returns the active subscription for the user (optional type filter)
+  Subscription? getUserSubscription({String? type}) {
+    if (_currentSubscriptions == null || _currentSubscriptions!.isEmpty) {
+      return null;
+    }
+
+    if (type != null) {
+      return _currentSubscriptions![type];
+    }
+
+    // Return the first active subscription if type not specified
+    return _currentSubscriptions!.values.first;
+  }
+
   /* ============================================================
    | AZAMPAY CHECKOUT (KEEP FOR OLD SCREENS)
    ============================================================ */
