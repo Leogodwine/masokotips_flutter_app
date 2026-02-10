@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/subscription_provider.dart';
 import 'dart:io';
 import 'edit_profile_screen.dart';
 import './address_management_screen.dart';
@@ -19,10 +20,28 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   @override
+  void initState() {
+    super.initState();
+    _loadSubscriptionsIfLoggedIn();
+  }
+
+  Future<void> _loadSubscriptionsIfLoggedIn() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    if (authProvider.isAuthenticated) {
+      final subscriptionProvider =
+          Provider.of<SubscriptionProvider>(context, listen: false);
+      await subscriptionProvider.loadUserSubscriptions();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final subscriptionProvider = Provider.of<SubscriptionProvider>(context);
     final isLoggedIn = authProvider.isAuthenticated;
     final user = authProvider.user;
+    final hasActiveSubscription = subscriptionProvider.hasActiveSubscription;
+    final currentSubscription = subscriptionProvider.getUserSubscription();
 
     return Scaffold(
       appBar: AppBar(
@@ -79,6 +98,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           color: Colors.grey,
                         ),
                       ),
+                      // Subscription Badge
+                      if (hasActiveSubscription && currentSubscription != null)
+                        _buildSubscriptionBadge(context, currentSubscription),
                       const SizedBox(height: 8),
                       // User role badges
                       if (user.roles.isNotEmpty)
@@ -260,6 +282,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
               ],
+
+              // Subscription Status Card
+              if (isLoggedIn &&
+                  hasActiveSubscription &&
+                  currentSubscription != null)
+                _buildSubscriptionStatusCard(context, currentSubscription),
 
               const SizedBox(height: 32),
               Text(
@@ -705,6 +733,196 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildSubscriptionBadge(BuildContext context, dynamic subscription) {
+    final Color badgeColor = subscription.status == 'completed'
+        ? Colors.green
+        : subscription.status == 'pending'
+            ? Colors.orange
+            : Colors.red;
+
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: badgeColor.withAlpha(30),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: badgeColor, width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.verified,
+            color: badgeColor,
+            size: 18,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            subscription.typeLabel,
+            style: TextStyle(
+              color: badgeColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubscriptionStatusCard(
+      BuildContext context, dynamic subscription) {
+    final Color statusColor = subscription.status == 'completed'
+        ? Colors.green
+        : subscription.status == 'pending'
+            ? Colors.orange
+            : Colors.red;
+
+    final String expiryText = subscription.expiresAt != null
+        ? 'Expires: ${_formatDate(subscription.expiresAt)}'
+        : 'No expiry date';
+
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.only(bottom: 16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              statusColor.withAlpha(40),
+              Theme.of(context).primaryColor.withAlpha(20),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: statusColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.card_membership,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          subscription.typeLabel,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          subscription.statusLabel,
+                          style: TextStyle(
+                            color: statusColor,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withAlpha(50),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.calendar_today, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      expiryText,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (subscription.amount != null)
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withAlpha(50),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.attach_money, size: 18),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${subscription.currency} ${subscription.amount!.toStringAsFixed(0)}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Manage Subscription'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SubscriptionScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return 'N/A';
+    return '${date.day}/${date.month}/${date.year}';
   }
 
   void _showAboutDialog(BuildContext context) {
