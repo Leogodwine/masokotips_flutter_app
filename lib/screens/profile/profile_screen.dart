@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:map_launcher/map_launcher.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/subscription_provider.dart';
 import 'dart:io';
@@ -19,10 +21,26 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  Position? _currentPosition;
+  bool _isLoadingLocation = false;
+  String _locationError = '';
+
+  // For another user's location (could be from API in real app)
+  double? _targetUserLatitude;
+  double? _targetUserLongitude;
+  String? _targetUserName;
+
   @override
   void initState() {
     super.initState();
     _loadSubscriptionsIfLoggedIn();
+    _getCurrentLocation();
+
+    // Simulate another user's location for demo
+    // In a real app, this would come from an API response
+    _targetUserLatitude = -6.7924; // Example: Dar es Salaam
+    _targetUserLongitude = 39.2083;
+    _targetUserName = 'John\'s Location';
   }
 
   Future<void> _loadSubscriptionsIfLoggedIn() async {
@@ -32,6 +50,85 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Provider.of<SubscriptionProvider>(context, listen: false);
       await subscriptionProvider.loadUserSubscriptions();
     }
+  }
+
+  Future<void> _getCurrentLocation() async {
+    setState(() {
+      _isLoadingLocation = true;
+      _locationError = '';
+    });
+
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        setState(() {
+          _locationError = 'Location services are disabled';
+          _isLoadingLocation = false;
+        });
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          setState(() {
+            _locationError = 'Location permission denied';
+            _isLoadingLocation = false;
+          });
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        setState(() {
+          _locationError = 'Location permissions are permanently denied';
+          _isLoadingLocation = false;
+        });
+        return;
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      setState(() {
+        _currentPosition = position;
+        _isLoadingLocation = false;
+      });
+    } catch (e) {
+      setState(() {
+        _locationError = 'Error getting location: $e';
+        _isLoadingLocation = false;
+      });
+    }
+  }
+
+  Future<void> _navigateToLocation(double lat, double lng, String title) async {
+    if (await MapLauncher.isMapAvailable(MapType.google) ?? false) {
+      await MapLauncher.showMarker(
+        mapType: MapType.google,
+        coords: Coords(lat, lng),
+        title: title,
+      );
+    } else {
+      // Fallback to URL launcher
+      final uri = Uri.parse(
+          'https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Could not open maps app')),
+          );
+        }
+      }
+    }
+  }
+
+  String _formatCoordinates(Position? position) {
+    if (position == null) return 'Location not available';
+    return '${position.latitude.toStringAsFixed(6)}, ${position.longitude.toStringAsFixed(6)}';
   }
 
   @override
@@ -319,6 +416,87 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               );
                             }
                           : () => _showLoginDialog(context),
+                    ),
+                    const Divider(height: 1),
+                    // Subscriber Location
+                    ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor.withAlpha(26),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          _isLoadingLocation
+                              ? Icons.location_searching
+                              : Icons.my_location,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                      title: const Text('My Location'),
+                      subtitle: _isLoadingLocation
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : _locationError.isNotEmpty
+                              ? Text(
+                                  _locationError,
+                                  style: const TextStyle(color: Colors.red),
+                                )
+                              : Text(_formatCoordinates(_currentPosition)),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.refresh),
+                        onPressed: _getCurrentLocation,
+                        tooltip: 'Refresh location',
+                      ),
+                      onTap: _getCurrentLocation,
+                    ),
+                    const Divider(height: 1),
+                    // Navigate to Another User's Location
+                    ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withAlpha(26),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.navigation,
+                          color: Colors.blue,
+                        ),
+                      ),
+                      title: const Text('Follow User Location'),
+                      subtitle: Text(_targetUserName ?? 'Tap to navigate'),
+                      trailing: ElevatedButton.icon(
+                        icon: const Icon(Icons.directions),
+                        label: const Text('Navigate'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: _targetUserLatitude != null &&
+                                _targetUserLongitude != null
+                            ? () {
+                                _navigateToLocation(
+                                  _targetUserLatitude!,
+                                  _targetUserLongitude!,
+                                  _targetUserName ?? 'User Location',
+                                );
+                              }
+                            : null,
+                      ),
+                      onTap: _targetUserLatitude != null &&
+                              _targetUserLongitude != null
+                          ? () {
+                              _navigateToLocation(
+                                _targetUserLatitude!,
+                                _targetUserLongitude!,
+                                _targetUserName ?? 'User Location',
+                              );
+                            }
+                          : null,
                     ),
                     const Divider(height: 1),
                     ListTile(
