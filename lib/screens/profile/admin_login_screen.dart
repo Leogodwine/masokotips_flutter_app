@@ -112,10 +112,11 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 32),
-              const Icon(
-                Icons.admin_panel_settings,
-                size: 80,
-                color: Colors.blue,
+              // Logo or App Icon
+              Image.asset(
+                'assets/images/logo-moble.webp',
+                height: 80,
+                width: 80,
               ),
               const SizedBox(height: 24),
               const Text(
