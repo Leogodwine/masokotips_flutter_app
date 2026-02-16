@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
 
 import '../services/api_service.dart';
 import '../services/network_service.dart';
@@ -80,6 +81,8 @@ class AuthProvider with ChangeNotifier {
     String? phone,
     String? location,
     String? country,
+    String? proofOfAddressType,
+    File? proofOfAddress,
   }) async {
     try {
       await _apiService.register(
@@ -91,6 +94,8 @@ class AuthProvider with ChangeNotifier {
         phone: phone,
         location: location,
         country: country,
+        proofOfAddressType: proofOfAddressType,
+        proofOfAddress: proofOfAddress,
       );
     } catch (e) {
       throw Exception('Registration failed: $e');

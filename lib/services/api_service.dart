@@ -232,39 +232,96 @@ class ApiService {
       {String role = 'buyer',
       String? phone,
       String? location,
-      String? country}) async {
+      String? country,
+      String? proofOfAddressType,
+      File? proofOfAddress}) async {
     try {
       final url = Uri.parse('$baseUrl/auth/register');
-      final requestBody = {
-        'name': name,
-        'username': username,
-        'email': email,
-        'password': password,
-        'password_confirmation': password,
-        'role': role,
-        if (phone != null) 'phone': phone,
-        if (location != null) 'location': location,
-        if (country != null) 'country': country,
-      };
 
-      Log.e('Registration request URL: $url');
-      Log.e('Registration request body: ${jsonEncode(requestBody)}');
+      // If there's a file, use multipart request
+      if (proofOfAddress != null) {
+        final request = http.MultipartRequest('POST', url);
 
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: jsonEncode(requestBody),
-      );
+        // Add text fields
+        request.fields['name'] = name;
+        request.fields['username'] = username;
+        request.fields['email'] = email;
+        request.fields['password'] = password;
+        request.fields['password_confirmation'] = password;
+        request.fields['role'] = role;
+        if (phone != null) request.fields['phone'] = phone;
+        if (location != null) request.fields['location'] = location;
+        if (country != null) request.fields['country'] = country;
+        if (proofOfAddressType != null) {
+          request.fields['proof_of_address_type'] = proofOfAddressType;
+        }
 
-      Log.e('Registration response status: ${response.statusCode}');
-      Log.e('Registration response body: ${response.body}');
+        // Add file
+        request.files.add(await http.MultipartFile.fromPath(
+          'proof_of_address',
+          proofOfAddress.path,
+        ));
 
-      if (response.statusCode == 201) {
-        final responseData = jsonDecode(response.body);
-        Log.e('Registration successful, returning data: $responseData');
-        return responseData;
+        // Use proper headers for multipart request - set BEFORE adding files to preserve boundary
+        request.headers.addAll({
+          'Accept': 'application/json',
+          'X-API-Key': apiKey,
+          'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+        });
+
+        Log.e('Registration request URL: $url');
+        Log.e('Registration request fields: ${request.fields}');
+        Log.e('Registration request files: ${request.files.length}');
+
+        final response = await request.send();
+        final responseBody = await response.stream.bytesToString();
+
+        Log.e('Registration response status: ${response.statusCode}');
+        Log.e('Registration response body: $responseBody');
+
+        if (response.statusCode == 201) {
+          final responseData = jsonDecode(responseBody);
+          Log.e('Registration successful, returning data: $responseData');
+          return responseData;
+        } else {
+          throw Exception('Failed to register: $responseBody');
+        }
       } else {
-        throw Exception('Failed to register: ${response.body}');
+        // Regular JSON request without file
+        final requestBody = {
+          'name': name,
+          'username': username,
+          'email': email,
+          'password': password,
+          'password_confirmation': password,
+          'role': role,
+          if (phone != null) 'phone': phone,
+          if (location != null) 'location': location,
+          if (country != null) 'country': country,
+          if (proofOfAddressType != null)
+            'proof_of_address_type': proofOfAddressType,
+        };
+
+        Log.e('Registration request URL: $url');
+        Log.e('Registration request body: ${jsonEncode(requestBody)}');
+
+        final response = await http.post(
+          url,
+          headers: headers,
+          body: jsonEncode(requestBody),
+        );
+
+        Log.e('Registration response status: ${response.statusCode}');
+        Log.e('Registration response body: ${response.body}');
+
+        if (response.statusCode == 201) {
+          final responseData = jsonDecode(response.body);
+          Log.e('Registration successful, returning data: $responseData');
+          return responseData;
+        } else {
+          throw Exception('Failed to register: ${response.body}');
+        }
       }
     } catch (e) {
       Log.e('Registration error: $e');
@@ -344,22 +401,25 @@ class ApiService {
     required String email,
     String? phone,
     String? bio,
-    String? avatarPath, // Added avatarPath parameter
+    String? avatarPath,
   }) async {
     try {
-      final url = Uri.parse('$baseUrl/profile/');
+      final url = Uri.parse('$baseUrl/user/profile');
       final request = http.MultipartRequest('POST', url);
 
-      // Add authentication headers
-      request.headers.addAll(headers);
+      request.headers.addAll({
+        'Authorization': 'Bearer $_authToken',
+        'Accept': 'application/json',
+      });
 
-      // Add fields to the request
+      // Laravel method spoofing
+      request.fields['_method'] = 'PUT';
+
       request.fields['name'] = name;
       request.fields['email'] = email;
       if (phone != null) request.fields['phone'] = phone;
       if (bio != null) request.fields['bio'] = bio;
 
-      // Add avatar file if provided
       if (avatarPath != null) {
         request.files.add(await http.MultipartFile.fromPath(
           'avatar',
@@ -367,15 +427,14 @@ class ApiService {
         ));
       }
 
-      // Send the request
       final response = await request.send();
+      final body = await response.stream.bytesToString();
+
       if (response.statusCode == 200) {
-        final responseBody = await response.stream.bytesToString();
-        final data = jsonDecode(responseBody);
+        final data = jsonDecode(body);
         return User.fromJson(data['user']);
       } else {
-        throw Exception(
-            'Failed to update profile. Status code: ${response.statusCode}');
+        throw Exception('Profile update failed: $body');
       }
     } catch (e) {
       throw Exception('Error updating profile: $e');
@@ -389,7 +448,12 @@ class ApiService {
       final url = Uri.parse('$baseUrl/profile/avatar');
       final request = http.MultipartRequest('POST', url);
 
-      request.headers.addAll(headers);
+      request.headers.addAll({
+        'Authorization': 'Bearer $_authToken',
+        'Accept': 'application/json',
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+      });
       request.files.add(await http.MultipartFile.fromPath('avatar', imagePath));
 
       final response = await request.send();
@@ -1264,7 +1328,12 @@ class ApiService {
         Uri.parse('$baseUrl/seller/organic-products/upload-image'),
       );
 
-      request.headers.addAll(headers);
+      request.headers.addAll({
+        'Authorization': 'Bearer $_authToken',
+        'Accept': 'application/json',
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+      });
       request.files
           .add(await http.MultipartFile.fromPath('image', imageFile.path));
 
@@ -1507,7 +1576,12 @@ class ApiService {
         Uri.parse('$baseUrl/seller/transports/upload-image'),
       );
 
-      request.headers.addAll(headers);
+      request.headers.addAll({
+        'Authorization': 'Bearer $_authToken',
+        'Accept': 'application/json',
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+      });
       request.files
           .add(await http.MultipartFile.fromPath('image', imageFile.path));
 

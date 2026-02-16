@@ -6,8 +6,6 @@ import 'package:map_launcher/map_launcher.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/subscription_provider.dart';
 import 'dart:io';
-import 'edit_profile_screen.dart';
-import './address_management_screen.dart';
 import '../seller/seller_dashboard_screen.dart';
 import './admin_login_screen.dart';
 import '../subscription/subscription_screen.dart';
@@ -232,34 +230,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            _buildQuickActionButton(
-                              context,
-                              icon: Icons.edit,
-                              label: AppLocalizations.of(context)!.editProfile,
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const EditProfileScreen(),
-                                  ),
-                                );
-                              },
-                            ),
-                            _buildQuickActionButton(
-                              context,
-                              icon: Icons.location_on,
-                              label: AppLocalizations.of(context)!.addresses,
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const AddressManagementScreen(),
-                                  ),
-                                );
-                              },
-                            ),
                             if (user.roles.contains('seller'))
                               _buildQuickActionButton(
                                 context,
@@ -400,24 +370,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Card(
                 child: Column(
                   children: [
-                    ListTile(
-                      leading: const Icon(Icons.person_outline),
-                      title:
-                          Text(AppLocalizations.of(context)!.personalDetails),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: user != null
-                          ? () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const EditProfileScreen(),
-                                ),
-                              );
-                            }
-                          : () => _showLoginDialog(context),
-                    ),
-                    const Divider(height: 1),
                     // Subscriber Location
                     ListTile(
                       leading: Container(
@@ -569,24 +521,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const Divider(height: 1),
                     ],
-                    ListTile(
-                      leading: const Icon(Icons.location_on_outlined),
-                      title:
-                          Text(AppLocalizations.of(context)!.manageAddresses),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: user != null
-                          ? () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const AddressManagementScreen(),
-                                ),
-                              );
-                            }
-                          : () => _showLoginDialog(context),
-                    ),
-                    const Divider(height: 1),
                     ListTile(
                       leading: const Icon(Icons.shopping_bag),
                       title: Text(AppLocalizations.of(context)!.myOrders),

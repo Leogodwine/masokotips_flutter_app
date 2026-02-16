@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/loading_button.dart';
 import '../../widgets/api_error_widget.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -28,6 +30,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscureConfirmPassword = true;
   bool _isLoading = false;
   String? _errorMessage;
+
+  // Proof of address fields
+  String _selectedProofType = '';
+  File? _proofOfAddressFile;
+  final ImagePicker _imagePicker = ImagePicker();
 
   @override
   void dispose() {
@@ -63,6 +70,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           phone: _phoneController.text,
           location: _locationController.text,
           country: _countryController.text,
+          proofOfAddressType:
+              _selectedProofType.isNotEmpty ? _selectedProofType : null,
+          proofOfAddress: _proofOfAddressFile,
         );
 
         // 2. Automatically log the user in so that subscription APIs have a token
@@ -110,6 +120,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
         }
       }
     }
+  }
+
+  Future<void> _pickProofOfAddress() async {
+    final XFile? pickedFile = await _imagePicker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 2048,
+      maxHeight: 2048,
+      imageQuality: 85,
+    );
+
+    if (pickedFile != null) {
+      setState(() {
+        _proofOfAddressFile = File(pickedFile.path);
+      });
+    }
+  }
+
+  void _removeProofOfAddress() {
+    setState(() {
+      _proofOfAddressFile = null;
+      _selectedProofType = '';
+    });
   }
 
   @override
@@ -479,6 +511,170 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         }).toList(),
                       ),
                     ],
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Proof of Address Section
+                  Card(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.badge,
+                                color: theme.colorScheme.primary,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Proof of Address',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Upload one of the following: NIDA, Driving License, or Voter Card',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Document Type Selection
+                          DropdownButtonFormField<String>(
+                            value: _selectedProofType.isEmpty
+                                ? null
+                                : _selectedProofType,
+                            hint: const Text('Select document type'),
+                            decoration: InputDecoration(
+                              prefixIcon: const Icon(Icons.document_scanner),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            items: const [
+                              DropdownMenuItem(
+                                value: 'nida',
+                                child: Text('NIDA Card'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'driving_license',
+                                child: Text('Driving License'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'voter_card',
+                                child: Text('Voter Card'),
+                              ),
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedProofType = value ?? '';
+                              });
+                            },
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // File Upload / Preview
+                          if (_proofOfAddressFile != null)
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade300),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(12),
+                                    ),
+                                    child: Image.file(
+                                      _proofOfAddressFile!,
+                                      height: 200,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            _proofOfAddressFile!.path
+                                                .split('/')
+                                                .last,
+                                            style: theme.textTheme.bodySmall,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.delete,
+                                            color: Colors.red,
+                                          ),
+                                          onPressed: _removeProofOfAddress,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          else
+                            InkWell(
+                              onTap: _pickProofOfAddress,
+                              child: Container(
+                                height: 120,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: theme.colorScheme.primary
+                                        .withAlpha(100),
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                  color:
+                                      theme.colorScheme.primary.withAlpha(20),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.cloud_upload_outlined,
+                                      size: 40,
+                                      color: theme.colorScheme.primary,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Tap to upload document',
+                                      style: TextStyle(
+                                        color: theme.colorScheme.primary,
+                                      ),
+                                    ),
+                                    Text(
+                                      'JPG, PNG up to 5MB',
+                                      style:
+                                          theme.textTheme.bodySmall?.copyWith(
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
 
                   const SizedBox(height: 32),
