@@ -175,6 +175,22 @@ class _MainCategoriesScreenState extends State<MainCategoriesScreen> {
         return Icons.agriculture;
       case 'category':
         return Icons.category;
+      case 'food_and_beverages':
+        return Icons.restaurant;
+      case 'restaurant':
+        return Icons.restaurant;
+      case 'local_drink':
+        return Icons.local_drink;
+      case 'wine':
+        return Icons.wine_bar;
+      case 'cooking-oil':
+        return Icons.water_drop;
+      case 'peanut-butter':
+        return Icons.cookie;
+      case 'fermented-milk':
+        return Icons.breakfast_dining;
+      case 'yogurt':
+        return Icons.icecream;
       default:
         return Icons.category;
     }

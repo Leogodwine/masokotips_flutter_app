@@ -34,6 +34,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
   Future<void> _loadProducts() async {
     if (!mounted) return;
 
+    // Capture the provider before async gap to avoid BuildContext issues
+    final productProvider = context.read<ProductProvider>();
+
     setState(() {
       _isLoading = true;
     });
@@ -41,9 +44,22 @@ class _ProductListScreenState extends State<ProductListScreen> {
     try {
       Log.e(
           'Loading products for category: ${widget.categoryId}, subcategory: ${widget.subcategory}');
-      await context
-          .read<ProductProvider>()
-          .loadProductsByCategory(widget.categoryId, widget.subcategory);
+
+      // Check if this is a "featured" request
+      if (widget.subcategory.toLowerCase() == 'featured') {
+        // Load featured products
+        await productProvider.loadFeaturedProducts();
+        // Copy featured products to products list for display
+        if (!mounted) return;
+        final featuredProducts = productProvider.featuredProducts;
+        productProvider.setProducts(featuredProducts);
+      } else if (widget.subcategory.toLowerCase() == 'all') {
+        // Load all products from all categories
+        await productProvider.loadProducts();
+      } else {
+        await productProvider.loadProductsByCategory(
+            widget.categoryId, widget.subcategory);
+      }
     } catch (e) {
       Log.e('Error loading products: $e');
       if (mounted) {
@@ -122,7 +138,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      childAspectRatio: 0.75,
+                      childAspectRatio: 0.7,
                       crossAxisSpacing: 16,
                       mainAxisSpacing: 16,
                     ),
@@ -149,18 +165,18 @@ class _ProductListScreenState extends State<ProductListScreen> {
                               CachedNetworkImageWithCors(
                                 //imageUrl: product.imageUrl,
                                 imageUrl: product.firstImageUrl,
-                                height: 160,
+                                height: 140,
                                 width: double.infinity,
                                 fit: BoxFit.cover,
                                 placeholder: (context, url) => Container(
-                                  height: 160,
+                                  height: 140,
                                   color: Colors.grey[100],
                                   child: const Center(
                                     child: CircularProgressIndicator(),
                                   ),
                                 ),
                                 errorWidget: (context, url, error) => Container(
-                                  height: 160,
+                                  height: 140,
                                   color: Colors.grey[100],
                                   child: const Icon(
                                     Icons.image_not_supported_outlined,
@@ -169,42 +185,48 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                   ),
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      product.name,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        height: 1.2,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'TZS ${product.price.toStringAsFixed(2)}',
-                                      style: TextStyle(
-                                        color: Theme.of(context).primaryColor,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    if ((product.stock ?? 0) > 0) ...[
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        AppLocalizations.of(context)!
-                                            .inStock(product.stock ?? 0),
-                                        style: TextStyle(
-                                          color: Colors.green[700],
-                                          fontSize: 12,
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          product.name,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            height: 1.2,
+                                          ),
                                         ),
                                       ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'TZS ${product.price.toStringAsFixed(2)}',
+                                        style: TextStyle(
+                                          color: Theme.of(context).primaryColor,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      if ((product.stock ?? 0) > 0) ...[
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          AppLocalizations.of(context)!
+                                              .inStock(product.stock ?? 0),
+                                          style: TextStyle(
+                                            color: Colors.green[700],
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                      ],
                                     ],
-                                  ],
+                                  ),
                                 ),
                               ),
                             ],

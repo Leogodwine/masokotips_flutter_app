@@ -303,4 +303,11 @@ class ProductProvider with ChangeNotifier {
     _error = null;
     notifyListeners();
   }
+
+  // Set products directly (used for featured products display)
+  void setProducts(List<Product> products) {
+    _products = products;
+    _error = null;
+    notifyListeners();
+  }
 }

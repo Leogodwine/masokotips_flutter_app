@@ -184,6 +184,8 @@ final mainCategories = [
           slug: 'tracker-trailers',
           isActive: true,
           sortOrder: 13),
+      Category(
+          id: 26, name: 'Cargo', slug: 'cargo', isActive: true, sortOrder: 14),
     ],
   ),
   Category(

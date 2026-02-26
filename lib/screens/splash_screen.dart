@@ -120,7 +120,8 @@ class _SplashScreenState extends State<SplashScreen>
                               fit: BoxFit.contain,
                               filterQuality: FilterQuality.high,
                             ),
-                            const SizedBox(height: 24),
+
+                            const SizedBox(height: 8),
                             // App name
                             Text(
                               AppLocalizations.of(context)!.appName,
@@ -154,6 +155,18 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                     ),
 
+                    const SizedBox(height: 8),
+                    // Imedhaminiwa / Sponsored text
+                    const Text(
+                      'Sponsored',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white70,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+
                     // Sponsor Section
                     Expanded(
                       flex: 2,
@@ -161,7 +174,7 @@ class _SplashScreenState extends State<SplashScreen>
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 32,
-                          vertical: 40,
+                          vertical: 20,
                         ),
                         child: FadeTransition(
                           opacity: _sponsorAnimation,
@@ -169,20 +182,32 @@ class _SplashScreenState extends State<SplashScreen>
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               // Sponsor section
-                              Text(
-                                AppLocalizations.of(context)!.poweredBy,
-                                style: const TextStyle(
+                              const Text(
+                                'By',
+                                style: TextStyle(
                                   fontSize: 18,
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
                                   letterSpacing: 1.0,
                                 ),
                               ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 8),
+                              // COSTECH full name
+                              Text(
+                                AppLocalizations.of(context)!.costech,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.white70,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 0.5,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 12),
                               // Enlarged sponsor logo
                               Container(
-                                height: 80,
-                                width: 200,
+                                height: 90,
+                                width: 220,
                                 decoration: BoxDecoration(
                                   color: Colors.white.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12),
@@ -193,6 +218,7 @@ class _SplashScreenState extends State<SplashScreen>
                                         'assets/images/costech_logo.webp',
                                     fallbackText:
                                         AppLocalizations.of(context)!.costech,
+                                    height: 70,
                                   ),
                                 ),
                               ),

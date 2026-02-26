@@ -145,7 +145,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                       builder: (_) => const ProductListScreen(
                         title: 'All Products',
                         categoryId: 0,
-                        subcategory: '',
+                        subcategory: 'all',
                       ),
                     ),
                   );
@@ -181,7 +181,28 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                   );
                 }
 
-                final categories = categoryProvider.mainCategories;
+                final categories =
+                    categoryProvider.mainCategories.take(6).toList();
+
+                // Sort categories in specific order: Products, Organic Products, Agricultural Services, Transport, Food And Beverages, Market Information
+                categories.sort((a, b) {
+                  const order = [
+                    'Products',
+                    'Organic Products',
+                    'Agricultural Services',
+                    'Transport',
+                    'Food And Beverages',
+                    'Market Information',
+                  ];
+                  final indexA = order.indexWhere((name) =>
+                      a.name.toLowerCase().contains(name.toLowerCase()));
+                  final indexB = order.indexWhere((name) =>
+                      b.name.toLowerCase().contains(name.toLowerCase()));
+                  // If category not in our list, put it at the end
+                  final finalA = indexA >= 0 ? indexA : 999;
+                  final finalB = indexB >= 0 ? indexB : 999;
+                  return finalA.compareTo(finalB);
+                });
 
                 if (categories.isEmpty) {
                   return Padding(
@@ -826,6 +847,8 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
         return 'assets/images/vegetables.webp';
       case 'agricultural services':
         return 'assets/images/consultation.webp';
+      case 'food and beverages':
+        return 'assets/images/food_and_beverages.png';
       default:
         return 'assets/images/consultation.webp';
     }

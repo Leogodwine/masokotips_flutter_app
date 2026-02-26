@@ -118,6 +118,8 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
         return 'assets/images/semi_trailers.webp';
       case 'tracker trailers':
         return 'assets/images/tractor_trailers.webp';
+      case 'cargo':
+        return 'assets/images/air_cargo.png';
 
       //Agricultural Services
       case 'packaging materials':
@@ -158,6 +160,22 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
 
       case 'agronomist services':
         return 'assets/images/vegetables.webp';
+
+      //Food And Beverages
+      case 'cooking oil':
+        return 'assets/images/cooking_oil.png';
+
+      case 'peanut butter':
+        return 'assets/images/peanut_butter.png';
+
+      case 'fermented milk':
+        return 'assets/images/fermented_milk.png';
+
+      case 'yogurt':
+        return 'assets/images/yogurt.png';
+
+      case 'wine':
+        return 'assets/images/wine.png';
 
       default:
         return 'assets/images/default.webp';

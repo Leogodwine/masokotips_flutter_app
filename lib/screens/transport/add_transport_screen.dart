@@ -37,7 +37,8 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
     'Pickups Trucks',
     'Fuso',
     'Semi Trailers',
-    'Tracker Trailers'
+    'Tracker Trailers',
+    'Cargo'
   ];
   final List<String> _selectedProductTypes = [];
   String? _selectedVehicleType;

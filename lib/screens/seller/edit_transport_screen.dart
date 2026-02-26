@@ -43,6 +43,7 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
     'Pickup',
     'Motorcycle',
     'Bicycle',
+    'Cargo',
     'Other'
   ];
 

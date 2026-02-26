@@ -1337,6 +1337,7 @@ class AdminService {
             Category(id: 23, name: 'Fuso'),
             Category(id: 24, name: 'Semi Trailers'),
             Category(id: 25, name: 'Tracker Trailers'),
+            Category(id: 26, name: 'Cargo'),
           ],
         ),
         Category(

@@ -54,6 +54,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
     'Pickup',
     'Motorcycle',
     'Bicycle',
+    'Cargo',
     'Other'
   ];
 

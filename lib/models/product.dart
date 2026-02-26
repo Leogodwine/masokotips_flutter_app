@@ -54,6 +54,7 @@ class Product {
       411: 'Fuso',
       412: 'Semi Trailers',
       413: 'Tracker Trailers',
+      414: 'Cargo',
       51: 'Organic Vegetables',
       52: 'Organic Fruits',
       53: 'Organic Spices',
