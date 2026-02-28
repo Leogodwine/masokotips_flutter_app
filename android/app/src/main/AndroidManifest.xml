@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-package="com.masokotips.app">
+    package="com.masokotips.app">
 
+    <!-- Advertising ID permission (required if using Google Mobile Services) -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
     <uses-permission android:name="android.permission.INTERNET" />
     
     <!-- Required for picking images/files from gallery -->
