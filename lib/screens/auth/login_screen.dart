@@ -22,6 +22,32 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   bool _isLoading = false;
   String? _errorMessage;
+  String? _usernameError;
+  String? _passwordError;
+
+  @override
+  void initState() {
+    super.initState();
+    // Add listeners to clear field-specific errors when user starts typing
+    _usernameController.addListener(_clearUsernameError);
+    _passwordController.addListener(_clearPasswordError);
+  }
+
+  void _clearUsernameError() {
+    if (_usernameError != null && _usernameController.text.isNotEmpty) {
+      setState(() {
+        _usernameError = null;
+      });
+    }
+  }
+
+  void _clearPasswordError() {
+    if (_passwordError != null && _passwordController.text.isNotEmpty) {
+      setState(() {
+        _passwordError = null;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -39,6 +65,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
       try {
         final authProvider = context.read<AuthProvider>();
+
+        // Clear previous field-specific errors
+        setState(() {
+          _usernameError = null;
+          _passwordError = null;
+        });
 
         await authProvider.login(
           _usernameController.text,
@@ -61,11 +93,82 @@ class _LoginScreenState extends State<LoginScreen> {
           }
         }
       } catch (e) {
-        setState(() {
-          _errorMessage = e.toString().contains('Exception:')
-              ? e.toString().split('Exception:')[1].trim()
+        // Parse the error message to extract field-specific errors
+        final errorString = e.toString();
+
+        // Check if the error contains field-specific messages (Username: or Password: prefix)
+        if (errorString.contains('Exception:Username:') ||
+            errorString.contains('Exception:Password:')) {
+          String? usernameError;
+          String? passwordError;
+
+          // Extract username error
+          if (errorString.contains('Username:')) {
+            final match =
+                RegExp(r'Username:\s*([^\s]+.*?)(?:\s*Exception|Password:|$)')
+                    .firstMatch(errorString);
+            if (match != null) {
+              usernameError = match.group(1)?.trim();
+            }
+          }
+
+          // Extract password error
+          if (errorString.contains('Password:')) {
+            final match = RegExp(r'Password:\s*([^\s]+.*?)(?:\s*Exception|$)')
+                .firstMatch(errorString);
+            if (match != null) {
+              passwordError = match.group(1)?.trim();
+            }
+          }
+
+          setState(() {
+            _usernameError = usernameError;
+            _passwordError = passwordError;
+            // Show general error if no specific field error
+            _errorMessage = (usernameError == null && passwordError == null)
+                ? errorString.contains('Exception:')
+                    ? errorString.split('Exception:')[1].trim()
+                    : 'Login failed. Please check your credentials.'
+                : null;
+          });
+        } else {
+          // General error - check for common authentication failure patterns
+          final errorMessage = errorString.contains('Exception:')
+              ? errorString.split('Exception:')[1].trim()
               : 'Login failed. Please check your credentials.';
-        });
+
+          // For generic "invalid credentials" errors, show more helpful message
+          final lowerError = errorMessage.toLowerCase();
+          String? specificError;
+
+          if (lowerError.contains('invalid') &&
+              (lowerError.contains('username') ||
+                  lowerError.contains('password') ||
+                  lowerError.contains('credential'))) {
+            // Check if we can determine which field might be wrong based on what user entered
+            final username = _usernameController.text.trim();
+            final password = _passwordController.text;
+
+            if (username.isEmpty) {
+              specificError = 'Please enter your username';
+              _usernameError = 'Username is required';
+            } else if (password.isEmpty) {
+              specificError = 'Please enter your password';
+              _passwordError = 'Password is required';
+            } else {
+              // Show detailed error with both suggestions
+              specificError =
+                  'Invalid username or password. Please check your credentials and try again.';
+              // Don't show field-specific errors since we can't determine which is wrong
+            }
+          }
+
+          setState(() {
+            _usernameError = _usernameError;
+            _passwordError = _passwordError;
+            _errorMessage = specificError ?? errorMessage;
+          });
+        }
       } finally {
         if (mounted) {
           setState(() {
@@ -134,10 +237,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 32),
 
                   // Error Message
-                  ApiErrorWidget(
-                    errorMessage: _errorMessage,
-                    onRetry: _errorMessage != null ? _login : null,
-                  ),
+                  if (_errorMessage != null) ...[
+                    ApiErrorWidget(
+                      errorMessage: _errorMessage,
+                      onRetry: _errorMessage != null ? _login : null,
+                    ),
+                    const SizedBox(height: 16),
+                  ],
 
                   // Username Field
                   TextFormField(
@@ -152,6 +258,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       floatingLabelBehavior: FloatingLabelBehavior.auto,
+                      errorText: _usernameError,
+                      errorStyle: _usernameError != null
+                          ? const TextStyle(
+                              color: Colors.red, fontWeight: FontWeight.w500)
+                          : null,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -192,6 +303,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       floatingLabelBehavior: FloatingLabelBehavior.auto,
+                      errorText: _passwordError,
+                      errorStyle: _passwordError != null
+                          ? const TextStyle(
+                              color: Colors.red, fontWeight: FontWeight.w500)
+                          : null,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {

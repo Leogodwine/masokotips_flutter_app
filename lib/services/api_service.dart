@@ -137,10 +137,51 @@ class ApiService {
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       } else {
+        // Parse the error response to extract specific field errors
+        final errorData = jsonDecode(response.body);
+
+        // Check for Laravel validation errors (errors object)
+        if (errorData.containsKey('errors') && errorData['errors'] is Map) {
+          final errors = errorData['errors'] as Map<String, dynamic>;
+
+          // Build a user-friendly error message from field errors
+          if (errors.containsKey('username')) {
+            final usernameErrors = errors['username'];
+            if (usernameErrors is List && usernameErrors.isNotEmpty) {
+              throw Exception('Username: ${usernameErrors.first}');
+            }
+          }
+          if (errors.containsKey('password')) {
+            final passwordErrors = errors['password'];
+            if (passwordErrors is List && passwordErrors.isNotEmpty) {
+              throw Exception('Password: ${passwordErrors.first}');
+            }
+          }
+        }
+
+        // Check for a general message in the response
+        if (errorData.containsKey('message')) {
+          final message = errorData['message'];
+          if (message is String) {
+            // Check for common authentication failure messages
+            final lowerMessage = message.toLowerCase();
+            if (lowerMessage.contains('invalid') ||
+                lowerMessage.contains('credentials') ||
+                lowerMessage.contains('unauthorized')) {
+              throw Exception('Invalid username or password');
+            }
+            throw Exception(message);
+          }
+        }
+
         throw Exception('Failed to login: ${response.body}');
       }
     } catch (e) {
       Log.e('Login error: $e');
+      // Re-throw if it's already an Exception with our custom message
+      if (e.toString().startsWith('Exception:')) {
+        rethrow;
+      }
       throw Exception('Error during login: $e');
     }
   }

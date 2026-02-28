@@ -50,6 +50,7 @@ import 'screens/admin/transport_management_screen.dart';
 import 'screens/categories/main_categories_screen.dart';
 import 'screens/settings/about_settings_screen.dart';
 import 'screens/settings/language_settings_screen.dart';
+import 'screens/settings/language_selection_screen.dart';
 
 import 'services/service_service.dart';
 import 'models/transport.dart';
@@ -147,8 +148,9 @@ class _MyAppState extends State<MyApp> {
               // Use the user-selected locale instead of device locale
               return localeProvider.locale;
             },
-            home:
-                const SplashScreen(), // ✅ Brief custom splash for sponsors after native splash
+            home: localeProvider.isFirstLaunch
+                ? const LanguageSelectionScreen()
+                : const SplashScreen(), // ✅ Brief custom splash for sponsors after native splash
             routes: {
               '/home': (context) => const HomeScreen(),
               '/login': (context) => const LoginScreen(),
@@ -178,6 +180,7 @@ class _MyAppState extends State<MyApp> {
               '/market-info': (context) => const MarketInfoScreen(),
               '/settings': (context) => const AboutSettingsScreen(),
               '/settings/language': (context) => const LanguageSettingsScreen(),
+              '/language/select': (context) => const LanguageSelectionScreen(),
               '/admin/dashboard': (context) => const AdminDashboardScreen(),
               '/admin/market-info': (context) =>
                   const MarketInfoManagementScreen(),

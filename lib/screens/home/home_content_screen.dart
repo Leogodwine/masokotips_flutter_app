@@ -803,28 +803,29 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: theme.primaryColor.withAlpha(25),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: theme.primaryColor, size: 20),
-            ),
-            const SizedBox(width: 10),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
-              child: Text(
-                title,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
+        Flexible(
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: theme.primaryColor.withAlpha(25),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                overflow: TextOverflow.ellipsis,
+                child: Icon(icon, color: theme.primaryColor, size: 20),
               ),
-            ),
-          ],
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  title,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
         ),
         TextButton.icon(
           onPressed: onSeeAll,

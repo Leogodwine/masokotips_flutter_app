@@ -40,7 +40,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
       case 'transport':
         return 'Usafiri'; // Kiswahili for Transport
       case 'organic products':
-        return 'Bidhaa za Kikaboni'; // Kiswahili for Organic Products
+        return 'Bidhaa za Oganiki'; // Kiswahili for Organic Products
       case 'agricultural services':
         return 'Huduma za Kilimo'; // Kiswahili for Agricultural Services
       default:
@@ -77,7 +77,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
       case 'organic vegetables':
         return 'assets/images/vegetables.webp';
       case 'organic fruits':
-        return 'assets/images/vegetables.webp';
+        return 'assets/images/organic_fruits.png';
       case 'organic cereals':
         return 'assets/images/cereals.webp';
       case 'organic spices':
@@ -95,7 +95,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
       case 'tandem':
         return 'assets/images/tandum.webp';
       case 'kirikuu':
-        return 'assets/images/tractor_trailers.webp';
+        return 'assets/images/kirikuu.png';
       case 'flatbed trucks':
         return 'assets/images/flatbed.webp';
       case 'tanker':
@@ -113,11 +113,11 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
       case 'pickups trucks':
         return 'assets/images/pickup.webp';
       case 'fuso':
-        return 'assets/images/tractor_trailers.webp';
+        return 'assets/images/fuso.png';
       case 'semi trailers':
-        return 'assets/images/semi_trailers.webp';
+        return 'assets/images/semi_trailers.png';
       case 'tracker trailers':
-        return 'assets/images/tractor_trailers.webp';
+        return 'assets/images/tractor_trailers.png';
       case 'cargo':
         return 'assets/images/air_cargo.png';
 
@@ -126,10 +126,10 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
         return 'assets/images/packaging.webp';
 
       case 'hydroponics':
-        return 'assets/images/fertilizer.webp';
+        return 'assets/images/hydroponics.png';
 
       case 'fertilizer':
-        return 'assets/images/fertilizer.webp';
+        return 'assets/images/fertilizer.png';
 
       case 'organic manure':
         return 'assets/images/organic_manure.webp';
@@ -138,13 +138,13 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
         return 'assets/images/fertilizer.webp';
 
       case 'machinery':
-        return 'assets/images/tanker.webp';
+        return 'assets/images/tractor.png';
 
       case 'beehive and aquatic':
         return 'assets/images/beehive.webp';
 
       case 'food and beverage':
-        return 'assets/images/vegetables.webp';
+        return 'assets/images/food_and_beverage.png';
 
       case 'cold rooms services':
         return 'assets/images/cold_rooms.webp';
@@ -159,7 +159,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
         return 'assets/images/branding.webp';
 
       case 'agronomist services':
-        return 'assets/images/vegetables.webp';
+        return 'assets/images/agronomist.png';
 
       //Food And Beverages
       case 'cooking oil':

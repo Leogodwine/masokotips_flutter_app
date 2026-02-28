@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../home/home_content_screen.dart';
 import '../../widgets/app_scaffold.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/locale_provider.dart';
 import '../../screens/auth/register_screen.dart'; // Add register screen import
 import '../../screens/auth/login_screen.dart'; // Add login screen import
 import '../../screens/subscription/subscription_screen.dart'; // Add subscription screen import
@@ -37,6 +38,50 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _showLanguageDialog(BuildContext context) {
+    final localeProvider = Provider.of<LocaleProvider>(context, listen: false);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.settings),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Text('🇬🇧', style: TextStyle(fontSize: 24)),
+              title: const Text('English'),
+              trailing: localeProvider.isEnglish()
+                  ? const Icon(Icons.check, color: Colors.green)
+                  : null,
+              onTap: () {
+                localeProvider.setLocaleByCode('en');
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Text('🇹🇿', style: TextStyle(fontSize: 24)),
+              title: const Text('Kiswahili'),
+              trailing: localeProvider.isSwahili()
+                  ? const Icon(Icons.check, color: Colors.green)
+                  : null,
+              onTap: () {
+                localeProvider.setLocaleByCode('sw');
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _onBottomNavItemTapped(int index) {
     setState(() {
       _currentIndex = index;
@@ -69,6 +114,36 @@ class _HomeScreenState extends State<HomeScreen> {
       showAuthActions:
           false, // Disable default auth buttons since we have custom ones
       actions: [
+        // Language Switch Button (visible on all screens)
+        Consumer<LocaleProvider>(
+          builder: (context, localeProvider, child) {
+            return IconButton(
+              icon: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.language, size: 20),
+                    const SizedBox(width: 4),
+                    Text(
+                      localeProvider.isEnglish() ? 'EN' : 'SW',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              onPressed: () => _showLanguageDialog(context),
+              tooltip: 'Change Language',
+            );
+          },
+        ),
         // Prominent Register/Login buttons
         if (!authProvider.isAuthenticated) ...[
           Padding(

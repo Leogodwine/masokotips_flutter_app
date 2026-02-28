@@ -10,7 +10,8 @@
 	"settings": {
 		"postman.settings.dotenv-detection-notification-visibility": false,
 		"askcodi.apiKey": "lEeA9mZDrky11BYUESgW",
-		"sarif-viewer.connectToGithubCodeScanning": "off"
+		"sarif-viewer.connectToGithubCodeScanning": "off",
+		"liveServer.settings.multiRootWorkspaceName": "masoko_tips_api"
 	},
 	"launch": {
 		"version": "0.2.0",
