@@ -67,17 +67,21 @@ class _ReviewFilterScreenState extends State<ReviewFilterScreen> {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
-            ...ReviewSort.values.map(
-              (sort) => RadioListTile<ReviewSort>(
-                title: Text(_getSortLabel(sort)),
-                value: sort,
-                groupValue: _sortBy,
-                onChanged: (value) {
-                  setState(() {
-                    _sortBy = value!;
-                  });
-                },
-              ),
+            SegmentedButton<ReviewSort>(
+              segments: ReviewSort.values
+                  .map(
+                    (sort) => ButtonSegment<ReviewSort>(
+                      value: sort,
+                      label: Text(_getSortLabel(sort)),
+                    ),
+                  )
+                  .toList(),
+              selected: {_sortBy},
+              onSelectionChanged: (Set<ReviewSort> selected) {
+                setState(() {
+                  _sortBy = selected.first;
+                });
+              },
             ),
             const Spacer(),
             SizedBox(

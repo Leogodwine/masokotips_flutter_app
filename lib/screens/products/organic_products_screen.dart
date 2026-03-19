@@ -5,7 +5,7 @@ import '../../models/organic_product.dart';
 import '../../screens/edit_organic_product_screen.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 
 class OrganicProductsScreen extends StatefulWidget {
   const OrganicProductsScreen({Key? key}) : super(key: key);
@@ -75,7 +75,7 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               DropdownButtonFormField<String>(
-                value: _sortBy,
+                initialValue: _sortBy,
                 isExpanded: true,
                 decoration: InputDecoration(
                   labelText: AppLocalizations.of(context)!.sortBy,

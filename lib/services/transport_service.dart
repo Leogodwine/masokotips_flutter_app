@@ -17,11 +17,22 @@ class TransportService {
     }
   }
 
-  Future<List<Transport>> getTransports() async {
+  Future<List<Transport>> getTransports(
+      {String? categoryId, String? vehicleType, String? status}) async {
     try {
-      debugPrint('Fetching transports from API...');
+      // Build query parameters
+      final queryParams = <String, String>{};
+      if (categoryId != null) queryParams['category_id'] = categoryId;
+      if (vehicleType != null) queryParams['vehicle_type'] = vehicleType;
+      if (status != null) queryParams['status'] = status;
+
+      // Build URI with query parameters
+      final uri = Uri.parse('${ApiConfig.baseUrl}/public/transports').replace(
+          queryParameters: queryParams.isNotEmpty ? queryParams : null);
+
+      debugPrint('Fetching transports from API: $uri');
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/public/transports'),
+        uri,
         headers: {
           'Accept': 'application/json',
         },

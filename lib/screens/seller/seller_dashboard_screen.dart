@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/product.dart';
 import '../../services/product_service.dart';
 import '../../providers/auth_provider.dart';
@@ -10,7 +10,7 @@ import 'edit_product_screen.dart';
 import 'seller_orders_screen.dart';
 import 'seller_organic_products_screen.dart';
 import 'seller_transport_screen.dart';
-import '../provider/provider_services_screen.dart';
+import '../provider/provider_dashboard_screen.dart';
 
 class SellerDashboardScreen extends StatefulWidget {
   const SellerDashboardScreen({Key? key}) : super(key: key);
@@ -215,7 +215,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const ProviderServicesScreen(),
+                  builder: (context) => const ProviderDashboardScreen(),
                 ),
               ).then((_) {
                 setState(() {
@@ -344,7 +344,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
         Container(
           padding: const EdgeInsets.all(16),
           child: DropdownButtonFormField<String>(
-            value: _selectedCategory,
+            initialValue: _selectedCategory,
             decoration: InputDecoration(
               labelText: 'Filter by Category',
               border: OutlineInputBorder(

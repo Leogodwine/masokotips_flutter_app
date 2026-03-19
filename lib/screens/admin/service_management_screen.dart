@@ -150,7 +150,7 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
                   },
                 ),
                 DropdownButtonFormField<String>(
-                  value: _selectedCategory,
+                  initialValue: _selectedCategory,
                   decoration: const InputDecoration(labelText: 'Category'),
                   items: [
                     'Buyers & Sellers',

@@ -316,7 +316,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
-                      value: _selectedVehicleType,
+                      initialValue: _selectedVehicleType,
                       decoration: InputDecoration(
                         labelText: 'Vehicle Type',
                         border: OutlineInputBorder(
@@ -516,7 +516,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
                           _isTemperatureControlled = value;
                         });
                       },
-                      activeColor: Theme.of(context).primaryColor,
+                      activeThumbColor: Theme.of(context).primaryColor,
                     ),
                     if (_isTemperatureControlled) ...[
                       TextFormField(
@@ -543,7 +543,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
                           _hasInsurance = value;
                         });
                       },
-                      activeColor: Theme.of(context).primaryColor,
+                      activeThumbColor: Theme.of(context).primaryColor,
                     ),
                     if (_hasInsurance) ...[
                       TextFormField(

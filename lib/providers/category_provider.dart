@@ -174,4 +174,38 @@ class CategoryProvider with ChangeNotifier {
     _subcategories = [];
     notifyListeners();
   }
+
+  // Load Transport-specific subcategories for Add Transport screen
+  Future<void> loadTransportSubcategories() async {
+    Log.i('CategoryProvider: Starting to load Transport subcategories...');
+
+    if (_isLoading) {
+      Log.i('CategoryProvider: Already loading subcategories, skipping');
+      return;
+    }
+
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      Log.i('CategoryProvider: Making API call to get Transport subcategories');
+      final response = await _apiService.getTransportSubcategories();
+      _subcategories = response;
+
+      Log.i('CategoryProvider: Loaded  Transport subcategories from API');
+      for (var subcategory in _subcategories) {
+        Log.d(
+            'CategoryProvider: Transport Subcategory: ${subcategory.name} (ID: ${subcategory.id})');
+      }
+      _error = null;
+    } catch (e) {
+      Log.e('CategoryProvider: Error loading Transport subcategories: $e');
+      _error = 'Error: $e';
+      _subcategories = [];
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

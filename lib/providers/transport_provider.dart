@@ -39,19 +39,24 @@ class TransportProvider with ChangeNotifier {
     _filteredTransports.clear();
     super.dispose();
   }
-  
+
   void clearError() {
     _error = null;
     notifyListeners();
   }
 
-  Future<void> loadTransports() async {
+  Future<void> loadTransports(
+      {String? categoryId, String? vehicleType, String? status}) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      _transports = await _transportService.getTransports();
+      _transports = await _transportService.getTransports(
+        categoryId: categoryId,
+        vehicleType: vehicleType,
+        status: status,
+      );
       _applyFilters();
       _error = null;
     } catch (e) {

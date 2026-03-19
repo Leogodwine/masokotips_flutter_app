@@ -407,7 +407,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                       : null;
 
                   return DropdownButtonFormField<int>(
-                    value: validSelectedValue,
+                    initialValue: validSelectedValue,
                     decoration: const InputDecoration(
                       labelText: 'Agricultural Service Category',
                       border: OutlineInputBorder(),

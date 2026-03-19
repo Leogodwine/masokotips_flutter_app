@@ -4,7 +4,7 @@ import '../../providers/product_provider.dart';
 import '../products/product_details_screen.dart';
 import 'package:masoko_tips/widgets/cached_network_image_with_cors.dart';
 import '../../utils/logger.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 
 class ProductListScreen extends StatefulWidget {
   final String title;

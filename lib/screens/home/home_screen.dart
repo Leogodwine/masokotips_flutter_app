@@ -7,7 +7,7 @@ import '../../providers/locale_provider.dart';
 import '../../screens/auth/register_screen.dart'; // Add register screen import
 import '../../screens/auth/login_screen.dart'; // Add login screen import
 import '../../screens/subscription/subscription_screen.dart'; // Add subscription screen import
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

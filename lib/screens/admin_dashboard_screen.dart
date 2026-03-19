@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../providers/admin_provider.dart';
 import '../providers/auth_provider.dart';
 import '../models/admin_dashboard_data.dart';
+import '../models/user.dart';
 import 'profile/profile_screen.dart';
 import 'admin/admin_user_management_screen.dart';
 
@@ -23,10 +24,12 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
     super.initState();
     _pageController = PageController(initialPage: _selectedIndex);
 
-    // Load dashboard data after the first frame
+    // Load dashboard data and users after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        context.read<AdminProvider>().loadDashboardData();
+        final adminProvider = context.read<AdminProvider>();
+        adminProvider.loadDashboardData();
+        adminProvider.loadUsers();
       }
     });
   }
@@ -217,8 +220,11 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
           if (_selectedIndex == 0) // Only show refresh on dashboard
             IconButton(
               icon: const Icon(Icons.refresh),
-              onPressed: () =>
-                  context.read<AdminProvider>().loadDashboardData(),
+              onPressed: () {
+                final adminProvider = context.read<AdminProvider>();
+                adminProvider.loadDashboardData();
+                adminProvider.loadUsers();
+              },
             ),
           PopupMenuButton<String>(
             onSelected: (value) {
@@ -265,7 +271,10 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
               }
 
               return RefreshIndicator(
-                onRefresh: () => adminProvider.loadDashboardData(),
+                onRefresh: () async {
+                  await adminProvider.loadDashboardData();
+                  await adminProvider.loadUsers();
+                },
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -803,7 +812,20 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Widget _buildRecentUsersSection(AdminDashboardData data) {
-    final latestUsers = data.recentActivities.latestUsers;
+    // Get users from adminProvider instead of dashboard data for showing all users
+    final adminProvider = context.read<AdminProvider>();
+    final List<User> users = adminProvider.users.isNotEmpty
+        ? adminProvider.users
+        : data.recentActivities.latestUsers
+            .map((u) => User(
+                  id: u.id,
+                  name: u.name,
+                  email: u.email,
+                  roles: [u.role],
+                  createdAt: DateTime.now(),
+                  updatedAt: DateTime.now(),
+                ))
+            .toList();
 
     return Card(
       child: Padding(
@@ -811,40 +833,98 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Recent Users',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'All Users',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: () {
+                    // Navigate to user management tab
+                    setState(() => _selectedIndex = 1);
+                    _pageController.jumpToPage(1);
+                  },
+                  icon: const Icon(Icons.arrow_forward, size: 16),
+                  label: const Text('View All'),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
-            ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxHeight: 300, // Adjust this height as needed
-              ),
-              child: ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: latestUsers.length,
-                itemBuilder: (context, index) {
-                  final user = latestUsers[index];
-                  return ListTile(
-                    leading: CircleAvatar(
-                      child: Text(user.name.substring(0, 1).toUpperCase()),
-                    ),
-                    title: Text(user.name),
-                    subtitle: Text(user.email),
-                    trailing: Chip(
-                      label: Text(
-                        user.role.toUpperCase(),
-                        style: const TextStyle(fontSize: 12),
+            if (users.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text('No users found'),
+                ),
+              )
+            else
+              ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxHeight:
+                      400, // Adjust this height as needed for showing all users
+                ),
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: users.length,
+                  itemBuilder: (context, index) {
+                    final user = users[index];
+                    return ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor:
+                            user.isSuspended ? Colors.red : Colors.green,
+                        child: Text(
+                          user.name.substring(0, 1).toUpperCase(),
+                          style: const TextStyle(color: Colors.white),
+                        ),
                       ),
-                    ),
-                  );
-                },
+                      title: Row(
+                        children: [
+                          Expanded(child: Text(user.name)),
+                          if (user.isSuspended)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Text(
+                                'Suspended',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 10),
+                              ),
+                            ),
+                        ],
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(user.email),
+                          if (user.phoneNumber != null &&
+                              user.phoneNumber!.isNotEmpty)
+                            Text(user.phoneNumber!,
+                                style: const TextStyle(fontSize: 12)),
+                        ],
+                      ),
+                      trailing: Chip(
+                        label: Text(
+                          user.roles.isNotEmpty
+                              ? user.roles.first.toUpperCase()
+                              : 'USER',
+                          style: const TextStyle(fontSize: 10),
+                        ),
+                      ),
+                      isThreeLine: user.phoneNumber != null &&
+                          user.phoneNumber!.isNotEmpty,
+                    );
+                  },
+                ),
               ),
-            ),
           ],
         ),
       ),

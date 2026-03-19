@@ -31,11 +31,16 @@ class _SellerTransportScreenState extends State<SellerTransportScreen> {
 
   void _initializeApiService() {
     final authProvider = context.read<AuthProvider>();
+    Log.e('Auth token in seller transport screen: ${authProvider.token}');
     if (authProvider.token != null) {
       _apiService = ApiService(
         baseUrl: ApiConfig.baseUrl,
         apiKey: authProvider.token!,
       );
+      Log.e(
+          'ApiService initialized with token: ${authProvider.token!.substring(0, 10)}...');
+    } else {
+      Log.e('No auth token available in seller transport screen');
     }
   }
 

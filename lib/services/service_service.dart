@@ -488,7 +488,22 @@ class ServiceService {
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else {
-        throw Exception('Failed to fetch data: ${response.statusCode}');
+        // Provide user-friendly error messages based on status code
+        String friendlyMessage;
+        if (response.statusCode == 500) {
+          friendlyMessage =
+              'No services yet. Start by adding your first service!';
+        } else if (response.statusCode == 404) {
+          friendlyMessage = 'The requested information was not found.';
+        } else if (response.statusCode == 401) {
+          friendlyMessage = 'Your session has expired. Please log in again.';
+        } else if (response.statusCode == 403) {
+          friendlyMessage =
+              'You do not have permission to access this resource.';
+        } else {
+          friendlyMessage = 'Unable to load data. Please try again.';
+        }
+        throw Exception(friendlyMessage);
       }
     } catch (e) {
       Log.e('Error in GET request: $e');

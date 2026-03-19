@@ -281,7 +281,7 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
               const SizedBox(height: 16),
 
               DropdownButtonFormField<String>(
-                value: _selectedVehicleType,
+                initialValue: _selectedVehicleType,
                 decoration: InputDecoration(
                   labelText: 'Vehicle Type',
                   border: OutlineInputBorder(
@@ -409,7 +409,7 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
               const SizedBox(height: 16),
 
               DropdownButtonFormField<String>(
-                value: _selectedStatus,
+                initialValue: _selectedStatus,
                 decoration: InputDecoration(
                   labelText: 'Status',
                   border: OutlineInputBorder(

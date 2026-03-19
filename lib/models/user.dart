@@ -38,6 +38,14 @@ class User {
   /// Sometimes returned during auth
   final String? token;
 
+  /// User suspension status
+  @JsonKey(name: 'is_suspended')
+  final bool isSuspended;
+
+  /// User active status
+  @JsonKey(name: 'is_active')
+  final bool isActive;
+
   User({
     required this.id,
     required this.name,
@@ -50,6 +58,8 @@ class User {
     required this.updatedAt,
     this.token,
     this.avatarPath,
+    this.isSuspended = false,
+    this.isActive = true,
   });
 
   /// Robust role parsing (string | json string | list | null)
@@ -150,6 +160,8 @@ class User {
     DateTime? updatedAt,
     String? token,
     String? avatarPath,
+    bool? isSuspended,
+    bool? isActive,
   }) {
     return User(
       id: id ?? this.id,
@@ -163,6 +175,8 @@ class User {
       updatedAt: updatedAt ?? this.updatedAt,
       token: token ?? this.token,
       avatarPath: avatarPath ?? this.avatarPath,
+      isSuspended: isSuspended ?? this.isSuspended,
+      isActive: isActive ?? this.isActive,
     );
   }
 }

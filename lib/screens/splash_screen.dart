@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:masoko_tips/screens/home/home_screen.dart';
 import 'package:masoko_tips/widgets/sponsor_logo.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

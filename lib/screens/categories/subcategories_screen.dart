@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/category_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../models/category.dart';
@@ -61,7 +61,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
       case 'organic products':
         return 'assets/images/vegetables.webp';
       case 'fruits':
-        return 'assets/images/vegetables.webp';
+        return 'assets/images/organic_fruits.webp';
       case 'vegetables':
         return 'assets/images/vegetables.webp';
       case 'grains':
@@ -77,7 +77,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
       case 'organic vegetables':
         return 'assets/images/vegetables.webp';
       case 'organic fruits':
-        return 'assets/images/organic_fruits.png';
+        return 'assets/images/organic_fruits.webp';
       case 'organic cereals':
         return 'assets/images/cereals.webp';
       case 'organic spices':
@@ -95,7 +95,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
       case 'tandem':
         return 'assets/images/tandum.webp';
       case 'kirikuu':
-        return 'assets/images/kirikuu.png';
+        return 'assets/images/kirikuu.webp';
       case 'flatbed trucks':
         return 'assets/images/flatbed.webp';
       case 'tanker':
@@ -113,23 +113,23 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
       case 'pickups trucks':
         return 'assets/images/pickup.webp';
       case 'fuso':
-        return 'assets/images/fuso.png';
+        return 'assets/images/fuso.webp';
       case 'semi trailers':
-        return 'assets/images/semi_trailers.png';
+        return 'assets/images/semi_trailers.webp';
       case 'tracker trailers':
-        return 'assets/images/tractor_trailers.png';
+        return 'assets/images/tractor_trailers.webp';
       case 'cargo':
-        return 'assets/images/air_cargo.png';
+        return 'assets/images/air_cargo.webp';
 
       //Agricultural Services
       case 'packaging materials':
         return 'assets/images/packaging.webp';
 
       case 'hydroponics':
-        return 'assets/images/hydroponics.png';
+        return 'assets/images/hydroponics.webp';
 
       case 'fertilizer':
-        return 'assets/images/fertilizer.png';
+        return 'assets/images/fertilizer.webp';
 
       case 'organic manure':
         return 'assets/images/organic_manure.webp';
@@ -144,7 +144,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
         return 'assets/images/beehive.webp';
 
       case 'food and beverage':
-        return 'assets/images/food_and_beverage.png';
+        return 'assets/images/food_and_beverage.webp';
 
       case 'cold rooms services':
         return 'assets/images/cold_rooms.webp';
@@ -159,23 +159,23 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
         return 'assets/images/branding.webp';
 
       case 'agronomist services':
-        return 'assets/images/agronomist.png';
+        return 'assets/images/agronomist.webp';
 
       //Food And Beverages
       case 'cooking oil':
-        return 'assets/images/cooking_oil.png';
+        return 'assets/images/cooking_oil.webp';
 
       case 'peanut butter':
-        return 'assets/images/peanut_butter.png';
+        return 'assets/images/peanut_butter.webp';
 
       case 'fermented milk':
-        return 'assets/images/fermented_milk.png';
+        return 'assets/images/fermented_milk.webp';
 
       case 'yogurt':
-        return 'assets/images/yogurt.png';
+        return 'assets/images/yogurt.webp';
 
       case 'wine':
-        return 'assets/images/wine.png';
+        return 'assets/images/wine.webp';
 
       default:
         return 'assets/images/default.webp';
@@ -195,6 +195,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
               builder: (context) => CategoryProductsScreen(
                 categoryId: subcategory.id,
                 categoryName: subcategory.name,
+                subcategory: subcategory.name,
                 parentCategoryName: widget.category.name,
               ),
             ),

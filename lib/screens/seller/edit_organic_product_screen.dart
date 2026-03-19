@@ -363,7 +363,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
 
                     // Category
                     DropdownButtonFormField<String>(
-                      value: _selectedCategory,
+                      initialValue: _selectedCategory,
                       decoration: InputDecoration(
                         labelText: 'Category *',
                         border: OutlineInputBorder(

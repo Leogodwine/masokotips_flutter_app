@@ -379,7 +379,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                     const SizedBox(height: 20),
                     // Category Dropdown
                     DropdownButtonFormField<int>(
-                      value: _selectedCategoryId,
+                      initialValue: _selectedCategoryId,
                       decoration: InputDecoration(
                         labelText: 'Agricultural Service Category',
                         hintText: 'Select a category',

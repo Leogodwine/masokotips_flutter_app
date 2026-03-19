@@ -379,7 +379,7 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
                             ),
                             const SizedBox(height: 16),
                             DropdownButtonFormField<int>(
-                              value: _selectedCategoryId,
+                              initialValue: _selectedCategoryId,
                               decoration: const InputDecoration(
                                 labelText: 'Category',
                                 border: OutlineInputBorder(),

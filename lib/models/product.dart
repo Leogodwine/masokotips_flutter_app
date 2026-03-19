@@ -23,6 +23,9 @@ class Product {
   final DateTime? deletedAt;
   final Map<String, dynamic>? category;
 
+  // Flag to indicate this is a transport converted to product
+  bool isTransport = false;
+
   // Category name from category map or fallback
   String get categoryName {
     if (category != null && category!['name'] != null) {

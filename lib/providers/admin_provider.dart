@@ -239,6 +239,16 @@ class AdminProvider with ChangeNotifier {
   }
 
   Future<void> loadUsers() async {
+    // Check authentication before making request
+    if (_adminAuthService.authToken == null ||
+        _adminAuthService.authToken!.isEmpty) {
+      log_util.Log.e('No valid auth token available for users request');
+      _error = 'Not authenticated. Please login as admin first.';
+      _isLoading = false;
+      notifyListeners();
+      return;
+    }
+
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -247,6 +257,16 @@ class AdminProvider with ChangeNotifier {
       _users = await _adminService.getUsers();
     } catch (e) {
       _error = e.toString();
+      log_util.Log.e('Error loading users: $e');
+
+      // Check if it's an authentication error
+      if (e.toString().toLowerCase().contains('unauthenticated') ||
+          e.toString().toLowerCase().contains('401')) {
+        log_util.Log.w('Authentication failed - clearing auth state');
+        await _adminAuthService.logoutAdmin();
+        _isAdmin = false;
+        _error = 'Session expired. Please login again.';
+      }
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -403,10 +423,36 @@ class AdminProvider with ChangeNotifier {
 
     try {
       await _adminService.deleteUser(userId);
+      // Remove user from the local list immediately
       _users.removeWhere((user) => user.id == userId);
+      notifyListeners();
       return true;
     } catch (e) {
       _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> suspendUser(int userId, bool suspend) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final updatedUser = await _adminService.suspendUser(userId, suspend);
+
+      final index = _users.indexWhere((user) => user.id == userId);
+      if (index != -1) {
+        _users[index] = updatedUser;
+      }
+
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      debugPrint('🔵 Error suspending user: $_error');
       return false;
     } finally {
       _isLoading = false;

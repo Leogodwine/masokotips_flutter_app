@@ -28,7 +28,7 @@ class ThemeConfig {
 
   // AppBar theme
   static AppBarTheme appBarTheme = const AppBarTheme(
-    backgroundColor:  Color(0xFF1C592B), // dark green
+    backgroundColor: Color(0xFF1C592B), // dark green
     foregroundColor: Colors.white,
     elevation: 0,
     centerTitle: true,
@@ -59,7 +59,7 @@ class ThemeConfig {
           ),
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),

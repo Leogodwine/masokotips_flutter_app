@@ -5,7 +5,7 @@ import '../../providers/auth_provider.dart';
 import '../cart/checkout_screen.dart'; // Make sure you import checkout screen
 import '../products/product_details_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({Key? key}) : super(key: key);

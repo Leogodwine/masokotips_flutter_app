@@ -113,6 +113,110 @@ class ProductProvider with ChangeNotifier {
         // Convert organic products data to Product objects for display
         _products =
             organicProductsData.map((data) => Product.fromJson(data)).toList();
+      } else if (categoryName?.toLowerCase() == 'transport') {
+        // Load transports for transport categories
+        Log.e('Loading transports for Transport category');
+
+        // Build query parameters for transport filtering
+        final queryParams = <String, String>{};
+
+        // If category ID is provided, filter by category_id (for Transport subcategories)
+        // This is more reliable than vehicle_type which may not match subcategory names
+        if (categoryId > 0) {
+          queryParams['category_id'] = categoryId.toString();
+        }
+
+        // DEPRECATED: vehicle_type filtering - keeping for backwards compatibility
+        // The vehicle_type in transport data may not match subcategory names
+        // Use category_id instead for reliable filtering
+        // if (subcategory.isNotEmpty) {
+        //   queryParams['vehicle_type'] = subcategory;
+        // }
+
+        // DEBUG: Uncomment the line below to fetch ALL transports (including inactive)
+        // This is useful for testing when there are no active transports in the database
+        // queryParams['status'] = ''; // Empty string = no status filter
+
+        // Build URI with query parameters
+        final uri = Uri.parse('${ApiConfig.baseUrl}/public/transports').replace(
+            queryParameters: queryParams.isNotEmpty ? queryParams : null);
+
+        Log.e('Fetching transports from: $uri');
+
+        // Use public transports endpoint (same as TransportService)
+        try {
+          final response = await http.get(
+            uri,
+            headers: {
+              'Accept': 'application/json',
+            },
+          );
+
+          if (response.statusCode == 200) {
+            final dynamic responseData = jsonDecode(response.body);
+            List<dynamic> transportsList = [];
+
+            if (responseData is Map) {
+              if (responseData.containsKey('data')) {
+                transportsList = responseData['data'] as List<dynamic>;
+              } else if (responseData.containsKey('transports')) {
+                transportsList = responseData['transports'] as List<dynamic>;
+              }
+            } else if (responseData is List) {
+              transportsList = responseData;
+            }
+
+            Log.e('Loaded ${transportsList.length} transports');
+
+            // Convert transport data to Product format for display
+            // Mark as transport by setting categoryId to a negative value to identify it
+            _products = transportsList.map((transportData) {
+              final Map<String, dynamic> t = transportData is Map
+                  ? transportData.cast<String, dynamic>()
+                  : <String, dynamic>{};
+
+              return Product(
+                id: (t['id'] ?? 0).toInt(),
+                name: t['title'] ?? t['vehicle_type'] ?? 'Transport Service',
+                slug: t['slug'] ?? '',
+                description: t['description'] ?? '',
+                price: double.tryParse(t['price']?.toString() ?? '0') ?? 0.0,
+                imageUrl: t['image_url'] ?? '',
+                categoryId:
+                    int.tryParse(t['category_id']?.toString() ?? '0') ?? 0,
+                userId: int.tryParse(t['user_id']?.toString() ??
+                        t['driver_id']?.toString() ??
+                        '0') ??
+                    0,
+                isActive: t['status'] == 'active',
+                isFeatured: false,
+                rating: double.tryParse(t['rating']?.toString() ??
+                        t['driver_rating']?.toString() ??
+                        '0') ??
+                    0.0,
+                ratingCount: int.tryParse(t['rating_count']?.toString() ??
+                        t['review_count']?.toString() ??
+                        '0') ??
+                    0,
+                createdAt:
+                    DateTime.tryParse(t['created_at']?.toString() ?? '') ??
+                        DateTime.now(),
+                updatedAt:
+                    DateTime.tryParse(t['updated_at']?.toString() ?? '') ??
+                        DateTime.now(),
+              )..isTransport =
+                  true; // Mark as transport for related products check
+            }).toList();
+
+            Log.e('Converted ${_products.length} transports to products');
+          } else {
+            Log.e('Failed to fetch transports: ${response.statusCode}');
+            _products = [];
+          }
+        } catch (e) {
+          Log.e('Error loading transports: $e');
+          _products = [];
+        }
       } else {
         // Load regular products for other categories
         final products =

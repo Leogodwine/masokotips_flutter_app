@@ -8,7 +8,7 @@ import '../../models/cart_item.dart' as models;
 import '../profile/address_management_screen.dart';
 import '../../widgets/loading_button.dart';
 import '../orders/order_success_screen.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({Key? key}) : super(key: key);
@@ -85,27 +85,28 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         content: SizedBox(
           height: 300,
           width: double.maxFinite,
-          child: ListView.builder(
-            itemCount: _addresses.length,
-            itemBuilder: (context, index) {
-              final address = _addresses[index];
-              return ListTile(
-                leading: Radio<String>(
-                  value: address.id,
-                  groupValue: _selectedAddress?.id,
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedAddress = address;
-                      _addressController.text =
-                          '${address.street}, ${address.city}, ${address.state} ${address.zipCode}, ${address.country}';
-                    });
-                    Navigator.pop(context);
-                  },
-                ),
-                title: Text(address.name),
-                subtitle: Text('${address.street}, ${address.city}'),
-              );
+          child: RadioGroup<String>(
+            groupValue: _selectedAddress?.id,
+            onChanged: (value) {
+              final address = _addresses.firstWhere((a) => a.id == value);
+              setState(() {
+                _selectedAddress = address;
+                _addressController.text =
+                    '${address.street}, ${address.city}, ${address.state} ${address.zipCode}, ${address.country}';
+              });
+              Navigator.pop(context);
             },
+            child: ListView.builder(
+              itemCount: _addresses.length,
+              itemBuilder: (context, index) {
+                final address = _addresses[index];
+                return RadioListTile<String>(
+                  value: address.id,
+                  title: Text(address.name),
+                  subtitle: Text('${address.street}, ${address.city}'),
+                );
+              },
+            ),
           ),
         ),
         actions: [
@@ -430,29 +431,31 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             Row(
               children: [
                 Expanded(
-                  child: RadioListTile(
-                    title: Text(AppLocalizations.of(context)!.standardDelivery),
-                    subtitle: Text(
-                        AppLocalizations.of(context)!.standardDeliveryTime),
-                    value: 'Standard',
+                  child: RadioGroup<String>(
                     groupValue: _deliveryMethod,
                     onChanged: (value) {
                       setState(() => _deliveryMethod = value.toString());
                     },
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-                Expanded(
-                  child: RadioListTile(
-                    title: Text(AppLocalizations.of(context)!.expressDelivery),
-                    subtitle:
-                        Text(AppLocalizations.of(context)!.expressDeliveryTime),
-                    value: 'Express',
-                    groupValue: _deliveryMethod,
-                    onChanged: (value) {
-                      setState(() => _deliveryMethod = value.toString());
-                    },
-                    contentPadding: EdgeInsets.zero,
+                    child: Column(
+                      children: [
+                        RadioListTile(
+                          title: Text(
+                              AppLocalizations.of(context)!.standardDelivery),
+                          subtitle: Text(AppLocalizations.of(context)!
+                              .standardDeliveryTime),
+                          value: 'Standard',
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        RadioListTile(
+                          title: Text(
+                              AppLocalizations.of(context)!.expressDelivery),
+                          subtitle: Text(AppLocalizations.of(context)!
+                              .expressDeliveryTime),
+                          value: 'Express',
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -530,59 +533,68 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             const SizedBox(height: 16),
 
             // Cash on Delivery
-            Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: _paymentMethod == 'Cash'
-                      ? Theme.of(context).primaryColor
-                      : Colors.grey[300]!,
-                  width: 2,
-                ),
-                borderRadius: BorderRadius.circular(12),
-                color: _paymentMethod == 'Cash'
-                    ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
-                    : Colors.white,
-              ),
-              child: RadioListTile(
-                title: Text(AppLocalizations.of(context)!.cashOnDelivery),
-                subtitle: Text(
-                    AppLocalizations.of(context)!.cashOnDeliveryDescription),
-                value: 'Cash',
-                groupValue: _paymentMethod,
-                onChanged: (value) {
-                  setState(() => _paymentMethod = value.toString());
-                },
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                activeColor: Theme.of(context).primaryColor,
-              ),
-            ),
+            RadioGroup<String>(
+              groupValue: _paymentMethod,
+              onChanged: (value) {
+                setState(() => _paymentMethod = value.toString());
+              },
+              child: Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: _paymentMethod == 'Cash'
+                            ? Theme.of(context).primaryColor
+                            : Colors.grey[300]!,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      color: _paymentMethod == 'Cash'
+                          ? Theme.of(context)
+                              .primaryColor
+                              .withValues(alpha: 0.1)
+                          : Colors.white,
+                    ),
+                    child: RadioListTile(
+                      title: Text(AppLocalizations.of(context)!.cashOnDelivery),
+                      subtitle: Text(AppLocalizations.of(context)!
+                          .cashOnDeliveryDescription),
+                      value: 'Cash',
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 16),
+                      activeColor: Theme.of(context).primaryColor,
+                    ),
+                  ),
 
-            // Credit Card
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: _paymentMethod == 'Card'
-                      ? Theme.of(context).primaryColor
-                      : Colors.grey[300]!,
-                  width: 2,
-                ),
-                borderRadius: BorderRadius.circular(12),
-                color: _paymentMethod == 'Card'
-                    ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
-                    : Colors.white,
-              ),
-              child: RadioListTile(
-                title: Text(AppLocalizations.of(context)!.creditDebitCard),
-                subtitle: Text(
-                    AppLocalizations.of(context)!.creditDebitCardDescription),
-                value: 'Card',
-                groupValue: _paymentMethod,
-                onChanged: (value) {
-                  setState(() => _paymentMethod = value.toString());
-                },
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                activeColor: Theme.of(context).primaryColor,
+                  // Credit Card
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: _paymentMethod == 'Card'
+                            ? Theme.of(context).primaryColor
+                            : Colors.grey[300]!,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      color: _paymentMethod == 'Card'
+                          ? Theme.of(context)
+                              .primaryColor
+                              .withValues(alpha: 0.1)
+                          : Colors.white,
+                    ),
+                    child: RadioListTile(
+                      title:
+                          Text(AppLocalizations.of(context)!.creditDebitCard),
+                      subtitle: Text(AppLocalizations.of(context)!
+                          .creditDebitCardDescription),
+                      value: 'Card',
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 16),
+                      activeColor: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

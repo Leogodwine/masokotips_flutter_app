@@ -333,6 +333,61 @@ class AdminService {
     }
   }
 
+  // Suspend/Unsuspend User
+  Future<User> suspendUser(int userId, bool suspend) async {
+    final url = '$baseUrl/admin/users/$userId/suspend';
+
+    try {
+      Log.d(
+          '${suspend ? "Suspending" : "Unsuspending"} user $userId at URL: $url');
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $_authToken',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({'suspend': suspend}),
+      );
+
+      Log.d('Response status code: ${response.statusCode}');
+      Log.d('Response body: ${response.body}');
+
+      final Map<String, dynamic> data = json.decode(response.body);
+
+      switch (response.statusCode) {
+        case 200:
+          final userMap = data['data'] ?? data['user'];
+          if (userMap != null && userMap is Map<String, dynamic>) {
+            return User.fromJson(userMap);
+          } else {
+            Log.e('Invalid user data in response');
+            throw Exception('Unexpected user data in response.');
+          }
+
+        case 422:
+          final errors = data['errors'] ?? {};
+          final message = data['message'] ?? 'Validation failed.';
+          Log.e('Validation error: $errors');
+          throw Exception('$message\n${_formatValidationErrors(errors)}');
+
+        case 401:
+          throw Exception('Unauthorized. Please log in again.');
+
+        default:
+          final message = data['message'] ?? 'Unexpected error occurred.';
+          Log.e('API error [$url]: $message');
+          throw Exception(
+              'Failed to ${suspend ? "suspend" : "unsuspend"} user: $message');
+      }
+    } catch (e) {
+      Log.e('Exception during suspendUser: $e');
+      throw Exception(
+          'Failed to ${suspend ? "suspend" : "unsuspend"} user: $e');
+    }
+  }
+
   // Service Management
   Future<List<Service>> getServices() async {
     try {

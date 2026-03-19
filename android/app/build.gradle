@@ -49,11 +49,11 @@ android {
     // Support for 16 KB memory page sizes (required for Android 15+)
     packagingOptions {
         jniLibs {
-            useLegacyPackaging = false
+            useLegacyPackaging = true
         }
     }
     
-    // Enable page size agnostic builds
+    // Disable ABI splits to generate single universal APK
     bundle {
         language {
             enableSplit = false
@@ -62,23 +62,7 @@ android {
             enableSplit = false
         }
         abi {
-            enableSplit = false
-        }
-    }
-    
-    // Support for 16 KB memory page sizes (required for Android 15+)
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
-    
-    // Enable page size agnostic builds
-    ndkVersion "25.1.8937393"
-    
-    // Support for 16 KB memory page sizes (required for Android 15+)
-    packagingOptions {
-        jniLibs {
-            useLegacyPackaging = false
+            enableSplit = true
         }
     }
 
@@ -88,8 +72,7 @@ android {
 
     defaultConfig {
         applicationId "com.masokotips.app"
-        minSdkVersion 21
-        //noinspection EditedTargetSdkVersion
+        minSdkVersion flutter.minSdkVersion
         targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -97,35 +80,10 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         resConfigs "en"
-        ndk {
-            abiFilters "armeabi-v7a", "arm64-v8a"
-        }
-        // Support for 16 KB memory page sizes (required for Android 15+)
-        externalNativeBuild {
-            cmake {
-                arguments "-DANDROID_STL=c++_shared", "-DCMAKE_ANDROID_PAGE_SIZE_AGNOSTIC=ON"
-            }
-        }
-        packagingOptions {
-            resources {
-                excludes += [
-                        'META-INF/DEPENDENCIES',
-                        'META-INF/LICENSE',
-                        'META-INF/LICENSE.txt',
-                        'META-INF/license.txt',
-                        'META-INF/NOTICE',
-                        'META-INF/NOTICE.txt',
-                        'META-INF/notice.txt',
-                        'META-INF/NOTICE.md',
-                        'META-INF/NOTICE.md.txt'
-                ]
-            }
-        }
     }
 
     signingConfigs {
         release {
-            // DO NOT hardcode secrets in VCS. Use key.properties
             if (keystorePropertiesFile.exists()) {
                 storeFile file(keystoreProperties['storeFile'])
                 storePassword keystoreProperties['storePassword']
@@ -143,21 +101,11 @@ android {
             minifyEnabled true
             shrinkResources true
             ndk {
-                // Generate native debug symbols for Play Console crash/ANR deobfuscation
-                debugSymbolLevel 'FULL' // or 'SYMBOL_TABLE' for more detail
+                debugSymbolLevel 'SYMBOL_TABLE'
             }
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
-    // Support for 16 KB memory page sizes (required for Android 15+)
-    externalNativeBuild {
-        cmake {
-            path "CMakeLists.txt"
-            version "3.22.1"
-        }
-    }
-    
 }
 
 flutter {

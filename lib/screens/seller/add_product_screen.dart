@@ -49,15 +49,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
     'Livestock and poultry'
   ];
 
-  // Add a map for category IDs
+  // Add a map for category IDs (matching backend subcategory IDs under Products category)
   final Map<String, int> _categoryIds = {
-    'Vegetables': 11,
-    'Fruits': 12,
-    'Spices': 13,
-    'Cash Crops': 14,
-    'Cereals': 15,
-    'Seeds and Seedling': 16,
-    'Livestock and poultry': 17,
+    'Vegetables': 6,
+    'Fruits': 7,
+    'Spices': 8,
+    'Cash Crops': 9,
+    'Cereals': 10,
+    'Seeds and Seedling': 11,
+    'Livestock and poultry': 12,
   };
 
   @override
@@ -248,7 +248,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             const SizedBox(height: 16),
             // Category Dropdown
             DropdownButtonFormField<String>(
-              value: _selectedCategory,
+              initialValue: _selectedCategory,
               decoration: InputDecoration(
                 labelText: 'Category',
                 border: OutlineInputBorder(

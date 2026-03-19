@@ -788,7 +788,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<int>(
-                      value: _selectedCategoryId,
+                      initialValue: _selectedCategoryId,
                       isExpanded: true,
                       decoration: InputDecoration(
                         labelText: 'Category',
@@ -931,14 +931,14 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                       subtitle: const Text('Make product visible to customers'),
                       value: _isActive,
                       onChanged: (value) => setState(() => _isActive = value),
-                      activeColor: theme.primaryColor,
+                      activeThumbColor: theme.primaryColor,
                     ),
                     SwitchListTile(
                       title: const Text('Featured'),
                       subtitle: const Text('Show product in featured section'),
                       value: _isFeatured,
                       onChanged: (value) => setState(() => _isFeatured = value),
-                      activeColor: theme.primaryColor,
+                      activeThumbColor: theme.primaryColor,
                     ),
                   ],
                 ),

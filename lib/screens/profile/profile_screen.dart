@@ -7,9 +7,10 @@ import '../../providers/auth_provider.dart';
 import '../../providers/subscription_provider.dart';
 import 'dart:io';
 import '../seller/seller_dashboard_screen.dart';
+import '../provider/provider_dashboard_screen.dart';
 import './admin_login_screen.dart';
 import '../subscription/subscription_screen.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -233,9 +234,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             if (user.roles.contains('seller'))
                               _buildQuickActionButton(
                                 context,
-                                icon: Icons.store,
-                                label: AppLocalizations.of(context)!
-                                    .sellerDashboard,
+                                icon: Icons.add_circle,
+                                label: 'Post',
                                 onPressed: () {
                                   Navigator.push(
                                     context,
@@ -246,7 +246,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   );
                                 },
                               ),
-                            // Subscribe button - positioned after Seller Dashboard
+                            // Subscribe button - positioned after Post
                             _buildQuickActionButton(
                               context,
                               icon: Icons.subscriptions,
@@ -268,10 +268,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 label: AppLocalizations.of(context)!
                                     .serviceProviderDashboard,
                                 onPressed: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                          'Service provider dashboard is currently unavailable'),
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const ProviderDashboardScreen(),
                                     ),
                                   );
                                 },
@@ -484,9 +485,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         user != null &&
                         user.roles.contains('seller')) ...[
                       ListTile(
-                        leading: const Icon(Icons.store_outlined),
-                        title:
-                            Text(AppLocalizations.of(context)!.sellerDashboard),
+                        leading: const Icon(Icons.add_circle_outlined),
+                        title: const Text('Post'),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
                           Navigator.push(
@@ -510,11 +510,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             .serviceProviderDashboard),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
-                          // Service provider dashboard temporarily disabled
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(AppLocalizations.of(context)!
-                                  .serviceProviderUnavailable),
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const ProviderDashboardScreen(),
                             ),
                           );
                         },

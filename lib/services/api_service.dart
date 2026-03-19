@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../models/user.dart';
@@ -52,7 +52,22 @@ class ApiService {
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       } else {
-        throw Exception('Failed to fetch data: ${response.statusCode}');
+        // Provide user-friendly error messages based on status code
+        String friendlyMessage;
+        if (response.statusCode == 500) {
+          friendlyMessage =
+              'No services yet. Start by adding your first service!';
+        } else if (response.statusCode == 404) {
+          friendlyMessage = 'The requested information was not found.';
+        } else if (response.statusCode == 401) {
+          friendlyMessage = 'Your session has expired. Please log in again.';
+        } else if (response.statusCode == 403) {
+          friendlyMessage =
+              'You do not have permission to access this resource.';
+        } else {
+          friendlyMessage = 'Unable to load data. Please try again.';
+        }
+        throw Exception(friendlyMessage);
       }
     } catch (e) {
       Log.e('Error in GET request: $e');
@@ -813,6 +828,52 @@ class ApiService {
     }
   }
 
+  // Get Transport subcategories specifically for Add Transport screen
+  Future<List<Category>> getTransportSubcategories() async {
+    try {
+      final uri = Uri.parse('$baseUrl/transports/subcategories');
+      Log.i('ApiService: Fetching Transport subcategories from: $uri');
+
+      final response = await http.get(
+        uri,
+        headers: headers,
+      );
+
+      Log.i(
+          'ApiService: Transport subcategories response status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        // Handle the response format: {"success": true, "data": [...], "message": "..."}
+        if (data is Map<String, dynamic> && data.containsKey('data')) {
+          final List<dynamic> subcategoriesJson = data['data'];
+          final subcategories =
+              subcategoriesJson.map((json) => Category.fromJson(json)).toList();
+          Log.i(
+              'ApiService: Successfully parsed ${subcategories.length} Transport subcategories');
+          return subcategories;
+        } else if (data is List) {
+          final subcategories =
+              data.map((json) => Category.fromJson(json)).toList();
+          return subcategories;
+        } else {
+          Log.w(
+              'ApiService: Unexpected JSON structure for Transport subcategories: $data');
+          return [];
+        }
+      } else {
+        Log.e(
+            'ApiService: Failed to fetch Transport subcategories with status ${response.statusCode}');
+        throw Exception(
+            'Failed to fetch Transport subcategories: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('ApiService: Error fetching Transport subcategories: $e');
+      throw Exception('Error fetching Transport subcategories: $e');
+    }
+  }
+
   Future<List<Product>> getFeaturedProducts() async {
     try {
       final uri = Uri.parse('$baseUrl/products/featured');
@@ -1515,6 +1576,8 @@ class ApiService {
   Future<Map<String, dynamic>> getSellerTransports() async {
     try {
       Log.e('Fetching seller transports...');
+      Log.e('Using auth token: ${_authToken?.substring(0, 10) ?? "null"}...');
+      Log.e('Headers: $headers');
       final response = await http.get(
         Uri.parse('$baseUrl/seller/transports'),
         headers: headers,

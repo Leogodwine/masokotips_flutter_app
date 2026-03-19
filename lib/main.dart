@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
 
 import 'config/theme_config.dart';
 import 'providers/auth_provider.dart';
@@ -91,12 +91,24 @@ class _MyAppState extends State<MyApp> {
             return apiService;
           },
         ),
-        ChangeNotifierProvider(
-            create: (context) =>
-                ProductProvider(apiService: context.read<ApiService>())),
+        ChangeNotifierProxyProvider<ApiService, ProductProvider>(
+          create: (context) =>
+              ProductProvider(apiService: context.read<ApiService>()),
+          update: (context, apiService, previous) =>
+              ProductProvider(apiService: apiService),
+        ),
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => WishlistProvider()),
-        ChangeNotifierProvider(create: (_) => TransportProvider()),
+        ChangeNotifierProxyProvider<AuthProvider, TransportProvider>(
+          create: (context) => TransportProvider(),
+          update: (context, auth, previous) {
+            final provider = previous ?? TransportProvider();
+            if (auth.token != null) {
+              provider.initialize(auth.token!);
+            }
+            return provider;
+          },
+        ),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
         ChangeNotifierProvider(create: (_) => AdminProvider()),
         ChangeNotifierProxyProvider<AuthProvider, OrdersProvider>(

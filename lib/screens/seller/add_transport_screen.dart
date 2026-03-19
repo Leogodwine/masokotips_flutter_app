@@ -90,19 +90,11 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
     });
 
     try {
-      final response = await _apiService!.getTransportCategories();
-      if (response['data'] != null) {
-        final List<dynamic> categoriesData = response['data'];
-        _categories = categoriesData
-            .map((json) => Category.fromJson(json))
-            .where((category) =>
-                category.name.toLowerCase().contains('transport') ||
-                category.parentId != null) // Include transport subcategories
-            .toList();
-        Log.e('Loaded ${_categories.length} transport categories');
-      }
+      // Use getTransportSubcategories to fetch only Transport subcategories
+      _categories = await _apiService!.getTransportSubcategories();
+      Log.e('Loaded ${_categories.length} transport subcategories');
     } catch (e) {
-      Log.e('Error loading categories: $e');
+      Log.e('Error loading transport subcategories: $e');
     } finally {
       setState(() {
         _isLoadingCategories = false;
@@ -307,7 +299,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
               const SizedBox(height: 16),
 
               DropdownButtonFormField<String>(
-                value: _selectedVehicleType,
+                initialValue: _selectedVehicleType,
                 decoration: InputDecoration(
                   labelText: 'Vehicle Type',
                   border: OutlineInputBorder(
@@ -333,7 +325,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
 
               // Transport Category Dropdown
               DropdownButtonFormField<Category>(
-                value: _selectedCategory,
+                initialValue: _selectedCategory,
                 decoration: InputDecoration(
                   labelText: 'Transport Category',
                   border: OutlineInputBorder(
@@ -577,7 +569,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
               const SizedBox(height: 16),
 
               DropdownButtonFormField<String>(
-                value: _selectedStatus,
+                initialValue: _selectedStatus,
                 decoration: InputDecoration(
                   labelText: 'Status',
                   border: OutlineInputBorder(

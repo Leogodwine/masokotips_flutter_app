@@ -562,13 +562,13 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                 title: const Text('Active'),
                 value: _isActive,
                 onChanged: (value) => setState(() => _isActive = value),
-                activeColor: AppTheme.primaryColor,
+                activeThumbColor: AppTheme.primaryColor,
               ),
               SwitchListTile(
                 title: const Text('Featured'),
                 value: _isFeatured,
                 onChanged: (value) => setState(() => _isFeatured = value),
-                activeColor: AppTheme.primaryColor,
+                activeThumbColor: AppTheme.primaryColor,
               ),
               const SizedBox(height: 24),
               ElevatedButton(

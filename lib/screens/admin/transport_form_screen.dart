@@ -296,7 +296,7 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
             ],
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
-              value: _status,
+              initialValue: _status,
               decoration: const InputDecoration(
                 labelText: 'Status',
                 border: OutlineInputBorder(),

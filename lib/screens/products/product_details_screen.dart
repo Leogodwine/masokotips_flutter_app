@@ -10,7 +10,7 @@ import '../../providers/wishlist_provider.dart';
 import '../../screens/auth/login_screen.dart';
 import '../../utils/logger.dart';
 import '../../screens/subscription/subscription_screen.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final Product product;
@@ -32,7 +32,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     super.initState();
     Future.microtask(() {
       if (!mounted) return;
-      _loadRelatedProducts();
+      // Skip loading related products for transports
+      // Transports are converted to products and don't exist in products table
+      if (!widget.product.isTransport) {
+        _loadRelatedProducts();
+      }
     });
   }
 

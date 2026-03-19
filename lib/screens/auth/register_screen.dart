@@ -529,7 +529,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                           // Document Type Selection
                           DropdownButtonFormField<String>(
-                            value: _selectedProofType.isEmpty
+                            initialValue: _selectedProofType.isEmpty
                                 ? null
                                 : _selectedProofType,
                             hint: const Text('Select document type'),
