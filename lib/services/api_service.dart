@@ -290,7 +290,8 @@ class ApiService {
       String? location,
       String? country,
       String? proofOfAddressType,
-      File? proofOfAddress}) async {
+      File? proofOfAddress,
+      String? referralCode}) async {
     try {
       final url = Uri.parse('$baseUrl/auth/register');
 
@@ -310,6 +311,9 @@ class ApiService {
         if (country != null) request.fields['country'] = country;
         if (proofOfAddressType != null) {
           request.fields['proof_of_address_type'] = proofOfAddressType;
+        }
+        if (referralCode != null && referralCode.isNotEmpty) {
+          request.fields['referral_code'] = referralCode;
         }
 
         // Add file
@@ -357,6 +361,8 @@ class ApiService {
           if (country != null) 'country': country,
           if (proofOfAddressType != null)
             'proof_of_address_type': proofOfAddressType,
+          if (referralCode != null && referralCode.isNotEmpty)
+            'referral_code': referralCode,
         };
 
         Log.e('Registration request URL: $url');

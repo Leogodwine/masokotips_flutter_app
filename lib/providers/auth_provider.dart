@@ -83,6 +83,7 @@ class AuthProvider with ChangeNotifier {
     String? country,
     String? proofOfAddressType,
     File? proofOfAddress,
+    String? referralCode,
   }) async {
     try {
       await _apiService.register(
@@ -96,6 +97,7 @@ class AuthProvider with ChangeNotifier {
         country: country,
         proofOfAddressType: proofOfAddressType,
         proofOfAddress: proofOfAddress,
+        referralCode: referralCode,
       );
     } catch (e) {
       throw Exception('Registration failed: $e');

@@ -23,6 +23,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _phoneController = TextEditingController();
   final _locationController = TextEditingController();
   final _countryController = TextEditingController();
+  final _referralCodeController = TextEditingController();
 
   String _selectedRole = 'buyer'; // Default role
   bool _obscurePassword = true;
@@ -45,6 +46,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _phoneController.dispose();
     _locationController.dispose();
     _countryController.dispose();
+    _referralCodeController.dispose();
     super.dispose();
   }
 
@@ -68,6 +70,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           phone: _phoneController.text,
           location: _locationController.text,
           country: _countryController.text,
+          referralCode: _referralCodeController.text.isNotEmpty
+              ? _referralCodeController.text
+              : null,
           proofOfAddressType:
               _selectedProofType.isNotEmpty ? _selectedProofType : null,
           proofOfAddress: _proofOfAddressFile,
@@ -335,6 +340,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your country';
                       }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Referral Code Field (Optional)
+                  TextFormField(
+                    controller: _referralCodeController,
+                    textInputAction: TextInputAction.next,
+                    decoration: InputDecoration(
+                      labelText: 'Referral Code (Optional)',
+                      hintText: 'Enter referral code if you have one',
+                      prefixIcon: const Icon(Icons.card_giftcard),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    validator: (value) {
+                      // Optional field, so no validation needed
                       return null;
                     },
                   ),
