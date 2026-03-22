@@ -22,6 +22,26 @@ class _TransportListScreenState extends State<TransportListScreen> {
   bool _showFilters = false;
   final _locationController = TextEditingController();
 
+  // Map category names to their IDs
+  static const Map<String, int> _categoryIds = {
+    'Tandem': 13,
+    'Kirikuu': 14,
+    'Flatbed Trucks': 15,
+    'FlatbedTrucks': 15,
+    'Tanker': 16,
+    'Refrigerator Truck': 17,
+    'Box Truck': 18,
+    'Liftgate Truck': 19,
+    'Van': 20,
+    'Container Hauler': 21,
+    'Pickups Trucks': 22,
+    'Fuso': 23,
+    'Semi Trailers': 24,
+    'Tracker Trailers': 25,
+  };
+
+  int? get _categoryId => _categoryIds[widget.category];
+
   @override
   void initState() {
     super.initState();
@@ -36,10 +56,13 @@ class _TransportListScreenState extends State<TransportListScreen> {
     });
 
     // You can now use widget.category here to filter transports
-    debugPrint('Loading transports for category: ${widget.category}');
+    debugPrint(
+        'Loading transports for category: ${widget.category} (ID: $_categoryId)');
 
     try {
-      await context.read<TransportProvider>().loadTransports();
+      await context.read<TransportProvider>().loadTransports(
+            categoryId: _categoryId?.toString(),
+          );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -146,15 +169,15 @@ class _TransportListScreenState extends State<TransportListScreen> {
                 // Gradient overlay
                 Positioned.fill(
                   child: Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       borderRadius:
-                          const BorderRadius.vertical(top: Radius.circular(16)),
+                          BorderRadius.vertical(top: Radius.circular(16)),
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.black.withValues(),
+                          Colors.black54,
                         ],
                       ),
                     ),
@@ -170,11 +193,11 @@ class _TransportListScreenState extends State<TransportListScreen> {
                     decoration: BoxDecoration(
                       color: isAvailable ? Colors.green : Colors.orange,
                       borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
+                      boxShadow: const [
                         BoxShadow(
-                          color: Colors.black.withValues(),
+                          color: Colors.black38,
                           blurRadius: 4,
-                          offset: const Offset(0, 2),
+                          offset: Offset(0, 2),
                         ),
                       ],
                     ),
@@ -419,7 +442,7 @@ class _TransportListScreenState extends State<TransportListScreen> {
     // Determine if it's loading based on the local state
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Available Transport'),
+        title: Text(widget.category),
         elevation: 0,
         centerTitle: true,
         actions: [

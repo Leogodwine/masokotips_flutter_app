@@ -97,6 +97,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
               context.read<ProductProvider>().loadProductsByCategory(
                     widget.categoryId,
                     widget.subcategory ?? '',
+                    categoryName: widget.parentCategoryName,
                   );
             },
           ),
@@ -123,6 +124,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                       productProvider.loadProductsByCategory(
                         widget.categoryId,
                         widget.subcategory ?? '',
+                        categoryName: widget.parentCategoryName,
                       );
                     },
                     child: const Text('Retry'),
@@ -161,6 +163,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
               await productProvider.loadProductsByCategory(
                 widget.categoryId,
                 widget.subcategory ?? '',
+                categoryName: widget.parentCategoryName,
               );
             },
             child: GridView.builder(

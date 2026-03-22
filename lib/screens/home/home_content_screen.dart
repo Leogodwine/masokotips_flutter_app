@@ -34,6 +34,27 @@ class HomeContentScreen extends StatefulWidget {
 class _HomeContentScreenState extends State<HomeContentScreen> {
   final TextEditingController _searchController = TextEditingController();
 
+  // Debounce mechanism to prevent notification spam
+  DateTime? _lastErrorNotificationTime;
+  static const _errorNotificationCooldown = Duration(seconds: 10);
+
+  // Track consecutive failures to only show after multiple attempts
+  int _consecutiveLoadFailures = 0;
+  static const _failureThreshold = 2;
+
+  bool _shouldShowErrorNotification() {
+    final now = DateTime.now();
+    if (_lastErrorNotificationTime == null) {
+      return true;
+    }
+    return now.difference(_lastErrorNotificationTime!) >
+        _errorNotificationCooldown;
+  }
+
+  void _recordErrorNotification() {
+    _lastErrorNotificationTime = DateTime.now();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -66,9 +87,17 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
     try {
       final productProvider = context.read<ProductProvider>();
       await productProvider.getFeaturedProducts();
+      // Reset failure counter on success
+      _consecutiveLoadFailures = 0;
     } catch (e) {
       Log.e('HomeContentScreen: Error loading featured products: $e');
-      if (mounted) {
+      _consecutiveLoadFailures++;
+
+      // Only show notification after multiple consecutive failures and with debounce
+      if (mounted &&
+          _consecutiveLoadFailures >= _failureThreshold &&
+          _shouldShowErrorNotification()) {
+        _recordErrorNotification();
         final localizations = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -78,6 +107,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
               label: localizations.retry.toUpperCase(),
               onPressed: _loadData,
             ),
+            duration: const Duration(seconds: 3),
           ),
         );
       }
@@ -90,23 +120,41 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
     try {
       final marketInfoProvider = context.read<MarketInfoProvider>();
       await marketInfoProvider.loadMarketInfo();
+      // Reset failure counter on success
+      _consecutiveLoadFailures = 0;
     } catch (e) {
       Log.e('HomeContentScreen: Error loading market info: $e');
-      if (mounted) {
+      _consecutiveLoadFailures++;
+
+      // Only show notification after multiple consecutive failures and with debounce
+      if (mounted &&
+          _consecutiveLoadFailures >= _failureThreshold &&
+          _shouldShowErrorNotification()) {
+        _recordErrorNotification();
         final localizations = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(localizations.failedToLoadMarketInformation)),
+          SnackBar(
+            content: Text(localizations.failedToLoadMarketInformation),
+            duration: const Duration(seconds: 3),
+          ),
         );
       }
     }
   }
 
   Future<void> _refreshAll() async {
-    await Future.wait([
-      _loadData(),
-      _loadMarketInfo(),
-      context.read<CategoryProvider>().loadMainCategories(),
-    ]);
+    try {
+      await Future.wait([
+        _loadData(),
+        _loadMarketInfo(),
+        context.read<CategoryProvider>().loadMainCategories(),
+      ]);
+      // Reset failure counter on successful refresh
+      _consecutiveLoadFailures = 0;
+    } catch (e) {
+      Log.e('HomeContentScreen: Error during refresh: $e');
+      // Don't show error here - the individual methods will handle it
+    }
   }
 
   @override
@@ -872,12 +920,53 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           child: InkWell(
             borderRadius: BorderRadius.circular(16),
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => SubcategoriesScreen(category: category),
-                ),
-              );
+              // Check if category has subcategories
+              if (category.subcategoriesCount > 0) {
+                // Navigate to subcategories screen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => SubcategoriesScreen(category: category),
+                  ),
+                );
+              } else {
+                // For categories without subcategories, navigate to appropriate screen
+                if (category.name
+                    .toLowerCase()
+                    .contains('market information')) {
+                  // Market Information - navigate to Market Info screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const MarketInfoScreen(),
+                    ),
+                  );
+                } else if (category.name.toLowerCase().contains('transport')) {
+                  // Transport - navigate to products screen with transport filter
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ProductListScreen(
+                        title: category.name,
+                        categoryId: category.id,
+                        subcategory: category.name.toLowerCase(),
+                      ),
+                    ),
+                  );
+                } else {
+                  // Default - navigate to products screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ProductListScreen(
+                        title: category.name,
+                        categoryId: category.id,
+                        subcategory: 'all',
+                      ),
+                    ),
+                  );
+                }
+              }
             },
             child: Padding(
               padding: const EdgeInsets.all(8),

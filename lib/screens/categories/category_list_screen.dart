@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../products/product_list_screen.dart';
-import '../services/transport_service_screen.dart';
+import '../transport/transport_list_screen.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
 class CategoryListScreen extends StatelessWidget {
@@ -58,37 +58,8 @@ class CategoryListScreen extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => TransportServiceScreen(
-                                transportType: subcategory,
-                                transportDetails: {
-                                  'imageUrl':
-                                      'https://via.placeholder.com/400x200',
-                                  'isAvailable': true,
-                                  'description':
-                                      'Professional ${subcategory.toLowerCase()} transport service for your needs',
-                                  'serviceAreas': const [
-                                    'Urban Areas',
-                                    'Rural Areas',
-                                    'Interstate'
-                                  ],
-                                  'specifications': {
-                                    'Capacity': '10 tons',
-                                    'Vehicle Type': subcategory,
-                                    'Coverage': 'Nationwide',
-                                    'Service Type': 'Commercial Transport',
-                                  },
-                                  'baseRate': 2.5,
-                                  'minDistance': 5,
-                                  'additionalCharges':
-                                      'Loading/Unloading fees may apply',
-                                  'providerName': '$subcategory Pro Services',
-                                  'providerImage':
-                                      'https://via.placeholder.com/100',
-                                  'providerDescription':
-                                      'Professional ${subcategory.toLowerCase()} transport service provider with years of experience',
-                                  'providerPhone': '+254700000000',
-                                  'providerEmail': 'transport@example.com',
-                                },
+                              builder: (context) => TransportListScreen(
+                                category: subcategory,
                               ),
                             ),
                           );

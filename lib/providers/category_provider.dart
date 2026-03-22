@@ -94,36 +94,85 @@ class CategoryProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      // Find the category in the loaded mainCategories list from API
-      final category = _mainCategories.firstWhere(
-        (cat) => cat.id == categoryId,
-        orElse: () =>
-            throw Exception('Category not found with ID: $categoryId'),
-      );
-
-      // If the category already has subcategories loaded, use them
-      if (category.subcategories != null &&
-          category.subcategories!.isNotEmpty) {
-        _subcategories = category.subcategories!;
+      // Special handling for Agricultural Services (category ID 5)
+      // Use the dedicated endpoint to avoid 404 issues
+      if (categoryId == 5) {
         Log.i(
-            'CategoryProvider: Loaded ${_subcategories.length} subcategories from cached data');
-        debugPrint('CategoryProvider: Cached subcategories: $_subcategories');
-      } else {
-        // Load subcategories from API
-        Log.i(
-            'CategoryProvider: Making API call to get subcategories for category $categoryId');
-        debugPrint(
-            'CategoryProvider: Making API call to get subcategories for category $categoryId');
-        final response = await _apiService.getSubcategories(categoryId);
+            'CategoryProvider: Using dedicated endpoint for Agricultural Services');
+        final response = await _apiService.getAgriculturalServiceCategories();
         _subcategories = response;
-
-        // Update the category with loaded subcategories for future use
-        category.subcategories = response;
-
+        _error = null;
+      } else if (categoryId == 3) {
+        // Special handling for Transport (category ID 3)
+        // Use the dedicated endpoint to avoid 404 issues
+        Log.i('CategoryProvider: Using dedicated endpoint for Transport');
+        final response = await _apiService.getTransportSubcategories();
+        _subcategories = response;
+        _error = null;
+      } else if (categoryId == 1 || categoryId == 2 || categoryId == 4) {
+        // For other known categories (Products, Market Info, Organic Products)
+        // Try the generic endpoint but handle 404 gracefully
         Log.i(
-            'CategoryProvider: Loaded ${_subcategories.length} subcategories from API');
-        debugPrint(
-            'CategoryProvider: API response subcategories: $_subcategories');
+            'CategoryProvider: Using generic endpoint for category $categoryId');
+        try {
+          final response = await _apiService.getSubcategories(categoryId);
+          _subcategories = response;
+          _error = null;
+        } catch (e) {
+          // If 404, just set empty subcategories
+          if (e.toString().contains('404')) {
+            Log.w(
+                'CategoryProvider: No subcategories found for category $categoryId');
+            _subcategories = [];
+            _error = null;
+          } else {
+            rethrow;
+          }
+        }
+      } else {
+        // Find the category in the loaded mainCategories list from API
+        final category = _mainCategories.firstWhere(
+          (cat) => cat.id == categoryId,
+          orElse: () =>
+              throw Exception('Category not found with ID: $categoryId'),
+        );
+
+        // If the category already has subcategories loaded, use them
+        if (category.subcategories != null &&
+            category.subcategories!.isNotEmpty) {
+          _subcategories = category.subcategories!;
+          Log.i(
+              'CategoryProvider: Loaded ${_subcategories.length} subcategories from cached data');
+          debugPrint('CategoryProvider: Cached subcategories: $_subcategories');
+        } else {
+          // Load subcategories from API
+          Log.i(
+              'CategoryProvider: Making API call to get subcategories for category $categoryId');
+          debugPrint(
+              'CategoryProvider: Making API call to get subcategories for category $categoryId');
+          try {
+            final response = await _apiService.getSubcategories(categoryId);
+            _subcategories = response;
+
+            // Update the category with loaded subcategories for future use
+            category.subcategories = response;
+
+            Log.i(
+                'CategoryProvider: Loaded ${_subcategories.length} subcategories from API');
+            debugPrint(
+                'CategoryProvider: API response subcategories: $_subcategories');
+          } catch (e) {
+            // Handle 404 gracefully - category might not have subcategories
+            if (e.toString().contains('404')) {
+              Log.w(
+                  'CategoryProvider: No subcategories found for category $categoryId');
+              _subcategories = [];
+              _error = null;
+            } else {
+              rethrow;
+            }
+          }
+        }
       }
 
       for (var subcategory in _subcategories) {
@@ -201,6 +250,44 @@ class CategoryProvider with ChangeNotifier {
       _error = null;
     } catch (e) {
       Log.e('CategoryProvider: Error loading Transport subcategories: $e');
+      _error = 'Error: $e';
+      _subcategories = [];
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Load Agricultural Services subcategories
+  Future<void> loadAgriculturalServicesSubcategories() async {
+    Log.i(
+        'CategoryProvider: Starting to load Agricultural Services subcategories...');
+
+    if (_isLoading) {
+      Log.i('CategoryProvider: Already loading subcategories, skipping');
+      return;
+    }
+
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      Log.i(
+          'CategoryProvider: Making API call to get Agricultural Services subcategories');
+      final response = await _apiService.getAgriculturalServiceCategories();
+      _subcategories = response;
+
+      Log.i(
+          'CategoryProvider: Loaded Agricultural Services subcategories from API');
+      for (var subcategory in _subcategories) {
+        Log.d(
+            'CategoryProvider: Agricultural Services Subcategory: ${subcategory.name} (ID: ${subcategory.id})');
+      }
+      _error = null;
+    } catch (e) {
+      Log.e(
+          'CategoryProvider: Error loading Agricultural Services subcategories: $e');
       _error = 'Error: $e';
       _subcategories = [];
     } finally {

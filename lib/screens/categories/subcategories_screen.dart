@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:masoko_tips/screens/market_info/market_info_screen.dart';
+import 'package:masoko_tips/screens/products/product_list_screen.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/category_provider.dart';
 import '../../providers/cart_provider.dart';
@@ -23,10 +25,54 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      debugPrint(
-          'SubcategoriesScreen: Loading subcategories for category ${widget.category.id} (${widget.category.name})');
-      context.read<CategoryProvider>().loadSubcategories(widget.category.id);
+      // Check if category has subcategories before loading
+      if (widget.category.subcategoriesCount > 0) {
+        debugPrint(
+            'SubcategoriesScreen: Loading subcategories for category ${widget.category.id} (${widget.category.name})');
+        context.read<CategoryProvider>().loadSubcategories(widget.category.id);
+      } else {
+        // Category has no subcategories, redirect to appropriate screen
+        _navigateToCategoryScreen();
+      }
     });
+  }
+
+  void _navigateToCategoryScreen() {
+    final categoryName = widget.category.name.toLowerCase();
+
+    if (categoryName.contains('market information')) {
+      // Market Information - navigate to Market Info screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const MarketInfoScreen(),
+        ),
+      );
+    } else if (categoryName.contains('transport')) {
+      // Transport - navigate to products screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ProductListScreen(
+            title: widget.category.name,
+            categoryId: widget.category.id,
+            subcategory: categoryName,
+          ),
+        ),
+      );
+    } else {
+      // Default - navigate to products screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ProductListScreen(
+            title: widget.category.name,
+            categoryId: widget.category.id,
+            subcategory: 'all',
+          ),
+        ),
+      );
+    }
   }
 
   String _getLocalizedCategoryName(String categoryName) {
@@ -335,40 +381,65 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
           debugPrint('SubcategoriesScreen: subcategories: $subcategories');
 
           if (subcategories.isEmpty) {
+            // Show helpful message with navigation options
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.category_outlined,
-                    size: 64,
-                    color: Colors.grey[400],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    AppLocalizations.of(context)!.noCategoriesFound,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.category_outlined,
+                      size: 64,
+                      color: Colors.grey[400],
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    AppLocalizations.of(context)!.checkBackLater,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[500],
+                    const SizedBox(height: 16),
+                    Text(
+                      AppLocalizations.of(context)!.noCategoriesFound,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      debugPrint('SubcategoriesScreen: Retry button pressed');
-                      categoryProvider.loadSubcategories(widget.category.id);
-                    },
-                    child: const Text('Retry'),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Text(
+                      AppLocalizations.of(context)!.checkBackLater,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[500],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    // Show "Go to Market Info" button for Market Information category
+                    if (widget.category.name
+                        .toLowerCase()
+                        .contains('market information')) ...[
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const MarketInfoScreen(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.info_outline),
+                        label: const Text('Go to Market Information'),
+                      ),
+                    ] else ...[
+                      // Default retry button for other categories
+                      ElevatedButton(
+                        onPressed: () {
+                          debugPrint(
+                              'SubcategoriesScreen: Retry button pressed');
+                          categoryProvider
+                              .loadSubcategories(widget.category.id);
+                        },
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ],
+                ),
               ),
             );
           }

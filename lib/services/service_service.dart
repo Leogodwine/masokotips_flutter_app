@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import '../models/service.dart';
@@ -536,7 +536,7 @@ class ServiceService {
   Future<List<Category>> getAgriculturalServiceCategories() async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/categories/5/subcategories'),
+        Uri.parse('$baseUrl/services/agricultural-categories'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',

@@ -53,7 +53,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         });
       }
     } catch (e) {
-      Log.e('Error loading related products: $e');
+      // Silently handle errors - don't show error to user
+      // Just show "No related products available" instead
+      Log.e(
+          'Error loading related products: $e - this is normal for organic products');
       if (mounted) {
         setState(() => _isLoadingRelated = false);
       }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:masoko_tips/screens/market_info/market_info_screen.dart';
+import 'package:masoko_tips/screens/products/product_list_screen.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/category_provider.dart';
 import '../../models/category.dart';
@@ -101,12 +103,51 @@ class _MainCategoriesScreenState extends State<MainCategoriesScreen> {
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => SubcategoriesScreen(category: category),
-            ),
-          );
+          // Check if category has subcategories
+          if (category.subcategoriesCount > 0) {
+            // Navigate to subcategories screen
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => SubcategoriesScreen(category: category),
+              ),
+            );
+          } else {
+            // For categories without subcategories, navigate to appropriate screen
+            if (category.name.toLowerCase().contains('market information')) {
+              // Market Information - navigate to Market Info screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const MarketInfoScreen(),
+                ),
+              );
+            } else if (category.name.toLowerCase().contains('transport')) {
+              // Transport - navigate to products screen with transport filter
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ProductListScreen(
+                    title: category.name,
+                    categoryId: category.id,
+                    subcategory: category.name.toLowerCase(),
+                  ),
+                ),
+              );
+            } else {
+              // Default - navigate to products screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ProductListScreen(
+                    title: category.name,
+                    categoryId: category.id,
+                    subcategory: 'all',
+                  ),
+                ),
+              );
+            }
+          }
         },
         child: Ink(
           decoration: BoxDecoration(

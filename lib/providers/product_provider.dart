@@ -85,11 +85,12 @@ class ProductProvider with ChangeNotifier {
       }
 
       return _relatedProducts;
-    } catch (e, stackTrace) {
-      Log.e('ProductProvider: Error fetching related products: $e');
-      Log.e('ProductProvider: Stack trace: $stackTrace');
-      _setErrorState(e.toString());
-      throw Exception('Failed to fetch related products: $e');
+    } catch (e) {
+      // Don't set error state or throw for related products - just return empty list
+      // This is normal for organic products that don't have a related products endpoint
+      Log.e(
+          'ProductProvider: Error fetching related products (expected for organic): $e');
+      return [];
     } finally {
       _setLoadingState(false);
     }
@@ -394,8 +395,8 @@ class ProductProvider with ChangeNotifier {
       _relatedProducts = products;
       Log.e('Loaded ${products.length} related products');
     } catch (e) {
-      Log.e('Error loading related products: $e');
-      _error = e.toString();
+      // Don't set error state for related products - this is normal for organic products
+      Log.e('Error loading related products (expected for organic): $e');
     } finally {
       _isLoading = false;
       notifyListeners();

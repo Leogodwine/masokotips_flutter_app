@@ -1524,7 +1524,7 @@ class ApiService {
   // Get agricultural service subcategories
   Future<List<Category>> getAgriculturalServiceCategories() async {
     try {
-      final uri = Uri.parse('$baseUrl/categories/5/subcategories');
+      final uri = Uri.parse('$baseUrl/services/agricultural-categories');
       Log.e('Fetching agricultural service subcategories from: $uri');
 
       final response = await http.get(uri, headers: headers);
