@@ -399,8 +399,9 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                         ),
                         validator: (v) {
                           if (v == null || v.isEmpty) return 'Enter a price';
-                          if (double.tryParse(v) == null)
+                          if (double.tryParse(v) == null) {
                             return 'Invalid price';
+                          }
                           return null;
                         },
                       ),
