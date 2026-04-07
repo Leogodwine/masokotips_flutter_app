@@ -20,6 +20,22 @@ class ProductService {
     }
   }
 
+  // Centralized method for API headers
+  Map<String, String> _getHeaders() {
+    // Using a user agent that mimics a mobile browser, similar to other working services.
+    const String userAgent =
+        'Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36';
+
+    return {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json, text/plain, */*',
+      'User-Agent': userAgent,
+      'Origin': ApiConfig.baseUrl.replaceAll('/api', ''),
+      'Referer': ApiConfig.baseUrl.replaceAll('/api', ''),
+      if (_authToken != null) 'Authorization': 'Bearer $_authToken',
+    };
+  }
+
   // Get seller products
   Future<List<Product>> getSellerProducts() async {
     _checkAuthToken(); // Ensure auth token is set
@@ -27,13 +43,16 @@ class ProductService {
       const url = '${ApiConfig.baseUrl}/seller/products';
       final response = await http.get(
         Uri.parse(url),
-        headers: {
-          'Authorization': 'Bearer $_authToken',
-          'Accept': 'application/json',
-        },
+        headers: _getHeaders(),
       );
 
       if (response.statusCode == 200) {
+        // Defensive check for HTML response (e.g., bot protection)
+        if (response.body.trim().startsWith('<!DOCTYPE') ||
+            response.body.trim().startsWith('<html')) {
+          throw const FormatException(
+              'Server returned HTML instead of JSON. Bot protection might be blocking the request.');
+        }
         final responseData = jsonDecode(response.body);
         debugPrint('Seller products response: $responseData');
         final List<dynamic> data = responseData['data'] ?? [];
@@ -63,27 +82,26 @@ class ProductService {
     _checkAuthToken(); // Ensure auth token is set
     try {
       debugPrint('Adding product: ${product.name}');
-      // First, upload all images and get their URLs
-      List<String> imageUrls = [];
-      final images = product.images ?? [];
-      for (var i = 0; i < images.length; i++) {
-        debugPrint('Uploading image ${i + 1}/${images.length}');
-        final imageUrl = await uploadProductImage(images[i]);
-        imageUrls.add(imageUrl);
-      }
 
-      // Now create the product with the uploaded image URLs
       const url = '${ApiConfig.baseUrl}/seller/products';
       debugPrint('Sending request to: $url');
       final request = http.MultipartRequest('POST', Uri.parse(url));
 
       // Add headers
-      request.headers.addAll({
-        'Authorization': 'Bearer $_authToken',
-        'Accept': 'application/json',
-      });
+      request.headers.addAll(_getHeaders());
 
       // Add product fields
+      final slugBase = product.name
+          .toLowerCase()
+          .replaceAll(RegExp(r'[^a-z0-9\s-]'), '')
+          .replaceAll(RegExp(r'[\s-]+'), '-')
+          .trim();
+
+      // Append a unique suffix to the slug to prevent "Duplicate entry" errors.
+      // This is a client-side workaround. Ideally, the backend should handle slug uniqueness.
+      final uniqueSuffix =
+          DateTime.now().millisecondsSinceEpoch.toString().substring(7);
+      final slug = '$slugBase-$uniqueSuffix';
       request.fields.addAll({
         'name': product.name,
         'description': product.description,
@@ -92,68 +110,57 @@ class ProductService {
         'is_active': product.isActive ? '1' : '0',
         'is_featured': product.isFeatured ? '1' : '0',
         'category_id': product.categoryId.toString(),
-        'slug': product.slug,
+        'slug': slug,
       });
 
       debugPrint('Request fields: ${request.fields}');
+      debugPrint('Request headers: ${request.headers}');
+      debugPrint('Request files: ${request.files.length} files');
 
-      // Add each image URL as a separate field
-      if (imageUrls.isNotEmpty) {
-        // Set the first image as the main image_url
-        request.fields['image_url'] = imageUrls[0];
-
-        // Add all images to the images array
-        for (var i = 0; i < imageUrls.length; i++) {
-          request.fields['images[$i]'] = imageUrls[i];
+      // Add image files
+      final images = product.images ?? [];
+      for (var i = 0; i < images.length; i++) {
+        final imagePath = images[i];
+        if (kIsWeb && imagePath.startsWith('blob:')) {
+          // Blob URLs on web are temporary and cannot be uploaded directly from path.
+          // Assuming the image picker provides a file path for non-web,
+          // and web uploads are handled differently if needed.
+          continue;
+        }
+        if (imagePath.isNotEmpty && !imagePath.startsWith('http')) {
+          debugPrint('Attaching image file: $imagePath');
+          final file = File(imagePath);
+          if (await file.exists()) {
+            final fileSize = await file.length();
+            debugPrint('Image file exists, size: $fileSize bytes');
+            request.files.add(await http.MultipartFile.fromPath(
+              'images[$i]', // Use indexed keys for the array of files
+              imagePath,
+            ));
+          } else {
+            debugPrint(
+                'WARNING: Image file does not exist or was cleaned up: $imagePath');
+          }
         }
       }
 
       // Send the request
       debugPrint('Sending request...');
-      final response = await request.send();
-      final responseBody = await http.Response.fromStream(response);
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
       debugPrint('Response status: ${response.statusCode}');
-      debugPrint('Response body: ${responseBody.body}');
+      debugPrint('Response headers: ${response.headers}');
+      debugPrint('Response body: ${response.body}');
 
       if (response.statusCode == 201) {
-        final responseData = jsonDecode(responseBody.body);
+        final responseData = jsonDecode(response.body);
         final data = responseData['data']; // Get the actual product data
         debugPrint('Successfully created product: ${data['name']}');
-        debugPrint('Raw response data: $responseData');
-        debugPrint('Product data: $data');
-        debugPrint(
-            'Price in response: ${data['price']} (type: ${data['price'].runtimeType})');
-
-        // Ensure the response data has all required fields
-        final productData = {
-          'id': data['id'] ?? 0,
-          'name': data['name'] ?? '',
-          'slug': data['slug'] ?? '',
-          'description': data['description'] ?? '',
-          'price': data['price']?.toString() ?? '0',
-          'stock': data['stock']?.toString(),
-          'unit': data['unit'],
-          'is_active': data['is_active'] ?? true,
-          'is_featured': data['is_featured'] ?? false,
-          'image_url': data['image_url'] ?? '',
-          'images': data['images'] ?? [],
-          'category_id': data['category_id']?.toString() ?? '0',
-          'user_id': data['user_id']?.toString() ?? '0',
-          'rating': data['rating']?.toString() ?? '0',
-          'rating_count': data['rating_count']?.toString() ?? '0',
-          'created_at': data['created_at'] ?? DateTime.now().toIso8601String(),
-          'updated_at': data['updated_at'] ?? DateTime.now().toIso8601String(),
-          'deleted_at': data['deleted_at'],
-          'category': data['category'],
-        };
-
-        debugPrint('Constructed productData: $productData');
-        debugPrint(
-            'ProductData price: ${productData['price']} (type: ${productData['price'].runtimeType})');
-
-        return Product.fromJson(productData);
+        return Product.fromJson(
+            data); // Directly use fromJson on the returned data
       } else {
-        final errorBody = jsonDecode(responseBody.body);
+        final errorBody = jsonDecode(response.body);
         debugPrint(
             'Failed to add product. Error: ${errorBody['message'] ?? 'Unknown error'}');
         throw Exception(
@@ -171,25 +178,6 @@ class ProductService {
     try {
       debugPrint('Updating product: ${product.name}');
 
-      // First, upload any new images if they exist
-      List<String> imageUrls = [];
-      final images = product.images ?? [];
-      for (var i = 0; i < images.length; i++) {
-        // Only upload if it's a local file path (not a URL)
-        if (!images[i].startsWith('http')) {
-          debugPrint('Uploading new image ${i + 1}/${images.length}');
-          try {
-            final imageUrl = await uploadProductImage(images[i]);
-            imageUrls.add(imageUrl);
-          } catch (e) {
-            debugPrint('Error uploading image ${i + 1}: $e');
-            continue; // Skip this image if upload fails
-          }
-        } else {
-          imageUrls.add(images[i]);
-        }
-      }
-
       // Create a multipart request for updating the product
       final url = '${ApiConfig.baseUrl}/seller/products/${product.id}';
       final request = http.MultipartRequest('POST', Uri.parse(url));
@@ -198,10 +186,7 @@ class ProductService {
       request.fields['_method'] = 'PUT';
 
       // Add headers
-      request.headers.addAll({
-        'Authorization': 'Bearer $_authToken',
-        'Accept': 'application/json',
-      });
+      request.headers.addAll(_getHeaders());
 
       // Add product fields
       request.fields.addAll({
@@ -212,18 +197,52 @@ class ProductService {
         'is_active': product.isActive ? '1' : '0',
         'is_featured': product.isFeatured ? '1' : '0',
         'category_id': product.categoryId.toString(),
+        // On update, it's best practice to preserve the existing slug to avoid breaking URLs.
+        // We use the slug from the product object, which should have been fetched from the server.
+        // A fallback to generating from the name is included, but may cause issues if the name
+        // results in a slug that is already in use by another product. The analyzer indicates
+        // product.slug is non-nullable, so the fallback is removed.
+        'slug': product.slug,
       });
 
-      // Add image URLs
-      if (imageUrls.isNotEmpty) {
-        for (var i = 0; i < imageUrls.length; i++) {
-          request.fields['images[$i]'] = imageUrls[i];
+      // The backend validation requires images to be strings (URLs) during an update
+      // ("The images.0 field must be a string"). We must pre-upload any new files
+      // and then pass all resulting URLs as string fields.
+      final images = product.images ?? [];
+      int fieldIndex = 0;
+      for (final imagePath in images) {
+        if (kIsWeb && imagePath.startsWith('blob:')) {
+          // Blob URLs on web are temporary and cannot be uploaded directly from path.
+          continue;
         }
-        request.fields['image_url'] = imageUrls[0];
+
+        if (imagePath.startsWith('http')) {
+          // It's an existing URL, pass it as a string
+          request.fields['images[$fieldIndex]'] = imagePath;
+          fieldIndex++;
+        } else if (imagePath.isNotEmpty) {
+          // It's a new local file, pre-upload it to get a URL
+          debugPrint('Pre-uploading new image for update: $imagePath');
+          final file = File(imagePath);
+          if (await file.exists()) {
+            try {
+              final uploadedUrl = await uploadProductImage(imagePath);
+              request.fields['images[$fieldIndex]'] = uploadedUrl;
+              fieldIndex++;
+              debugPrint('Successfully pre-uploaded: $uploadedUrl');
+            } catch (e) {
+              throw Exception('Failed to pre-upload image before updating: $e');
+            }
+          } else {
+            debugPrint(
+                'WARNING: Image file for update does not exist: $imagePath');
+          }
+        }
       }
 
       debugPrint('Sending update request to: $url');
       debugPrint('Update fields: ${request.fields}');
+      debugPrint('Update files: ${request.files.length}');
 
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
@@ -257,17 +276,15 @@ class ProductService {
 
       final response = await http.delete(
         Uri.parse(url),
-        headers: {
-          'Authorization': 'Bearer $_authToken',
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
+        headers:
+            _getHeaders(), // Use centralized headers to bypass bot protection
       );
 
       debugPrint('Delete response status code: ${response.statusCode}');
       debugPrint('Delete response body: ${response.body}');
 
-      if (response.statusCode != 200) {
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        // Accept 204 No Content as a success code
         final errorBody = response.body.isNotEmpty
             ? response.body
             : 'No error details available';
@@ -288,10 +305,7 @@ class ProductService {
       final request = http.MultipartRequest('POST', Uri.parse(url));
 
       // Add headers
-      request.headers.addAll({
-        'Authorization': 'Bearer $_authToken',
-        'Accept': 'application/json',
-      });
+      request.headers.addAll(_getHeaders());
 
       // Add the image file
       if (kIsWeb) {

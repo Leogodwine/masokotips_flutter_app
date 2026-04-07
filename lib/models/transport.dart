@@ -1,7 +1,39 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'category.dart';
+import 'category.dart' as models;
+import '../config/api_config.dart';
 
 part 'transport.g.dart';
+
+String _processTransportImageUrl(String path) {
+  path = path.replaceAll('\\', '/').trim();
+
+  if (path.isEmpty) return '';
+
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    path = path.replaceAll(RegExp(r'/storage/+/storage/'), '/storage/');
+    path = path.replaceAll(RegExp(r'/+/'), '/');
+    if (path.startsWith('https:/') && !path.startsWith('https://')) {
+      path = path.replaceFirst('https:/', 'https://');
+    }
+    if (path.startsWith('http:/') && !path.startsWith('http://')) {
+      path = path.replaceFirst('http:/', 'http://');
+    }
+    return path;
+  }
+
+  final base = Uri.parse(ApiConfig.baseUrl);
+  final cleanBase = '${base.scheme}://${base.host}';
+
+  if (path.startsWith('/')) {
+    path = path.substring(1);
+  }
+
+  if (!path.startsWith('storage/')) {
+    path = 'storage/$path';
+  }
+
+  return '$cleanBase/$path';
+}
 
 @JsonSerializable()
 class Transport {
@@ -55,7 +87,7 @@ class Transport {
   final double? amount;
   @JsonKey(name: 'category_id')
   final int? categoryId;
-  final Category? category;
+  final models.Category? category;
 
   static double _stringToDouble(String? value) {
     if (value == null) return 0.0;
@@ -112,6 +144,12 @@ class Transport {
     this.category,
   });
 
+  // Getter for processed image URL
+  String get processedImageUrl {
+    if (imageUrl == null || imageUrl!.isEmpty) return '';
+    return _processTransportImageUrl(imageUrl!);
+  }
+
   factory Transport.fromJson(Map<String, dynamic> json) =>
       _$TransportFromJson(json);
 
@@ -146,7 +184,7 @@ class Transport {
     String? productType,
     double? amount,
     int? categoryId,
-    Category? category,
+    models.Category? category,
   }) {
     return Transport(
       id: id ?? this.id,

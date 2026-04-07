@@ -479,7 +479,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
       for (String imagePath in _images) {
         if (imagePath.startsWith('blob:')) {
           // For blob URLs, we need to convert them to actual files
-          // This will be handled by the provider when making the API request
+          // This will be handled by the service_provider when making the API request
           processedImages.add(imagePath);
         } else if (imagePath.startsWith('http')) {
           // For existing HTTP URLs, keep them as is

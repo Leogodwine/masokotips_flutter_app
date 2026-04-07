@@ -46,7 +46,7 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
     });
 
     try {
-      debugPrint('Loading provider services...');
+      debugPrint('Loading service_provider services...');
 
       // Check if user has service_provider role using ServiceService
       if (_serviceService != null) {
@@ -70,16 +70,12 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
         }
       }
 
-      // Load services using the service provider API
-      final servicesResponse =
-          await _serviceService!.getRequest('service-provider/services');
-      if (servicesResponse['success'] == true) {
-        final List<dynamic> servicesJson = servicesResponse['services'] ?? [];
-        setState(() {
-          _services =
-              servicesJson.map((json) => Service.fromJson(json)).toList();
-        });
-      }
+      // Load services using the service service_provider API
+      // Fixed: Using getMyServices() from service_service.dart which uses the correct endpoint
+      final services = await _serviceService!.getMyServices();
+      setState(() {
+        _services = services;
+      });
     } catch (e) {
       debugPrint('Error loading services: $e');
       setState(() {
@@ -113,8 +109,7 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     try {
-      await _serviceService!
-          .deleteRequest('service-provider/services/${service.id}');
+      await _serviceService!.deleteService(service.id.toString());
       setState(() {
         _services.removeWhere((s) => s.id == service.id);
       });

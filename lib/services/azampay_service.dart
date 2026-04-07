@@ -35,12 +35,12 @@ class AzamPayService {
       'subscription_id': subscriptionId,
       'amount': amount,
       'phone': formattedPhone,
-      'provider': provider,
+      'service_provider': provider,
     };
 
     Log.i(
       'AzamPay checkout → subscription=$subscriptionId, '
-      'amount=$amount, phone=$formattedPhone, provider=$provider',
+      'amount=$amount, phone=$formattedPhone, service_provider=$provider',
     );
     Log.d('🔵 INIT CHECKOUT PAYLOAD: $payload');
     Log.d('🔗 REQUEST URL: $uri');

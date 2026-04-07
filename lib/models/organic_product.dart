@@ -24,6 +24,47 @@ class OrganicProduct {
   final Map<String, dynamic>? seller;
   final Map<String, dynamic>? category;
 
+  static String _processImageUrl(String path) {
+    path = path.replaceAll('\\', '/').trim();
+
+    if (path.isEmpty) return '';
+
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      path = path.replaceAll(RegExp(r'/storage/+/storage/'), '/storage/');
+      path = path.replaceAll(RegExp(r'/+/'), '/');
+      if (path.startsWith('https:/') && !path.startsWith('https://')) {
+        path = path.replaceFirst('https:/', 'https://');
+      }
+      if (path.startsWith('http:/') && !path.startsWith('http://')) {
+        path = path.replaceFirst('http:/', 'http://');
+      }
+      return path;
+    }
+
+    final baseUrl = ApiConfig.baseUrl.replaceAll('/api', '');
+    if (path.startsWith('/')) {
+      path = path.substring(1);
+    }
+    if (!path.startsWith('storage/')) {
+      path = 'storage/$path';
+    }
+    return '$baseUrl/$path';
+  }
+
+  // Getter for processed image URL
+  String get processedImageUrl {
+    if (imageUrl == null || imageUrl!.isEmpty) return '';
+    return _processImageUrl(imageUrl!);
+  }
+
+  // Getter to get first image from images array (already processed)
+  String get firstImageUrl {
+    if (images != null && images!.isNotEmpty) {
+      return _processImageUrl(images!.first);
+    }
+    return processedImageUrl;
+  }
+
   OrganicProduct({
     required this.id,
     required this.name,

@@ -71,6 +71,38 @@ class TransportService {
     }
   }
 
+  Future<List<Transport>> getFeaturedTransports() async {
+    try {
+      final uri = Uri.parse('${ApiConfig.baseUrl}/transports/featured');
+      debugPrint('Fetching featured transports from API: $uri');
+      
+      final response = await http.get(
+        uri,
+        headers: {
+          'Accept': 'application/json',
+        },
+      );
+
+      debugPrint('Featured transports API Response Status Code: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        if (responseData.containsKey('data')) {
+          final List<dynamic> data = responseData['data'];
+          return data.map((transport) => Transport.fromJson(transport)).toList();
+        } else {
+          throw Exception('Response does not contain data field');
+        }
+      } else {
+        throw Exception(
+            'Failed to fetch featured transports. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Error in getFeaturedTransports: $e');
+      throw Exception('Error fetching featured transports: $e');
+    }
+  }
+
   Future<Transport> addTransport({
     required String title,
     required String description,

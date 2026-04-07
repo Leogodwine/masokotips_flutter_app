@@ -1,4 +1,4 @@
-﻿{
+{
     "@@locale":  "en",
     "appTitle":  "maSOKOtips",
     "@appTitle":  {
@@ -395,6 +395,8 @@
     "productAddedToCart":  "{productName} added to cart",
     "viewCart":  "View Cart",
     "noCategoriesFound":  "No categories found",
+    "featuredTransports": "Featured Transports",
+    "noFeaturedTransportsAvailable": "No featured transports available",
     "@home":  {
                   "description":  "Description for home"
               },

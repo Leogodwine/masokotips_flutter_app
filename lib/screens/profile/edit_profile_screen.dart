@@ -27,7 +27,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
-    // Load user data from provider
+    // Load user data from service_provider
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final user = authProvider.user;
 

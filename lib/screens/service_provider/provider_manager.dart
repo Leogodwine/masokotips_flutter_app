@@ -7,17 +7,17 @@ import './edit_service_screen.dart';
 import '../../models/service.dart';
 import '../../services/service_service.dart';
 
-/// A utility class that provides a central way to manage service provider functionality
+/// A utility class that provides a central way to manage service service_provider functionality
 /// across the application.
 class ProviderManager {
-  /// Checks if a user is a service provider
+  /// Checks if a user is a service service_provider
   static bool isServiceProvider(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final user = authProvider.user;
     return user != null && user.roles.contains('service_provider');
   }
 
-  /// Opens the provider dashboard screen
+  /// Opens the service_provider dashboard screen
   static void openProviderDashboard(BuildContext context) {
     Navigator.push(
       context,
@@ -66,10 +66,10 @@ class ProviderManager {
     );
   }
 
-  /// Updates routes in main app with provider-related routes
+  /// Updates routes in main app with service_provider-related routes
   static Map<String, WidgetBuilder> getProviderRoutes() {
     return {
-      '/provider/dashboard': (context) => const ProviderDashboardScreen(),
+      '/service_provider/dashboard': (context) => const ProviderDashboardScreen(),
     };
   }
 }

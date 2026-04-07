@@ -134,8 +134,9 @@ class _TransportListScreenState extends State<TransportListScreen> {
                   borderRadius:
                       const BorderRadius.vertical(top: Radius.circular(16)),
                   child: CachedNetworkImage(
-                    imageUrl: transport.imageUrl ??
-                        'https://via.placeholder.com/600x400?text=No+Image',
+                    imageUrl: transport.processedImageUrl.isNotEmpty
+                        ? transport.processedImageUrl
+                        : 'https://via.placeholder.com/600x400?text=No+Image',
                     height: 180,
                     width: double.infinity,
                     fit: BoxFit.cover,
@@ -298,7 +299,7 @@ class _TransportListScreenState extends State<TransportListScreen> {
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: theme.primaryColor.withValues(),
+                              color: theme.primaryColor.withValues(alpha: 0.3),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -357,10 +358,10 @@ class _TransportListScreenState extends State<TransportListScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: theme.primaryColor.withValues(),
+        color: theme.primaryColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: theme.primaryColor.withValues(),
+          color: theme.primaryColor.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -570,7 +571,7 @@ class FeatureChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor.withValues(),
+        color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(

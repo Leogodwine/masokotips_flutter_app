@@ -337,7 +337,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
           const SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: () {
-              Navigator.pushNamed(context, '/provider/add-service');
+              Navigator.pushNamed(context, '/service_provider/add-service');
             },
             icon: const Icon(Icons.add),
             label: const Text('Add a Service'),
@@ -600,7 +600,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                 ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/provider/add-service');
+          Navigator.pushNamed(context, '/service_provider/add-service');
         },
         child: const Icon(Icons.add),
       ),

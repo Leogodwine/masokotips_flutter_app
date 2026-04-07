@@ -94,7 +94,7 @@ class _SearchScreenState extends State<SearchScreen> {
         _error = null;
       });
 
-      // Optional: clear provider results if you store them
+      // Optional: clear service_provider results if you store them
       // context.read<ProductProvider>().clearSearchResults();
       return;
     }
@@ -107,8 +107,8 @@ class _SearchScreenState extends State<SearchScreen> {
     try {
       final provider = context.read<ProductProvider>();
 
-      // ✅ CHANGE THIS LINE ONLY if your provider uses a different method name:
-      // e.g. provider.search(query) or provider.searchProducts(query)
+      // ✅ CHANGE THIS LINE ONLY if your service_provider uses a different method name:
+      // e.g. service_provider.search(query) or service_provider.searchProducts(query)
       await provider.searchProducts(query);
 
       await _saveRecent(query);
@@ -218,7 +218,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget _buildBody() {
     final productProvider = context.watch<ProductProvider>();
 
-    // ✅ Adjust these getters to match your provider structure.
+    // ✅ Adjust these getters to match your service_provider structure.
     // Common patterns:
     // - productProvider.searchResults
     // - productProvider.products (filtered)

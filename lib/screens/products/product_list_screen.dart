@@ -34,7 +34,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   Future<void> _loadProducts() async {
     if (!mounted) return;
 
-    // Capture the provider before async gap to avoid BuildContext issues
+    // Capture the service_provider before async gap to avoid BuildContext issues
     final productProvider = context.read<ProductProvider>();
 
     setState(() {

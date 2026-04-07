@@ -83,8 +83,13 @@ class _SellerOrganicProductsScreenState
     if (_apiService == null) return;
 
     try {
-      Log.e('Deleting organic product: ${product.name}');
-      await _apiService!.deleteOrganicProduct(product.id);
+      setState(() {
+        _isLoading = true;
+      });
+      
+      Log.e('Deleting organic product: ${product.name} (ID: ${product.id})');
+      final response = await _apiService!.deleteOrganicProduct(product.id);
+      Log.e('Delete response: $response');
 
       setState(() {
         _organicProducts.removeWhere((p) => p.id == product.id);
@@ -102,6 +107,10 @@ class _SellerOrganicProductsScreenState
           SnackBar(content: Text('Failed to delete product: $e')),
         );
       }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -206,9 +215,9 @@ class _SellerOrganicProductsScreenState
                                       // Product Image
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(8),
-                                        child: product.imageUrl != null
+                                        child: product.processedImageUrl.isNotEmpty
                                             ? CachedNetworkImage(
-                                                imageUrl: product.imageUrl!,
+                                                imageUrl: product.processedImageUrl,
                                                 width: 80,
                                                 height: 80,
                                                 fit: BoxFit.cover,
@@ -400,26 +409,31 @@ class _SellerOrganicProductsScreenState
   }
 
   void _navigateToAddProduct() async {
-    final result = await Navigator.push(
+    Log.e('_navigateToAddProduct: Opening AddOrganicProductScreen');
+    final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (context) => const AddOrganicProductScreen(),
       ),
     );
 
+    Log.e('_navigateToAddProduct: Received result = $result');
     if (result == true) {
+      Log.e('_navigateToAddProduct: Reloading organic products');
       _loadOrganicProducts();
     }
   }
 
   void _navigateToEditProduct(OrganicProduct product) async {
-    final result = await Navigator.push(
+    Log.e('Navigating to edit product: ${product.name}');
+    final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (context) => EditOrganicProductScreen(product: product),
       ),
     );
 
+    Log.e('Edit result: $result');
     if (result == true) {
       _loadOrganicProducts();
     }

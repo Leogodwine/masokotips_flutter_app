@@ -2176,6 +2176,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No categories found'**
   String get noCategoriesFound;
+
+  /// No description provided for @featuredTransports.
+  ///
+  /// In en, this message translates to:
+  /// **'Featured Transports'**
+  String get featuredTransports;
+
+  /// No description provided for @noFeaturedTransportsAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No featured transports available'**
+  String get noFeaturedTransportsAvailable;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

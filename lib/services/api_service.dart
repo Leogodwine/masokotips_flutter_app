@@ -1359,17 +1359,56 @@ class ApiService {
       Map<String, dynamic> productData) async {
     try {
       Log.e('Creating organic product: ${productData['name']}');
-      final response = await http.post(
-        Uri.parse('$baseUrl/seller/organic-products'),
-        headers: headers,
-        body: json.encode(productData),
-      );
+      Log.e('Product data images: ${productData['images']}');
+
+      // Use multipart request like regular products
+      final url = '$baseUrl/seller/organic-products';
+      final request = http.MultipartRequest('POST', Uri.parse(url));
+
+      // Add headers
+      request.headers.addAll({
+        'Authorization': 'Bearer $_authToken',
+        'Accept': 'application/json',
+      });
+
+      // Add product fields
+      request.fields.addAll({
+        'name': productData['name'].toString(),
+        'description': productData['description']?.toString() ?? '',
+        'price': productData['price'].toString(),
+        'stock': productData['stock'].toString(),
+        'category_id': productData['category_id'].toString(),
+        'is_active': productData['is_active'] == true ? '1' : '0',
+        'is_featured': productData['is_featured'] == true ? '1' : '0',
+        if (productData['certification'] != null)
+          'certification': productData['certification'].toString(),
+        if (productData['origin'] != null)
+          'origin': productData['origin'].toString(),
+        if (productData['harvest_date'] != null)
+          'harvest_date': productData['harvest_date'].toString(),
+        if (productData['storage_conditions'] != null)
+          'storage_conditions': productData['storage_conditions'].toString(),
+        if (productData['shelf_life'] != null)
+          'shelf_life': productData['shelf_life'].toString(),
+      });
+
+      // Add image URL - only image_url field
+      final images = productData['images'] as List<String>?;
+      if (images != null && images.isNotEmpty) {
+        request.fields['image_url'] = images.first;
+      }
+
+      Log.e('Sending multipart request to: $url');
+      Log.e('Request fields: ${request.fields}');
+
+      final response = await request.send();
+      final responseBody = await http.Response.fromStream(response);
 
       Log.e('Create organic product response status: ${response.statusCode}');
-      Log.e('Create organic product response body: ${response.body}');
+      Log.e('Create organic product response body: ${responseBody.body}');
 
       if (response.statusCode == 201) {
-        return json.decode(response.body);
+        return json.decode(responseBody.body);
       } else {
         throw Exception(
             'Failed to create organic product: ${response.statusCode}');
@@ -1384,17 +1423,60 @@ class ApiService {
       int productId, Map<String, dynamic> productData) async {
     try {
       Log.e('Updating organic product: $productId');
-      final response = await http.put(
-        Uri.parse('$baseUrl/seller/organic-products/$productId'),
-        headers: headers,
-        body: json.encode(productData),
-      );
+
+      // Use multipart request like regular products
+      final url = '$baseUrl/seller/organic-products/$productId';
+      final request = http.MultipartRequest('POST', Uri.parse(url));
+
+      // Add _method to simulate PUT
+      request.fields['_method'] = 'PUT';
+
+      // Add enhanced headers to bypass bot detection
+      request.headers.addAll({
+        'Accept': 'application/json',
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+        'Origin': baseUrl.replaceAll('/api', ''),
+        'Referer': baseUrl.replaceAll('/api', ''),
+        if (_authToken != null) 'Authorization': 'Bearer $_authToken',
+      });
+
+      // Add product fields
+      request.fields.addAll({
+        'name': productData['name'].toString(),
+        'description': productData['description']?.toString() ?? '',
+        'price': productData['price'].toString(),
+        'stock': productData['stock'].toString(),
+        'category_id': productData['category_id'].toString(),
+        'is_active': productData['is_active'] == true ? '1' : '0',
+        'is_featured': productData['is_featured'] == true ? '1' : '0',
+        if (productData['certification'] != null)
+          'certification': productData['certification'].toString(),
+        if (productData['origin'] != null)
+          'origin': productData['origin'].toString(),
+        if (productData['harvest_date'] != null)
+          'harvest_date': productData['harvest_date'].toString(),
+        if (productData['storage_conditions'] != null)
+          'storage_conditions': productData['storage_conditions'].toString(),
+        if (productData['shelf_life'] != null)
+          'shelf_life': productData['shelf_life'].toString(),
+      });
+
+      // Add image URL - only image_url field
+      final images = productData['images'] as List<String>?;
+      if (images != null && images.isNotEmpty) {
+        request.fields['image_url'] = images.first;
+      }
+
+      Log.e('Sending multipart request to: $url');
+      final response = await request.send();
+      final responseBody = await http.Response.fromStream(response);
 
       Log.e('Update organic product response status: ${response.statusCode}');
-      Log.e('Update organic product response body: ${response.body}');
+      Log.e('Update organic product response body: ${responseBody.body}');
 
       if (response.statusCode == 200) {
-        return json.decode(response.body);
+        return json.decode(responseBody.body);
       } else {
         throw Exception(
             'Failed to update organic product: ${response.statusCode}');
@@ -1430,7 +1512,7 @@ class ApiService {
 
   Future<Map<String, dynamic>> uploadOrganicProductImage(File imageFile) async {
     try {
-      Log.e('Uploading organic product image...');
+      Log.e('Uploading organic product image: ${imageFile.path}');
       var request = http.MultipartRequest(
         'POST',
         Uri.parse('$baseUrl/seller/organic-products/upload-image'),
@@ -1453,10 +1535,12 @@ class ApiService {
       Log.e('Upload organic product image response body: $responseBody');
 
       if (response.statusCode == 200) {
-        return json.decode(responseBody);
+        final decoded = json.decode(responseBody);
+        Log.e('Parsed upload response: $decoded');
+        return decoded;
       } else {
         throw Exception(
-            'Failed to upload organic product image: ${response.statusCode}');
+            'Failed to upload organic product image: ${response.statusCode} - $responseBody');
       }
     } catch (e) {
       Log.e('Error uploading organic product image: $e');

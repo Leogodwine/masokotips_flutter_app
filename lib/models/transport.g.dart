@@ -51,7 +51,7 @@ Transport _$TransportFromJson(Map<String, dynamic> json) => Transport(
       categoryId: (json['category_id'] as num?)?.toInt(),
       category: json['category'] == null
           ? null
-          : Category.fromJson(json['category'] as Map<String, dynamic>),
+          : models.Category.fromJson(json['category'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$TransportToJson(Transport instance) => <String, dynamic>{

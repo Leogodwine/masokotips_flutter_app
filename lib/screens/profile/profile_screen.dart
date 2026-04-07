@@ -7,10 +7,15 @@ import '../../providers/auth_provider.dart';
 import '../../providers/subscription_provider.dart';
 import 'dart:io';
 import '../seller/seller_dashboard_screen.dart';
-import '../provider/provider_dashboard_screen.dart';
+import '../service_provider/provider_dashboard_screen.dart';
 import './admin_login_screen.dart';
 import '../subscription/subscription_screen.dart';
 import '../../l10n/app_localizations.dart';
+
+// Feature flags - set to false to disable features temporarily
+// Set to true to re-enable these features later
+const bool kLocationFeatureEnabled = false;
+const bool kFollowUserLocationEnabled = false;
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -264,9 +269,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             if (user.roles.contains('service_provider'))
                               _buildQuickActionButton(
                                 context,
-                                icon: Icons.handyman,
-                                label: AppLocalizations.of(context)!
-                                    .serviceProviderDashboard,
+                                icon: Icons.add,
+                                label: 'Post',
                                 onPressed: () {
                                   Navigator.push(
                                     context,
@@ -371,65 +375,80 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Card(
                 child: Column(
                   children: [
-                    // Subscriber Location
-                    ListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor.withAlpha(26),
-                          shape: BoxShape.circle,
+                    // Subscriber Location - DISABLED
+                    if (kLocationFeatureEnabled) ...[
+                      ListTile(
+                        leading: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor.withAlpha(26),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            _isLoadingLocation
+                                ? Icons.location_searching
+                                : Icons.my_location,
+                            color: Theme.of(context).primaryColor,
+                          ),
                         ),
-                        child: Icon(
-                          _isLoadingLocation
-                              ? Icons.location_searching
-                              : Icons.my_location,
-                          color: Theme.of(context).primaryColor,
+                        title: const Text('My Location'),
+                        subtitle: _isLoadingLocation
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : _locationError.isNotEmpty
+                                ? Text(
+                                    _locationError,
+                                    style: const TextStyle(color: Colors.red),
+                                  )
+                                : Text(_formatCoordinates(_currentPosition)),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.refresh),
+                          onPressed: _getCurrentLocation,
+                          tooltip: 'Refresh location',
                         ),
+                        onTap: _getCurrentLocation,
                       ),
-                      title: const Text('My Location'),
-                      subtitle: _isLoadingLocation
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : _locationError.isNotEmpty
-                              ? Text(
-                                  _locationError,
-                                  style: const TextStyle(color: Colors.red),
-                                )
-                              : Text(_formatCoordinates(_currentPosition)),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.refresh),
-                        onPressed: _getCurrentLocation,
-                        tooltip: 'Refresh location',
-                      ),
-                      onTap: _getCurrentLocation,
-                    ),
-                    const Divider(height: 1),
-                    // Navigate to Another User's Location
-                    ListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.withAlpha(26),
-                          shape: BoxShape.circle,
+                      const Divider(height: 1),
+                    ],
+                    // Follow User Location - DISABLED
+                    if (kFollowUserLocationEnabled) ...[
+                      ListTile(
+                        leading: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.withAlpha(26),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.navigation,
+                            color: Colors.blue,
+                          ),
                         ),
-                        child: const Icon(
-                          Icons.navigation,
-                          color: Colors.blue,
+                        title: const Text('Follow User Location'),
+                        subtitle: Text(_targetUserName ?? 'Tap to navigate'),
+                        trailing: ElevatedButton.icon(
+                          icon: const Icon(Icons.directions),
+                          label: const Text('Navigate'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            foregroundColor: Colors.white,
+                          ),
+                          onPressed: _targetUserLatitude != null &&
+                                  _targetUserLongitude != null
+                              ? () {
+                                  _navigateToLocation(
+                                    _targetUserLatitude!,
+                                    _targetUserLongitude!,
+                                    _targetUserName ?? 'User Location',
+                                  );
+                                }
+                              : null,
                         ),
-                      ),
-                      title: const Text('Follow User Location'),
-                      subtitle: Text(_targetUserName ?? 'Tap to navigate'),
-                      trailing: ElevatedButton.icon(
-                        icon: const Icon(Icons.directions),
-                        label: const Text('Navigate'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
-                        ),
-                        onPressed: _targetUserLatitude != null &&
+                        onTap: _targetUserLatitude != null &&
                                 _targetUserLongitude != null
                             ? () {
                                 _navigateToLocation(
@@ -440,18 +459,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               }
                             : null,
                       ),
-                      onTap: _targetUserLatitude != null &&
-                              _targetUserLongitude != null
-                          ? () {
-                              _navigateToLocation(
-                                _targetUserLatitude!,
-                                _targetUserLongitude!,
-                                _targetUserName ?? 'User Location',
-                              );
-                            }
-                          : null,
-                    ),
-                    const Divider(height: 1),
+                      const Divider(height: 1),
+                    ],
                     ListTile(
                       leading: const Icon(Icons.delete_forever_rounded),
                       title: Text(
@@ -505,9 +514,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         user != null &&
                         user.roles.contains('service_provider')) ...[
                       ListTile(
-                        leading: const Icon(Icons.handyman_outlined),
-                        title: Text(AppLocalizations.of(context)!
-                            .serviceProviderDashboard),
+                        leading: const Icon(Icons.add),
+                        title: const Text('Post'),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
                           Navigator.push(

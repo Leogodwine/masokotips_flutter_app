@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart' hide Category;
 import 'package:json_annotation/json_annotation.dart';
+import '../config/api_config.dart';
 import 'category.dart';
 
 part 'service.g.dart';
@@ -108,50 +109,84 @@ class Service {
     // Debug logging
     debugPrint(
         'Service.fromJson: Parsing service with keys: ${json.keys.toList()}');
-    debugPrint(
-        'Service.fromJson: title = ${json['title']} (${json['title'].runtimeType})');
-    debugPrint(
-        'Service.fromJson: description = ${json['description']} (${json['description'].runtimeType})');
-    debugPrint(
-        'Service.fromJson: user_id = ${json['user_id']} (${json['user_id'].runtimeType})');
-    debugPrint(
-        'Service.fromJson: provider_id = ${json['provider_id']} (${json['provider_id'].runtimeType})');
-    debugPrint(
-        'Service.fromJson: category_id = ${json['category_id']} (${json['category_id'].runtimeType})');
-    debugPrint(
-        'Service.fromJson: price = ${json['price']} (${json['price'].runtimeType})');
 
     // Handle the case where API returns provider_id instead of user_id
     if (json.containsKey('provider_id') && !json.containsKey('user_id')) {
       json['user_id'] = json['provider_id'];
     }
 
+    // Process image URLs
+    if (json['image_url'] != null) {
+      json['image_url'] = _processImageUrl(json['image_url']);
+    }
+    if (json['provider_image'] != null) {
+      json['provider_image'] = _processImageUrl(json['provider_image']);
+    }
+
     // Check if this is a minimal response with only relationships
-    if (json.keys.length <= 2 &&
-        json.containsKey('provider') &&
+    if (json.keys.length <= 4 &&
+        json.containsKey('service_provider') &&
         json.containsKey('category')) {
       debugPrint(
           'Service.fromJson: Warning - Received minimal response with only relationships');
       // Return a default service if we only have relationships
       return Service(
-        id: 0,
-        title: 'Service Updated',
-        description: 'Service has been updated successfully',
-        price: 0.0,
-        categoryId: 0,
-        userId: 0,
+        id: json['id'] ?? 0,
+        title: json['title'] ?? 'Service Updated',
+        description: json['description'] ?? 'Service has been updated successfully',
+        price: _priceFromJson(json['price']),
+        categoryId: _categoryIdFromJson(json['category_id']),
+        userId: _userIdFromJson(json['user_id']),
+        imageUrl: json['image_url'],
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
     }
 
     try {
-      return _$ServiceFromJson(json);
+      final service = _$ServiceFromJson(json);
+      debugPrint('Service.fromJson: Finished parsing service ${service.id}');
+      debugPrint('Service.fromJson: Final image URL: ${service.imageUrl}');
+      return service;
     } catch (e) {
       debugPrint('Service.fromJson: Error parsing service: $e');
       debugPrint('Service.fromJson: JSON data: $json');
       rethrow;
     }
+  }
+
+
+  static String? _processImageUrl(String? path) {
+    if (path == null || path.isEmpty) return null;
+
+    path = path.replaceAll('\\', '/').trim();
+
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      // Fix malformed URLs with double 'storage/' or extra slashes
+      path = path.replaceAll(RegExp(r'/storage/+/storage/'), '/storage/');
+      path = path.replaceAll(RegExp(r'/+/'), '/');
+      
+      if (path.startsWith('https:/') && !path.startsWith('https://')) {
+        path = path.replaceFirst('https:/', 'https://');
+      }
+      if (path.startsWith('http:/') && !path.startsWith('http://')) {
+        path = path.replaceFirst('http:/', 'http://');
+      }
+      return path;
+    }
+
+    final base = Uri.parse(ApiConfig.baseUrl);
+    final cleanBase = '${base.scheme}://${base.host}';
+
+    if (path.startsWith('/')) {
+      path = path.substring(1);
+    }
+
+    if (!path.startsWith('storage/')) {
+      path = 'storage/$path';
+    }
+
+    return '$cleanBase/$path';
   }
 
   Map<String, dynamic> toJson() => _$ServiceToJson(this);

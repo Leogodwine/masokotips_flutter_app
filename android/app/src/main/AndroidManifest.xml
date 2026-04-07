@@ -16,6 +16,11 @@
     <!-- Required for accessing the camera -->
     <uses-permission android:name="android.permission.CAMERA" />
     
+    <!-- Location permissions for geolocator package -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    
     <application
         android:label="maSOKOtips"
         android:name="${applicationName}"

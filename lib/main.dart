@@ -34,7 +34,7 @@ import 'screens/edit_organic_product_screen.dart';
 import 'screens/transport/transport_list_screen.dart';
 import 'screens/transport/add_transport_screen.dart';
 import 'screens/transport/edit_transport_screen.dart';
-import 'screens/provider/add_service_screen.dart';
+import 'screens/service_provider/add_service_screen.dart';
 import 'screens/services/service_categories_screen.dart';
 import 'screens/services/service_search_screen.dart';
 import 'package:masoko_tips/screens/market_info/market_info_screen.dart';
@@ -204,11 +204,24 @@ class _MyAppState extends State<MyApp> {
                   const AdminServicesManagementScreen(),
               '/admin/organic-products': (context) =>
                   const OrganicProductsManagement(),
-              '/admin/users': (context) => const AdminUserManagementScreen(),
+              '/admin/users': (context) => Scaffold(
+                    appBar: AppBar(
+                      title: const Text('User Management'),
+                      actions: [
+                        IconButton(
+                          icon: const Icon(Icons.refresh),
+                          onPressed: () {
+                            context.read<AdminProvider>().loadUsers();
+                          },
+                        ),
+                      ],
+                    ),
+                    body: const AdminUserManagementScreen(),
+                  ),
               '/admin/transport': (context) =>
                   const AdminTransportManagementScreen(),
               '/categories': (context) => const MainCategoriesScreen(),
-              '/provider/add-service': (context) {
+              '/service_provider/add-service': (context) {
                 final args = ModalRoute.of(context)!.settings.arguments
                     as Map<String, dynamic>;
                 final category = args['category'];

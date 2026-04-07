@@ -77,7 +77,7 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'organic_product_add_button',
         onPressed: () {
-          // Capture provider before async operation
+          // Capture service_provider before async operation
           final provider = context.read<OrganicProductProvider>();
           Navigator.pushNamed(context, '/organic-products/add').then((_) {
             if (mounted) {
@@ -114,7 +114,7 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
               message: 'Add your first organic product to get started',
               actionLabel: 'Add Product',
               onAction: () {
-                // Capture provider before async operation
+                // Capture service_provider before async operation
                 final provider = context.read<OrganicProductProvider>();
                 Navigator.pushNamed(context, '/organic-products/add').then((_) {
                   if (mounted) {
@@ -173,7 +173,7 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
-          // Capture provider before async operation
+          // Capture service_provider before async operation
           final provider = context.read<OrganicProductProvider>();
           Navigator.pushNamed(
             context,

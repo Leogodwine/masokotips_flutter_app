@@ -6,6 +6,7 @@ class TransportProvider with ChangeNotifier {
   final TransportService _transportService = TransportService();
   List<Transport> _transports = [];
   List<Transport> _filteredTransports = [];
+  List<Transport> _featuredTransports = [];
   bool _isLoading = false;
   String? _error;
 
@@ -17,6 +18,7 @@ class TransportProvider with ChangeNotifier {
   String? _vehicleLocation;
 
   List<Transport> get transports => _filteredTransports;
+  List<Transport> get featuredTransports => _featuredTransports;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
@@ -58,6 +60,22 @@ class TransportProvider with ChangeNotifier {
         status: status,
       );
       _applyFilters();
+      _error = null;
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> getFeaturedTransports() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _featuredTransports = await _transportService.getFeaturedTransports();
       _error = null;
     } catch (e) {
       _error = e.toString();

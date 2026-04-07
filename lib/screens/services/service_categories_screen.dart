@@ -53,7 +53,7 @@ class _ServiceCategoriesScreenState extends State<ServiceCategoriesScreen> {
     // Navigate to add service screen with the selected category
     final result = await Navigator.pushNamed(
       context,
-      '/provider/add-service',
+      '/service_provider/add-service',
       arguments: {
         'category': category,
         'onServiceAdded': (service) {

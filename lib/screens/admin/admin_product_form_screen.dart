@@ -56,7 +56,7 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
 
       final categories = await adminProvider.getCategories();
       Log.d(
-          'Categories received from provider: ${categories.length} categories');
+          'Categories received from service_provider: ${categories.length} categories');
 
       // Find the Products category and ensure it has its subcategories
       Log.d('Looking for Products category (id: 1)');

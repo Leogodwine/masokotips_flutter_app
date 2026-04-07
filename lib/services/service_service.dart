@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import '../models/service.dart';
@@ -26,20 +26,33 @@ class ServiceService {
     Log.d('Auth token set in ServiceService: ${token.substring(0, 10)}...');
   }
 
+  // Centralized method for API headers
+  Map<String, String> _getHeaders() {
+    const String userAgent =
+        'Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36';
+
+    return {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json, text/plain, */*',
+      'User-Agent': userAgent,
+      'Origin': ApiConfig.baseUrl.replaceAll('/api', ''),
+      'Referer': ApiConfig.baseUrl.replaceAll('/api', ''),
+      if (_authToken != null) 'Authorization': 'Bearer $_authToken',
+    };
+  }
+
   Future<bool> checkConnection() async {
     try {
       // Ensure URL ends with a trailing slash
       final apiBaseUrl = baseUrl.endsWith('/') ? baseUrl : '$baseUrl/';
       Log.d('Trying to connect to: $apiBaseUrl');
 
-      final response = await http.get(
+      final response = await http
+          .get(
         Uri.parse(apiBaseUrl),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-        },
-      ).timeout(
+        headers: _getHeaders(),
+      )
+          .timeout(
         const Duration(seconds: 3),
         onTimeout: () {
           Log.d('Connection to $apiBaseUrl timed out');
@@ -80,17 +93,20 @@ class ServiceService {
 
       final response = await http.get(
         Uri.parse('${apiBaseUrl}service-provider/my-services'),
-        headers: {
-          'Authorization': 'Bearer $_authToken',
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
+        headers: _getHeaders(),
       );
 
       Log.d('User services API response status: ${response.statusCode}');
       Log.d('User services API response body: ${response.body}');
 
       if (response.statusCode == 200) {
+        // Defensive check to prevent JSON decode crashes on HTML pages
+        if (response.body.trim().startsWith('<!DOCTYPE') ||
+            response.body.trim().startsWith('<html')) {
+          throw const FormatException(
+              'Server returned HTML instead of JSON. Bot protection might be blocking the request.');
+        }
+
         final data = json.decode(response.body);
         Log.d('Decoded response data type: ${data.runtimeType}');
 
@@ -149,10 +165,7 @@ class ServiceService {
 
       final response = await http.get(
         Uri.parse('${apiBaseUrl}services/category/$categoryId'),
-        headers: {
-          'Authorization': 'Bearer $_authToken',
-          'Accept': 'application/json',
-        },
+        headers: _getHeaders(),
       );
 
       Log.d('Category services API response status: ${response.statusCode}');
@@ -218,11 +231,7 @@ class ServiceService {
       final response = await http
           .post(
         Uri.parse(endpoint),
-        headers: {
-          'Authorization': 'Bearer $_authToken',
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
+        headers: _getHeaders(),
         body: json.encode(requestBody),
       )
           .timeout(
@@ -291,11 +300,7 @@ class ServiceService {
 
     final response = await http.put(
       Uri.parse('${apiBaseUrl}service-provider/services/$id'),
-      headers: {
-        'Authorization': 'Bearer $_authToken',
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
+      headers: _getHeaders(),
       body: json.encode({
         'title': title,
         'description': description,
@@ -337,10 +342,7 @@ class ServiceService {
 
     final response = await http.delete(
       Uri.parse('${apiBaseUrl}service-provider/services/$id'),
-      headers: {
-        'Authorization': 'Bearer $_authToken',
-        'Accept': 'application/json',
-      },
+      headers: _getHeaders(),
     );
 
     if (response.statusCode != 200) {
@@ -362,7 +364,8 @@ class ServiceService {
       final apiBaseUrl = baseUrl.endsWith('/') ? baseUrl : '$baseUrl/';
 
       // Use the correct endpoint for service providers
-      final endpoint = '${apiBaseUrl}service-provider/services/upload-image';
+      final endpoint =
+          '${apiBaseUrl}service-provider/services/upload-image';
 
       Log.d('Uploading image to endpoint: $endpoint');
 
@@ -373,10 +376,11 @@ class ServiceService {
       );
 
       // Add headers
-      request.headers.addAll({
-        'Authorization': 'Bearer $_authToken',
-        'Accept': 'application/json',
-      });
+      request.headers.addAll(_getHeaders());
+
+      // IMPORTANT: Remove the JSON Content-Type header so the http package
+      // can automatically set the correct multipart/form-data Content-Type with the boundary.
+      request.headers.remove('Content-Type');
 
       // Validate service ID
       if (serviceId.isEmpty || serviceId == 'null') {
@@ -478,11 +482,7 @@ class ServiceService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/$endpoint'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-        },
+        headers: _getHeaders(),
       );
 
       if (response.statusCode == 200) {
@@ -515,11 +515,7 @@ class ServiceService {
     try {
       final response = await http.delete(
         Uri.parse('$baseUrl/$endpoint'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-        },
+        headers: _getHeaders(),
       );
 
       if (response.statusCode == 200 || response.statusCode == 204) {
@@ -537,11 +533,7 @@ class ServiceService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/services/agricultural-categories'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-        },
+        headers: _getHeaders(),
       );
 
       if (response.statusCode == 200) {

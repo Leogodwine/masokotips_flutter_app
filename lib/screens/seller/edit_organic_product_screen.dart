@@ -72,6 +72,14 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
       final categories = await _apiService!.getOrganicProductCategories();
       setState(() {
         _categories = categories;
+        // Validate selected category exists in the list
+        if (_selectedCategory != null) {
+          final categoryExists =
+              categories.any((c) => c.id.toString() == _selectedCategory);
+          if (!categoryExists && categories.isNotEmpty) {
+            _selectedCategory = categories.first.id.toString();
+          }
+        }
       });
       Log.e('Loaded ${categories.length} organic product categories');
     } catch (e) {
@@ -98,7 +106,21 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
     _isActive = widget.product.isActive;
     _isFeatured = widget.product.isFeatured;
     _harvestDate = widget.product.harvestDate;
+    // Set selected category - will be validated when categories load
     _selectedCategory = widget.product.categoryId.toString();
+  }
+
+  @override
+  void didUpdateWidget(EditOrganicProductScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Update selected category when categories change
+    if (_categories.isNotEmpty && _selectedCategory != null) {
+      final categoryExists =
+          _categories.any((c) => c.id.toString() == _selectedCategory);
+      if (!categoryExists && _categories.isNotEmpty) {
+        _selectedCategory = _categories.first.id.toString();
+      }
+    }
   }
 
   @override
@@ -157,8 +179,8 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
       for (var image in _selectedImages) {
         try {
           final response = await _apiService!.uploadOrganicProductImage(image);
-          if (response['success'] == true && response['data'] != null) {
-            imageUrls.add(response['data']['image_url']);
+          if (response['status'] == 'success' && response['url'] != null) {
+            imageUrls.add(response['url']);
           }
         } catch (e) {
           Log.e('Error uploading image: $e');
@@ -195,7 +217,10 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
       final response = await _apiService!
           .updateOrganicProduct(widget.product.id, productData);
 
-      if (response['success'] == true) {
+      Log.e('Update response: $response');
+      final isSuccess =
+          response['status'] == 'success' || response['success'] == true;
+      if (isSuccess) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -363,7 +388,6 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
 
                     // Category
                     DropdownButtonFormField<String>(
-                      initialValue: _selectedCategory,
                       decoration: InputDecoration(
                         labelText: 'Category *',
                         border: OutlineInputBorder(

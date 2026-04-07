@@ -26,11 +26,11 @@ class TransportDetailsScreen extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   // Main Image
-                  if (transport.imageUrl != null)
+                  if (transport.processedImageUrl.isNotEmpty)
                     Hero(
                       tag: 'transport-image-${transport.id}',
                       child: CachedNetworkImageWithCors(
-                        imageUrl: transport.imageUrl!,
+                        imageUrl: transport.processedImageUrl,
                         fit: BoxFit.cover,
                         height: 300,
                         width: double.infinity,
@@ -196,7 +196,7 @@ class TransportDetailsScreen extends StatelessWidget {
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: theme.primaryColor.withValues(),
+                          color: theme.primaryColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Column(
@@ -360,7 +360,7 @@ class TransportDetailsScreen extends StatelessWidget {
                             .map((amenity) => Chip(
                                   label: Text(amenity),
                                   backgroundColor:
-                                      theme.primaryColor.withValues(),
+                                      theme.primaryColor.withValues(alpha: 0.1),
                                   labelStyle:
                                       TextStyle(color: theme.primaryColor),
                                   padding:
@@ -386,7 +386,7 @@ class TransportDetailsScreen extends StatelessWidget {
                         children: transport.certifications!
                             .map((cert) => Chip(
                                   label: Text(cert),
-                                  backgroundColor: Colors.green.withValues(),
+                                  backgroundColor: Colors.green.withValues(alpha: 0.1),
                                   labelStyle:
                                       const TextStyle(color: Colors.green),
                                   padding:
@@ -411,7 +411,7 @@ class TransportDetailsScreen extends StatelessWidget {
                         children: transport.supportedProductTypes!
                             .map((type) => Chip(
                                   label: Text(type),
-                                  backgroundColor: Colors.blue.withValues(),
+                                  backgroundColor: Colors.blue.withValues(alpha: 0.1),
                                   labelStyle:
                                       const TextStyle(color: Colors.blue),
                                   padding:
@@ -522,7 +522,7 @@ class TransportDetailsScreen extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(
-              color: Colors.grey.withValues(),
+              color: Colors.grey.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -553,7 +553,7 @@ class TransportDetailsScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor.withValues(),
+              color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(

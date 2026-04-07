@@ -161,21 +161,22 @@ class AdminService {
 
         // Check for different possible response structures
         if (data is Map<String, dynamic>) {
-          // Check if response has 'data' field
-          if (data.containsKey('data')) {
-            final List<dynamic> usersJson = data['data'];
-            return usersJson.map((json) => User.fromJson(json)).toList();
-          }
-          // Check if response has 'users' field (as in the UserController.index method)
-          else if (data.containsKey('users') &&
+          // Check if response has 'users' field with pagination (from UserController.index)
+          if (data.containsKey('users') &&
               data['users'] is Map<String, dynamic> &&
-              data['users'].containsKey('data')) {
-            final List<dynamic> usersJson = data['users']['data'];
+              (data['users'] as Map<String, dynamic>).containsKey('data')) {
+            final usersData = data['users'] as Map<String, dynamic>;
+            final List<dynamic> usersJson = usersData['data'];
             return usersJson.map((json) => User.fromJson(json)).toList();
           }
-          // If we have a direct users array
+          // If we have a direct users array (non-paginated)
           else if (data.containsKey('users') && data['users'] is List) {
             final List<dynamic> usersJson = data['users'];
+            return usersJson.map((json) => User.fromJson(json)).toList();
+          }
+          // Check if response has 'data' field (direct list)
+          else if (data.containsKey('data') && data['data'] is List) {
+            final List<dynamic> usersJson = data['data'];
             return usersJson.map((json) => User.fromJson(json)).toList();
           }
         }

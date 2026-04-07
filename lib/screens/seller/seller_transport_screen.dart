@@ -280,9 +280,8 @@ class _SellerTransportScreenState extends State<SellerTransportScreen> {
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(16)),
                 child: CachedNetworkImage(
-                  imageUrl: (transport.imageUrl != null &&
-                          transport.imageUrl!.isNotEmpty)
-                      ? transport.imageUrl!
+                  imageUrl: (transport.processedImageUrl.isNotEmpty)
+                      ? transport.processedImageUrl
                       : 'https://via.placeholder.com/600x300?text=No+Image',
                   height: 200,
                   width: double.infinity,
@@ -449,12 +448,15 @@ class _SellerTransportScreenState extends State<SellerTransportScreen> {
                             color: Colors.grey[600],
                           ),
                           const SizedBox(width: 6),
-                          Text(
-                            '${transport.capacity} kg capacity',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
+                          Flexible(
+                            child: Text(
+                              '${transport.capacity} kg capacity',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],

@@ -7,8 +7,6 @@ import '../../providers/auth_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'add_service_screen.dart';
 import 'edit_service_screen.dart';
-import 'provider_profile_screen.dart';
-import '../../models/provider_profile.dart';
 
 class ProviderDashboardScreen extends StatefulWidget {
   const ProviderDashboardScreen({Key? key}) : super(key: key);
@@ -23,7 +21,6 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
   List<Service> _services = [];
   ServiceService? _serviceService;
   String? _errorMessage;
-  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -49,7 +46,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
     });
 
     try {
-      debugPrint('Loading provider services...');
+      debugPrint('Loading service_provider services...');
 
       // Check if user has service_provider role
       if (_serviceService != null) {
@@ -127,8 +124,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
         _isLoading = true;
       });
 
-      await _serviceService!
-          .deleteRequest('service-provider/services/${service.id}');
+      await _serviceService!.deleteService(service.id.toString());
       setState(() {
         _services.removeWhere((s) => s.id == service.id);
       });
@@ -193,108 +189,35 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(color: Colors.grey[300]!, width: 1),
-          ),
-        ),
-        child: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          currentIndex: _selectedIndex,
-          selectedItemColor: Theme.of(context).primaryColor,
-          unselectedItemColor: Colors.grey[600],
-          backgroundColor: Colors.white,
-          elevation: 8,
-          onTap: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-            if (index == 1) {
-              // Navigate to profile
-              _navigateToProfile();
-            }
-          },
-          items: [
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.handyman),
-              label: AppLocalizations.of(context)!.servicesTab,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AddServiceScreen(
+                onServiceAdded: (service) {
+                  debugPrint(
+                      'Service added callback received: ${service.title}');
+                  setState(() {
+                    _services.insert(0, service);
+                    debugPrint(
+                        'Service added to list. Total services: ${_services.length}');
+                  });
+                },
+                serviceService: _serviceService!,
+              ),
             ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.person),
-              label: AppLocalizations.of(context)!.profile,
-            ),
-          ],
-        ),
+          );
+        },
+        icon: const Icon(Icons.add),
+        label: Text(AppLocalizations.of(context)!.addService),
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Colors.white,
+        elevation: 4,
       ),
-      floatingActionButton: _selectedIndex == 0
-          ? FloatingActionButton.extended(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AddServiceScreen(
-                      onServiceAdded: (service) {
-                        debugPrint(
-                            'Service added callback received: ${service.title}');
-                        setState(() {
-                          _services.insert(0, service);
-                          debugPrint(
-                              'Service added to list. Total services: ${_services.length}');
-                        });
-                      },
-                      serviceService: _serviceService!,
-                    ),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.add),
-              label: Text(AppLocalizations.of(context)!.addService),
-              backgroundColor: Theme.of(context).primaryColor,
-              foregroundColor: Colors.white,
-              elevation: 4,
-            )
-          : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: _buildServicesSection(),
     );
-  }
-
-  void _navigateToProfile() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final user = authProvider.user;
-
-    if (user != null) {
-      // Create a ProviderProfile from the user data
-      final providerProfile = ProviderProfile(
-        id: user.id.toString(),
-        name: user.name,
-        email: user.email,
-        phone: user.phoneNumber ?? '',
-        imageUrl: user.avatar ?? '',
-        description: '',
-        address: '',
-        rating: 0.0,
-        reviewCount: 0,
-        isVerified: false,
-        serviceCategories: [],
-      );
-
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) =>
-              ProviderProfileScreen(provider: providerProfile),
-        ),
-      );
-    }
-
-    // Reset index after returning
-    if (mounted) {
-      setState(() {
-        _selectedIndex = 0;
-      });
-    }
   }
 
   Widget _buildServicesSection() {

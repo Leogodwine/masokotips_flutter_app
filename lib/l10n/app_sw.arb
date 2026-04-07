@@ -1464,6 +1464,8 @@
     "description": "Translation for exploreNews"
   },
   "featuredProducts": "Bidhaa Zilizotangazwa",
+  "featuredTransports": "Usafiri Uliotangazwa",
+  "noFeaturedTransportsAvailable": "Hakuna usafiri uliotangazwa unaopatikana",
   "@featuredProducts": {
     "description": "Translation for featuredProducts"
   },

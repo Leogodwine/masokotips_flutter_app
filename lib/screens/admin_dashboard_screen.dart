@@ -397,7 +397,7 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
       if (!mounted) return; // If not mounted, exit early
 
       try {
-        await adminProvider.logout(); // Use the captured provider
+        await adminProvider.logout(); // Use the captured service_provider
 
         if (mounted) {
           // Check mounted again before using navigator
@@ -564,8 +564,9 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
               icon: Icons.person_add,
               label: 'Add User',
               onTap: () {
-                // Navigate to user management screen where users can be added
-                Navigator.pushNamed(context, '/admin/users');
+                // Navigate to user management tab instead of pushing new screen
+                setState(() => _selectedIndex = 1);
+                _pageController.jumpToPage(1);
               },
             ),
             _buildQuickActionButton(
@@ -742,7 +743,11 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 _buildManagementCard(
                   'Users',
                   Icons.people,
-                  () => Navigator.pushNamed(context, '/admin/users'),
+                  () {
+                    // Navigate to user management tab instead of pushing new screen
+                    setState(() => _selectedIndex = 1);
+                    _pageController.jumpToPage(1);
+                  },
                 ),
                 // Products Card
                 _buildManagementCard(

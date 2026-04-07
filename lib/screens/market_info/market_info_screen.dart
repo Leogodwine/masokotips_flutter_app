@@ -20,7 +20,7 @@ class _MarketInfoScreenState extends State<MarketInfoScreen> {
   @override
   void initState() {
     super.initState();
-    // Data is loaded via the provider, which is initialized earlier.
+    // Data is loaded via the service_provider, which is initialized earlier.
     // We can trigger a refresh here if needed.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadMarketInfo();

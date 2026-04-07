@@ -86,6 +86,8 @@ class AdminAuthService {
   Future<bool> verifyAdminCredentials(String username, String password) async {
     try {
       Log.d('Verifying admin credentials for username: $username');
+      Log.d('Base URL: $baseUrl');
+      Log.d('Full login URL: $baseUrl/admin/login');
 
       final response = await http.post(
         Uri.parse('$baseUrl/admin/login'),
@@ -108,10 +110,22 @@ class AdminAuthService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        Log.d('Login response data: $data');
+
         if (data['success'] == true && data['user'] != null) {
           final user = data['user'];
-          if (user['is_admin'] == true ||
-              (user['roles'] as List).contains('admin')) {
+          Log.d(
+              'User data from API: is_admin=${user['is_admin']}, roles=${user['roles']}');
+
+          // Check both is_admin flag AND roles field for admin access
+          final isAdminFlag = user['is_admin'] == true;
+          final rolesList = user['roles'] is List ? user['roles'] as List : [];
+          final hasAdminRole = rolesList.contains('admin');
+
+          Log.d(
+              'Admin check: is_admin=$isAdminFlag, hasAdminRole=$hasAdminRole');
+
+          if (isAdminFlag || hasAdminRole) {
             // Set the auth token if available
             if (data['token'] != null) {
               setAuthToken(data['token']);
@@ -137,6 +151,8 @@ class AdminAuthService {
       String username, String password) async {
     try {
       Log.d('Logging in admin with username: $username');
+      Log.d('Base URL: $baseUrl');
+      Log.d('Full login URL: $baseUrl/admin/login');
 
       final response = await http.post(
         Uri.parse('$baseUrl/admin/login'),

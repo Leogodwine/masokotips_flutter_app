@@ -11,12 +11,15 @@ import 'package:masoko_tips/screens/market_info/market_info_screen.dart';
 import 'package:masoko_tips/screens/products/product_details_screen.dart';
 import 'package:masoko_tips/screens/products/product_list_screen.dart';
 import 'package:masoko_tips/screens/search/search_screen.dart';
+import 'package:masoko_tips/screens/transport/transport_details_screen.dart';
+import 'package:masoko_tips/screens/transport/transport_list_screen.dart';
 
 import '../../models/category.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/category_provider.dart';
 import '../../providers/market_info_provider.dart';
 import '../../providers/product_provider.dart';
+import '../../providers/transport_provider.dart';
 import '../../providers/wishlist_provider.dart';
 import '../../utils/image_upload_helper.dart';
 import '../../utils/logger.dart';
@@ -61,6 +64,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
 
     _loadData();
     _loadMarketInfo();
+    _loadTransports();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -114,6 +118,20 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
     }
   }
 
+  Future<void> _loadTransports() async {
+    if (!mounted) return;
+
+    try {
+      final transportProvider = context.read<TransportProvider>();
+      await transportProvider.getFeaturedTransports();
+      // Reset failure counter on success
+      _consecutiveLoadFailures = 0;
+    } catch (e) {
+      Log.e('HomeContentScreen: Error loading featured transports: $e');
+      _consecutiveLoadFailures++;
+    }
+  }
+
   Future<void> _loadMarketInfo() async {
     if (!mounted) return;
 
@@ -147,6 +165,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
       await Future.wait([
         _loadData(),
         _loadMarketInfo(),
+        _loadTransports(),
         context.read<CategoryProvider>().loadMainCategories(),
       ]);
       // Reset failure counter on successful refresh
@@ -710,6 +729,211 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
             ),
 
             const SizedBox(height: 24),
+
+            // =========================
+            // Featured Transports Section
+            // =========================
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      localizations.featuredTransports,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const TransportListScreen(
+                            category: 'all',
+                          ),
+                        ),
+                      );
+                    },
+                    child: Text(localizations.seeAll),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            Consumer<TransportProvider>(
+              builder: (context, transportProvider, child) {
+                final featuredTransports = transportProvider.featuredTransports;
+
+                if (featuredTransports.isEmpty) {
+                  if (transportProvider.isLoading) {
+                    return const SizedBox(
+                      height: 280,
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Icon(Icons.local_shipping_outlined,
+                              size: 56, color: Colors.grey[400]),
+                          const SizedBox(height: 12),
+                          Text(
+                            localizations.noFeaturedTransportsAvailable,
+                            style: TextStyle(
+                                fontSize: 15, color: Colors.grey[600]),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                return SizedBox(
+                  height: 300,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    itemCount: featuredTransports.length,
+                    itemBuilder: (context, index) {
+                      final transport = featuredTransports[index];
+
+                      return Container(
+                        width: 240,
+                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Card(
+                          elevation: 2,
+                          clipBehavior: Clip.antiAlias,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => TransportDetailsScreen(
+                                      transport: transport),
+                                ),
+                              );
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Hero(
+                                  tag: 'home-transport-${transport.id}',
+                                  child: Image.network(
+                                    transport.processedImageUrl.isNotEmpty
+                                        ? transport.processedImageUrl
+                                        : 'https://via.placeholder.com/240x140?text=No+Image',
+                                    height: 140,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        height: 140,
+                                        color: Colors.grey[200],
+                                        child: const Icon(Icons.broken_image,
+                                            size: 40),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          transport.title,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.location_on,
+                                                size: 14, color: Colors.grey),
+                                            const SizedBox(width: 4),
+                                            Expanded(
+                                              child: Text(
+                                                transport.vehicleLocation,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  color: Colors.grey[600],
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              'TZS ${transport.price.toStringAsFixed(0)}',
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                color: Theme.of(context)
+                                                    .primaryColor,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 6,
+                                                      vertical: 2),
+                                              decoration: BoxDecoration(
+                                                color: Theme.of(context)
+                                                    .primaryColor
+                                                    .withAlpha(25),
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
+                                              ),
+                                              child: Text(
+                                                transport.vehicleType,
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  color: Theme.of(context)
+                                                      .primaryColor,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 32),
           ],
         ),
       ),
@@ -897,7 +1121,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
       case 'agricultural services':
         return 'assets/images/consultation.webp';
       case 'food and beverages':
-        return 'assets/images/food_and_beverages.png';
+        return 'assets/images/food_and_beverages.webp';
       default:
         return 'assets/images/consultation.webp';
     }

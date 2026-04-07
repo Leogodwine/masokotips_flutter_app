@@ -1126,4 +1126,10 @@ class AppLocalizationsSw extends AppLocalizations {
 
   @override
   String get noCategoriesFound => 'Hakuna kategoria zilizopatikana';
+
+  @override
+  String get featuredTransports => 'Usafiri Uliotangazwa';
+
+  @override
+  String get noFeaturedTransportsAvailable => 'Hakuna usafiri uliotangazwa unaopatikana';
 }

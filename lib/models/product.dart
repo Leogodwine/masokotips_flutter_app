@@ -75,12 +75,17 @@ class Product {
     return categoryMap[categoryId] ?? 'Unknown Category';
   }
 
-  // Getter to safely access and process first image
+  // Getter to safely access first image (already processed in fromJson)
   String get firstImageUrl {
-    if (images != null && images!.isNotEmpty) {
-      return _processImageUrl(images!.first);
+    // The `imageUrl` field is populated by `fromJson` with the best available image.
+    // If it's not empty, we can use it directly.
+    if (imageUrl.isNotEmpty) {
+      return imageUrl;
     }
-    return imageUrl;
+    // If `imageUrl` is empty, it means the product has no images.
+    // Instead of causing a "Bad state: No element" error by calling .first on an empty list,
+    // we return a placeholder.
+    return 'https://via.placeholder.com/200x200.png?text=No+Image';
   }
 
   Product({
@@ -115,10 +120,18 @@ class Product {
       imageUrl = json['images'][0];
     }
 
+    // Process the main image URL
     imageUrl = _processImageUrl(imageUrl);
+
+    // Process all images in the images array to fix double slashes
+    List<String>? processedImages;
+    if (json['images'] != null) {
+      processedImages = (json['images'] as List)
+          .map((img) => _processImageUrl(img.toString()))
+          .toList();
+    }
+
     if (kDebugMode) {
-      // Log only in debug to avoid verbose logs in production
-      // ignore: avoid_print
       debugPrint('✅ Final processed image URL: $imageUrl');
     }
 
@@ -145,7 +158,7 @@ class Product {
       imageUrl: imageUrl,
       categoryId: int.tryParse(json['category_id']?.toString() ?? '0') ?? 0,
       userId: int.tryParse(json['user_id']?.toString() ?? '0') ?? 0,
-      images: json['images'] != null ? List<String>.from(json['images']) : null,
+      images: processedImages,
       specifications: json['specifications'],
       rating: double.tryParse(json['rating']?.toString() ?? '0') ?? 0.0,
       ratingCount: int.tryParse(json['rating_count']?.toString() ?? '0') ?? 0,
@@ -189,6 +202,24 @@ class Product {
     if (path.isEmpty) return '';
 
     if (path.startsWith('http://') || path.startsWith('https://')) {
+      // Fix malformed URLs with double 'storage/' or extra slashes
+      // Example: https://masokotips.com/storage//storage/products/xxx.jpg
+      // Should be: https://masokotips.com/storage/products/xxx.jpg
+
+      // First fix: remove duplicate 'storage/'
+      path = path.replaceAll(RegExp(r'/storage/+/storage/'), '/storage/');
+
+      // Second fix: remove any double slashes (//) that remain
+      path = path.replaceAll(RegExp(r'/+/'), '/');
+
+      // Fix incomplete protocol (https:/ instead of https://)
+      if (path.startsWith('https:/') && !path.startsWith('https://')) {
+        path = path.replaceFirst('https:/', 'https://');
+      }
+      if (path.startsWith('http:/') && !path.startsWith('http://')) {
+        path = path.replaceFirst('http:/', 'http://');
+      }
+
       return path;
     }
 

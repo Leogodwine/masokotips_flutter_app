@@ -137,17 +137,23 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
     try {
       // First, upload images if any
       List<String> imageUrls = [];
+      Log.e('Uploading ${_selectedImages.length} images for organic product');
       for (var image in _selectedImages) {
         try {
+          Log.e('Uploading image: ${image.path}');
           final response = await _apiService!.uploadOrganicProductImage(image);
-          if (response['success'] == true && response['data'] != null) {
-            imageUrls.add(response['data']['image_url']);
+          Log.e('Image upload response: $response');
+          // Response has 'url' key directly, not 'data'->'image_url'
+          if (response['status'] == 'success' && response['url'] != null) {
+            imageUrls.add(response['url']);
+            Log.e('Added image URL: ${response['url']}');
           }
         } catch (e) {
           Log.e('Error uploading image: $e');
           // Continue with other images
         }
       }
+      Log.e('Total image URLs collected: ${imageUrls.length}');
 
       // Create the organic product
       final productData = {
@@ -177,7 +183,10 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
       Log.e('Creating organic product: ${productData['name']}');
       final response = await _apiService!.createOrganicProduct(productData);
 
-      if (response['success'] == true) {
+      Log.e('Create response: $response');
+      // Check both 'status' and 'success' keys for compatibility
+      final isSuccess = response['status'] == 'success' || response['success'] == true;
+      if (isSuccess) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -185,6 +194,8 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
               backgroundColor: Colors.green,
             ),
           );
+          Log.e('AddOrganicProductScreen: Popping with result true');
+          // Pop with true to indicate product was added
           Navigator.pop(context, true);
         }
       } else {
@@ -339,7 +350,6 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
 
                     // Category
                     DropdownButtonFormField<String>(
-                      initialValue: _selectedCategory,
                       decoration: InputDecoration(
                         labelText: 'Category *',
                         border: OutlineInputBorder(

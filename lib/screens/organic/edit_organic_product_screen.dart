@@ -641,7 +641,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
   void _saveProduct() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // Get provider references before async operations
+    // Get service_provider references before async operations
     final adminProvider = Provider.of<AdminProvider>(context, listen: false);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 

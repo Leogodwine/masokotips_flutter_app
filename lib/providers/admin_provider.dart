@@ -152,89 +152,161 @@ class AdminProvider with ChangeNotifier {
     }
   }
 
-  Future<void> loadDashboardData() async {
-    try {
-      _isLoading = true;
-      _error = null;
-      notifyListeners();
+  Future<void> loadDashboardData({int maxRetries = 3}) async {
+    // Retry configuration for transient network issues
+    const retryDelays = [500, 1000, 2000]; // ms delays between retries
 
-      log_util.Log.d('Starting to load dashboard data');
+    Exception? lastError;
 
-      if (_adminAuthService.authToken == null ||
-          _adminAuthService.authToken!.isEmpty) {
-        log_util.Log.e('No valid auth token available for dashboard request');
-        _error = 'Not authenticated. Please login again.';
-        _isAdmin = false;
-        _dashboardData = null;
-        return;
-      }
+    for (int attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        _isLoading = true;
+        _error = null;
+        notifyListeners();
 
-      final response = await _adminAuthService.getDashboardData();
-      log_util.Log.d('Dashboard response received: ${response.toString()}');
+        log_util.Log.d(
+            'Starting to load dashboard data (attempt ${attempt + 1}/$maxRetries)');
 
-      final dashboardData = response; // Already a Map<String, dynamic>
-      log_util.Log.d('Parsing dashboard data: ${dashboardData.toString()}');
+        if (_adminAuthService.authToken == null ||
+            _adminAuthService.authToken!.isEmpty) {
+          log_util.Log.e('No valid auth token available for dashboard request');
+          _error = 'Not authenticated. Please login again.';
+          _isAdmin = false;
+          _dashboardData = null;
+          _isLoading = false;
+          notifyListeners();
+          return;
+        }
 
-      // Ensure all required fields are present
-      if (!dashboardData.containsKey('stats') ||
-          !dashboardData.containsKey('recent_activities') ||
-          !dashboardData.containsKey('quick_links') ||
-          !dashboardData.containsKey('last_updated')) {
+        final response = await _adminAuthService.getDashboardData();
+        log_util.Log.d('Dashboard response received: ${response.toString()}');
+
+        final dashboardData = response; // Already a Map<String, dynamic>
+        log_util.Log.d('Parsing dashboard data: ${dashboardData.toString()}');
+
+        // Ensure all required fields are present
+        if (!dashboardData.containsKey('stats') ||
+            !dashboardData.containsKey('recent_activities') ||
+            !dashboardData.containsKey('quick_links') ||
+            !dashboardData.containsKey('last_updated')) {
+          log_util.Log.e(
+              'Invalid dashboard data structure: Missing required fields');
+          _error = 'Invalid dashboard data structure';
+          _isLoading = false;
+          notifyListeners();
+          return;
+        }
+
+        _dashboardData = AdminDashboardData.fromJson(dashboardData);
+        _error = null;
+        _isAdmin = true;
+        log_util.Log.d('Dashboard data loaded and parsed successfully');
+
+        _isLoading = false;
+        notifyListeners();
+        return; // Success - exit the retry loop
+      } catch (e, stackTrace) {
+        lastError = e is Exception ? e : Exception(e.toString());
         log_util.Log.e(
-            'Invalid dashboard data structure: Missing required fields');
-        _error = 'Invalid dashboard data structure';
+            'Error loading dashboard data (attempt ${attempt + 1}): $e\n$stackTrace');
+        log_util.Log.e('Error type: ${e.runtimeType}');
+
+        final errorString = e.toString().toLowerCase();
+
+        // Check if this is a retryable network error
+        final isRetryable = _isRetryableNetworkError(errorString);
+
+        if (isRetryable && attempt < maxRetries - 1) {
+          // Wait before retrying
+          final delay = retryDelays[attempt];
+          log_util.Log.d('Retrying in $delay ms...');
+          await Future.delayed(Duration(milliseconds: delay));
+          _isLoading = false;
+          notifyListeners();
+          continue; // Continue to next retry attempt
+        }
+
+        // Not retryable or last attempt failed - handle the error
+        _handleDashboardError(e, errorString);
+        _isLoading = false;
+        notifyListeners();
         return;
       }
+    }
 
-      _dashboardData = AdminDashboardData.fromJson(dashboardData);
-      _error = null;
-      _isAdmin = true;
-      log_util.Log.d('Dashboard data loaded and parsed successfully');
-    } catch (e, stackTrace) {
-      log_util.Log.e('Error loading dashboard data: $e\n$stackTrace');
-      log_util.Log.e('Error type: ${e.runtimeType}');
-      log_util.Log.e('Error string: "${e.toString()}"');
+    // All retries exhausted
+    if (lastError != null) {
+      _handleDashboardError(lastError, lastError.toString().toLowerCase());
+    }
+    _isLoading = false;
+    notifyListeners();
+  }
 
-      // Check for specific backend SQL error
-      final errorString = e.toString().toLowerCase();
-      log_util.Log.d('Checking error string: "$errorString"');
-      if (errorString.contains('column not found') ||
-          errorString.contains('unknown column') ||
-          errorString.contains('sqlstate[42s22]') ||
-          errorString.contains('error retrieving dashboard data') ||
-          errorString.contains('sqlstate') ||
-          errorString.contains('mysql') ||
-          errorString.contains('database') ||
-          (errorString.contains('role') &&
-              errorString.contains('where clause'))) {
+  /// Check if error is a transient network issue that should be retried
+  bool _isRetryableNetworkError(String errorString) {
+    final retryablePatterns = [
+      'clientexception',
+      'failed to fetch',
+      'socketexception',
+      'handshakeexception',
+      'connection reset',
+      'connection closed',
+      'connection refused',
+      'connection timeout',
+      'receive timeout',
+      'send timeout',
+      'network is unreachable',
+      'no internet',
+      'host unreachable',
+      'certificate',
+      'sslexception',
+    ];
+
+    for (final pattern in retryablePatterns) {
+      if (errorString.contains(pattern)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// Handle dashboard errors with appropriate user messages
+  void _handleDashboardError(dynamic e, String errorString) {
+    // Check for specific backend SQL error
+    if (errorString.contains('column not found') ||
+        errorString.contains('unknown column') ||
+        errorString.contains('sqlstate[42s22]') ||
+        errorString.contains('error retrieving dashboard data') ||
+        errorString.contains('sqlstate') ||
+        errorString.contains('mysql') ||
+        errorString.contains('database') ||
+        (errorString.contains('role') &&
+            errorString.contains('where clause'))) {
+      log_util.Log.w(
+          'Backend database schema issue detected. This should be fixed in the backend API.');
+      log_util.Log.w('Original error: $e');
+
+      _error =
+          'Backend database schema issue. The API needs to be updated to use the correct column names.';
+    } else if (errorString.contains('unauthenticated') ||
+        errorString.contains('401') ||
+        errorString.contains('token') && errorString.contains('invalid')) {
+      _adminAuthService.logoutAdmin();
+      _isAdmin = false;
+      _dashboardData = null;
+      _error = 'Session expired. Please login again.';
+    } else {
+      // For any other dashboard-related errors
+      if (errorString.contains('dashboard') || errorString.contains('stats')) {
         log_util.Log.w(
-            'Backend database schema issue detected. This should be fixed in the backend API.');
+            'Dashboard-related error detected. This should be fixed in the backend API.');
         log_util.Log.w('Original error: $e');
 
         _error =
-            'Backend database schema issue. The API needs to be updated to use the correct column names.';
-      } else if (e.toString().toLowerCase().contains('unauthenticated')) {
-        await _adminAuthService.logoutAdmin();
-        _isAdmin = false;
-        _dashboardData = null;
-        _error = 'Session expired. Please login again.';
+            'Dashboard API error. Please contact the administrator to fix the backend.';
       } else {
-        // For any other dashboard-related errors
-        if (errorString.contains('dashboard') ||
-            errorString.contains('stats')) {
-          log_util.Log.w(
-              'Dashboard-related error detected. This should be fixed in the backend API.');
-          log_util.Log.w('Original error: $e');
-
-          _error =
-              'Dashboard API error. Please contact the administrator to fix the backend.';
-        } else {
-          _error = 'Failed to load dashboard data: $e';
-        }
+        _error = 'Failed to load dashboard data. Please try again.';
       }
-    } finally {
-      _isLoading = false;
-      notifyListeners();
     }
   }
 
@@ -686,7 +758,7 @@ class AdminProvider with ChangeNotifier {
       // Clear auth token and session
       await _adminAuthService.logoutAdmin();
 
-      // Clear provider state
+      // Clear service_provider state
       _isAdmin = false;
       _dashboardData = null;
       _users = [];
@@ -725,7 +797,7 @@ class AdminProvider with ChangeNotifier {
 
       _categories = categories;
       log_util.Log.d(
-          'Categories set in provider: ${_categories.length} categories');
+          'Categories set in service_provider: ${_categories.length} categories');
 
       return categories;
     } catch (e, stackTrace) {
@@ -781,9 +853,9 @@ class AdminProvider with ChangeNotifier {
       final index = _organicProducts.indexWhere((p) => p.id == product.id);
       if (index != -1) {
         _organicProducts[index] = response;
-        // Updated product in provider list
+        // Updated product in service_provider list
       } else {
-        // Product not found in provider list
+        // Product not found in service_provider list
       }
 
       return response;

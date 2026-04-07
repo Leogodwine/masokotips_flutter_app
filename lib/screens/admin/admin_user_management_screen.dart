@@ -33,208 +33,194 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('User Management'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              context.read<AdminProvider>().loadUsers();
+    return Column(
+      children: [
+        // Search Bar
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: 'Search by name, email, or phone...',
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: _searchQuery.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() => _searchQuery = '');
+                      },
+                    )
+                  : null,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              filled: true,
+              fillColor: Colors.grey[100],
+            ),
+            onChanged: (value) {
+              setState(() => _searchQuery = value);
             },
           ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search by name, email, or phone...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() => _searchQuery = '');
-                        },
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                filled: true,
-                fillColor: Colors.grey[100],
-              ),
-              onChanged: (value) {
-                setState(() => _searchQuery = value);
-              },
-            ),
-          ),
-          Expanded(
-            child: Consumer<AdminProvider>(
-              builder: (context, adminProvider, child) {
-                if (adminProvider.isLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+        ),
+        Expanded(
+          child: Consumer<AdminProvider>(
+            builder: (context, adminProvider, child) {
+              if (adminProvider.isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-                if (adminProvider.error != null) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Error: ${adminProvider.error}',
-                          style: const TextStyle(color: Colors.red),
-                          textAlign: TextAlign.center,
+              if (adminProvider.error != null) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Error: ${adminProvider.error}',
+                        style: const TextStyle(color: Colors.red),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          adminProvider.loadUsers();
+                        },
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              final users = _filterUsers(adminProvider.users);
+              if (users.isEmpty) {
+                return const Center(child: Text('No users found'));
+              }
+
+              return ListView.builder(
+                itemCount: users.length,
+                itemBuilder: (context, index) {
+                  final user = users[index];
+                  return Card(
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor:
+                            user.isSuspended ? Colors.red : Colors.green,
+                        child: Text(
+                          user.name[0].toUpperCase(),
+                          style: const TextStyle(color: Colors.white),
                         ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () {
-                            adminProvider.loadUsers();
-                          },
-                          child: const Text('Retry'),
-                        ),
-                      ],
+                      ),
+                      title: Row(
+                        children: [
+                          Expanded(child: Text(user.name)),
+                          if (user.isSuspended)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Text(
+                                'Suspended',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 10),
+                              ),
+                            ),
+                        ],
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(user.email),
+                          if (user.phoneNumber != null &&
+                              user.phoneNumber!.isNotEmpty)
+                            Text(user.phoneNumber!),
+                          Text(
+                            'Role: ${user.roles.join(", ")}',
+                            style: const TextStyle(
+                                fontSize: 12, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                      trailing: PopupMenuButton<String>(
+                        onSelected: (value) {
+                          if (value == 'edit') {
+                            _showEditUserDialog(context, user, adminProvider);
+                          } else if (value == 'delete') {
+                            _showDeleteConfirmationDialog(
+                                context, user, adminProvider);
+                          } else if (value == 'suspend') {
+                            _showSuspendConfirmationDialog(
+                                context, user, adminProvider, true);
+                          } else if (value == 'unsuspend') {
+                            _showSuspendConfirmationDialog(
+                                context, user, adminProvider, false);
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(
+                            value: 'edit',
+                            child: Row(
+                              children: [
+                                Icon(Icons.edit, size: 20),
+                                SizedBox(width: 8),
+                                Text('Edit'),
+                              ],
+                            ),
+                          ),
+                          if (user.isSuspended)
+                            const PopupMenuItem(
+                              value: 'unsuspend',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.check_circle,
+                                      size: 20, color: Colors.green),
+                                  SizedBox(width: 8),
+                                  Text('Unsuspend'),
+                                ],
+                              ),
+                            )
+                          else
+                            const PopupMenuItem(
+                              value: 'suspend',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.block,
+                                      size: 20, color: Colors.orange),
+                                  SizedBox(width: 8),
+                                  Text('Suspend'),
+                                ],
+                              ),
+                            ),
+                          const PopupMenuItem(
+                            value: 'delete',
+                            child: Row(
+                              children: [
+                                Icon(Icons.delete, size: 20, color: Colors.red),
+                                SizedBox(width: 8),
+                                Text('Delete',
+                                    style: TextStyle(color: Colors.red)),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      isThreeLine: true,
+                      onTap: () {
+                        _showUserDetailsDialog(context, user, adminProvider);
+                      },
                     ),
                   );
-                }
-
-                final users = _filterUsers(adminProvider.users);
-                if (users.isEmpty) {
-                  return const Center(child: Text('No users found'));
-                }
-
-                return ListView.builder(
-                  itemCount: users.length,
-                  itemBuilder: (context, index) {
-                    final user = users[index];
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor:
-                              user.isSuspended ? Colors.red : Colors.green,
-                          child: Text(
-                            user.name[0].toUpperCase(),
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ),
-                        title: Row(
-                          children: [
-                            Expanded(child: Text(user.name)),
-                            if (user.isSuspended)
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Text(
-                                  'Suspended',
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 10),
-                                ),
-                              ),
-                          ],
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(user.email),
-                            if (user.phoneNumber != null &&
-                                user.phoneNumber!.isNotEmpty)
-                              Text(user.phoneNumber!),
-                            Text(
-                              'Role: ${user.roles.join(", ")}',
-                              style: const TextStyle(
-                                  fontSize: 12, color: Colors.grey),
-                            ),
-                          ],
-                        ),
-                        trailing: PopupMenuButton<String>(
-                          onSelected: (value) {
-                            if (value == 'edit') {
-                              _showEditUserDialog(context, user, adminProvider);
-                            } else if (value == 'delete') {
-                              _showDeleteConfirmationDialog(
-                                  context, user, adminProvider);
-                            } else if (value == 'suspend') {
-                              _showSuspendConfirmationDialog(
-                                  context, user, adminProvider, true);
-                            } else if (value == 'unsuspend') {
-                              _showSuspendConfirmationDialog(
-                                  context, user, adminProvider, false);
-                            }
-                          },
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(
-                              value: 'edit',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.edit, size: 20),
-                                  SizedBox(width: 8),
-                                  Text('Edit'),
-                                ],
-                              ),
-                            ),
-                            if (user.isSuspended)
-                              const PopupMenuItem(
-                                value: 'unsuspend',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.check_circle,
-                                        size: 20, color: Colors.green),
-                                    SizedBox(width: 8),
-                                    Text('Unsuspend'),
-                                  ],
-                                ),
-                              )
-                            else
-                              const PopupMenuItem(
-                                value: 'suspend',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.block,
-                                        size: 20, color: Colors.orange),
-                                    SizedBox(width: 8),
-                                    Text('Suspend'),
-                                  ],
-                                ),
-                              ),
-                            const PopupMenuItem(
-                              value: 'delete',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.delete,
-                                      size: 20, color: Colors.red),
-                                  SizedBox(width: 8),
-                                  Text('Delete',
-                                      style: TextStyle(color: Colors.red)),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        isThreeLine: true,
-                        onTap: () {
-                          _showUserDetailsDialog(context, user, adminProvider);
-                        },
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+                },
+              );
+            },
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

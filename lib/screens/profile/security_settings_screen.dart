@@ -50,7 +50,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-      // Use the auth provider's changePassword method
+      // Use the auth service_provider's changePassword method
       await authProvider.changePassword(
         currentPassword: _currentPasswordController.text,
         newPassword: _newPasswordController.text,
