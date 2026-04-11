@@ -310,7 +310,7 @@ class AdminProvider with ChangeNotifier {
     }
   }
 
-  Future<void> loadUsers() async {
+  Future<void> loadUsers({String? search}) async {
     // Check authentication before making request
     if (_adminAuthService.authToken == null ||
         _adminAuthService.authToken!.isEmpty) {
@@ -326,7 +326,7 @@ class AdminProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      _users = await _adminService.getUsers();
+      _users = await _adminService.getUsers(search: search);
     } catch (e) {
       _error = e.toString();
       log_util.Log.e('Error loading users: $e');

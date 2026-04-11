@@ -55,11 +55,10 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 backgroundColor: Colors.green,
               ),
             );
-            // Clear all routes and go to admin dashboard
-            Navigator.pushNamedAndRemoveUntil(
+            // Replace login screen with admin dashboard (preserves profile screen in stack)
+            Navigator.pushReplacementNamed(
               context,
               '/admin/dashboard',
-              (route) => false,
             );
           }
         } else {

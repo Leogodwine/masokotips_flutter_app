@@ -147,10 +147,17 @@ class AdminService {
   }
 
   // User Management
-  Future<List<User>> getUsers() async {
+  Future<List<User>> getUsers({String? search, int? page, int? perPage}) async {
     try {
+      final queryParams = <String, String>{};
+      if (search != null && search.isNotEmpty) queryParams['search'] = search;
+      if (page != null) queryParams['page'] = page.toString();
+      if (perPage != null) queryParams['per_page'] = perPage.toString();
+
+      final uri = Uri.parse('$baseUrl/admin/users').replace(queryParameters: queryParams);
+      
       final response = await http.get(
-        Uri.parse('$baseUrl/admin/users'),
+        uri,
         headers: _enhancedHeaders,
       );
 

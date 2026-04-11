@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/admin_provider.dart';
@@ -13,56 +14,78 @@ class AdminUserManagementScreen extends StatefulWidget {
 
 class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
   final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
+  Timer? _debounce;
+
+  @override
+  void initState() {
+    super.initState();
+    // Load users on initial build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AdminProvider>().loadUsers();
+    });
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 
-  List<User> _filterUsers(List<User> users) {
-    if (_searchQuery.isEmpty) return users;
-    final query = _searchQuery.toLowerCase();
-    return users.where((user) {
-      return user.name.toLowerCase().contains(query) ||
-          user.email.toLowerCase().contains(query) ||
-          (user.phoneNumber?.toLowerCase().contains(query) ?? false);
-    }).toList();
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      context.read<AdminProvider>().loadUsers(search: query);
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // Search Bar
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: 'Search by name, email, or phone...',
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: _searchQuery.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        _searchController.clear();
-                        setState(() => _searchQuery = '');
-                      },
-                    )
-                  : null,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              filled: true,
-              fillColor: Colors.grey[100],
-            ),
-            onChanged: (value) {
-              setState(() => _searchQuery = value);
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('User Management'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              context.read<AdminProvider>().loadUsers(search: _searchController.text);
             },
           ),
-        ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Search Bar
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search by name, email, or phone...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          context.read<AdminProvider>().loadUsers(search: '');
+                          setState(() {});
+                        },
+                      )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                filled: true,
+                fillColor: Colors.grey[100],
+              ),
+              onChanged: (value) {
+                setState(() {}); // For suffix icon visibility
+                _onSearchChanged(value);
+              },
+            ),
+          ),
         Expanded(
           child: Consumer<AdminProvider>(
             builder: (context, adminProvider, child) {
@@ -92,7 +115,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                 );
               }
 
-              final users = _filterUsers(adminProvider.users);
+              final users = adminProvider.users;
               if (users.isEmpty) {
                 return const Center(child: Text('No users found'));
               }
@@ -220,7 +243,8 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
             },
           ),
         ),
-      ],
+        ],
+      ),
     );
   }
 
