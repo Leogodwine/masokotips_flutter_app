@@ -13,6 +13,7 @@ import 'providers/market_info_provider.dart';
 import 'providers/admin_provider.dart';
 import 'providers/orders_provider.dart';
 import 'providers/organic_product_provider.dart';
+import 'providers/search_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/subscription_provider.dart';
 import 'services/organic_product_service.dart';
@@ -45,7 +46,7 @@ import 'screens/admin/admin_login_screen.dart';
 import 'screens/admin/products_management_screen.dart';
 import 'screens/admin/services_management_screen.dart';
 import 'screens/admin/organic_products_management.dart';
-import 'screens/admin/user_management_screen.dart';
+import 'screens/admin/admin_user_management_screen.dart';
 import 'screens/admin/transport_management_screen.dart';
 import 'screens/categories/main_categories_screen.dart';
 import 'screens/settings/about_settings_screen.dart';
@@ -111,6 +112,7 @@ class _MyAppState extends State<MyApp> {
         ),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
         ChangeNotifierProvider(create: (_) => AdminProvider()),
+        ChangeNotifierProvider(create: (_) => SearchProvider()),
         ChangeNotifierProxyProvider<AuthProvider, OrdersProvider>(
           create: (context) => OrdersProvider(),
           update: (context, authProvider, previous) {
@@ -204,20 +206,7 @@ class _MyAppState extends State<MyApp> {
                   const AdminServicesManagementScreen(),
               '/admin/organic-products': (context) =>
                   const OrganicProductsManagement(),
-              '/admin/users': (context) => Scaffold(
-                    appBar: AppBar(
-                      title: const Text('User Management'),
-                      actions: [
-                        IconButton(
-                          icon: const Icon(Icons.refresh),
-                          onPressed: () {
-                            context.read<AdminProvider>().loadUsers();
-                          },
-                        ),
-                      ],
-                    ),
-                    body: const AdminUserManagementScreen(),
-                  ),
+              '/admin/users': (context) => const AdminUserManagementScreen(),
               '/admin/transport': (context) =>
                   const AdminTransportManagementScreen(),
               '/categories': (context) => const MainCategoriesScreen(),

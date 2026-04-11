@@ -11,5 +11,6 @@ export 'orders_provider.dart' show OrdersProvider;
 export 'organic_product_provider.dart' show OrganicProductProvider;
 export 'product_provider.dart' show ProductProvider;
 export 'reviews_provider.dart' show ReviewsProvider;
+export 'search_provider.dart' show SearchProvider, SearchResult;
 export 'transport_provider.dart' show TransportProvider;
 export 'wishlist_provider.dart' show WishlistProvider;
