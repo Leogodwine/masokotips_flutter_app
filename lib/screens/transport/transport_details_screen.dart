@@ -233,19 +233,20 @@ class TransportDetailsScreen extends StatelessWidget {
                     title: 'Key Features',
                     child: Column(
                       children: [
-                        Row(
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
                           children: [
                             _buildFeatureChip(
                               context,
                               icon: Icons.scale,
                               label: '${transport.capacity} tons',
                             ),
-                            const SizedBox(width: 8),
                             _buildFeatureChip(
                               context,
                               icon: Icons.thermostat,
                               label: transport.isTemperatureControlled
-                                  ? 'Temperature Controlled'
+                                  ? 'Temp Controlled'
                                   : 'No Temp Control',
                             ),
                           ],
