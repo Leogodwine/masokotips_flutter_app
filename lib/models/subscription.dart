@@ -204,13 +204,20 @@ class Subscription {
     };
   }
 
-  bool get isActive => status == 'completed';
+  bool get isActive {
+    if (status != 'completed') return false;
+    if (expiresAt == null) return true;
+    return expiresAt!.isAfter(DateTime.now());
+  }
+
   bool get isPending => status == 'pending';
   bool get isFailed => status == 'failed';
-  bool get isExpired => status == 'expired';
+  bool get isExpired => status == 'expired' || (status == 'completed' && expiresAt != null && expiresAt!.isBefore(DateTime.now()));
   bool get isCancelled => status == 'cancelled';
 
   String get statusLabel {
+    if (isExpired) return 'Expired';
+    
     switch (status) {
       case 'pending':
         return 'Pending Payment';

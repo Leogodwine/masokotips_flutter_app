@@ -41,14 +41,42 @@ class NetworkService {
         handler.next(options);
       },
       onResponse: (response, handler) {
+        final data = response.data;
+        if (data is String) {
+          final trimmed = data.trim();
+          if (trimmed.startsWith('<!DOCTYPE html') ||
+              trimmed.startsWith('<html')) {
+            Log.e('Bot interference detected in Dio response');
+            return handler.reject(DioException(
+              requestOptions: response.requestOptions,
+              response: response,
+              type: DioExceptionType.badResponse,
+              error:
+                  'Our security system is verifying your connection. Please try again in a moment.',
+            ));
+          }
+        }
         Log.d(
             '✅ API Response: ${response.statusCode} ${response.requestOptions.uri}');
-        Log.d('📥 Response Data: ${response.data}');
         handler.next(response);
       },
       onError: (error, handler) {
         Log.e('❌ API Error: ${error.type} ${error.message}');
-        Log.e('📥 Error Response: ${error.response?.data}');
+        if (error.response?.data != null) {
+          final data = error.response!.data.toString();
+          if (data.contains('LiteSpeed') ||
+              data.contains('cloudflare') ||
+              data.contains('bot') ||
+              data.contains('challenge')) {
+            return handler.reject(DioException(
+              requestOptions: error.requestOptions,
+              response: error.response,
+              type: DioExceptionType.badResponse,
+              error:
+                  'Security Check: The server is verifying your request. Please wait a few seconds and try again.',
+            ));
+          }
+        }
         handler.next(error);
       },
     ));
@@ -56,26 +84,7 @@ class NetworkService {
 
   /// Enhanced headers to bypass bot detection
   Map<String, String> _getEnhancedHeaders() {
-    return {
-      'Accept': 'application/json, text/plain, */*',
-      'Accept-Language': 'en-US,en;q=0.9',
-      'User-Agent': _getUserAgent(),
-      'Origin': ApiConfig.baseUrl.replaceAll('/api', ''),
-      'Referer': ApiConfig.baseUrl.replaceAll('/api', ''),
-      'Cache-Control': 'no-cache',
-      'Pragma': 'no-cache',
-    };
-  }
-
-  /// User-Agent header to identify as legitimate mobile app
-  String _getUserAgent() {
-    if (Platform.isAndroid) {
-      return 'Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36';
-    } else if (Platform.isIOS) {
-      return 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Mobile/15E148 Safari/604.1';
-    } else {
-      return 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Safari/537.36';
-    }
+    return ApiConfig.getHeaders(_authToken);
   }
 
   /// Set authentication token for all subsequent requests

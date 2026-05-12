@@ -2188,6 +2188,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No featured transports available'**
   String get noFeaturedTransportsAvailable;
+
+  /// Description for featuredServices
+  ///
+  /// In en, this message translates to:
+  /// **'Featured Services'**
+  String get featuredServices;
+
+  /// Description for noFeaturedServicesAvailable
+  ///
+  /// In en, this message translates to:
+  /// **'No featured services available'**
+  String get noFeaturedServicesAvailable;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

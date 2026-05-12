@@ -7,10 +7,10 @@ import '../../providers/auth_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'add_product_screen.dart';
 import 'edit_product_screen.dart';
-import 'seller_orders_screen.dart';
 import 'seller_organic_products_screen.dart';
 import 'seller_transport_screen.dart';
-import '../service_provider/provider_dashboard_screen.dart';
+import 'seller_food_beverages_screen.dart';
+import '../../utils/extensions.dart';
 
 class SellerDashboardScreen extends StatefulWidget {
   const SellerDashboardScreen({Key? key}) : super(key: key);
@@ -53,17 +53,9 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
     } catch (e) {
       debugPrint('Error loading seller products: $e');
 
-      if (e.toString().contains('403') ||
-          e.toString().contains('Unauthorized')) {
-        setState(() {
-          _errorMessage =
-              'You need to have a seller role to access this dashboard. Please contact support if you believe this is an error.';
-        });
-      } else {
-        setState(() {
-          _errorMessage = 'Error loading products: ${e.toString()}';
-        });
-      }
+      setState(() {
+        _errorMessage = e.toFriendlyError;
+      });
     } finally {
       setState(() {
         _isLoading = false;
@@ -204,7 +196,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const SellerOrdersScreen(),
+                  builder: (context) => const SellerTransportScreen(),
                 ),
               ).then((_) {
                 setState(() {
@@ -215,7 +207,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const SellerTransportScreen(),
+                  builder: (context) => const SellerOrganicProductsScreen(),
                 ),
               ).then((_) {
                 setState(() {
@@ -226,18 +218,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const SellerOrganicProductsScreen(),
-                ),
-              ).then((_) {
-                setState(() {
-                  _selectedIndex = 0;
-                });
-              });
-            } else if (index == 4) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ProviderDashboardScreen(),
+                  builder: (context) => const SellerFoodBeveragesScreen(),
                 ),
               ).then((_) {
                 setState(() {
@@ -252,10 +233,6 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
               label: AppLocalizations.of(context)!.productsTab,
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.shopping_bag),
-              label: AppLocalizations.of(context)!.ordersTab,
-            ),
-            BottomNavigationBarItem(
               icon: const Icon(Icons.directions_car),
               label: AppLocalizations.of(context)!.transportsTab,
             ),
@@ -263,9 +240,9 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
               icon: const Icon(Icons.eco),
               label: AppLocalizations.of(context)!.organicTab,
             ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.handyman),
-              label: AppLocalizations.of(context)!.servicesTab,
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.restaurant_menu),
+              label: 'Food & Beverages',
             ),
           ],
         ),

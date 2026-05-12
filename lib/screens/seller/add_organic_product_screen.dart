@@ -6,7 +6,7 @@ import '../../services/api_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../config/api_config.dart';
 import '../../utils/logger.dart';
-import '../../models/category.dart';
+import '../../providers/category_provider.dart';
 
 class AddOrganicProductScreen extends StatefulWidget {
   const AddOrganicProductScreen({Key? key}) : super(key: key);
@@ -27,7 +27,7 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
   final _storageConditionsController = TextEditingController();
   final _shelfLifeController = TextEditingController();
 
-  String? _selectedCategory;
+  int? _selectedCategoryId;
   DateTime? _harvestDate;
   bool _isActive = true;
   bool _isFeatured = false;
@@ -35,14 +35,15 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
   bool _isLoading = false;
   String? _errorMessage;
   ApiService? _apiService;
-  List<Category> _categories = [];
   bool _isLoadingCategories = false;
 
   @override
   void initState() {
     super.initState();
     _initializeApiService();
-    _loadCategories();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadCategories();
+    });
   }
 
   void _initializeApiService() {
@@ -56,31 +57,27 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
   }
 
   Future<void> _loadCategories() async {
-    if (_apiService == null) return;
-
-    setState(() {
-      _isLoadingCategories = true;
-    });
-
+    setState(() => _isLoadingCategories = true);
     try {
-      Log.e('Loading organic product categories...');
-      final categories = await _apiService!.getOrganicProductCategories();
-      setState(() {
-        _categories = categories;
-        if (categories.isNotEmpty) {
-          _selectedCategory = categories.first.id.toString();
-        }
-      });
-      Log.e('Loaded ${categories.length} organic product categories');
+      final categoryProvider =
+          Provider.of<CategoryProvider>(context, listen: false);
+      // Organic Products category ID is 4
+      await categoryProvider.loadSubcategories(4);
+      
+      if (categoryProvider.subcategories.isNotEmpty) {
+        setState(() {
+          _selectedCategoryId = categoryProvider.subcategories.first.id;
+        });
+      }
     } catch (e) {
       Log.e('Error loading organic product categories: $e');
       setState(() {
         _errorMessage = 'Failed to load categories: $e';
       });
     } finally {
-      setState(() {
-        _isLoadingCategories = false;
-      });
+      if (mounted) {
+        setState(() => _isLoadingCategories = false);
+      }
     }
   }
 
@@ -100,7 +97,11 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
   Future<void> _pickImages() async {
     try {
       final ImagePicker picker = ImagePicker();
-      final List<XFile> images = await picker.pickMultiImage();
+      final List<XFile> images = await picker.pickMultiImage(
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 80,
+      );
 
       if (images.isNotEmpty) {
         setState(() {
@@ -161,7 +162,7 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
         'description': _descriptionController.text,
         'price': double.parse(_priceController.text),
         'stock': int.parse(_stockController.text),
-        'category_id': int.parse(_selectedCategory ?? '1'),
+        'category_id': _selectedCategoryId ?? 4, // Fallback to Organic main category if none selected
         'certification': _certificationController.text.isNotEmpty
             ? _certificationController.text
             : null,
@@ -349,40 +350,43 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
                     const SizedBox(height: 16),
 
                     // Category
-                    DropdownButtonFormField<String>(
-                      decoration: InputDecoration(
-                        labelText: 'Category *',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        prefixIcon: const Icon(Icons.category),
-                        filled: true,
-                        fillColor: Colors.grey[50],
-                      ),
-                      items: _isLoadingCategories
-                          ? [
-                              const DropdownMenuItem(
-                                  value: null,
-                                  child: Text('Loading categories...'))
-                            ]
-                          : _categories.map((category) {
-                              return DropdownMenuItem(
-                                value: category.id.toString(),
-                                child: Text(category.name),
-                              );
-                            }).toList(),
-                      onChanged: _isLoadingCategories
-                          ? null
-                          : (value) {
-                              setState(() {
-                                _selectedCategory = value!;
-                              });
-                            },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please select a category';
-                        }
-                        return null;
+                    Consumer<CategoryProvider>(
+                      builder: (context, provider, child) {
+                        return DropdownButtonFormField<int?>(
+                          isExpanded: true,
+                          initialValue: _selectedCategoryId,
+                          decoration: InputDecoration(
+                            labelText: 'Category *',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            prefixIcon: const Icon(Icons.category),
+                            filled: true,
+                            fillColor: Colors.grey[50],
+                          ),
+                          hint: _isLoadingCategories
+                              ? const Text('Loading categories...')
+                              : const Text('Select Organic Category'),
+                          items: provider.subcategories.map((category) {
+                            return DropdownMenuItem<int?>(
+                              value: category.id,
+                              child: Text(category.name),
+                            );
+                          }).toList(),
+                          onChanged: _isLoadingCategories
+                              ? null
+                              : (value) {
+                                  setState(() {
+                                    _selectedCategoryId = value;
+                                  });
+                                },
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Please select a category';
+                            }
+                            return null;
+                          },
+                        );
                       },
                     ),
                     const SizedBox(height: 16),

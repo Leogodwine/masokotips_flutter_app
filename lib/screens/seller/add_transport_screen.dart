@@ -299,6 +299,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
               const SizedBox(height: 16),
 
               DropdownButtonFormField<String>(
+                isExpanded: true,
                 initialValue: _selectedVehicleType,
                 decoration: InputDecoration(
                   labelText: 'Vehicle Type',
@@ -325,6 +326,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
 
               // Transport Category Dropdown
               DropdownButtonFormField<Category>(
+                isExpanded: true,
                 initialValue: _selectedCategory,
                 decoration: InputDecoration(
                   labelText: 'Transport Category',
@@ -569,6 +571,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
               const SizedBox(height: 16),
 
               DropdownButtonFormField<String>(
+                isExpanded: true,
                 initialValue: _selectedStatus,
                 decoration: InputDecoration(
                   labelText: 'Status',

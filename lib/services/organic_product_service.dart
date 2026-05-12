@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
-import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
 import '../models/organic_product.dart';
+import '../utils/api_response.dart';
 import '../utils/logger.dart';
 import 'network_service.dart';
 
@@ -25,22 +25,81 @@ class OrganicProductService {
     }
   }
 
-  // User-Agent header to identify as legitimate mobile app
-  static const String _userAgent =
-      'Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36';
-
   // Enhanced headers to bypass bot detection and match admin service
-  Map<String, String> get _enhancedHeaders => {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json, text/plain, */*',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'User-Agent': _userAgent,
-        'Origin': baseUrl.replaceAll('/api', ''),
-        'Referer': baseUrl.replaceAll('/api', ''),
-        if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-      };
+  Map<String, String> get _enhancedHeaders => ApiConfig.getHeaders(_authToken);
 
-  // Get all organic products
+  // Get all organic products (for marketplace) with robust parsing
+  Future<List<OrganicProduct>> getPublicOrganicProducts() async {
+    try {
+      final uri = Uri.parse('$baseUrl/public/organic-products')
+          .replace(queryParameters: {
+        'all': '1',
+        'per_page': '100',
+      });
+      Log.e('⛔ Loading public organic products from: $uri');
+
+      final response = await http.get(
+        uri,
+        headers: ApiConfig.getHeaders(),
+      );
+
+      Log.e(
+          '⛔ Public organic products response status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final dynamic responseData = ApiResponse.decodeJson(response.body);
+
+        List<dynamic> productsData = [];
+        if (responseData is Map<String, dynamic>) {
+          if (responseData.containsKey('data')) {
+            final data = responseData['data'];
+            if (data is List) {
+              productsData = data;
+            } else if (data is Map && data.containsKey('data')) {
+              // Handle Laravel pagination: response.data.data
+              productsData = data['data'] is List ? data['data'] : [];
+            }
+          } else if (responseData.containsKey('products')) {
+            final products = responseData['products'];
+            if (products is List) {
+              productsData = products;
+            } else if (products is Map && products.containsKey('data')) {
+              productsData = products['data'] is List ? products['data'] : [];
+            }
+          }
+        } else if (responseData is List) {
+          productsData = responseData;
+        }
+
+        Log.e('⛔ Received ${productsData.length} public organic products');
+
+        final List<OrganicProduct> parsedProducts = [];
+        for (var i = 0; i < productsData.length; i++) {
+          try {
+            final product = OrganicProduct.fromJson(productsData[i]);
+            parsedProducts.add(product);
+            Log.e(
+                '⛔ Successfully parsed organic product ${i + 1}: ${product.name}');
+          } catch (e) {
+            Log.e('⛔ Error parsing public organic product ${i + 1}: $e');
+          }
+        }
+
+        Log.e(
+            '⛔ Final Parsed Count: ${parsedProducts.length} organic products');
+        return parsedProducts;
+      } else {
+        Log.e(
+            '⛔ Failed to load public organic products: HTTP ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      Log.e('⛔ Error loading public organic products: $e');
+      return [];
+    }
+  }
+
+  // Get all organic products (for seller admin context)
   Future<List<OrganicProduct>> getOrganicProducts() async {
     _checkAuthToken();
     try {
@@ -56,7 +115,7 @@ class OrganicProductService {
       Log.d('Organic products response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = ApiResponse.decodeJson(response.body);
 
         // Handle admin response format (not paginated)
         if (data['success'] == true && data['data'] is List) {
@@ -103,7 +162,7 @@ class OrganicProductService {
       Log.d('Product response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = ApiResponse.decodeJson(response.body);
         return OrganicProduct.fromJson(data['data']);
       } else {
         Log.e('Failed to load organic product: HTTP ${response.statusCode}');
@@ -176,7 +235,7 @@ class OrganicProductService {
       Log.d('Response body: ${response.body}');
 
       if (response.statusCode == 201) {
-        final data = jsonDecode(response.body);
+        final data = ApiResponse.decodeJson(response.body);
         Log.d('Organic product created successfully');
         return OrganicProduct.fromJson(data['data']);
       } else {
@@ -184,7 +243,7 @@ class OrganicProductService {
         Log.e('Response body: ${response.body}');
 
         try {
-          final errorBody = jsonDecode(response.body);
+          final errorBody = ApiResponse.decodeJson(response.body);
           final errorMessage =
               errorBody['message'] ?? errorBody['error'] ?? 'Unknown error';
           throw Exception(
@@ -263,7 +322,7 @@ class OrganicProductService {
       Log.d('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = ApiResponse.decodeJson(response.body);
         Log.d('Organic product updated successfully');
         return OrganicProduct.fromJson(data['data']);
       } else {
@@ -271,7 +330,7 @@ class OrganicProductService {
         Log.e('Response body: ${response.body}');
 
         try {
-          final errorBody = jsonDecode(response.body);
+          final errorBody = ApiResponse.decodeJson(response.body);
           final errorMessage =
               errorBody['message'] ?? errorBody['error'] ?? 'Unknown error';
           throw Exception(
@@ -309,7 +368,7 @@ class OrganicProductService {
         Log.e('Response body: ${response.body}');
 
         try {
-          final errorBody = jsonDecode(response.body);
+          final errorBody = ApiResponse.decodeJson(response.body);
           final errorMessage =
               errorBody['message'] ?? errorBody['error'] ?? 'Unknown error';
           throw Exception(
@@ -370,7 +429,7 @@ class OrganicProductService {
       Log.d('Upload response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = ApiResponse.decodeJson(response.body);
         Log.d('Image uploaded successfully: ${data['url']}');
         return data['url'];
       } else {
@@ -378,7 +437,7 @@ class OrganicProductService {
         Log.e('Response body: ${response.body}');
 
         try {
-          final errorBody = jsonDecode(response.body);
+          final errorBody = ApiResponse.decodeJson(response.body);
           final errorMessage =
               errorBody['message'] ?? errorBody['error'] ?? 'Unknown error';
           throw Exception(

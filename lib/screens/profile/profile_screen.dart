@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:map_launcher/map_launcher.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/subscription_provider.dart';
 import 'dart:io';
@@ -10,12 +8,8 @@ import '../seller/seller_dashboard_screen.dart';
 import '../service_provider/provider_dashboard_screen.dart';
 import './admin_login_screen.dart';
 import '../subscription/subscription_screen.dart';
+import '../../models/subscription.dart';
 import '../../l10n/app_localizations.dart';
-
-// Feature flags - set to false to disable features temporarily
-// Set to true to re-enable these features later
-const bool kLocationFeatureEnabled = false;
-const bool kFollowUserLocationEnabled = false;
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -25,26 +19,10 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  Position? _currentPosition;
-  bool _isLoadingLocation = false;
-  String _locationError = '';
-
-  // For another user's location (could be from API in real app)
-  double? _targetUserLatitude;
-  double? _targetUserLongitude;
-  String? _targetUserName;
-
   @override
   void initState() {
     super.initState();
     _loadSubscriptionsIfLoggedIn();
-    _getCurrentLocation();
-
-    // Simulate another user's location for demo
-    // In a real app, this would come from an API response
-    _targetUserLatitude = -6.7924; // Example: Dar es Salaam
-    _targetUserLongitude = 39.2083;
-    _targetUserName = 'John\'s Location';
   }
 
   Future<void> _loadSubscriptionsIfLoggedIn() async {
@@ -56,93 +34,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Future<void> _getCurrentLocation() async {
-    setState(() {
-      _isLoadingLocation = true;
-      _locationError = '';
-    });
-
-    try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        setState(() {
-          _locationError = 'Location services are disabled';
-          _isLoadingLocation = false;
-        });
-        return;
-      }
-
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          setState(() {
-            _locationError = 'Location permission denied';
-            _isLoadingLocation = false;
-          });
-          return;
-        }
-      }
-
-      if (permission == LocationPermission.deniedForever) {
-        setState(() {
-          _locationError = 'Location permissions are permanently denied';
-          _isLoadingLocation = false;
-        });
-        return;
-      }
-
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-      setState(() {
-        _currentPosition = position;
-        _isLoadingLocation = false;
-      });
-    } catch (e) {
-      setState(() {
-        _locationError = 'Error getting location: $e';
-        _isLoadingLocation = false;
-      });
-    }
-  }
-
-  Future<void> _navigateToLocation(double lat, double lng, String title) async {
-    if (await MapLauncher.isMapAvailable(MapType.google) ?? false) {
-      await MapLauncher.showMarker(
-        mapType: MapType.google,
-        coords: Coords(lat, lng),
-        title: title,
-      );
-    } else {
-      // Fallback to URL launcher
-      final uri = Uri.parse(
-          'https://www.google.com/maps/search/?api=1&query=$lat,$lng');
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Could not open maps app')),
-          );
-        }
-      }
-    }
-  }
-
-  String _formatCoordinates(Position? position) {
-    if (position == null) return 'Location not available';
-    return '${position.latitude.toStringAsFixed(6)}, ${position.longitude.toStringAsFixed(6)}';
-  }
-
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final subscriptionProvider = Provider.of<SubscriptionProvider>(context);
     final isLoggedIn = authProvider.isAuthenticated;
     final user = authProvider.user;
-    final hasActiveSubscription = subscriptionProvider.hasActiveSubscription;
-    final currentSubscription = subscriptionProvider.getUserSubscription();
+    final hasSellerSubscription =
+        subscriptionProvider.hasActiveSubscriptionFor('seller');
+    final hasServiceProviderSubscription =
+        subscriptionProvider.hasActiveSubscriptionFor('service_provider');
+    final hasTransporterSubscription =
+        subscriptionProvider.hasActiveSubscriptionFor('transporter');
+    
+    // Select the most relevant subscription to display
+    Subscription? displaySubscription;
+    if (isLoggedIn && user != null) {
+      // 1. Try to find an ACTIVE professional subscription first
+      if (user.isSeller) {
+        displaySubscription = subscriptionProvider.getUserSubscription(type: 'seller');
+      } else if (user.isTransporter) {
+        displaySubscription = subscriptionProvider.getUserSubscription(type: 'transporter');
+      } else if (user.isServiceProvider) {
+        displaySubscription = subscriptionProvider.getUserSubscription(type: 'service_provider');
+      }
+      
+      // 2. If no active professional, look for an ACTIVE buyer subscription
+      displaySubscription ??= subscriptionProvider.getUserSubscription(type: 'buyer');
+      
+      // 3. If still no active subscription, look for the LATEST professional subscription (even if expired)
+      if (displaySubscription == null) {
+        if (user.isSeller) {
+          displaySubscription = subscriptionProvider.getLatestSubscriptionByType('seller');
+        } else if (user.isTransporter) {
+          displaySubscription = subscriptionProvider.getLatestSubscriptionByType('transporter');
+        } else if (user.isServiceProvider) {
+          displaySubscription = subscriptionProvider.getLatestSubscriptionByType('service_provider');
+        }
+      }
+      
+      // 4. Final fallback: Show the latest overall only if the user is NOT a professional 
+      // or if they have no professional subscription record at all.
+      // This prevents confusing "Buyer Membership" cards for Sellers.
+      if (displaySubscription == null && !user.isSeller && !user.isTransporter && !user.isServiceProvider) {
+        displaySubscription = subscriptionProvider.getLatestSubscription();
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -200,8 +137,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       // Subscription Badge
-                      if (hasActiveSubscription && currentSubscription != null)
-                        _buildSubscriptionBadge(context, currentSubscription),
+                      if (displaySubscription != null && displaySubscription.isActive)
+                        _buildSubscriptionBadge(context, displaySubscription),
                       const SizedBox(height: 8),
                       // User role badges
                       if (user.roles.isNotEmpty)
@@ -236,19 +173,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            if (user.roles.contains('seller'))
+                            if (user.roles.contains('seller') ||
+                                user.roles.contains('transporter'))
                               _buildQuickActionButton(
                                 context,
                                 icon: Icons.add_circle,
                                 label: 'Post',
                                 onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const SellerDashboardScreen(),
-                                    ),
-                                  );
+                                  if (hasSellerSubscription ||
+                                      hasTransporterSubscription) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const SellerDashboardScreen(),
+                                      ),
+                                    );
+                                  } else {
+                                    _showSubscriptionRequiredDialog(context);
+                                  }
                                 },
                               ),
                             // Subscribe button - positioned after Post
@@ -272,13 +215,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 icon: Icons.add,
                                 label: 'Post',
                                 onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const ProviderDashboardScreen(),
-                                    ),
-                                  );
+                                  if (hasServiceProviderSubscription) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const ProviderDashboardScreen(),
+                                      ),
+                                    );
+                                  } else {
+                                    _showSubscriptionRequiredDialog(context);
+                                  }
                                 },
                               ),
                             if (user.roles.contains('admin'))
@@ -356,10 +303,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
 
               // Subscription Status Card
-              if (isLoggedIn &&
-                  hasActiveSubscription &&
-                  currentSubscription != null)
-                _buildSubscriptionStatusCard(context, currentSubscription),
+              if (isLoggedIn && displaySubscription != null)
+                _buildSubscriptionStatusCard(context, displaySubscription),
 
               const SizedBox(height: 32),
               Text(
@@ -375,92 +320,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Card(
                 child: Column(
                   children: [
-                    // Subscriber Location - DISABLED
-                    if (kLocationFeatureEnabled) ...[
-                      ListTile(
-                        leading: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor.withAlpha(26),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            _isLoadingLocation
-                                ? Icons.location_searching
-                                : Icons.my_location,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                        ),
-                        title: const Text('My Location'),
-                        subtitle: _isLoadingLocation
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : _locationError.isNotEmpty
-                                ? Text(
-                                    _locationError,
-                                    style: const TextStyle(color: Colors.red),
-                                  )
-                                : Text(_formatCoordinates(_currentPosition)),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.refresh),
-                          onPressed: _getCurrentLocation,
-                          tooltip: 'Refresh location',
-                        ),
-                        onTap: _getCurrentLocation,
-                      ),
-                      const Divider(height: 1),
-                    ],
-                    // Follow User Location - DISABLED
-                    if (kFollowUserLocationEnabled) ...[
-                      ListTile(
-                        leading: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.withAlpha(26),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.navigation,
-                            color: Colors.blue,
-                          ),
-                        ),
-                        title: const Text('Follow User Location'),
-                        subtitle: Text(_targetUserName ?? 'Tap to navigate'),
-                        trailing: ElevatedButton.icon(
-                          icon: const Icon(Icons.directions),
-                          label: const Text('Navigate'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            foregroundColor: Colors.white,
-                          ),
-                          onPressed: _targetUserLatitude != null &&
-                                  _targetUserLongitude != null
-                              ? () {
-                                  _navigateToLocation(
-                                    _targetUserLatitude!,
-                                    _targetUserLongitude!,
-                                    _targetUserName ?? 'User Location',
-                                  );
-                                }
-                              : null,
-                        ),
-                        onTap: _targetUserLatitude != null &&
-                                _targetUserLongitude != null
-                            ? () {
-                                _navigateToLocation(
-                                  _targetUserLatitude!,
-                                  _targetUserLongitude!,
-                                  _targetUserName ?? 'User Location',
-                                );
-                              }
-                            : null,
-                      ),
-                      const Divider(height: 1),
-                    ],
                     ListTile(
                       leading: const Icon(Icons.delete_forever_rounded),
                       title: Text(
@@ -492,19 +351,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     // Add Seller Dashboard for users with seller role
                     if (isLoggedIn &&
                         user != null &&
-                        user.roles.contains('seller')) ...[
+                        (user.roles.contains('seller') ||
+                            user.roles.contains('transporter'))) ...[
                       ListTile(
                         leading: const Icon(Icons.add_circle_outlined),
                         title: const Text('Post'),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const SellerDashboardScreen(),
-                            ),
-                          );
+                          if (hasSellerSubscription ||
+                              hasTransporterSubscription) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const SellerDashboardScreen(),
+                              ),
+                            );
+                          } else {
+                            _showSubscriptionRequiredDialog(context);
+                          }
                         },
                       ),
                       const Divider(height: 1),
@@ -518,13 +383,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         title: const Text('Post'),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const ProviderDashboardScreen(),
-                            ),
-                          );
+                          if (hasServiceProviderSubscription) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const ProviderDashboardScreen(),
+                              ),
+                            );
+                          } else {
+                            _showSubscriptionRequiredDialog(context);
+                          }
                         },
                       ),
                       const Divider(height: 1),
@@ -794,6 +663,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return Icons.handyman;
       case 'buyer':
         return Icons.shopping_cart;
+      case 'transporter':
+        return Icons.local_shipping;
       default:
         return Icons.person;
     }
@@ -809,6 +680,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return AppLocalizations.of(context)!.serviceProvider;
       case 'buyer':
         return AppLocalizations.of(context)!.buyer;
+      case 'transporter':
+        return 'Transporter';
       default:
         return role.substring(0, 1).toUpperCase() + role.substring(1);
     }
@@ -856,9 +729,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildSubscriptionBadge(BuildContext context, dynamic subscription) {
-    final Color badgeColor = subscription.status == 'completed'
+    final Color badgeColor = subscription.isActive
         ? Colors.green
-        : subscription.status == 'pending'
+        : subscription.isPending
             ? Colors.orange
             : Colors.red;
 
@@ -894,9 +767,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildSubscriptionStatusCard(
       BuildContext context, dynamic subscription) {
-    final Color statusColor = subscription.status == 'completed'
+    final Color statusColor = subscription.isActive
         ? Colors.green
-        : subscription.status == 'pending'
+        : subscription.isPending
             ? Colors.orange
             : Colors.red;
 
@@ -1043,6 +916,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _formatDate(DateTime? date) {
     if (date == null) return 'N/A';
     return '${date.day}/${date.month}/${date.year}';
+  }
+
+  void _showSubscriptionRequiredDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Subscription Required'),
+        content: const Text(
+            'Your subscription has expired or you don\'t have an active membership. Please subscribe to access seller features and post items.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(AppLocalizations.of(context)!.later),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SubscriptionScreen(),
+                ),
+              );
+            },
+            child: const Text('Subscribe Now'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showAboutDialog(BuildContext context) {

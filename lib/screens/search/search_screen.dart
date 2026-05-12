@@ -550,6 +550,32 @@ class _SearchScreenState extends State<SearchScreen> {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    // Seller info
+                    if (product.user != null) ...[
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 8,
+                            backgroundImage: product.sellerAvatar != null
+                                ? NetworkImage(product.sellerAvatar!)
+                                : null,
+                            child: product.sellerAvatar == null
+                                ? const Icon(Icons.person, size: 8)
+                                : null,
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              product.sellerName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 9, color: Colors.grey),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                     const Expanded(child: SizedBox()),
                     Text(
                       'TZS ${product.price.toStringAsFixed(0)}',

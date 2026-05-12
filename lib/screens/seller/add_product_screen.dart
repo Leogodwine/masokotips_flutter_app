@@ -4,6 +4,9 @@ import '../../models/product.dart';
 import '../../services/product_service.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:provider/provider.dart';
+import '../../providers/category_provider.dart';
+import '../../utils/extensions.dart';
 
 class AddProductScreen extends StatefulWidget {
   final Function(Product) onProductAdded;
@@ -25,9 +28,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _descriptionController = TextEditingController();
   final _priceController = TextEditingController();
   final _stockController = TextEditingController();
-  String _selectedCategory = 'Vegetables';
+  int? _selectedCategoryId;
   final List<File> _selectedImages = [];
   bool _isLoading = false;
+  bool _isLoadingCategories = false;
 
   // Add slug generation function
   String _generateSlug(String name) {
@@ -39,26 +43,34 @@ class _AddProductScreenState extends State<AddProductScreen> {
         .trim();
   }
 
-  final List<String> _categories = [
-    'Vegetables',
-    'Fruits',
-    'Spices',
-    'Cash Crops',
-    'Cereals',
-    'Seeds and Seedling',
-    'Livestock and poultry'
-  ];
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadCategories();
+    });
+  }
 
-  // Add a map for category IDs (matching backend subcategory IDs under Products category)
-  final Map<String, int> _categoryIds = {
-    'Vegetables': 6,
-    'Fruits': 7,
-    'Spices': 8,
-    'Cash Crops': 9,
-    'Cereals': 10,
-    'Seeds and Seedling': 11,
-    'Livestock and poultry': 12,
-  };
+  Future<void> _loadCategories() async {
+    setState(() => _isLoadingCategories = true);
+    try {
+      final categoryProvider =
+          Provider.of<CategoryProvider>(context, listen: false);
+      // Marketplace Products category ID is 1 according to CategorySeeder.php
+      await categoryProvider.loadSubcategories(1);
+    } catch (e) {
+      debugPrint('Error loading categories: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toFriendlyError)),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoadingCategories = false);
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -71,7 +83,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   Future<void> _pickImages() async {
     final ImagePicker picker = ImagePicker();
-    final List<XFile> images = await picker.pickMultiImage();
+    final List<XFile> images = await picker.pickMultiImage(
+      maxWidth: 1024,
+      maxHeight: 1024,
+      imageQuality: 80,
+    );
 
     if (images.isNotEmpty) {
       setState(() {
@@ -98,7 +114,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         stock: int.parse(_stockController.text),
         isActive: true,
         isFeatured: false,
-        categoryId: _categoryIds[_selectedCategory] ?? 101,
+        categoryId: _selectedCategoryId ?? 0,
         userId: 0, // The server will set this based on the authenticated user
         images: _selectedImages
             .map((file) => file.path)
@@ -127,7 +143,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add product: $e')),
+          SnackBar(content: Text(e.toFriendlyError)),
         );
       }
     } finally {
@@ -246,28 +262,41 @@ class _AddProductScreenState extends State<AddProductScreen> {
               ],
             ),
             const SizedBox(height: 16),
-            // Category Dropdown
-            DropdownButtonFormField<String>(
-              initialValue: _selectedCategory,
-              decoration: InputDecoration(
-                labelText: 'Category',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                prefixIcon: const Icon(Icons.category_outlined),
-                filled: true,
-                fillColor: Colors.grey[50],
-              ),
-              items: _categories.map((category) {
-                return DropdownMenuItem(
-                  value: category,
-                  child: Text(category),
+            Consumer<CategoryProvider>(
+              builder: (context, provider, child) {
+                return DropdownButtonFormField<int>(
+                  isExpanded: true,
+                  initialValue: _selectedCategoryId,
+                  decoration: InputDecoration(
+                    labelText: 'Category',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    prefixIcon: const Icon(Icons.category_outlined),
+                    filled: true,
+                    fillColor: Colors.grey[50],
+                  ),
+                  hint: _isLoadingCategories
+                      ? const Text('Loading categories...')
+                      : const Text('Select Category'),
+                  items: provider.subcategories.map((category) {
+                    return DropdownMenuItem<int>(
+                      value: category.id,
+                      child: Text(category.name),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => _selectedCategoryId = value);
+                    }
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please select a category';
+                    }
+                    return null;
+                  },
                 );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() => _selectedCategory = value);
-                }
               },
             ),
             const SizedBox(height: 24),

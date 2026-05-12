@@ -17,21 +17,12 @@ class SponsorLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('SponsorLogo: Building logo with path: $imagePath');
     return Container(
       padding: padding,
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-        // ✅ Removed borderRadius completely - no rounded corners
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.4),
-          width: 1.5,
-        ),
-      ),
       child: Image.asset(
         imagePath,
         height: height,
-        fit: BoxFit.cover,
+        fit: BoxFit.contain,
         errorBuilder: (context, error, stackTrace) {
           debugPrint('SponsorLogo: Error loading image: $error');
           return Text(

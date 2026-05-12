@@ -24,8 +24,6 @@ class ZenoPayService {
   // MUST match Laravel route
   static const String _checkoutEndpoint = '/zenopay/checkout/initiate';
 
-  static const String _userAgent =
-      'Mozilla/5.0 (Linux; Android 13; Mobile) AppleWebKit/537.36';
 
   // ---------------------------------------------------------------------------
   // START CHECKOUT
@@ -62,12 +60,7 @@ class ZenoPayService {
       final res = await http
           .post(
             uri,
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-              'Authorization': 'Bearer $token',
-              'User-Agent': _userAgent,
-            },
+            headers: ApiConfig.getHeaders(token),
             body: jsonEncode(payload),
           )
           .timeout(const Duration(seconds: 30));

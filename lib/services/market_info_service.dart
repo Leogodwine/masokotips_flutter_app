@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'api_service.dart';
 import '../models/market_info.dart';
+import '../utils/api_response.dart';
 import '../utils/logger.dart';
 
 class MarketInfoService {
@@ -60,7 +61,7 @@ class MarketInfoService {
       );
 
       if (response.statusCode == 201) {
-        final responseData = jsonDecode(response.body);
+        final responseData = ApiResponse.decodeJson(response.body);
         // The API might return the created object inside a 'data' key
         final marketInfoJson = responseData.containsKey('data')
             ? responseData['data']
@@ -102,7 +103,7 @@ class MarketInfoService {
       );
 
       if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
+        final responseData = ApiResponse.decodeJson(response.body);
         final marketInfoJson = responseData.containsKey('data')
             ? responseData['data']
             : responseData;
@@ -144,7 +145,7 @@ class MarketInfoService {
     final response = await request.send();
     if (response.statusCode == 200) {
       final responseBody = await response.stream.bytesToString();
-      return jsonDecode(responseBody)['image_url'];
+      return ApiResponse.decodeJson(responseBody)['image_url'];
     } else {
       throw Exception('Failed to upload image');
     }

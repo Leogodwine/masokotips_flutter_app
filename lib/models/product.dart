@@ -22,6 +22,25 @@ class Product {
   final DateTime updatedAt;
   final DateTime? deletedAt;
   final Map<String, dynamic>? category;
+  final Map<String, dynamic>? user;
+
+  // Computed property for seller name
+  String get sellerName {
+    final username = user?['username'];
+    if (username != null && username.toString().trim().isNotEmpty) {
+      return username.toString();
+    }
+    return user?['name'] ?? 'Unknown Seller';
+  }
+  
+  // Computed property for seller avatar
+  String? get sellerAvatar => user?['avatar'];
+  
+  // Computed property for seller location
+  String? get sellerLocation => user?['location'];
+  
+  // Computed property for seller phone
+  String? get sellerPhone => user?['phone'];
 
   // Flag to indicate this is a transport converted to product
   bool isTransport = false;
@@ -72,7 +91,7 @@ class Product {
       66: 'Behive and Aquatic',
       67: 'Food and Beverage'
     };
-    return categoryMap[categoryId] ?? 'Unknown Category';
+    return categoryMap[categoryId] ?? 'Products';
   }
 
   // Getter to safely access first image (already processed in fromJson)
@@ -109,6 +128,7 @@ class Product {
     required this.updatedAt,
     this.deletedAt,
     this.category,
+    this.user,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -168,6 +188,7 @@ class Product {
           ? DateTime.tryParse(json['deleted_at'])
           : null,
       category: json['category'],
+      user: json['user'],
     );
   }
 
@@ -280,6 +301,7 @@ class Product {
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
       category: category ?? this.category,
+      user: user ?? user,
     );
   }
 }

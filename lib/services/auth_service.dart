@@ -7,8 +7,6 @@ import '../config/api_config.dart';
 class AuthService {
   static String get _baseUrl => ApiConfig.baseUrl;
   static const String _tokenKey = 'auth_token';
-  static const String _userAgent =
-      'Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36';
   String? _authToken;
 
   Future<bool> login(String username, String password) async {
@@ -17,14 +15,7 @@ class AuthService {
 
       final response = await http.post(
         Uri.parse('$_baseUrl/login'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json, text/plain, */*',
-          'Accept-Language': 'en-US,en;q=0.9',
-          'User-Agent': _userAgent,
-          'Origin': _baseUrl.replaceAll('/api', ''),
-          'Referer': _baseUrl.replaceAll('/api', ''),
-        },
+        headers: ApiConfig.getHeaders(),
         body: json.encode({
           'username': username,
           'password': password,
@@ -62,14 +53,7 @@ class AuthService {
           final response = await http.post(
             Uri.parse(
                 '$_baseUrl/user/logout'), // Changed from /auth/logout to /user/logout
-            headers: {
-              'Authorization': 'Bearer $_authToken',
-              'Accept': 'application/json, text/plain, */*',
-              'Accept-Language': 'en-US,en;q=0.9',
-              'User-Agent': _userAgent,
-              'Origin': _baseUrl.replaceAll('/api', ''),
-              'Referer': _baseUrl.replaceAll('/api', ''),
-            },
+            headers: ApiConfig.getHeaders(_authToken),
           );
 
           if (response.statusCode == 200) {

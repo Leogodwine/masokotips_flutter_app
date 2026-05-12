@@ -28,17 +28,7 @@ class ServiceService {
 
   // Centralized method for API headers
   Map<String, String> _getHeaders() {
-    const String userAgent =
-        'Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36';
-
-    return {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json, text/plain, */*',
-      'User-Agent': userAgent,
-      'Origin': ApiConfig.baseUrl.replaceAll('/api', ''),
-      'Referer': ApiConfig.baseUrl.replaceAll('/api', ''),
-      if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-    };
+    return ApiConfig.getHeaders(_authToken);
   }
 
   Future<bool> checkConnection() async {

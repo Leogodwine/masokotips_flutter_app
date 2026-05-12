@@ -702,6 +702,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     {'value': 'buyer', 'label': 'Buyer', 'icon': Icons.shopping_cart},
     {'value': 'seller', 'label': 'Seller', 'icon': Icons.store},
     {
+      'value': 'transporter',
+      'label': 'Transporter',
+      'icon': Icons.local_shipping
+    },
+    {
       'value': 'service_provider',
       'label': 'Service Provider',
       'icon': Icons.handyman

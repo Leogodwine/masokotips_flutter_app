@@ -16,6 +16,8 @@ import 'providers/organic_product_provider.dart';
 import 'providers/search_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/subscription_provider.dart';
+import 'providers/favorites_provider.dart';
+import 'providers/chat_provider.dart';
 import 'services/organic_product_service.dart';
 import 'services/api_service.dart';
 import 'services/market_info_service.dart';
@@ -143,6 +145,15 @@ class _MyAppState extends State<MyApp> {
               service.setAuthToken(authProvider.token!);
             }
             return OrganicProductProvider(service);
+          },
+        ),
+        ChangeNotifierProvider(create: (_) => FavoritesProvider()),
+        ChangeNotifierProxyProvider<ApiService, ChatProvider>(
+          create: (_) => ChatProvider(),
+          update: (_, apiService, chatProvider) {
+            final provider = chatProvider ?? ChatProvider();
+            provider.update(apiService);
+            return provider;
           },
         ),
       ],

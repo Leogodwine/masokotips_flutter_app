@@ -5,8 +5,8 @@ import '../models/organic_product.dart';
 import '../models/transport.dart';
 import '../models/service.dart';
 import '../services/api_service.dart';
-import 'dart:convert';
 import '../config/api_config.dart';
+import '../utils/api_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchResult {
@@ -169,20 +169,12 @@ class SearchProvider with ChangeNotifier {
       final headers = _apiService.headers;
       final encodedQuery = Uri.encodeComponent(query);
 
-      final responses = await Future.wait([
-        http.get(
-            Uri.parse('$baseUrl/products?search=$encodedQuery&per_page=20'),
-            headers: headers),
-        http.get(
-            Uri.parse(
-                '$baseUrl/public/organic-products?search=$encodedQuery&per_page=20'),
-            headers: headers),
-        http.get(
-            Uri.parse(
-                '$baseUrl/public/transports?search=$encodedQuery&per_page=20'),
-            headers: headers),
-        http.get(Uri.parse('$baseUrl/services/featured'), headers: headers),
-      ]);
+      final responses = [
+        await http.get(Uri.parse('$baseUrl/products?search=$encodedQuery&per_page=20'), headers: headers),
+        await http.get(Uri.parse('$baseUrl/public/organic-products?search=$encodedQuery&per_page=20'), headers: headers),
+        await http.get(Uri.parse('$baseUrl/public/transports?search=$encodedQuery&per_page=20'), headers: headers),
+        await http.get(Uri.parse('$baseUrl/services/featured'), headers: headers),
+      ];
 
       List<dynamic> products = [];
       List<dynamic> organicProducts = [];
@@ -192,7 +184,7 @@ class SearchProvider with ChangeNotifier {
       for (var i = 0; i < responses.length; i++) {
         if (responses[i].statusCode == 200) {
           try {
-            final data = jsonDecode(responses[i].body);
+            final data = ApiResponse.decodeJson(responses[i].body);
             List<dynamic> items = [];
 
             if (data['data'] is List) {

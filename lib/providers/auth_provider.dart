@@ -255,6 +255,7 @@ class AuthProvider with ChangeNotifier {
   bool get isBuyer => _user?.isBuyer ?? false;
   bool get isSeller => _user?.isSeller ?? false;
   bool get isServiceProvider => _user?.isServiceProvider ?? false;
+  bool get isTransporter => _user?.isTransporter ?? false;
   bool get isAdmin => _user?.isAdmin ?? false;
   bool get hasMultipleRoles => _user?.hasMultipleRoles ?? false;
 

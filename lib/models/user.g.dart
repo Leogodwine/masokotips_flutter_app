@@ -19,6 +19,8 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
       token: json['token'] as String?,
+      isSuspended: json['is_suspended'] as bool? ?? false,
+      isActive: json['is_active'] as bool? ?? true,
     );
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
@@ -32,4 +34,6 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'created_at': instance.createdAt.toIso8601String(),
       'updated_at': instance.updatedAt.toIso8601String(),
       'token': instance.token,
+      'is_suspended': instance.isSuspended,
+      'is_active': instance.isActive,
     };

@@ -11,6 +11,7 @@ import '../../screens/auth/login_screen.dart';
 import '../../utils/logger.dart';
 import '../../screens/subscription/subscription_screen.dart';
 import '../../l10n/app_localizations.dart';
+import '../seller/seller_public_profile_screen.dart' as import_profile;
 
 class ProductDetailsScreen extends StatefulWidget {
   final Product product;
@@ -227,6 +228,68 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               style: theme.textTheme.titleLarge?.copyWith(
                   color: theme.primaryColor, fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 12),
+            // Seller info
+            if (widget.product.user != null) ...[
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => 
+                        import_profile.SellerPublicProfileScreen(sellerId: widget.product.userId.toString()),
+                    ),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 24,
+                        backgroundImage: widget.product.sellerAvatar != null
+                            ? NetworkImage(widget.product.sellerAvatar!)
+                            : null,
+                        child: widget.product.sellerAvatar == null
+                            ? const Icon(Icons.person)
+                            : null,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Seller',
+                              style: TextStyle(
+                                fontSize: 12, color: Colors.grey),
+                            ),
+                            Text(
+                              widget.product.sellerName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            if (widget.product.sellerLocation != null)
+                              Text(
+                                widget.product.sellerLocation!,
+                                style: const TextStyle(
+                                  fontSize: 12, color: Colors.grey),
+                              ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.chevron_right, color: Colors.grey),
+                    ],
+                  ),
+                ),
+              ),
+            ],
             const SizedBox(height: 16),
             Text(AppLocalizations.of(context)!.description,
                 style: theme.textTheme.titleMedium
@@ -320,6 +383,45 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                                     fontWeight: FontWeight.bold,
                                                   ),
                                                 ),
+                                                // Seller info in related
+                                                if (product.user != null) ...[
+                                                  const SizedBox(height: 4),
+                                                  Row(
+                                                    children: [
+                                                      CircleAvatar(
+                                                        radius: 8,
+                                                        backgroundImage:
+                                                            product.sellerAvatar !=
+                                                                    null
+                                                                ? NetworkImage(
+                                                                    product.sellerAvatar!)
+                                                                : null,
+                                                        child:
+                                                            product.sellerAvatar ==
+                                                                    null
+                                                                ? const Icon(
+                                                                    Icons.person,
+                                                                    size: 8)
+                                                                : null,
+                                                      ),
+                                                      const SizedBox(
+                                                          width: 4),
+                                                      Expanded(
+                                                        child: Text(
+                                                          product.sellerName,
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          style:
+                                                              const TextStyle(
+                                                            fontSize: 10,
+                                                            color: Colors.grey,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
                                                 const SizedBox(height: 4),
                                                 Text(
                                                   'TZS ${product.price.toStringAsFixed(2)}',

@@ -7,6 +7,7 @@ import '../cart/cart_screen.dart';
 import '../../providers/favorites_provider.dart';
 import '../../models/product.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../seller/seller_public_profile_screen.dart' as import_profile;
 
 class ServiceDetailScreen extends StatefulWidget {
   final Service service;
@@ -165,6 +166,63 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                       icon: const Icon(Icons.shopping_cart),
                       label: Text(AppLocalizations.of(context)?.addToCart ??
                           'Add to Cart'),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // Seller info
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              import_profile.SellerPublicProfileScreen(
+                                  sellerId: widget.service.userId.toString()),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 24,
+                            backgroundImage:
+                                widget.service.providerImage != null
+                                    ? NetworkImage(
+                                        widget.service.providerImage!)
+                                    : null,
+                            child: widget.service.providerImage == null
+                                ? const Icon(Icons.person)
+                                : null,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Provider',
+                                  style: TextStyle(
+                                      fontSize: 12, color: Colors.grey),
+                                ),
+                                Text(
+                                  widget.service.sellerName,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.chevron_right, color: Colors.grey),
+                        ],
+                      ),
                     ),
                   ),
                 ],

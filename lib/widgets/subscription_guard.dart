@@ -34,7 +34,8 @@ class SubscriptionGuard extends StatelessWidget {
         }
 
         final user = authProvider.user!;
-        final userRole = user.primaryRole ?? 'registered_user';
+        final userRole =
+            requiredRole ?? user.primaryRole ?? 'registered_user';
 
         // Check if user needs subscription
         final needsSubscription =
@@ -154,7 +155,8 @@ class SubscriptionRequired extends StatelessWidget {
         }
 
         final user = authProvider.user!;
-        final userRole = user.primaryRole ?? 'registered_user';
+        final userRole =
+            requiredRole ?? user.primaryRole ?? 'registered_user';
 
         // Check if user needs subscription
         final needsSubscription =

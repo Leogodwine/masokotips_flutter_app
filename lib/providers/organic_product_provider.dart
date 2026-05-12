@@ -15,6 +15,23 @@ class OrganicProductProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
+  Future<void> loadPublicProducts() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _products = await _service.getPublicOrganicProducts();
+      _error = null;
+    } catch (e) {
+      _error = e.toString();
+      _products = [];
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> loadProducts() async {
     _isLoading = true;
     _error = null;

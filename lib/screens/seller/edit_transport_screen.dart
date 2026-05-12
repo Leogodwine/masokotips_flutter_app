@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../models/transport.dart';
+import '../../models/category.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
 import '../../config/api_config.dart';
@@ -31,6 +32,11 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
   final _capacityController = TextEditingController();
   final _contactPhoneController = TextEditingController();
 
+  // Category-related fields
+  List<Category> _categories = [];
+  Category? _selectedCategory;
+  bool _isLoadingCategories = false;
+
   String _selectedVehicleType = 'Truck';
   String _selectedStatus = 'Available';
   File? _selectedImage;
@@ -54,6 +60,7 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
     super.initState();
     _initializeApiService();
     _populateFields();
+    _loadCategories();
   }
 
   void _initializeApiService() {
@@ -91,6 +98,42 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
       _statusOptions.add(widget.transport.status);
     }
     _selectedStatus = widget.transport.status;
+  }
+
+  Future<void> _loadCategories() async {
+    if (_apiService == null) return;
+
+    setState(() {
+      _isLoadingCategories = true;
+    });
+
+    try {
+      // Use getTransportSubcategories to fetch only Transport subcategories
+      final categories = await _apiService!.getTransportSubcategories();
+      setState(() {
+        _categories = categories;
+
+        // Find and set the current category from the list if possible
+        if (widget.transport.categoryId != null) {
+          try {
+            _selectedCategory = categories.firstWhere(
+              (cat) => cat.id == widget.transport.categoryId,
+            );
+          } catch (e) {
+            Log.e('Category ID ${widget.transport.categoryId} not found in fetched list');
+          }
+        }
+      });
+      Log.e('EditTransport: Loaded ${categories.length} transport subcategories');
+    } catch (e) {
+      Log.e('Error loading transport subcategories: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingCategories = false;
+        });
+      }
+    }
   }
 
   Future<void> _pickImage() async {
@@ -143,6 +186,7 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
         'contact_phone': _contactPhoneController.text.trim(),
         'status': _selectedStatus.toLowerCase(),
         'image_url': imageUrl,
+        'category_id': _selectedCategory?.id,
       };
 
       Log.e('Updating transport: $transportData');
@@ -301,6 +345,43 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
                   setState(() {
                     _selectedVehicleType = value!;
                   });
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // Transport Category Dropdown
+              DropdownButtonFormField<Category>(
+                initialValue: _selectedCategory,
+                decoration: InputDecoration(
+                  labelText: 'Transport Category',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  prefixIcon: const Icon(Icons.local_shipping),
+                  filled: true,
+                  fillColor: Colors.grey[50],
+                ),
+                hint: Text(_isLoadingCategories
+                    ? 'Loading categories...'
+                    : 'Select a category'),
+                items: _categories.map((category) {
+                  return DropdownMenuItem<Category>(
+                    value: category,
+                    child: Text(category.name),
+                  );
+                }).toList(),
+                onChanged: _isLoadingCategories
+                    ? null
+                    : (Category? value) {
+                        setState(() {
+                          _selectedCategory = value;
+                        });
+                      },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select a transport category';
+                  }
+                  return null;
                 },
               ),
               const SizedBox(height: 16),

@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/logger.dart';
 import '../config/api_config.dart';
+import '../utils/api_response.dart';
 
 class ProductProvider with ChangeNotifier {
   final ApiService _apiService;
@@ -114,6 +115,15 @@ class ProductProvider with ChangeNotifier {
         // Convert organic products data to Product objects for display
         _products =
             organicProductsData.map((data) => Product.fromJson(data)).toList();
+      } else if (categoryName?.toLowerCase() == 'food and beverages') {
+        // Load food and beverages for food categories
+        final foodBeverageData = await _apiService
+            .getFoodBeveragesByCategory(categoryId, subcategory);
+        Log.e('Loaded ${foodBeverageData.length} food & beverages');
+
+        // Convert food & beverage data to Product objects for display
+        _products =
+            foodBeverageData.map((data) => Product.fromJson(data)).toList();
       } else if (categoryName?.toLowerCase() == 'transport') {
         // Load transports for transport categories
         Log.e('Loading transports for Transport category');
@@ -148,13 +158,11 @@ class ProductProvider with ChangeNotifier {
         try {
           final response = await http.get(
             uri,
-            headers: {
-              'Accept': 'application/json',
-            },
+            headers: ApiConfig.getHeaders(),
           );
 
           if (response.statusCode == 200) {
-            final dynamic responseData = jsonDecode(response.body);
+            final dynamic responseData = ApiResponse.decodeJson(response.body);
             List<dynamic> transportsList = [];
 
             if (responseData is Map) {
@@ -289,7 +297,7 @@ class ProductProvider with ChangeNotifier {
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+        final List<dynamic> data = ApiResponse.decodeJson(response.body);
         _searchResults = data.map((json) => Product.fromJson(json)).toList();
         return _searchResults;
       } else {

@@ -339,6 +339,36 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
+                                    // Seller info
+                                    if (product.user != null) ...[
+                                      const SizedBox(height: 2),
+                                      Row(
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 8,
+                                            backgroundImage:
+                                                product.sellerAvatar != null
+                                                    ? NetworkImage(
+                                                        product.sellerAvatar!)
+                                                    : null,
+                                            child: product.sellerAvatar == null
+                                                ? const Icon(Icons.person,
+                                                    size: 8)
+                                                : null,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Expanded(
+                                            child: Text(
+                                              product.sellerName,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                fontSize: 11, color: Colors.grey),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                     Text(
                                       'Stock: ${product.stock}',
                                       style: TextStyle(

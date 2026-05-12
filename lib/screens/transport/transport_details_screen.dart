@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/transport.dart';
 import 'package:masoko_tips/widgets/cached_network_image_with_cors.dart';
+import '../seller/seller_public_profile_screen.dart' as import_profile;
 
 class TransportDetailsScreen extends StatelessWidget {
   final Transport transport;
@@ -279,12 +280,84 @@ class TransportDetailsScreen extends StatelessWidget {
                     title: 'Contact Information',
                     child: Column(
                       children: [
-                        _buildContactInfoRow(
-                          context,
-                          icon: Icons.person,
-                          label: 'Owner',
-                          value: transport.ownerName,
-                        ),
+                        if (transport.user != null || transport.userId != null)
+                          InkWell(
+                            onTap: () {
+                              final String? sellerId = transport.user?['id']?.toString() ??
+                                  transport.userId?.toString();
+                              if (sellerId != null) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => import_profile
+                                        .SellerPublicProfileScreen(
+                                            sellerId: sellerId),
+                                  ),
+                                );
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[100],
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 24,
+                                    backgroundImage:
+                                        transport.sellerAvatar != null
+                                            ? NetworkImage(
+                                                transport.sellerAvatar!)
+                                            : null,
+                                    child: transport.sellerAvatar == null
+                                        ? const Icon(Icons.person)
+                                        : null,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          'Provider',
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                        Text(
+                                          transport.sellerName,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        if (transport.sellerLocation != null)
+                                          Text(
+                                            transport.sellerLocation!,
+                                            style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Icon(Icons.chevron_right,
+                                      color: Colors.grey),
+                                ],
+                              ),
+                            ),
+                          )
+                        else
+                          _buildContactInfoRow(
+                            context,
+                            icon: Icons.person,
+                            label: 'Provider',
+                            value: transport.sellerName,
+                          ),
                         const SizedBox(height: 12),
                         _buildContactInfoRow(
                           context,

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../../config/api_config.dart';
 
 class ZenopayProcessingScreen extends StatefulWidget {
   final String baseUrl; // e.g. https://yourdomain.com
@@ -113,10 +114,7 @@ class _ZenoPayProcessingScreenState extends State<ZenopayProcessingScreen>
     try {
       final resp = await http.get(
         uri,
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': 'Bearer ${widget.token}',
-        },
+        headers: ApiConfig.getHeaders(widget.token),
       );
 
       if (resp.statusCode == 404) {

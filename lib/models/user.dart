@@ -87,6 +87,12 @@ class User {
 
     return _$UserFromJson({
       ...json,
+      'name': json['name'] ?? 'User',
+      'email': json['email'] ?? '',
+      'created_at': json['created_at'] ?? DateTime.now().toIso8601String(),
+      'updated_at': json['updated_at'] ?? DateTime.now().toIso8601String(),
+      'is_suspended': json['is_suspended'] ?? false,
+      'is_active': json['is_active'] ?? true,
       'roles': parsedRoles,
     });
   }
@@ -102,6 +108,7 @@ class User {
   bool get isBuyer => hasRole('buyer');
   bool get isSeller => hasRole('seller');
   bool get isServiceProvider => hasRole('service_provider');
+  bool get isTransporter => hasRole('transporter');
   bool get isAdmin => hasRole('admin');
 
   bool get hasMultipleRoles => roles.length > 1;
@@ -132,6 +139,10 @@ class User {
         'providing_services',
         'managing_bookings',
       ]);
+    }
+
+    if (isTransporter) {
+      features.add('selling_transport');
     }
 
     if (isAdmin) {

@@ -3,29 +3,15 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/api_config.dart';
+import '../utils/api_response.dart';
 import '../utils/logger.dart';
 
 class SubscriptionService {
   static String get _baseUrl => ApiConfig.baseUrl;
 
-  static const String _userAgent =
-      'Mozilla/5.0 (Linux; Android 13; SM-G998B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36';
-
   Future<Map<String, String>> _headers({bool auth = false}) async {
-    final headers = <String, String>{
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'User-Agent': _userAgent,
-    };
-
-    if (auth) {
-      final token = await _getToken();
-      if (token != null) {
-        headers['Authorization'] = 'Bearer $token';
-      }
-    }
-
-    return headers;
+    final token = auth ? await _getToken() : null;
+    return ApiConfig.getHeaders(token);
   }
 
   Map<String, dynamic>? _safeJson(http.Response res) {
@@ -38,13 +24,20 @@ class SubscriptionService {
       return null;
     }
 
+    if (ApiResponse.looksLikeSecurityChallenge(res.body)) {
+      Log.e('Security challenge returned instead of JSON');
+      return null;
+    }
+
     final contentType = res.headers['content-type'] ?? '';
-    if (!contentType.contains('application/json')) {
+    if (!contentType.contains('application/json') &&
+        !res.body.trimLeft().startsWith('{') &&
+        !res.body.trimLeft().startsWith('[')) {
       Log.e('Invalid content-type: $contentType');
       return null;
     }
 
-    return jsonDecode(res.body);
+    return ApiResponse.decodeJson(res.body);
   }
 
   Future<Map<String, dynamic>?> getSubscriptionPackages() async {

@@ -134,13 +134,13 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   }
 
                   return GridView.builder(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(12),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      childAspectRatio: 0.7,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
+                      childAspectRatio: 0.6,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
                     ),
                     itemCount: products.length,
                     itemBuilder: (context, index) {
@@ -205,12 +205,45 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                           ),
                                         ),
                                       ),
+                                      // Seller info
+                                      if (product.user != null) ...[
+                                        const SizedBox(height: 4),
+                                        Row(
+                                          children: [
+                                            CircleAvatar(
+                                              radius: 8,
+                                              backgroundImage:
+                                                  product.sellerAvatar != null
+                                                      ? NetworkImage(
+                                                          product.sellerAvatar!)
+                                                      : null,
+                                              child: product.sellerAvatar == null
+                                                  ? const Icon(Icons.person,
+                                                      size: 10)
+                                                  : null,
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Expanded(
+                                              child: Text(
+                                                product.sellerName,
+                                                maxLines: 1,
+                                                overflow:
+                                                    TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                  fontSize: 10,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                       const SizedBox(height: 4),
                                       Text(
-                                        'TZS ${product.price.toStringAsFixed(2)}',
+                                        'TZS ${product.price.toStringAsFixed(0)}',
                                         style: TextStyle(
                                           color: Theme.of(context).primaryColor,
-                                          fontSize: 14,
+                                          fontSize: 13,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),

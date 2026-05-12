@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/cart_provider.dart';
 import '../widgets/custom_drawer.dart';
+import '../screens/chat/inbox_screen.dart';
 
 class AppScaffold extends StatelessWidget {
   final String title;
@@ -161,6 +162,12 @@ class AppScaffold extends StatelessWidget {
                             case 'orders':
                               Navigator.pushNamed(context, '/orders');
                               break;
+                            case 'messages':
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const InboxScreen()),
+                              );
+                              break;
                             case 'admin_login':
                               Navigator.pushNamed(context, '/admin/login');
                               break;
@@ -192,6 +199,16 @@ class AppScaffold extends StatelessWidget {
                                 Icon(Icons.shopping_bag),
                                 SizedBox(width: 8),
                                 Text('My Orders'),
+                              ],
+                            ),
+                          ),
+                          const PopupMenuItem(
+                            value: 'messages',
+                            child: Row(
+                              children: [
+                                Icon(Icons.chat),
+                                SizedBox(width: 8),
+                                Text('Messages'),
                               ],
                             ),
                           ),

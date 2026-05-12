@@ -1,12 +1,14 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../models/user.dart';
 import '../models/product.dart'; // Ensure this file contains the Product class definition
 import '../models/category.dart'; // Ensure this file contains the Category class definition
+import '../config/api_config.dart';
 import '../models/service.dart'; // Ensure this file contains the Service class definition
 import '../models/transport.dart'; // Ensure this file contains the Transport class definition
 import '../utils/logger.dart';
+import '../utils/extensions.dart';
 
 class ApiService {
   final String baseUrl;
@@ -24,51 +26,125 @@ class ApiService {
     _authToken = token;
   }
 
-  Map<String, String> get headers => {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        // Add a common browser User-Agent to try and bypass server-side bot detection.
-        'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
-        if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-      };
+  Map<String, String> get headers => ApiConfig.getHeaders(_authToken);
+  Map<String, String> get _publicHeaders => ApiConfig.getHeaders();
 
-  Map<String, String> get _publicHeaders => {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        // Add a common browser User-Agent to try and bypass server-side bot detection.
-        'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
-      };
+  bool _looksLikeHtml(String body) {
+    final lowerBody = body.trimLeft().toLowerCase();
+    return lowerBody.startsWith('<!doctype html') ||
+        lowerBody.startsWith('<html') ||
+        lowerBody.contains('<title>') ||
+        lowerBody.contains('</html>');
+  }
 
-  // Generic GET method
-  Future<Map<String, dynamic>> getRequest(String endpoint) async {
+  bool _looksLikeSecurityChallenge(String body) {
+    final lowerBody = body.toLowerCase();
+    return _looksLikeHtml(body) ||
+        lowerBody.contains('litespeed') ||
+        lowerBody.contains('recaptcha') ||
+        lowerBody.contains('captcha') ||
+        lowerBody.contains('bot') ||
+        lowerBody.contains('challenge') ||
+        lowerBody.contains('verification');
+  }
+
+  dynamic _decodeJson(String body) {
+    final trimmedBody = body.trim();
+    if (trimmedBody.isEmpty) return {};
+
+    if (_looksLikeSecurityChallenge(trimmedBody)) {
+      Log.e('Security challenge detected: HTML returned instead of JSON');
+      Log.d('Challenge body snippet: ${trimmedBody.length > 500 ? trimmedBody.substring(0, 500) : trimmedBody}');
+      throw Exception(
+          'Security Check: The server is verifying your request. Please wait a few seconds and try again.');
+    }
+
+    try {
+      return jsonDecode(trimmedBody);
+    } on FormatException catch (e) {
+      Log.e('Invalid JSON response: $e');
+      throw Exception(
+          'The server returned an invalid response. Please try again in a moment.');
+    }
+  }
+
+  /// Centralized response handler to detect bot interference and format errors
+  dynamic _handleResponse(http.Response response) {
+    final body = response.body.trim();
+    final isHtml = _looksLikeHtml(body);
+    final url = response.request?.url.toString() ?? 'unknown';
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      if (isHtml) {
+        Log.e('Bot interference detected at $url (HTML returned instead of JSON)');
+        throw Exception(
+            'Security Check: Our system is verifying your connection. Please try again in a moment.');
+      }
+      if (body.isEmpty) return {};
+      return _decodeJson(body);
+    }
+
+    // Handle non-2xx status codes
+    if (response.statusCode == 403 || response.statusCode == 503) {
+      final lowerBody = body.toLowerCase();
+      if (_looksLikeSecurityChallenge(lowerBody)) {
+        Log.e('Security challenge (HTTP ${response.statusCode}) detected at $url');
+        throw Exception(
+            'Security Check: The server is verifying your request. Please wait a few seconds and try again.');
+      }
+      if (response.statusCode == 503) {
+        throw Exception(
+            'The server is temporarily busy. Please try again in a moment.');
+      }
+    }
+
+    if (response.statusCode == 401) {
+      throw Exception('Your session has expired. Please log in again.');
+    }
+
+    if (response.statusCode == 404) {
+      throw Exception('The requested information was not found.');
+    }
+
+    if (response.statusCode == 500) {
+      throw Exception(
+          'Our servers are experiencing a temporary issue. Please try again later.');
+    }
+
+    // Try to parse error message from JSON if possible
+    if (!isHtml && body.isNotEmpty) {
+      try {
+        final errorData = _decodeJson(body);
+        if (errorData is Map && errorData.containsKey('message')) {
+          return errorData; // Return for specific handling (like validation errors)
+        }
+      } catch (_) {}
+    }
+
+    throw Exception('Request failed with status: ${response.statusCode}');
+  }
+
+  /// Helper to check for bot interference/HTML responses before parsing JSON
+  void _checkBotInterference(http.BaseResponse response, String body) {
+    final trimmedBody = body.trim();
+    final isHtml = _looksLikeHtml(trimmedBody);
+
+    if (isHtml || response.statusCode == 403 || response.statusCode == 503) {
+      if (_looksLikeSecurityChallenge(trimmedBody)) {
+        throw Exception(
+            'Security Check: The server is verifying your request. Please wait a few seconds and try again.');
+      }
+    }
+  }
+
+  Future<dynamic> getRequest(String endpoint) async {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/$endpoint'),
         headers: headers,
       );
 
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        // Provide user-friendly error messages based on status code
-        String friendlyMessage;
-        if (response.statusCode == 500) {
-          friendlyMessage =
-              'No services yet. Start by adding your first service!';
-        } else if (response.statusCode == 404) {
-          friendlyMessage = 'The requested information was not found.';
-        } else if (response.statusCode == 401) {
-          friendlyMessage = 'Your session has expired. Please log in again.';
-        } else if (response.statusCode == 403) {
-          friendlyMessage =
-              'You do not have permission to access this resource.';
-        } else {
-          friendlyMessage = 'Unable to load data. Please try again.';
-        }
-        throw Exception(friendlyMessage);
-      }
+      return _handleResponse(response);
     } catch (e) {
       Log.e('Error in GET request: $e');
       rethrow;
@@ -76,18 +152,14 @@ class ApiService {
   }
 
   // Generic public GET method (no auth token)
-  Future<Map<String, dynamic>> getPublicRequest(String endpoint) async {
+  Future<dynamic> getPublicRequest(String endpoint) async {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/$endpoint'),
         headers: _publicHeaders,
       );
 
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        throw Exception('Failed to fetch public data: ${response.statusCode}');
-      }
+      return _handleResponse(response);
     } catch (e) {
       Log.e('Error in public GET request: $e');
       rethrow;
@@ -102,11 +174,9 @@ class ApiService {
         headers: headers,
       );
 
-      if (response.statusCode == 200 || response.statusCode == 204) {
-        return response.statusCode == 200 ? jsonDecode(response.body) : {};
-      } else {
-        throw Exception('Failed to delete data: ${response.statusCode}');
-      }
+      final result = _handleResponse(response);
+      if (result is Map<String, dynamic>) return result;
+      return {};
     } catch (e) {
       Log.e('Error in DELETE request: $e');
       rethrow;
@@ -146,20 +216,18 @@ class ApiService {
         body: jsonEncode(requestBody),
       );
 
-      Log.e('Login response status: ${response.statusCode}');
-      Log.e('Login response body: ${response.body}');
+      final result = _handleResponse(response);
+      
+      if (result is Map<String, dynamic> && result.containsKey('token')) {
+        return result;
+      }
 
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        // Parse the error response to extract specific field errors
-        final errorData = jsonDecode(response.body);
-
+      // If _handleResponse returned error data (Map with message)
+      if (result is Map<String, dynamic> && result.containsKey('message')) {
+        final errorData = result;
         // Check for Laravel validation errors (errors object)
         if (errorData.containsKey('errors') && errorData['errors'] is Map) {
           final errors = errorData['errors'] as Map<String, dynamic>;
-
-          // Build a user-friendly error message from field errors
           if (errors.containsKey('username')) {
             final usernameErrors = errors['username'];
             if (usernameErrors is List && usernameErrors.isNotEmpty) {
@@ -173,31 +241,22 @@ class ApiService {
             }
           }
         }
-
-        // Check for a general message in the response
-        if (errorData.containsKey('message')) {
-          final message = errorData['message'];
-          if (message is String) {
-            // Check for common authentication failure messages
-            final lowerMessage = message.toLowerCase();
-            if (lowerMessage.contains('invalid') ||
-                lowerMessage.contains('credentials') ||
-                lowerMessage.contains('unauthorized')) {
-              throw Exception('Invalid username or password');
-            }
-            throw Exception(message);
-          }
+        
+        final message = errorData['message'].toString().toLowerCase();
+        if (message.contains('invalid') || message.contains('credentials') || message.contains('unauthorized')) {
+          throw Exception('Invalid username or password');
         }
-
-        throw Exception('Failed to login: ${response.body}');
+        throw Exception(errorData['message']);
       }
+
+      throw Exception('Unexpected response format during login');
     } catch (e) {
       Log.e('Login error: $e');
       // Re-throw if it's already an Exception with our custom message
       if (e.toString().startsWith('Exception:')) {
         rethrow;
       }
-      throw Exception('Error during login: $e');
+      throw Exception('Error during login: ${e.toFriendlyError}');
     }
   }
 
@@ -231,16 +290,13 @@ class ApiService {
 
       final response = await http.get(
         uri,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: headers,
       );
 
       Log.d('Services API response status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = _decodeJson(response.body);
 
         // Check if the response has the expected structure
         if (data is Map<String, dynamic> && data.containsKey('services')) {
@@ -278,7 +334,7 @@ class ApiService {
       }
     } catch (e) {
       Log.e('Error fetching services: $e');
-      throw Exception('Error fetching services: $e');
+      throw Exception('Error fetching services: ${e.toFriendlyError}');
     }
   }
 
@@ -322,13 +378,8 @@ class ApiService {
           proofOfAddress.path,
         ));
 
-        // Use proper headers for multipart request - set BEFORE adding files to preserve boundary
-        request.headers.addAll({
-          'Accept': 'application/json',
-          'X-API-Key': apiKey,
-          'User-Agent':
-              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
-        });
+        // Use proper headers for multipart request
+        request.headers.addAll(ApiConfig.getHeaders(_authToken));
 
         Log.e('Registration request URL: $url');
         Log.e('Registration request fields: ${request.fields}');
@@ -341,7 +392,7 @@ class ApiService {
         Log.e('Registration response body: $responseBody');
 
         if (response.statusCode == 201) {
-          final responseData = jsonDecode(responseBody);
+          final responseData = _decodeJson(responseBody);
           Log.e('Registration successful, returning data: $responseData');
           return responseData;
         } else {
@@ -378,7 +429,7 @@ class ApiService {
         Log.e('Registration response body: ${response.body}');
 
         if (response.statusCode == 201) {
-          final responseData = jsonDecode(response.body);
+          final responseData = _decodeJson(response.body);
           Log.e('Registration successful, returning data: $responseData');
           return responseData;
         } else {
@@ -387,7 +438,7 @@ class ApiService {
       }
     } catch (e) {
       Log.e('Registration error: $e');
-      throw Exception('Error during registration: $e');
+      throw Exception('Error during registration: ${e.toFriendlyError}');
     }
   }
 
@@ -404,7 +455,7 @@ class ApiService {
         throw Exception('Failed to logout: ${response.body}');
       }
     } catch (e) {
-      throw Exception('Error during logout: $e');
+      throw Exception('Error during logout: ${e.toFriendlyError}');
     }
   }
 
@@ -422,38 +473,40 @@ class ApiService {
       );
 
       if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
+        final responseData = _decodeJson(response.body);
         if (responseData['success'] != true) {
           throw Exception(
               responseData['message'] ?? 'Failed to send reset email');
         }
       } else {
-        final errorData = jsonDecode(response.body);
+        final errorData = _decodeJson(response.body);
         throw Exception(errorData['message'] ?? 'Failed to send reset email');
       }
     } catch (e) {
       Log.e('Reset password error: $e');
-      throw Exception('Error sending reset password email: $e');
+      throw Exception('Error sending reset password email: ${e.toFriendlyError}');
     }
   }
 
   // Get user profile
   Future<User> getUserProfile() async {
     try {
-      final url = Uri.parse('$baseUrl/user');
+      final url = Uri.parse('$baseUrl/profile');
       final response = await http.get(
         url,
         headers: headers,
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return User.fromJson(data);
+        final data = _decodeJson(response.body);
+        // Handle case where user is wrapped in a 'user' key
+        final userData = data.containsKey('user') ? data['user'] : data;
+        return User.fromJson(userData);
       } else {
         throw Exception('Failed to fetch user profile: ${response.body}');
       }
     } catch (e) {
-      throw Exception('Error fetching user profile: $e');
+      throw Exception('Error fetching user profile: ${e.toFriendlyError}');
     }
   }
 
@@ -469,10 +522,7 @@ class ApiService {
       final url = Uri.parse('$baseUrl/user/profile');
       final request = http.MultipartRequest('POST', url);
 
-      request.headers.addAll({
-        'Authorization': 'Bearer $_authToken',
-        'Accept': 'application/json',
-      });
+      request.headers.addAll(ApiConfig.getHeaders(_authToken));
 
       // Laravel method spoofing
       request.fields['_method'] = 'PUT';
@@ -493,13 +543,13 @@ class ApiService {
       final body = await response.stream.bytesToString();
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(body);
+        final data = _decodeJson(body);
         return User.fromJson(data['user']);
       } else {
         throw Exception('Profile update failed: $body');
       }
     } catch (e) {
-      throw Exception('Error updating profile: $e');
+      throw Exception('Error updating profile: ${e.toFriendlyError}');
     }
   }
 
@@ -514,7 +564,7 @@ class ApiService {
         'Authorization': 'Bearer $_authToken',
         'Accept': 'application/json',
         'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+            ApiConfig.getHeaders()['User-Agent']!,
       });
       request.files.add(await http.MultipartFile.fromPath('avatar', imagePath));
 
@@ -523,7 +573,7 @@ class ApiService {
         throw Exception('Failed to upload profile image');
       }
     } catch (e) {
-      throw Exception('Error uploading profile image: $e');
+      throw Exception('Error uploading profile image: ${e.toFriendlyError}');
     }
   }
 
@@ -549,7 +599,7 @@ class ApiService {
       Log.e('ApiService: Response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
+        final Map<String, dynamic> responseData = _decodeJson(response.body);
         final List<dynamic> data = responseData['data'];
         Log.e('ApiService: Parsed ${data.length} related products');
 
@@ -571,7 +621,7 @@ class ApiService {
     } catch (e, stackTrace) {
       Log.e(
           'ApiService: Exception while fetching related products: $e\n$stackTrace');
-      throw Exception('Failed to fetch related products: $e');
+      throw Exception('Failed to fetch related products: ${e.toFriendlyError}');
     }
   }
 
@@ -587,14 +637,28 @@ class ApiService {
       final response = await http.get(uri, headers: headers);
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body)['products'];
-        return data.map((json) => Product.fromJson(json)).toList();
+        final dynamic responseData = _decodeJson(response.body);
+        
+        List<dynamic> productsData = [];
+        if (responseData is Map<String, dynamic>) {
+          if (responseData.containsKey('products')) {
+            productsData = responseData['products'] is Map 
+                ? (responseData['products']['data'] ?? [])
+                : responseData['products'];
+          } else if (responseData.containsKey('data')) {
+            productsData = responseData['data'];
+          }
+        } else if (responseData is List) {
+          productsData = responseData;
+        }
+
+        return productsData.map((json) => Product.fromJson(json)).toList();
       } else {
         throw Exception(
             'Failed to fetch products. Status code: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Error fetching products: $e');
+      throw Exception('Error fetching products: ${e.toFriendlyError}');
     }
   }
 
@@ -612,7 +676,7 @@ class ApiService {
       Log.e('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final dynamic responseData = json.decode(response.body);
+        final dynamic responseData = _decodeJson(response.body);
 
         // Handle different response formats
         List<dynamic> productsData;
@@ -657,7 +721,7 @@ class ApiService {
       }
     } catch (e, stackTrace) {
       Log.e('Error in getProductsByCategory: $e\n$stackTrace');
-      throw Exception('Failed to load products: $e');
+      throw Exception('Failed to load products: ${e.toFriendlyError}');
     }
   }
 
@@ -675,7 +739,7 @@ class ApiService {
       Log.e('Organic products response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final dynamic responseData = json.decode(response.body);
+        final dynamic responseData = _decodeJson(response.body);
 
         // Handle different response formats
         List<dynamic> productsData;
@@ -721,33 +785,84 @@ class ApiService {
       }
     } catch (e, stackTrace) {
       Log.e('Error in getOrganicProductsByCategory: $e\n$stackTrace');
-      throw Exception('Failed to load organic products: $e');
+      throw Exception('Failed to load organic products: ${e.toFriendlyError}');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getFoodBeveragesByCategory(
+      int categoryId, String subcategory) async {
+    try {
+      final uri = Uri.parse('$baseUrl/categories/$categoryId/food-beverages');
+      Log.e('Fetching food & beverages for category: $categoryId');
+      Log.e('Request URL: $uri');
+
+      final response = await http.get(uri, headers: headers);
+
+      Log.e('Food & beverages response status: ${response.statusCode}');
+      Log.e('Food & beverages response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final dynamic responseData = _decodeJson(response.body);
+
+        // Handle different response formats
+        List<dynamic> productsData;
+        if (responseData is Map<String, dynamic>) {
+          if (responseData.containsKey('data')) {
+            productsData = List<dynamic>.from(responseData['data']);
+          } else if (responseData.containsKey('products')) {
+            productsData = List<dynamic>.from(responseData['products']);
+          } else {
+            productsData = [];
+          }
+        } else if (responseData is List) {
+          productsData = responseData;
+        } else {
+          productsData = [];
+        }
+
+        Log.e('Received ${productsData.length} food & beverages');
+        Log.e('Food & beverages data: ${productsData.toString()}');
+
+        final products = <Map<String, dynamic>>[];
+        for (int i = 0; i < productsData.length; i++) {
+          try {
+            final product = Map<String, dynamic>.from(productsData[i]);
+            products.add(product);
+            Log.e(
+                'Successfully parsed food & beverage ${i + 1}: ${product['name']}');
+          } catch (e) {
+            Log.e('Error parsing food & beverage ${i + 1}: $e');
+            Log.e('Food & beverage data: ${productsData[i]}');
+          }
+        }
+
+        Log.e('Parsed ${products.length} food & beverages');
+        return products;
+      } else if (response.statusCode == 404) {
+        Log.e('No food & beverages found for category: $categoryId');
+        return [];
+      } else {
+        Log.e('Error response: ${response.body}');
+        throw Exception(
+            'Failed to load food & beverages: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e, stackTrace) {
+      Log.e('Error in getFoodBeveragesByCategory: $e\n$stackTrace');
+      throw Exception('Failed to load food & beverages: ${e.toFriendlyError}');
     }
   }
 
   Future<List<Category>> getCategories() async {
     try {
       final uri = Uri.parse('$baseUrl/main-categories');
-      Log.e('ApiService: Fetching main categories from: $uri');
+      Log.d('ApiService: Fetching main categories from: $uri');
 
       final response = await http.get(
         uri,
         headers: headers,
       );
 
-      Log.e('ApiService: Response status: ${response.statusCode}');
-      Log.e('ApiService: Response headers: ${response.headers}');
-      Log.e(
-          'ApiService: Response body (partial): ${response.body.substring(0, response.body.length > 500 ? 500 : response.body.length)}');
-
-      final contentType = response.headers['content-type'] ?? '';
-
-      if (!contentType.contains('application/json')) {
-        throw Exception('Unexpected response type: $contentType');
-      }
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+      final data = _handleResponse(response);
 
         if (data is Map<String, dynamic> && data.containsKey('data')) {
           final List<dynamic> categoriesJson = data['data'];
@@ -756,19 +871,12 @@ class ApiService {
           Log.e(
               'ApiService: Successfully parsed ${categories.length} main categories');
           return categories;
-        } else {
-          Log.e('ApiService: Unexpected JSON structure: $data');
-          return [];
         }
-      } else {
-        Log.e('ApiService: Failed with status ${response.statusCode}');
-        throw Exception(
-            'Failed to fetch main categories: ${response.statusCode}');
-      }
-    } catch (e, stackTrace) {
+        return [];
+      } catch (e, stackTrace) {
       Log.e('ApiService: Error fetching main categories: $e');
       Log.e('ApiService: Stack trace: $stackTrace');
-      throw Exception('Error fetching main categories: $e');
+      throw Exception('Error fetching main categories: ${e.toFriendlyError}');
     }
   }
 
@@ -784,22 +892,7 @@ class ApiService {
         headers: headers,
       );
 
-      Log.e(
-          'ApiService: Subcategories response status: ${response.statusCode}');
-      Log.e('ApiService: Subcategories response headers: ${response.headers}');
-      Log.e(
-          'ApiService: Subcategories response body (partial): ${response.body.substring(0, response.body.length > 500 ? 500 : response.body.length)}');
-
-      final contentType = response.headers['content-type'] ?? '';
-
-      if (!contentType.contains('application/json')) {
-        Log.e(
-            'ApiService: Unexpected content type: $contentType. Body: ${response.body}');
-        throw Exception('Unexpected response type: $contentType');
-      }
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+      final data = _handleResponse(response);
 
         if (data is Map<String, dynamic> && data.containsKey('data')) {
           // Wrapped response format: {"data": [...]}
@@ -816,21 +909,12 @@ class ApiService {
           Log.e(
               'ApiService: Successfully parsed ${subcategories.length} subcategories from direct array');
           return subcategories;
-        } else {
-          Log.e(
-              'ApiService: Unexpected JSON structure for subcategories: $data');
-          return [];
         }
-      } else {
-        Log.e(
-            'ApiService: Failed to fetch subcategories with status ${response.statusCode}');
-        throw Exception(
-            'Failed to fetch subcategories: ${response.statusCode}');
-      }
-    } catch (e, stackTrace) {
+        return [];
+      } catch (e, stackTrace) {
       Log.e('ApiService: Error fetching subcategories: $e');
       Log.e('ApiService: Stack trace: $stackTrace');
-      throw Exception('Error fetching subcategories: $e');
+      throw Exception('Error fetching subcategories: ${e.toFriendlyError}');
     }
   }
 
@@ -845,11 +929,7 @@ class ApiService {
         headers: headers,
       );
 
-      Log.i(
-          'ApiService: Transport subcategories response status: ${response.statusCode}');
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+      final data = _handleResponse(response);
 
         // Handle the response format: {"success": true, "data": [...], "message": "..."}
         if (data is Map<String, dynamic> && data.containsKey('data')) {
@@ -863,20 +943,11 @@ class ApiService {
           final subcategories =
               data.map((json) => Category.fromJson(json)).toList();
           return subcategories;
-        } else {
-          Log.w(
-              'ApiService: Unexpected JSON structure for Transport subcategories: $data');
-          return [];
         }
-      } else {
-        Log.e(
-            'ApiService: Failed to fetch Transport subcategories with status ${response.statusCode}');
-        throw Exception(
-            'Failed to fetch Transport subcategories: ${response.statusCode}');
-      }
-    } catch (e) {
+        return [];
+      } catch (e) {
       Log.e('ApiService: Error fetching Transport subcategories: $e');
-      throw Exception('Error fetching Transport subcategories: $e');
+      throw Exception('Error fetching Transport subcategories: ${e.toFriendlyError}');
     }
   }
 
@@ -890,21 +961,7 @@ class ApiService {
         headers: headers,
       );
 
-      Log.e('ApiService: Response status: ${response.statusCode}');
-      Log.e('ApiService: Response headers: ${response.headers}');
-      Log.e(
-          'ApiService: Response body (partial): ${response.body.substring(0, response.body.length > 500 ? 500 : response.body.length)}');
-
-      final contentType = response.headers['content-type'] ?? '';
-
-      if (!contentType.contains('application/json')) {
-        Log.e(
-            'ApiService: Unexpected content type: $contentType. Body: ${response.body}');
-        throw Exception('Unexpected response type: $contentType');
-      }
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+      final data = _handleResponse(response);
 
         if (data is Map<String, dynamic> && data.containsKey('data')) {
           final List<dynamic> productsJson = data['data'];
@@ -913,19 +970,12 @@ class ApiService {
           Log.e(
               'ApiService: Successfully parsed ${products.length} featured products');
           return products;
-        } else {
-          Log.e('ApiService: Unexpected JSON structure: $data');
-          return [];
         }
-      } else {
-        Log.e('ApiService: Failed with status ${response.statusCode}');
-        throw Exception(
-            'Failed to fetch featured products: ${response.statusCode}');
-      }
-    } catch (e, stackTrace) {
+        return [];
+      } catch (e, stackTrace) {
       Log.e('ApiService: Error fetching featured products: $e');
       Log.e('ApiService: Stack trace: $stackTrace');
-      throw Exception('Error fetching featured products: $e');
+      throw Exception('Error fetching featured products: ${e.toFriendlyError}');
     }
   }
 
@@ -939,14 +989,14 @@ class ApiService {
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = _decodeJson(response.body);
         return Product.fromJson(data);
       } else {
         throw Exception(
             'Failed to fetch product details. Status code: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Error fetching product details: $e');
+      throw Exception('Error fetching product details: ${e.toFriendlyError}');
     }
   }
 
@@ -965,7 +1015,7 @@ class ApiService {
             'Failed to add product. Status code: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Error adding product: $e');
+      throw Exception('Error adding product: ${e.toFriendlyError}');
     }
   }
 
@@ -977,14 +1027,15 @@ class ApiService {
         headers: headers,
       );
 
+      _checkBotInterference(response, response.body);
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+        final List<dynamic> data = _decodeJson(response.body);
         return data.map((json) => Transport.fromJson(json)).toList();
       } else {
         throw Exception('Failed to load transports');
       }
     } catch (e) {
-      throw Exception('Error loading transports: $e');
+      throw Exception('Error loading transports: ${e.toFriendlyError}');
     }
   }
 
@@ -995,14 +1046,15 @@ class ApiService {
         headers: headers,
       );
 
+      _checkBotInterference(response, response.body);
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = _decodeJson(response.body);
         return Transport.fromJson(data);
       } else {
         throw Exception('Failed to load transport details');
       }
     } catch (e) {
-      throw Exception('Error loading transport details: $e');
+      throw Exception('Error loading transport details: ${e.toFriendlyError}');
     }
   }
 
@@ -1018,7 +1070,7 @@ class ApiService {
         throw Exception('Failed to add transport');
       }
     } catch (e) {
-      throw Exception('Error adding transport: $e');
+      throw Exception('Error adding transport: ${e.toFriendlyError}');
     }
   }
 
@@ -1026,15 +1078,14 @@ class ApiService {
     final response = await http.get(
       Uri.parse('$baseUrl$endpoint'),
       headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
+        ...this.headers,
         'X-API-Key': apiKey,
         ...?headers,
       },
     );
 
     if (response.statusCode == 200) {
-      return json.decode(response.body);
+      return _decodeJson(response.body);
     } else {
       throw Exception('Failed to load data: ${response.statusCode}');
     }
@@ -1045,8 +1096,7 @@ class ApiService {
     final response = await http.post(
       Uri.parse('$baseUrl$endpoint'),
       headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
+        ...this.headers,
         'X-API-Key': apiKey,
         ...?headers,
       },
@@ -1054,7 +1104,7 @@ class ApiService {
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return json.decode(response.body);
+      return _decodeJson(response.body);
     } else {
       throw Exception('Failed to post data: ${response.statusCode}');
     }
@@ -1074,7 +1124,7 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      return json.decode(response.body);
+      return _decodeJson(response.body);
     } else {
       throw Exception('Failed to update data: ${response.statusCode}');
     }
@@ -1128,8 +1178,9 @@ class ApiService {
       Log.e('Order creation response status: ${response.statusCode}');
       Log.e('Order creation response body: ${response.body}');
 
+      _checkBotInterference(response, response.body);
       if (response.statusCode == 201) {
-        final responseData = json.decode(response.body);
+        final responseData = _decodeJson(response.body);
         Log.e('Order created successfully');
         return responseData;
       } else {
@@ -1152,10 +1203,11 @@ class ApiService {
       Log.e('Orders response status: ${response.statusCode}');
       Log.e('Orders response body: ${response.body}');
 
+      _checkBotInterference(response, response.body);
       if (response.statusCode == 200) {
         Log.e('Raw response body: ${response.body}');
         try {
-          final responseData = json.decode(response.body);
+          final responseData = _decodeJson(response.body);
           Log.e('Decoded response data: $responseData');
           Log.e('Data type: ${responseData.runtimeType}');
           if (responseData is Map && responseData['data'] != null) {
@@ -1192,8 +1244,9 @@ class ApiService {
       final response = await http.get(uri, headers: headers);
       Log.e('Orders response status: ${response.statusCode}');
 
+      _checkBotInterference(response, response.body);
       if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
+        final responseData = _decodeJson(response.body);
         Log.e('Received orders response: ${response.body}');
 
         List<dynamic> ordersData;
@@ -1233,8 +1286,9 @@ class ApiService {
       final response = await http.get(uri, headers: headers);
       Log.e('Order response status: ${response.statusCode}');
 
+      _checkBotInterference(response, response.body);
       if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
+        final responseData = _decodeJson(response.body);
         Log.e('Received order: ${response.body}');
         return responseData;
       } else {
@@ -1256,8 +1310,9 @@ class ApiService {
       final response = await http.put(uri, headers: headers);
       Log.e('Cancel order response status: ${response.statusCode}');
 
+      _checkBotInterference(response, response.body);
       if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
+        final responseData = _decodeJson(response.body);
         Log.e('Order cancelled successfully');
         return responseData;
       } else {
@@ -1281,8 +1336,9 @@ class ApiService {
       Log.e('Seller orders response status: ${response.statusCode}');
       Log.e('Seller orders response body: ${response.body}');
 
+      _checkBotInterference(response, response.body);
       if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
+        final responseData = _decodeJson(response.body);
         Log.e('Received seller orders response: $responseData');
         return responseData;
       } else if (response.statusCode == 404) {
@@ -1315,8 +1371,9 @@ class ApiService {
       Log.e('Update order status response: ${response.statusCode}');
       Log.e('Update order status body: ${response.body}');
 
+      _checkBotInterference(response, response.body);
       if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
+        final responseData = _decodeJson(response.body);
         Log.e('Order status updated successfully');
         return responseData;
       } else {
@@ -1343,8 +1400,9 @@ class ApiService {
       Log.e('Seller organic products response status: ${response.statusCode}');
       Log.e('Seller organic products response body: ${response.body}');
 
+      _checkBotInterference(response, response.body);
       if (response.statusCode == 200) {
-        return json.decode(response.body);
+        return _decodeJson(response.body);
       } else {
         throw Exception(
             'Failed to fetch seller organic products: ${response.statusCode}');
@@ -1365,10 +1423,14 @@ class ApiService {
       final url = '$baseUrl/seller/organic-products';
       final request = http.MultipartRequest('POST', Uri.parse(url));
 
-      // Add headers
+      // Add enhanced headers to bypass bot detection
       request.headers.addAll({
-        'Authorization': 'Bearer $_authToken',
         'Accept': 'application/json',
+        'User-Agent':
+            ApiConfig.getHeaders()['User-Agent']!,
+        'Origin': baseUrl.replaceAll('/api', ''),
+        'Referer': baseUrl.replaceAll('/api', ''),
+        if (_authToken != null) 'Authorization': 'Bearer $_authToken',
       });
 
       // Add product fields
@@ -1407,8 +1469,9 @@ class ApiService {
       Log.e('Create organic product response status: ${response.statusCode}');
       Log.e('Create organic product response body: ${responseBody.body}');
 
+      _checkBotInterference(responseBody, responseBody.body);
       if (response.statusCode == 201) {
-        return json.decode(responseBody.body);
+        return _decodeJson(responseBody.body);
       } else {
         throw Exception(
             'Failed to create organic product: ${response.statusCode}');
@@ -1435,7 +1498,7 @@ class ApiService {
       request.headers.addAll({
         'Accept': 'application/json',
         'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+            ApiConfig.getHeaders()['User-Agent']!,
         'Origin': baseUrl.replaceAll('/api', ''),
         'Referer': baseUrl.replaceAll('/api', ''),
         if (_authToken != null) 'Authorization': 'Bearer $_authToken',
@@ -1475,8 +1538,9 @@ class ApiService {
       Log.e('Update organic product response status: ${response.statusCode}');
       Log.e('Update organic product response body: ${responseBody.body}');
 
+      _checkBotInterference(responseBody, responseBody.body);
       if (response.statusCode == 200) {
-        return json.decode(responseBody.body);
+        return _decodeJson(responseBody.body);
       } else {
         throw Exception(
             'Failed to update organic product: ${response.statusCode}');
@@ -1498,8 +1562,9 @@ class ApiService {
       Log.e('Delete organic product response status: ${response.statusCode}');
       Log.e('Delete organic product response body: ${response.body}');
 
+      _checkBotInterference(response, response.body);
       if (response.statusCode == 200) {
-        return json.decode(response.body);
+        return _decodeJson(response.body);
       } else {
         throw Exception(
             'Failed to delete organic product: ${response.statusCode}');
@@ -1522,7 +1587,7 @@ class ApiService {
         'Authorization': 'Bearer $_authToken',
         'Accept': 'application/json',
         'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+            ApiConfig.getHeaders()['User-Agent']!,
       });
       request.files
           .add(await http.MultipartFile.fromPath('image', imageFile.path));
@@ -1534,8 +1599,9 @@ class ApiService {
           'Upload organic product image response status: ${response.statusCode}');
       Log.e('Upload organic product image response body: $responseBody');
 
+      _checkBotInterference(response, responseBody);
       if (response.statusCode == 200) {
-        final decoded = json.decode(responseBody);
+        final decoded = _decodeJson(responseBody);
         Log.e('Parsed upload response: $decoded');
         return decoded;
       } else {
@@ -1561,7 +1627,7 @@ class ApiService {
       Log.e('Organic product categories response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final dynamic responseData = json.decode(response.body);
+        final dynamic responseData = _decodeJson(response.body);
 
         List<dynamic> categoriesData;
         if (responseData is Map<String, dynamic>) {
@@ -1584,8 +1650,7 @@ class ApiService {
           try {
             final category = Category.fromJson(categoriesData[i]);
             categories.add(category);
-            Log.e(
-                'Successfully parsed organic category ${i + 1}: ${category.name}');
+            Log.e('Parsed organic category ${i + 1}: ${category.name}');
           } catch (e) {
             Log.e('Error parsing organic category ${i + 1}: $e');
             Log.e('Category data: ${categoriesData[i]}');
@@ -1595,15 +1660,255 @@ class ApiService {
         Log.e('Parsed ${categories.length} organic product subcategories');
         return categories;
       } else {
-        Log.e('Error response: ${response.body}');
         throw Exception(
-            'Failed to load organic product categories: ${response.statusCode} - ${response.body}');
+            'Failed to load organic product categories: ${response.statusCode}');
       }
-    } catch (e, stackTrace) {
-      Log.e('Error in getOrganicProductCategories: $e\n$stackTrace');
-      throw Exception('Failed to load organic product categories: $e');
+    } catch (e) {
+      Log.e('Error in getOrganicProductCategories: $e');
+      throw Exception('Failed to load organic product categories: ${e.toFriendlyError}');
     }
   }
+
+  // Food and Beverages API methods
+  Future<Map<String, dynamic>> getSellerFoodBeverages() async {
+    try {
+      Log.e('Fetching seller food and beverages...');
+      final response = await http.get(
+        Uri.parse('$baseUrl/seller/food-beverages'),
+        headers: headers,
+      );
+
+      Log.e('Seller food beverages response status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        return _decodeJson(response.body);
+      } else {
+        throw Exception(
+            'Failed to fetch seller food and beverages: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error fetching seller food and beverages: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> getFeaturedFoodBeverages() async {
+    try {
+      Log.e('Fetching featured food and beverages...');
+      final response = await http.get(
+        Uri.parse('$baseUrl/food-beverages/featured'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        return _decodeJson(response.body);
+      } else {
+        throw Exception(
+            'Failed to fetch featured food and beverages: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error fetching featured food and beverages: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> createFoodBeverage(
+      Map<String, dynamic> productData) async {
+    try {
+      Log.e('Creating food beverage: ${productData['name']}');
+
+      final url = '$baseUrl/seller/food-beverages';
+      final request = http.MultipartRequest('POST', Uri.parse(url));
+
+      request.headers.addAll({
+        'Accept': 'application/json',
+        'User-Agent':
+            ApiConfig.getHeaders()['User-Agent']!,
+        'Origin': baseUrl.replaceAll('/api', ''),
+        'Referer': baseUrl.replaceAll('/api', ''),
+        if (_authToken != null) 'Authorization': 'Bearer $_authToken',
+      });
+
+      request.fields.addAll({
+        'name': productData['name'].toString(),
+        'description': productData['description']?.toString() ?? '',
+        'price': productData['price'].toString(),
+        'stock': productData['stock'].toString(),
+        'category_id': productData['category_id'].toString(),
+        'is_active': productData['is_active'] == true ? '1' : '0',
+        'is_featured': productData['is_featured'] == true ? '1' : '0',
+        if (productData['ingredients'] != null)
+          'ingredients': productData['ingredients'].toString(),
+        if (productData['dietary_info'] != null)
+          'dietary_info': productData['dietary_info'].toString(),
+        if (productData['expiration_date'] != null)
+          'expiration_date': productData['expiration_date'].toString(),
+        if (productData['storage_conditions'] != null)
+          'storage_conditions': productData['storage_conditions'].toString(),
+        if (productData['preparation_time'] != null)
+          'preparation_time': productData['preparation_time'].toString(),
+        if (productData['unit'] != null)
+          'unit': productData['unit'].toString(),
+      });
+
+      final images = productData['images'] as List<String>?;
+      if (images != null && images.isNotEmpty) {
+        request.fields['image_url'] = images.first;
+      }
+
+      final response = await request.send();
+      final responseBody = await http.Response.fromStream(response);
+
+      if (response.statusCode == 201) {
+        return _decodeJson(responseBody.body);
+      } else {
+        throw Exception(
+            'Failed to create food beverage: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error creating food beverage: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> updateFoodBeverage(
+      int productId, Map<String, dynamic> productData) async {
+    try {
+      Log.e('Updating food beverage: $productId');
+
+      final url = '$baseUrl/seller/food-beverages/$productId';
+      final request = http.MultipartRequest('POST', Uri.parse(url));
+      request.fields['_method'] = 'PUT';
+
+      request.headers.addAll({
+        'Accept': 'application/json',
+        'User-Agent':
+            ApiConfig.getHeaders()['User-Agent']!,
+        'Origin': baseUrl.replaceAll('/api', ''),
+        'Referer': baseUrl.replaceAll('/api', ''),
+        if (_authToken != null) 'Authorization': 'Bearer $_authToken',
+      });
+
+      request.fields.addAll({
+        'name': productData['name'].toString(),
+        'description': productData['description']?.toString() ?? '',
+        'price': productData['price'].toString(),
+        'stock': productData['stock'].toString(),
+        'category_id': productData['category_id'].toString(),
+        'is_active': productData['is_active'] == true ? '1' : '0',
+        'is_featured': productData['is_featured'] == true ? '1' : '0',
+        if (productData['ingredients'] != null)
+          'ingredients': productData['ingredients'].toString(),
+        if (productData['dietary_info'] != null)
+          'dietary_info': productData['dietary_info'].toString(),
+        if (productData['expiration_date'] != null)
+          'expiration_date': productData['expiration_date'].toString(),
+        if (productData['storage_conditions'] != null)
+          'storage_conditions': productData['storage_conditions'].toString(),
+        if (productData['preparation_time'] != null)
+          'preparation_time': productData['preparation_time'].toString(),
+        if (productData['unit'] != null)
+          'unit': productData['unit'].toString(),
+      });
+
+      final images = productData['images'] as List<String>?;
+      if (images != null && images.isNotEmpty) {
+        request.fields['image_url'] = images.first;
+      }
+
+      final response = await request.send();
+      final responseBody = await http.Response.fromStream(response);
+
+      if (response.statusCode == 200) {
+        return _decodeJson(responseBody.body);
+      } else {
+        throw Exception(
+            'Failed to update food beverage: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error updating food beverage: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> deleteFoodBeverage(int productId) async {
+    try {
+      Log.e('Deleting food beverage: $productId');
+      final response = await http.delete(
+        Uri.parse('$baseUrl/seller/food-beverages/$productId'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        return _decodeJson(response.body);
+      } else {
+        throw Exception(
+            'Failed to delete food beverage: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error deleting food beverage: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> uploadFoodBeverageImage(File imageFile) async {
+    try {
+      Log.e('Uploading food beverage image: ${imageFile.path}');
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$baseUrl/seller/food-beverages/upload-image'),
+      );
+
+      request.headers.addAll({
+        'Authorization': 'Bearer $_authToken',
+        'Accept': 'application/json',
+        'User-Agent':
+            ApiConfig.getHeaders()['User-Agent']!,
+      });
+      request.files
+          .add(await http.MultipartFile.fromPath('image', imageFile.path));
+
+      var response = await request.send();
+      var responseBody = await response.stream.bytesToString();
+
+      if (response.statusCode == 200) {
+        return _decodeJson(responseBody);
+      } else {
+        throw Exception(
+            'Failed to upload food beverage image: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error uploading food beverage image: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<Category>> getFoodBeverageCategories() async {
+    try {
+      // Category ID 6 is "Food and Beverage" in database
+      final uri = Uri.parse('$baseUrl/categories/6/subcategories');
+      final response = await http.get(uri, headers: headers);
+
+      if (response.statusCode == 200) {
+        final dynamic responseData = _decodeJson(response.body);
+        List<dynamic> categoriesData;
+        if (responseData is Map<String, dynamic>) {
+          categoriesData = List<dynamic>.from(responseData['data'] ?? []);
+        } else {
+          categoriesData = [];
+        }
+
+        return categoriesData.map((json) => Category.fromJson(json)).toList();
+      } else {
+        throw Exception(
+            'Failed to fetch food beverage categories: ${response.statusCode}');
+      }
+    } catch (e) {
+      Log.e('Error fetching food beverage categories: $e');
+      rethrow;
+    }
+  }
+
 
   // Get agricultural service subcategories
   Future<List<Category>> getAgriculturalServiceCategories() async {
@@ -1618,7 +1923,7 @@ class ApiService {
       Log.e('Agricultural service categories response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = _decodeJson(response.body);
         if (data is Map<String, dynamic> && data.containsKey('data')) {
           final List<dynamic> categoriesJson = data['data'];
           return categoriesJson.map((json) => Category.fromJson(json)).toList();
@@ -1635,7 +1940,7 @@ class ApiService {
       }
     } catch (e, stackTrace) {
       Log.e('Error in getAgriculturalServiceCategories: $e\n$stackTrace');
-      throw Exception('Failed to load agricultural service categories: $e');
+      throw Exception('Failed to load agricultural service categories: ${e.toFriendlyError}');
     }
   }
 
@@ -1652,7 +1957,7 @@ class ApiService {
       Log.e('Transport categories response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        return json.decode(response.body);
+        return _decodeJson(response.body);
       } else {
         throw Exception(
             'Failed to fetch transport categories: ${response.statusCode}');
@@ -1677,7 +1982,7 @@ class ApiService {
       Log.e('Seller transports response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        return json.decode(response.body);
+        return _decodeJson(response.body);
       } else {
         throw Exception(
             'Failed to fetch seller transports: ${response.statusCode}');
@@ -1702,7 +2007,7 @@ class ApiService {
       Log.e('Create transport response body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return json.decode(response.body);
+        return _decodeJson(response.body);
       } else {
         throw Exception('Failed to create transport: ${response.statusCode}');
       }
@@ -1726,7 +2031,7 @@ class ApiService {
       Log.e('Update transport response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
+        final responseData = _decodeJson(response.body);
         // Handle both direct data response and wrapped response
         if (responseData['data'] != null) {
           return responseData;
@@ -1774,7 +2079,7 @@ class ApiService {
         'Authorization': 'Bearer $_authToken',
         'Accept': 'application/json',
         'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+            ApiConfig.getHeaders()['User-Agent']!,
       });
       request.files
           .add(await http.MultipartFile.fromPath('image', imageFile.path));
@@ -1786,7 +2091,7 @@ class ApiService {
       Log.e('Upload transport image response body: $responseBody');
 
       if (response.statusCode == 200) {
-        return json.decode(responseBody);
+        return _decodeJson(responseBody);
       } else {
         throw Exception(
             'Failed to upload transport image: ${response.statusCode}');
@@ -1810,7 +2115,7 @@ class ApiService {
       Log.e('Get user roles response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        return json.decode(response.body);
+        return _decodeJson(response.body);
       } else {
         throw Exception('Failed to fetch user roles: ${response.statusCode}');
       }
@@ -1833,7 +2138,7 @@ class ApiService {
       Log.e('Add user role response body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return json.decode(response.body);
+        return _decodeJson(response.body);
       } else {
         throw Exception('Failed to add user role: ${response.statusCode}');
       }
@@ -1856,7 +2161,7 @@ class ApiService {
       Log.e('Remove user role response body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 204) {
-        return json.decode(response.body);
+        return _decodeJson(response.body);
       } else {
         throw Exception('Failed to remove user role: ${response.statusCode}');
       }
@@ -1865,4 +2170,84 @@ class ApiService {
       rethrow;
     }
   }
+
+  // Get all conversations for current user
+  Future<List<dynamic>> getConversations() async {
+    try {
+      final uri = Uri.parse('$baseUrl/chat/conversations');
+      final response = await http.get(uri, headers: headers);
+      if (response.statusCode == 200) {
+        final data = _decodeJson(response.body);
+        return data['data'] ?? [];
+      } else {
+        throw Exception('Failed to fetch conversations');
+      }
+    } catch (e) {
+      Log.e('Error fetching conversations: $e');
+      throw Exception('Error fetching conversations: ${e.toFriendlyError}');
+    }
+  }
+
+  // Get single conversation details with messages
+  Future<Map<String, dynamic>> getConversation(int id) async {
+    try {
+      final uri = Uri.parse('$baseUrl/chat/conversations/$id');
+      final response = await http.get(uri, headers: headers);
+      if (response.statusCode == 200) {
+        final data = _decodeJson(response.body);
+        return data['data'] ?? {};
+      } else {
+        throw Exception('Failed to fetch conversation');
+      }
+    } catch (e) {
+      Log.e('Error fetching conversation: $e');
+      throw Exception('Error fetching conversation: ${e.toFriendlyError}');
+    }
+  }
+
+  // Start new conversation implicitly by sending first message
+  Future<Map<String, dynamic>> startConversation(int receiverId, String message) async {
+    try {
+      final uri = Uri.parse('$baseUrl/chat/conversations');
+      final response = await http.post(
+        uri, 
+        headers: headers,
+        body: jsonEncode({
+          'receiver_id': receiverId,
+          'message': message,
+        })
+      );
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return _decodeJson(response.body);
+      } else {
+        throw Exception('Failed to start conversation');
+      }
+    } catch (e) {
+      Log.e('Error starting conversation: $e');
+      throw Exception('Error starting conversation: ${e.toFriendlyError}');
+    }
+  }
+
+  // Send message to existing conversation
+  Future<Map<String, dynamic>> sendMessage(int conversationId, String content) async {
+    try {
+      final uri = Uri.parse('$baseUrl/chat/conversations/$conversationId/messages');
+      final response = await http.post(
+        uri, 
+        headers: headers,
+        body: jsonEncode({
+          'content': content,
+        })
+      );
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return _decodeJson(response.body);
+      } else {
+        throw Exception('Failed to send message');
+      }
+    } catch (e) {
+      Log.e('Error sending message: $e');
+      throw Exception('Error sending message: ${e.toFriendlyError}');
+    }
+  }
 }
+

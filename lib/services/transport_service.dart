@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/transport.dart';
 import '../config/api_config.dart';
+import '../utils/api_response.dart';
+import '../utils/extensions.dart'; // Add extensions
 
 class TransportService {
   String? _authToken;
@@ -33,16 +35,15 @@ class TransportService {
       debugPrint('Fetching transports from API: $uri');
       final response = await http.get(
         uri,
-        headers: {
-          'Accept': 'application/json',
-        },
+        headers: ApiConfig.getHeaders(_authToken),
       );
 
       debugPrint('API Response Status Code: ${response.statusCode}');
       debugPrint('API Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        final Map<String, dynamic> responseData =
+            ApiResponse.decodeJson(response.body);
         if (responseData.containsKey('data')) {
           final List<dynamic> data = responseData['data'];
           debugPrint('Parsed ${data.length} transports from response');
@@ -67,7 +68,7 @@ class TransportService {
       }
     } catch (e) {
       debugPrint('Error in getTransports: $e');
-      throw Exception('Error fetching transports: $e');
+      throw Exception('Error fetching transports: ${e.toFriendlyError}');
     }
   }
 
@@ -78,15 +79,14 @@ class TransportService {
       
       final response = await http.get(
         uri,
-        headers: {
-          'Accept': 'application/json',
-        },
+        headers: ApiConfig.getHeaders(_authToken),
       );
 
       debugPrint('Featured transports API Response Status Code: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        final Map<String, dynamic> responseData =
+            ApiResponse.decodeJson(response.body);
         if (responseData.containsKey('data')) {
           final List<dynamic> data = responseData['data'];
           return data.map((transport) => Transport.fromJson(transport)).toList();
@@ -99,7 +99,7 @@ class TransportService {
       }
     } catch (e) {
       debugPrint('Error in getFeaturedTransports: $e');
-      throw Exception('Error fetching featured transports: $e');
+      throw Exception('Error fetching featured transports: ${e.toFriendlyError}');
     }
   }
 
@@ -130,11 +130,7 @@ class TransportService {
     try {
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/transports'),
-        headers: {
-          'Authorization': 'Bearer $_authToken',
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
+        headers: ApiConfig.getHeaders(_authToken),
         body: jsonEncode({
           'title': title,
           'description': description,
@@ -161,7 +157,7 @@ class TransportService {
       );
 
       if (response.statusCode == 201) {
-        final data = jsonDecode(response.body)['data'];
+        final data = ApiResponse.decodeJson(response.body)['data'];
         return Transport.fromJson(data);
       } else {
         throw Exception(
@@ -177,16 +173,12 @@ class TransportService {
     try {
       final response = await http.put(
         Uri.parse('${ApiConfig.baseUrl}/transports/${transport.id}'),
-        headers: {
-          'Authorization': 'Bearer $_authToken',
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
+        headers: ApiConfig.getHeaders(_authToken),
         body: jsonEncode(transport.toJson()),
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body)['data'];
+        final data = ApiResponse.decodeJson(response.body)['data'];
         return Transport.fromJson(data);
       } else {
         throw Exception(
@@ -202,10 +194,7 @@ class TransportService {
     try {
       final response = await http.delete(
         Uri.parse('${ApiConfig.baseUrl}/transports/$id'),
-        headers: {
-          'Authorization': 'Bearer $_authToken',
-          'Accept': 'application/json',
-        },
+        headers: ApiConfig.getHeaders(_authToken),
       );
 
       if (response.statusCode != 204) {
@@ -241,7 +230,7 @@ class TransportService {
 
       final response = await request.send();
       final responseData = await response.stream.bytesToString();
-      final jsonData = jsonDecode(responseData);
+      final jsonData = ApiResponse.decodeJson(responseData);
 
       if (response.statusCode == 200) {
         return jsonData['data']['image_url'];

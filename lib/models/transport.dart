@@ -1,8 +1,5 @@
-import 'package:json_annotation/json_annotation.dart';
 import 'category.dart' as models;
 import '../config/api_config.dart';
-
-part 'transport.g.dart';
 
 String _processTransportImageUrl(String path) {
   path = path.replaceAll('\\', '/').trim();
@@ -21,9 +18,9 @@ String _processTransportImageUrl(String path) {
     return path;
   }
 
-  final base = Uri.parse(ApiConfig.baseUrl);
-  final cleanBase = '${base.scheme}://${base.host}';
-
+  // Use the same robust cleanup logic as OrganicProduct
+  final baseUrl = ApiConfig.baseUrl.replaceAll('/api', '');
+  
   if (path.startsWith('/')) {
     path = path.substring(1);
   }
@@ -32,62 +29,57 @@ String _processTransportImageUrl(String path) {
     path = 'storage/$path';
   }
 
-  return '$cleanBase/$path';
+  return '$baseUrl/$path';
 }
 
-@JsonSerializable()
 class Transport {
   final int? id;
   final String title;
   final String? description;
-  @JsonKey(name: 'vehicle_location')
   final String vehicleLocation;
-  @JsonKey(name: 'vehicle_type')
   final String vehicleType;
-  @JsonKey(fromJson: _stringToDouble)
   final double price;
-  @JsonKey(fromJson: _stringToDouble)
   final double capacity;
-  @JsonKey(name: 'is_temperature_controlled', defaultValue: false)
   final bool isTemperatureControlled;
-  @JsonKey(name: 'temperature_range', fromJson: _stringToDoubleNullable)
   final double? temperatureRange;
-  @JsonKey(name: 'supported_product_types', fromJson: _ensureStringList)
   final List<String>? supportedProductTypes;
-  @JsonKey(name: 'driver_id')
   final String? driverId;
-  @JsonKey(name: 'driver_rating', fromJson: _stringToDoubleNullable)
   final double? driverRating;
-  @JsonKey(name: 'has_insurance', defaultValue: false)
   final bool hasInsurance;
-  @JsonKey(name: 'insurance_details')
   final String? insuranceDetails;
   final List<String>? certifications;
   final List<String>? amenities;
   final String status;
-  @JsonKey(name: 'image_url')
   final String? imageUrl;
-  @JsonKey(name: 'owner_name', defaultValue: '')
   final String ownerName;
-  @JsonKey(name: 'price_per_kg', fromJson: _stringToDoubleNullable)
   final double? pricePerKg;
-  @JsonKey(name: 'driver_name')
   final String? driverName;
-  @JsonKey(name: 'driver_phone')
   final String? driverPhone;
-  @JsonKey(name: 'created_at')
   final DateTime? createdAt;
-  @JsonKey(name: 'updated_at')
   final DateTime? updatedAt;
-  @JsonKey(name: 'product_name')
   final String? productName;
-  @JsonKey(name: 'product_type', fromJson: _standardizeProductType)
   final String? productType;
-  @JsonKey(fromJson: _stringToDouble)
   final double? amount;
-  @JsonKey(name: 'category_id')
   final int? categoryId;
   final models.Category? category;
+  final Map<String, dynamic>? user;
+  final int? userId;
+
+  // Computed properties for seller info
+  String get sellerName {
+    final username = user?['username'];
+    if (username != null && username.toString().trim().isNotEmpty) {
+      return username.toString();
+    }
+    if (user != null && user!['name'] != null && user!['name'].toString().trim().isNotEmpty) {
+      return user!['name'];
+    }
+    if (ownerName.isNotEmpty) return ownerName;
+    return title;
+  }
+  String? get sellerAvatar => user?['avatar'];
+  String? get sellerLocation => user?['location'];
+  String? get sellerPhone => user?['phone'];
 
   static double _stringToDouble(String? value) {
     if (value == null) return 0.0;
@@ -142,6 +134,8 @@ class Transport {
     this.amount,
     this.categoryId,
     this.category,
+    this.user,
+    this.userId,
   });
 
   // Getter for processed image URL
@@ -150,10 +144,82 @@ class Transport {
     return _processTransportImageUrl(imageUrl!);
   }
 
-  factory Transport.fromJson(Map<String, dynamic> json) =>
-      _$TransportFromJson(json);
+  factory Transport.fromJson(Map<String, dynamic> json) {
+    return Transport(
+      id: (json['id'] as num?)?.toInt(),
+      title: json['title'] as String? ?? 'Unknown',
+      description: json['description'] as String?,
+      vehicleLocation: json['vehicle_location'] as String? ?? 'Unknown',
+      vehicleType: json['vehicle_type'] as String? ?? 'Unknown',
+      price: _stringToDouble(json['price']?.toString()),
+      capacity: _stringToDouble(json['capacity']?.toString()),
+      isTemperatureControlled:
+          json['is_temperature_controlled'] == true || json['is_temperature_controlled'] == 1,
+      temperatureRange: _stringToDoubleNullable(json['temperature_range']?.toString()),
+      supportedProductTypes: _ensureStringList(json['supported_product_types']),
+      driverId: json['driver_id']?.toString(),
+      driverRating: _stringToDoubleNullable(json['driver_rating']?.toString()),
+      hasInsurance: json['has_insurance'] == true || json['has_insurance'] == 1,
+      insuranceDetails: json['insurance_details'] as String?,
+      certifications: json['certifications'] != null
+          ? (json['certifications'] as List<dynamic>).map((e) => e.toString()).toList()
+          : null,
+      amenities: json['amenities'] != null
+          ? (json['amenities'] as List<dynamic>).map((e) => e.toString()).toList()
+          : null,
+      status: json['status'] as String? ?? 'active',
+      imageUrl: json['image_url'] as String?,
+      ownerName: json['owner_name'] as String? ?? '',
+      pricePerKg: _stringToDoubleNullable(json['price_per_kg']?.toString()),
+      driverName: json['driver_name'] as String?,
+      driverPhone: json['driver_phone'] as String?,
+      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
+      updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at']) : null,
+      productName: json['product_name'] as String?,
+      productType: _standardizeProductType(json['product_type'] as String?),
+      amount: _stringToDouble(json['amount']?.toString()),
+      categoryId: (json['category_id'] as num?)?.toInt(),
+      category: json['category'] != null
+          ? models.Category.fromJson(json['category'] as Map<String, dynamic>)
+          : null,
+      user: json['user'] as Map<String, dynamic>?,
+      userId: (json['user_id'] as num?)?.toInt(),
+    );
+  }
 
-  Map<String, dynamic> toJson() => _$TransportToJson(this);
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'description': description,
+      'vehicle_location': vehicleLocation,
+      'vehicle_type': vehicleType,
+      'price': price,
+      'capacity': capacity,
+      'is_temperature_controlled': isTemperatureControlled,
+      'temperature_range': temperatureRange,
+      'supported_product_types': supportedProductTypes,
+      'driver_id': driverId,
+      'driver_rating': driverRating,
+      'has_insurance': hasInsurance,
+      'insurance_details': insuranceDetails,
+      'certifications': certifications,
+      'amenities': amenities,
+      'status': status,
+      'image_url': imageUrl,
+      'owner_name': ownerName,
+      'price_per_kg': pricePerKg,
+      'driver_name': driverName,
+      'driver_phone': driverPhone,
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
+      'product_name': productName,
+      'product_type': productType,
+      'amount': amount,
+      'category_id': categoryId,
+      'user_id': userId,
+    };
+  }
 
   Transport copyWith({
     int? id,
@@ -185,6 +251,8 @@ class Transport {
     double? amount,
     int? categoryId,
     models.Category? category,
+    Map<String, dynamic>? user,
+    int? userId,
   }) {
     return Transport(
       id: id ?? this.id,
@@ -218,6 +286,8 @@ class Transport {
       amount: amount ?? this.amount,
       categoryId: categoryId ?? this.categoryId,
       category: category ?? this.category,
+      user: user ?? this.user,
+      userId: userId ?? this.userId,
     );
   }
 }

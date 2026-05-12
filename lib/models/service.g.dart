@@ -13,6 +13,7 @@ Service _$ServiceFromJson(Map<String, dynamic> json) => Service(
       price: Service._priceFromJson(json['price']),
       categoryId: Service._categoryIdFromJson(json['category_id']),
       userId: Service._userIdFromJson(json['user_id']),
+      user: json['provider'] as Map<String, dynamic>?,
       imageUrl: json['image_url'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
@@ -61,4 +62,5 @@ Map<String, dynamic> _$ServiceToJson(Service instance) => <String, dynamic>{
       'review_count': instance.reviewCount,
       'is_active': instance.isActive,
       'featured': instance.featured,
+      'provider': instance.user,
     };

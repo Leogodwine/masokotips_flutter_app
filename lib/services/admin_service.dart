@@ -12,6 +12,7 @@ import '../models/category.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../utils/logger.dart';
+import '../config/api_config.dart';
 import 'network_service.dart';
 
 class AdminService {
@@ -31,15 +32,47 @@ class AdminService {
     _dio.options.sendTimeout = const Duration(seconds: 60);
 
     // Set enhanced headers for all Dio requests
-    _dio.options.headers.addAll({
-      'Accept': 'application/json, text/plain, */*',
-      'Accept-Language': 'en-US,en;q=0.9',
-      'User-Agent': _userAgent,
-      'Origin': baseUrl.replaceAll('/api', ''),
-      'Referer': baseUrl.replaceAll('/api', ''),
-      'Connection': 'keep-alive',
-      'Cache-Control': 'no-cache',
-    });
+    _dio.options.headers.addAll(ApiConfig.getHeaders());
+
+    // Add bot detection interceptor
+    _dio.interceptors.add(InterceptorsWrapper(
+      onResponse: (response, handler) {
+        final data = response.data;
+        if (data is String) {
+          final trimmed = data.trim();
+          if (trimmed.startsWith('<!DOCTYPE html') ||
+              trimmed.startsWith('<html')) {
+            Log.e('Bot interference detected in Admin Dio response');
+            return handler.reject(DioException(
+              requestOptions: response.requestOptions,
+              response: response,
+              type: DioExceptionType.badResponse,
+              error:
+                  'Our security system is verifying your connection. Please try again in a moment.',
+            ));
+          }
+        }
+        handler.next(response);
+      },
+      onError: (error, handler) {
+        if (error.response?.data != null) {
+          final data = error.response!.data.toString();
+          if (data.contains('LiteSpeed') ||
+              data.contains('cloudflare') ||
+              data.contains('bot') ||
+              data.contains('challenge')) {
+            return handler.reject(DioException(
+              requestOptions: error.requestOptions,
+              response: error.response,
+              type: DioExceptionType.badResponse,
+              error:
+                  'Security Check: The server is verifying your request. Please wait a few seconds and try again.',
+            ));
+          }
+        }
+        handler.next(error);
+      },
+    ));
   }
 
   void setAuthToken(String token) {
@@ -54,35 +87,23 @@ class AdminService {
   }
 
   // User-Agent header to identify as legitimate mobile app
-  static const String _userAgent =
-      'Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36';
 
   // Enhanced headers to bypass bot detection
-  Map<String, String> get _enhancedHeaders => {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json, text/plain, */*',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'User-Agent': _userAgent,
-        'Origin': baseUrl.replaceAll('/api', ''),
-        'Referer': baseUrl.replaceAll('/api', ''),
-        if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-      };
+  Map<String, String> get _enhancedHeaders => ApiConfig.getHeaders(_authToken);
 
   // Admin Authentication
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/admin/login'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: _enhancedHeaders,
         body: json.encode({
           'email': email,
           'password': password,
         }),
       );
 
+      _checkBotInterference(response, response.body);
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         return data;
@@ -100,10 +121,7 @@ class AdminService {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/admin/register'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: _enhancedHeaders,
         body: json.encode({
           'name': name,
           'email': email,
@@ -112,6 +130,7 @@ class AdminService {
         }),
       );
 
+      _checkBotInterference(response, response.body);
       if (response.statusCode == 201 || response.statusCode == 200) {
         final data = json.decode(response.body);
         return data;
@@ -121,6 +140,25 @@ class AdminService {
     } catch (e) {
       Log.e('Error in admin registration: $e');
       throw Exception('Failed to register: $e');
+    }
+  }
+
+  /// Helper to check for bot interference/HTML responses before parsing JSON
+  void _checkBotInterference(http.BaseResponse response, String body) {
+    final trimmedBody = body.trim();
+    final isHtml =
+        trimmedBody.startsWith('<!DOCTYPE html') || trimmedBody.startsWith('<html');
+
+    if (isHtml || response.statusCode == 403 || response.statusCode == 503) {
+      final lowerBody = trimmedBody.toLowerCase();
+      if (isHtml ||
+          lowerBody.contains('litespeed') ||
+          lowerBody.contains('bot') ||
+          lowerBody.contains('challenge') ||
+          lowerBody.contains('verification')) {
+        throw Exception(
+            'Security Check: The server is verifying your request. Please wait a few seconds and try again.');
+      }
     }
   }
 
@@ -163,6 +201,7 @@ class AdminService {
 
       Log.d('Users API response: ${response.body}');
 
+      _checkBotInterference(response, response.body);
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 
@@ -778,7 +817,7 @@ class AdminService {
               'Accept': 'application/json',
               'Content-Type': 'multipart/form-data',
               'Authorization': 'Bearer $_authToken',
-              'User-Agent': _userAgent,
+              'User-Agent': ApiConfig.getHeaders()['User-Agent']!,
               'Origin': baseUrl.replaceAll('/api', ''),
               'Referer': baseUrl.replaceAll('/api', ''),
             },
@@ -818,7 +857,7 @@ class AdminService {
             'Authorization': 'Bearer $_authToken',
             'Accept': 'application/json',
             'Content-Type': 'application/json',
-            'User-Agent': _userAgent,
+            'User-Agent': ApiConfig.getHeaders()['User-Agent']!,
             'Origin': baseUrl.replaceAll('/api', ''),
             'Referer': baseUrl.replaceAll('/api', ''),
           },
@@ -1500,7 +1539,7 @@ class AdminService {
                 'Accept': 'application/json',
                 'Content-Type': 'multipart/form-data',
                 'Authorization': 'Bearer $_authToken',
-                'User-Agent': _userAgent,
+                'User-Agent': ApiConfig.getHeaders()['User-Agent']!,
                 'Origin': baseUrl.replaceAll('/api', ''),
                 'Referer': baseUrl.replaceAll('/api', ''),
               },
@@ -1632,7 +1671,7 @@ class AdminService {
             headers: {
               'Content-Type': 'multipart/form-data',
               'Authorization': 'Bearer $_authToken',
-              'User-Agent': _userAgent,
+              'User-Agent': ApiConfig.getHeaders()['User-Agent']!,
               'Origin': baseUrl.replaceAll('/api', ''),
               'Referer': baseUrl.replaceAll('/api', ''),
             },

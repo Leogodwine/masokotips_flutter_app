@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:provider/provider.dart';
+import '../../utils/extensions.dart'; // added extensions for toFriendlyError
 
 import 'package:masoko_tips/screens/cart/cart_screen.dart';
 import 'package:masoko_tips/screens/market_info/market_info_detail_screen.dart';
@@ -13,6 +14,9 @@ import 'package:masoko_tips/screens/products/product_list_screen.dart';
 import 'package:masoko_tips/screens/search/search_screen.dart';
 import 'package:masoko_tips/screens/transport/transport_details_screen.dart';
 import 'package:masoko_tips/screens/transport/transport_list_screen.dart';
+import 'package:masoko_tips/screens/marketplace/marketplace_screen.dart';
+import 'package:masoko_tips/screens/seller/seller_public_profile_screen.dart' as import_profile;
+
 
 import '../../models/category.dart';
 import '../../providers/cart_provider.dart';
@@ -26,6 +30,10 @@ import '../../utils/logger.dart';
 import '../../widgets/friendly_error_display.dart';
 import '../../widgets/market_info_card.dart';
 import '../categories/subcategories_screen.dart';
+import '../../widgets/rating_stars.dart';
+import '../../models/service.dart';
+import '../../services/api_service.dart';
+import '../services/service_detail_screen.dart';
 
 class HomeContentScreen extends StatefulWidget {
   const HomeContentScreen({Key? key}) : super(key: key);
@@ -45,6 +53,10 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
   int _consecutiveLoadFailures = 0;
   static const _failureThreshold = 2;
 
+  List<Service> _featuredServices = [];
+  bool _isServicesLoading = false;
+  String? _servicesError;
+
   bool _shouldShowErrorNotification() {
     final now = DateTime.now();
     if (_lastErrorNotificationTime == null) {
@@ -62,12 +74,14 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
   void initState() {
     super.initState();
 
-    _loadData();
-    _loadMarketInfo();
-    _loadTransports();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      
+      _loadData();
+      _loadMarketInfo();
+      _loadTransports();
+      _loadFeaturedServices();
+
       final provider = context.read<CategoryProvider>();
       provider.loadMainCategories().whenComplete(() {
         if (!mounted) return;
@@ -106,7 +120,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content:
-                Text(localizations.errorLoadingFeaturedProducts(e.toString())),
+                Text(localizations.errorLoadingFeaturedProducts(e.toFriendlyError)),
             action: SnackBarAction(
               label: localizations.retry.toUpperCase(),
               onPressed: _loadData,
@@ -129,6 +143,43 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
     } catch (e) {
       Log.e('HomeContentScreen: Error loading featured transports: $e');
       _consecutiveLoadFailures++;
+    }
+  }
+
+  Future<void> _loadFeaturedServices() async {
+    if (!mounted) return;
+
+    setState(() {
+      _isServicesLoading = true;
+      _servicesError = null;
+    });
+
+    try {
+      final apiService = context.read<ApiService>();
+      final response = await apiService.getPublicRequest('services/featured');
+      
+      if (!mounted) return;
+
+      if (response.containsKey('data') && response['data'] is List) {
+        final List<dynamic> list = response['data'];
+        setState(() {
+          _featuredServices = list.map((json) => Service.fromJson(json)).toList();
+          _isServicesLoading = false;
+        });
+      } else {
+        setState(() {
+          _isServicesLoading = false;
+          _servicesError = 'Oops! We couldn\'t find any featured services at the moment.';
+        });
+      }
+    } catch (e) {
+      Log.e('HomeContentScreen: Error loading featured services: $e');
+      if (mounted) {
+        setState(() {
+          _isServicesLoading = false;
+          _servicesError = e.toFriendlyError;
+        });
+      }
     }
   }
 
@@ -162,12 +213,13 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
 
   Future<void> _refreshAll() async {
     try {
-      await Future.wait([
-        _loadData(),
-        _loadMarketInfo(),
-        _loadTransports(),
-        context.read<CategoryProvider>().loadMainCategories(),
-      ]);
+      // Fetch sequentially to prevent hitting API rate limits or connection reset errors
+      await context.read<CategoryProvider>().loadMainCategories();
+      await _loadData();
+      await _loadMarketInfo();
+      await _loadTransports();
+      await _loadFeaturedServices();
+      
       // Reset failure counter on successful refresh
       _consecutiveLoadFailures = 0;
     } catch (e) {
@@ -204,16 +256,12 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
               child: _sectionHeader(
                 icon: Icons.category,
                 title: localizations.categories,
-                seeAllText: localizations.seeAll,
+                seeAllText: 'View All', // Updated as requested
                 onSeeAll: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const ProductListScreen(
-                        title: 'All Products',
-                        categoryId: 0,
-                        subcategory: 'all',
-                      ),
+                      builder: (_) => const MarketplaceScreen(),
                     ),
                   );
                 },
@@ -523,7 +571,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                 }
 
                 return SizedBox(
-                  height: 340,
+                  height: 350,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -656,9 +704,80 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                           overflow: TextOverflow.ellipsis,
                                           style: const TextStyle(
                                             fontWeight: FontWeight.w600,
-                                            fontSize: 15,
+                                            fontSize: 14,
                                           ),
                                         ),
+                                        const SizedBox(height: 4),
+                                        Row(
+                                          children: [
+                                            RatingStars(rating: product.rating, size: 14),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              product.rating.toStringAsFixed(1),
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey[600],
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            if (product.ratingCount > 0)
+                                              Text(
+                                                ' (${product.ratingCount})',
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  color: Colors.grey[500],
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                        // Seller info
+                                        if (product.user != null || product.userId != 0) ...[
+                                          const SizedBox(height: 4),
+                                          InkWell(
+                                            onTap: () {
+                                              final String? sellerId = product.user?['id']?.toString() ??
+                                                  (product.userId != 0 ? product.userId.toString() : null);
+                                              if (sellerId != null) {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) => import_profile
+                                                        .SellerPublicProfileScreen(
+                                                            sellerId: sellerId),
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                            child: Row(
+                                              children: [
+                                                CircleAvatar(
+                                                  radius: 10,
+                                                  backgroundImage: product.sellerAvatar != null
+                                                      ? NetworkImage(
+                                                          product.sellerAvatar!)
+                                                      : null,
+                                                  child: product.sellerAvatar == null
+                                                      ? const Icon(Icons.person,
+                                                          size: 12)
+                                                      : null,
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Expanded(
+                                                  child: Text(
+                                                    product.sellerName,
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    style: const TextStyle(
+                                                      fontSize: 11,
+                                                      color: Colors.grey,
+                                                      decoration: TextDecoration.underline,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                         const SizedBox(height: 4),
                                         Text(
                                           'TZS ${product.price.toStringAsFixed(2)}',
@@ -731,6 +850,196 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
             const SizedBox(height: 24),
 
             // =========================
+            // Featured Agricultural Services Section
+            // =========================
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: _sectionHeader(
+                icon: Icons.handyman,
+                title: localizations.featuredServices,
+                seeAllText: localizations.seeAll,
+                onSeeAll: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const MarketplaceScreen(),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            if (_isServicesLoading)
+              const SizedBox(
+                height: 280,
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (_servicesError != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: FriendlyErrorDisplay(
+                  error: _servicesError,
+                  onRetry: _loadFeaturedServices,
+                ),
+              )
+            else if (_featuredServices.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Icon(Icons.handyman_outlined,
+                          size: 56, color: Colors.grey[400]),
+                      const SizedBox(height: 12),
+                      Text(
+                        localizations.noFeaturedServicesAvailable,
+                        style: TextStyle(
+                            fontSize: 15, color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              SizedBox(
+                height: 340,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  itemCount: _featuredServices.length,
+                  itemBuilder: (context, index) {
+                    final service = _featuredServices[index];
+
+                    return Container(
+                      width: 220,
+                      margin: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Card(
+                        elevation: 2,
+                        clipBehavior: Clip.antiAlias,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    ServiceDetailScreen(service: service),
+                              ),
+                            );
+                          },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Image.network(
+                                service.imageUrl ??
+                                    'https://via.placeholder.com/220x140?text=Service',
+                                height: 140,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    height: 140,
+                                    color: Colors.grey[200],
+                                    child: const Icon(Icons.broken_image,
+                                        size: 40),
+                                  );
+                                },
+                              ),
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        service.title ?? 'Service',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          RatingStars(rating: service.rating ?? 0.0, size: 14),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            (service.rating ?? 0.0).toStringAsFixed(1),
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.grey[600],
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const Spacer(),
+                                          Text(
+                                            '${service.reviewCount ?? 0} reviews',
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              color: Colors.grey[500],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 10,
+                                            backgroundImage: service.sellerAvatar != null
+                                                ? NetworkImage(service.sellerAvatar!)
+                                                : null,
+                                            child: service.sellerAvatar == null
+                                                ? const Icon(Icons.person, size: 12)
+                                                : null,
+                                          ),
+                                          const SizedBox(width: 4),
+                                            Expanded(
+                                              child: Text(
+                                                service.sellerName,
+                                                maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                fontSize: 11,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'TZS ${service.price.toStringAsFixed(0)}',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Theme.of(context).primaryColor,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+            const SizedBox(height: 24),
+
+            // =========================
             // Featured Transports Section
             // =========================
             Padding(
@@ -795,7 +1104,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                 }
 
                 return SizedBox(
-                  height: 300,
+                  height: 330,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -862,6 +1171,21 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                             fontSize: 16,
                                           ),
                                         ),
+                                        const SizedBox(height: 4),
+                                        Row(
+                                          children: [
+                                            RatingStars(rating: transport.driverRating ?? 0.0, size: 14),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              (transport.driverRating ?? 0.0).toStringAsFixed(1),
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey[600],
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                         Row(
                                           children: [
                                             const Icon(Icons.location_on,
@@ -880,7 +1204,54 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                             ),
                                           ],
                                         ),
-                                        const SizedBox(height: 4),
+                                        const SizedBox(height: 8),
+                                        // Provider info
+                                        if (transport.user != null || transport.userId != null)
+                                          InkWell(
+                                            onTap: () {
+                                              final String? sellerId = transport.user?['id']?.toString() ??
+                                                  transport.userId?.toString();
+                                              if (sellerId != null) {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) => import_profile
+                                                        .SellerPublicProfileScreen(
+                                                            sellerId: sellerId),
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                            child: Row(
+                                              children: [
+                                                CircleAvatar(
+                                                  radius: 10,
+                                                  backgroundImage: transport.sellerAvatar != null
+                                                      ? NetworkImage(
+                                                          transport.sellerAvatar!)
+                                                      : null,
+                                                  child: transport.sellerAvatar == null
+                                                      ? const Icon(Icons.person,
+                                                          size: 12)
+                                                      : null,
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Expanded(
+                                                  child: Text(
+                                                    transport.sellerName,
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    style: const TextStyle(
+                                                      fontSize: 11,
+                                                      color: Colors.grey,
+                                                      decoration: TextDecoration.underline,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        const SizedBox(height: 8),
                                         Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,

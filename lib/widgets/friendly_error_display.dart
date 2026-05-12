@@ -42,8 +42,8 @@ class FriendlyErrorDisplay extends StatelessWidget {
     }
 
     // API specific errors
-    if (errorLower.contains('text/html')) {
-      return 'The server responded with an unexpected format. Please contact support if this persists.';
+    if (errorLower.contains('text/html') || errorLower.contains('unexpected response format')) {
+      return 'Our security system is checking your connection. Please wait a moment and try again.';
     }
     if (errorLower.contains('json') || errorLower.contains('parsing')) {
       return 'There was an issue processing the data. Please try again.';

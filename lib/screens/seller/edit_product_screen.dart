@@ -4,6 +4,8 @@ import '../../models/product.dart';
 import '../../services/product_service.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:provider/provider.dart';
+import '../../providers/category_provider.dart';
 
 class EditProductScreen extends StatefulWidget {
   final Product product;
@@ -30,6 +32,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
   List<String> _selectedImages = [];
   bool _isLoading = false;
   String? _errorMessage;
+  int? _selectedCategoryId;
+  bool _isLoadingCategories = false;
 
   @override
   void initState() {
@@ -42,6 +46,27 @@ class _EditProductScreenState extends State<EditProductScreen> {
     _stockController =
         TextEditingController(text: widget.product.stock.toString());
     _selectedImages = widget.product.images ?? [];
+    _selectedCategoryId = widget.product.categoryId;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadCategories();
+    });
+  }
+
+  Future<void> _loadCategories() async {
+    setState(() => _isLoadingCategories = true);
+    try {
+      final categoryProvider =
+          Provider.of<CategoryProvider>(context, listen: false);
+      // Marketplace Products category ID is 1
+      await categoryProvider.loadSubcategories(1);
+    } catch (e) {
+      debugPrint('Error loading categories: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoadingCategories = false);
+      }
+    }
   }
 
   @override
@@ -56,7 +81,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
   Future<void> _pickImages() async {
     final ImagePicker picker = ImagePicker();
     try {
-      final List<XFile> images = await picker.pickMultiImage();
+      final List<XFile> images = await picker.pickMultiImage(
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 80,
+      );
       if (images.isNotEmpty) {
         setState(() {
           _selectedImages.addAll(images.map((image) => image.path));
@@ -90,6 +119,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
           price: double.parse(_priceController.text),
           stock: int.parse(_stockController.text),
           images: _selectedImages,
+          categoryId: _selectedCategoryId ?? widget.product.categoryId,
         );
 
         // Use the productService to update the product
@@ -215,6 +245,42 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   return null;
                 },
               ),
+              const SizedBox(height: 16),
+
+              // Category
+              Consumer<CategoryProvider>(
+                builder: (context, provider, child) {
+                  return DropdownButtonFormField<int>(
+                    isExpanded: true,
+                    initialValue: _selectedCategoryId,
+                    decoration: const InputDecoration(
+                      labelText: 'Category',
+                      border: OutlineInputBorder(),
+                    ),
+                    hint: _isLoadingCategories
+                        ? const Text('Loading categories...')
+                        : const Text('Select Category'),
+                    items: provider.subcategories.map((category) {
+                      return DropdownMenuItem<int>(
+                        value: category.id,
+                        child: Text(category.name),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _selectedCategoryId = value);
+                      }
+                    },
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Please select a category';
+                      }
+                      return null;
+                    },
+                  );
+                },
+              ),
+
               const SizedBox(height: 24),
 
               // Images Section

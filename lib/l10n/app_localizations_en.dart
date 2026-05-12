@@ -1132,4 +1132,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noFeaturedTransportsAvailable => 'No featured transports available';
+
+  @override
+  String get featuredServices => 'Featured Services';
+
+  @override
+  String get noFeaturedServicesAvailable => 'No featured services available';
 }

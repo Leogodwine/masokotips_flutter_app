@@ -75,6 +75,21 @@ class Service {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   final Category? category;
+  
+  @JsonKey(name: 'provider')
+  final Map<String, dynamic>? user;
+
+  // Computed properties for seller info
+  String get sellerName {
+    final username = user?['username'];
+    if (username != null && username.toString().trim().isNotEmpty) {
+      return username.toString();
+    }
+    return user?['name'] ?? 'Unknown';
+  }
+  String? get sellerAvatar => user?['avatar'];
+  String? get sellerLocation => user?['location'];
+  String? get sellerPhone => user?['phone'];
 
   Service({
     required this.id,
@@ -83,6 +98,7 @@ class Service {
     required this.price,
     required this.categoryId,
     required this.userId,
+    this.user,
     this.imageUrl,
     required this.createdAt,
     required this.updatedAt,

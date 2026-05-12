@@ -46,11 +46,15 @@ class _SplashScreenState extends State<SplashScreen>
   void _startAnimationSequence() async {
     // Show sponsors after 2 seconds (logo + text display time)
     await Future.delayed(const Duration(milliseconds: 2000));
+    if (!mounted) return;
+
     _sponsorController.forward();
     debugPrint('SplashScreen: Showing sponsor logos');
 
     // Display sponsors for 2 more seconds (total 4 seconds)
     await Future.delayed(const Duration(milliseconds: 2000));
+    if (!mounted) return;
+
     debugPrint('SplashScreen: Sponsor display complete');
 
     _navigateToHome();
@@ -116,12 +120,12 @@ class _SplashScreenState extends State<SplashScreen>
                             // Logo
                             Image.asset(
                               'assets/images/logo-moble.webp',
-                              height: 120,
+                              height: 180,
                               fit: BoxFit.contain,
                               filterQuality: FilterQuality.high,
                             ),
 
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 24),
                             // App name
                             Text(
                               AppLocalizations.of(context)!.appName,
@@ -205,13 +209,9 @@ class _SplashScreenState extends State<SplashScreen>
                               ),
                               const SizedBox(height: 12),
                               // Enlarged sponsor logo
-                              Container(
+                              SizedBox(
                                 height: 90,
                                 width: 220,
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
                                 child: Center(
                                   child: SponsorLogo(
                                     imagePath:

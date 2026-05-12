@@ -1132,4 +1132,10 @@ class AppLocalizationsSw extends AppLocalizations {
 
   @override
   String get noFeaturedTransportsAvailable => 'Hakuna usafiri uliotangazwa unaopatikana';
+
+  @override
+  String get featuredServices => 'Huduma Zilizotangazwa';
+
+  @override
+  String get noFeaturedServicesAvailable => 'Hakuna huduma zilizotangazwa zinazopatikana';
 }

@@ -153,7 +153,11 @@ class ProviderProfileScreen extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ChatScreen(provider: provider),
+              builder: (context) => ChatScreen(
+                receiverId: int.tryParse(provider.id) ?? 0,
+                receiverName: provider.name,
+                receiverImage: provider.imageUrl,
+              ),
             ),
           );
         },

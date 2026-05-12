@@ -152,6 +152,32 @@ class SubscriptionProvider with ChangeNotifier {
     return _currentSubscriptions!.values.first;
   }
 
+  /// Returns the latest subscription for the user, regardless of status
+  Subscription? getLatestSubscription() {
+    if (_userSubscriptions == null || _userSubscriptions!.isEmpty) {
+      return null;
+    }
+
+    // Sort by created_at descending and return first
+    final sorted = List<Subscription>.from(_userSubscriptions!);
+    sorted.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return sorted.first;
+  }
+
+  /// Returns the latest subscription of a specific type
+  Subscription? getLatestSubscriptionByType(String type) {
+    if (_userSubscriptions == null || _userSubscriptions!.isEmpty) {
+      return null;
+    }
+
+    final typeSubs =
+        _userSubscriptions!.where((s) => s.subscriptionType == type).toList();
+    if (typeSubs.isEmpty) return null;
+
+    typeSubs.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return typeSubs.first;
+  }
+
   /* ============================================================
    | AZAMPAY CHECKOUT (KEEP FOR OLD SCREENS)
    ============================================================ */

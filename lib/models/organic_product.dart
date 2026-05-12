@@ -23,6 +23,21 @@ class OrganicProduct {
   final DateTime updatedAt;
   final Map<String, dynamic>? seller;
   final Map<String, dynamic>? category;
+  final Map<String, dynamic>? user;
+  final double rating;
+  final int reviewsCount;
+
+  // Computed properties for seller info
+  String get sellerName {
+    final username = user?['username'] ?? seller?['username'];
+    if (username != null && username.toString().trim().isNotEmpty) {
+      return username.toString();
+    }
+    return user?['name'] ?? seller?['name'] ?? 'Unknown Seller';
+  }
+  String? get sellerAvatar => seller?['avatar'];
+  String? get sellerLocation => seller?['location'];
+  String? get sellerPhone => seller?['phone'];
 
   static String _processImageUrl(String path) {
     path = path.replaceAll('\\', '/').trim();
@@ -88,6 +103,9 @@ class OrganicProduct {
     required this.updatedAt,
     this.seller,
     this.category,
+    this.user,
+    this.rating = 0.0,
+    this.reviewsCount = 0,
   });
 
   factory OrganicProduct.fromJson(Map<String, dynamic> json) {
@@ -138,7 +156,10 @@ class OrganicProduct {
       createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
       updatedAt: DateTime.tryParse(json['updated_at'] ?? '') ?? DateTime.now(),
       seller: json['seller'],
+      user: json['user'],
       category: json['category'],
+      rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
+      reviewsCount: (json['reviews_count'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -161,6 +182,8 @@ class OrganicProduct {
       'origin': origin,
       'storage_conditions': storageConditions,
       'shelf_life': shelfLife,
+      'rating': rating,
+      'reviews_count': reviewsCount,
     };
 
     // Include DateTime fields
@@ -196,6 +219,9 @@ class OrganicProduct {
     DateTime? updatedAt,
     Map<String, dynamic>? seller,
     Map<String, dynamic>? category,
+    Map<String, dynamic>? user,
+    double? rating,
+    int? reviewsCount,
   }) {
     return OrganicProduct(
       id: id ?? this.id,
@@ -220,6 +246,9 @@ class OrganicProduct {
       updatedAt: updatedAt ?? this.updatedAt,
       seller: seller ?? this.seller,
       category: category ?? this.category,
+      user: user ?? this.user,
+      rating: rating ?? this.rating,
+      reviewsCount: reviewsCount ?? this.reviewsCount,
     );
   }
 }

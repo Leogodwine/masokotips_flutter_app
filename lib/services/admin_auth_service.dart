@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
 import '../utils/logger.dart';
+import '../config/api_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminAuthService {
@@ -14,8 +15,6 @@ class AdminAuthService {
   AdminAuthService({required this.baseUrl});
 
   // User-Agent header to identify as legitimate mobile app
-  static const String _userAgent =
-      'Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36';
 
   String? get authToken => _authToken;
 
@@ -91,14 +90,7 @@ class AdminAuthService {
 
       final response = await http.post(
         Uri.parse('$baseUrl/admin/login'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json, text/plain, */*',
-          'Accept-Language': 'en-US,en;q=0.9',
-          'User-Agent': _userAgent,
-          'Origin': baseUrl.replaceAll('/api', ''),
-          'Referer': baseUrl.replaceAll('/api', ''),
-        },
+        headers: ApiConfig.getHeaders(),
         body: json.encode({
           'username': username,
           'password': password,
@@ -156,14 +148,7 @@ class AdminAuthService {
 
       final response = await http.post(
         Uri.parse('$baseUrl/admin/login'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json, text/plain, */*',
-          'Accept-Language': 'en-US,en;q=0.9',
-          'User-Agent': _userAgent,
-          'Origin': baseUrl.replaceAll('/api', ''),
-          'Referer': baseUrl.replaceAll('/api', ''),
-        },
+        headers: ApiConfig.getHeaders(),
         body: json.encode({
           'username': username,
           'password': password,
@@ -210,15 +195,7 @@ class AdminAuthService {
 
       final response = await http.post(
         Uri.parse('$baseUrl/admin/create'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json, text/plain, */*',
-          'Accept-Language': 'en-US,en;q=0.9',
-          'User-Agent': _userAgent,
-          'Origin': baseUrl.replaceAll('/api', ''),
-          'Referer': baseUrl.replaceAll('/api', ''),
-          if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-        },
+        headers: ApiConfig.getHeaders(_authToken),
         body: json.encode({
           'name': name,
           'email': email,
@@ -258,14 +235,7 @@ class AdminAuthService {
         try {
           final response = await http.post(
             Uri.parse('$baseUrl/user/logout'),
-            headers: {
-              'Authorization': 'Bearer $_authToken',
-              'Accept': 'application/json, text/plain, */*',
-              'Accept-Language': 'en-US,en;q=0.9',
-              'User-Agent': _userAgent,
-              'Origin': baseUrl.replaceAll('/api', ''),
-              'Referer': baseUrl.replaceAll('/api', ''),
-            },
+            headers: ApiConfig.getHeaders(_authToken),
           );
 
           if (response.statusCode != 200) {
@@ -308,14 +278,7 @@ class AdminAuthService {
 
       final response = await http.get(
         Uri.parse('$baseUrl/admin/dashboard'),
-        headers: {
-          'Authorization': 'Bearer $_authToken',
-          'Accept': 'application/json, text/plain, */*',
-          'Accept-Language': 'en-US,en;q=0.9',
-          'User-Agent': _userAgent,
-          'Origin': baseUrl.replaceAll('/api', ''),
-          'Referer': baseUrl.replaceAll('/api', ''),
-        },
+        headers: ApiConfig.getHeaders(_authToken),
       );
 
       Log.d('Dashboard response status: ${response.statusCode}');

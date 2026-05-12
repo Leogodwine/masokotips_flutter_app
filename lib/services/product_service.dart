@@ -1,7 +1,7 @@
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/product.dart';
 import '../config/api_config.dart';
+import '../utils/api_response.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
 
@@ -22,18 +22,7 @@ class ProductService {
 
   // Centralized method for API headers
   Map<String, String> _getHeaders() {
-    // Using a user agent that mimics a mobile browser, similar to other working services.
-    const String userAgent =
-        'Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36';
-
-    return {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json, text/plain, */*',
-      'User-Agent': userAgent,
-      'Origin': ApiConfig.baseUrl.replaceAll('/api', ''),
-      'Referer': ApiConfig.baseUrl.replaceAll('/api', ''),
-      if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-    };
+    return ApiConfig.getHeaders(_authToken);
   }
 
   // Get seller products
@@ -53,7 +42,7 @@ class ProductService {
           throw const FormatException(
               'Server returned HTML instead of JSON. Bot protection might be blocking the request.');
         }
-        final responseData = jsonDecode(response.body);
+        final responseData = ApiResponse.decodeJson(response.body);
         debugPrint('Seller products response: $responseData');
         final List<dynamic> data = responseData['data'] ?? [];
         debugPrint('Found ${data.length} products');
@@ -154,13 +143,13 @@ class ProductService {
       debugPrint('Response body: ${response.body}');
 
       if (response.statusCode == 201) {
-        final responseData = jsonDecode(response.body);
+        final responseData = ApiResponse.decodeJson(response.body);
         final data = responseData['data']; // Get the actual product data
         debugPrint('Successfully created product: ${data['name']}');
         return Product.fromJson(
             data); // Directly use fromJson on the returned data
       } else {
-        final errorBody = jsonDecode(response.body);
+        final errorBody = ApiResponse.decodeJson(response.body);
         debugPrint(
             'Failed to add product. Error: ${errorBody['message'] ?? 'Unknown error'}');
         throw Exception(
@@ -251,10 +240,10 @@ class ProductService {
       debugPrint('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = ApiResponse.decodeJson(response.body);
         return Product.fromJson(data['data']);
       } else {
-        final errorBody = jsonDecode(response.body);
+        final errorBody = ApiResponse.decodeJson(response.body);
         throw Exception(
             'Failed to update product. Status code: ${response.statusCode}. Error: ${errorBody['message'] ?? 'Unknown error'}');
       }
@@ -342,10 +331,10 @@ class ProductService {
       debugPrint('Upload response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = ApiResponse.decodeJson(response.body);
         return data['url'];
       } else {
-        final errorBody = json.decode(response.body);
+        final errorBody = ApiResponse.decodeJson(response.body);
         throw Exception(
             'Failed to upload image. Status code: ${response.statusCode}. Error: ${errorBody['message'] ?? 'Unknown error'}');
       }

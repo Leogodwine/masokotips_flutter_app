@@ -1,7 +1,7 @@
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/category.dart';
 import 'api_service.dart';
+import '../utils/api_response.dart';
 import '../utils/logger.dart';
 import '../config/api_config.dart';
 
@@ -28,17 +28,14 @@ class CategoryService {
 
       final response = await http.get(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-        },
+        headers: ApiConfig.getHeaders(_authToken),
       );
 
       Log.d('Categories API response status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body)['data'];
+        final List<dynamic> data =
+            ApiResponse.decodeJson(response.body)['data'];
         return data.map((json) => Category.fromJson(json)).toList();
       } else {
         throw Exception('Failed to load categories: ${response.statusCode}');
@@ -56,17 +53,13 @@ class CategoryService {
 
       final response = await http.get(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-        },
+        headers: ApiConfig.getHeaders(_authToken),
       );
 
       Log.d('Category API response status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body)['data'];
+        final data = ApiResponse.decodeJson(response.body)['data'];
         return Category.fromJson(data);
       } else {
         throw Exception('Failed to load category: ${response.statusCode}');

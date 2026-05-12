@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../screens/auth/login_screen.dart';
+import '../seller/seller_public_profile_screen.dart' as import_profile;
 
 class OrganicProductDetailScreen extends StatefulWidget {
   final dynamic product;
@@ -163,6 +164,63 @@ class _OrganicProductDetailScreenState extends State<OrganicProductDetailScreen>
                   style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Text(widget.product.description ?? '', style: theme.textTheme.bodyMedium),
+              const SizedBox(height: 16),
+            ],
+
+            // Seller info
+            if (widget.product.sellerId != null) ...[
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => 
+                        import_profile.SellerPublicProfileScreen(sellerId: widget.product.sellerId.toString()),
+                    ),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 24,
+                        backgroundImage: widget.product.sellerAvatar != null
+                            ? NetworkImage(widget.product.sellerAvatar!)
+                            : null,
+                        child: widget.product.sellerAvatar == null
+                            ? const Icon(Icons.person)
+                            : null,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Seller',
+                              style: TextStyle(
+                                fontSize: 12, color: Colors.grey),
+                            ),
+                            Text(
+                              widget.product.sellerName ?? 'Seller',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.chevron_right, color: Colors.grey),
+                    ],
+                  ),
+                ),
+              ),
               const SizedBox(height: 16),
             ],
 
