@@ -442,7 +442,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
           builder: (_) => ServiceDetailScreen(service: service),
         ),
       ),
-      phoneNumber: null, // Add phone to service model if available
+      phoneNumber: service.contactPhone ?? service.sellerPhone,
     );
   }
 
@@ -622,7 +622,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                           onPressed: () =>
                               _handleProtectedAction(() => _initiateChat(item)),
                           icon: const Icon(Icons.chat_bubble_outline, size: 14),
-                          label: const Text('Chart',
+                          label: const Text('Chat',
                               style: TextStyle(fontSize: 11)),
                           style: OutlinedButton.styleFrom(
                             padding: EdgeInsets.zero,

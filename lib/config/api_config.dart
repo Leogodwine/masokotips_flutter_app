@@ -5,8 +5,8 @@ class ApiConfig {
   static const bool isProduction = true; // Back to production for live testing
 
   static const String baseUrl = isProduction
-      ? 'https://masokotips.com/api' // Production URL
-      : 'http://localhost:8000/api'; // Development URL
+      ? 'http://masokotips-api-env.eba-g5ypgz6g.eu-north-1.elasticbeanstalk.com/api' // Production URL
+      : 'http://masokotips-api-env.eba-g5ypgz6g.eu-north-1.elasticbeanstalk.com/api'; // Development URL
 
   static const Duration timeoutDuration = Duration(seconds: 60);
   static const String apiKey = '';
@@ -34,8 +34,8 @@ class ApiConfig {
     } else {
       // Mobile/Native environment: Use aggressive headers to bypass bot detection (LiteSpeed/WAF)
       h['X-Requested-With'] = 'XMLHttpRequest';
-      h['Referer'] = 'https://masokotips.com/';
-      h['Origin'] = 'https://masokotips.com';
+      h['Referer'] = 'http://masokotips-api-env.eba-g5ypgz6g.eu-north-1.elasticbeanstalk.com/';
+      h['Origin'] = 'http://masokotips-api-env.eba-g5ypgz6g.eu-north-1.elasticbeanstalk.com/';
       h['X-App-Identifier'] = 'MasokoTips-Flutter-App';
       h['Accept-Language'] = 'en-US,en;q=0.9';
       
