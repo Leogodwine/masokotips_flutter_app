@@ -54,7 +54,7 @@ class BuyerProvider with ChangeNotifier {
       _myRequests.insert(0, newRequest);
     } catch (e) {
       _error = e.toString();
-      throw e;
+      rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -71,7 +71,7 @@ class BuyerProvider with ChangeNotifier {
       _myRequests.removeWhere((request) => request.id == id);
     } catch (e) {
       _error = e.toString();
-      throw e;
+      rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();

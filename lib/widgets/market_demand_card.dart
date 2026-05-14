@@ -40,11 +40,11 @@ class MarketDemandCard extends StatelessWidget {
             width: 1.2,
           ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          clipBehavior: Clip.hardEdge,
-          children: [
+        child: ClipRect(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
             // ── Top: image OR placeholder banner ──
             ClipRRect(
               borderRadius:
@@ -172,9 +172,10 @@ class MarketDemandCard extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
+          ),   // Column
+        ),     // ClipRect
+      ),       // Container
+    );         // GestureDetector
   }
 
   Widget _placeholderBanner() {

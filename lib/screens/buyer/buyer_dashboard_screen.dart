@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../providers/buyer_provider.dart';
 import 'buying_requests_tab.dart';
 import '../orders/orders_screen.dart';
 import '../profile/profile_screen.dart';
