@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:provider/provider.dart';
-import '../../utils/extensions.dart'; // added extensions for toFriendlyError
+import '../../utils/extensions.dart';
 
 import 'package:masoko_tips/screens/cart/cart_screen.dart';
 import 'package:masoko_tips/screens/market_info/market_info_detail_screen.dart';
@@ -17,7 +17,7 @@ import 'package:masoko_tips/screens/transport/transport_list_screen.dart';
 import 'package:masoko_tips/screens/marketplace/marketplace_screen.dart';
 import 'package:masoko_tips/screens/seller/seller_public_profile_screen.dart' as import_profile;
 
-
+import '../../models/buying_request.dart';
 import '../../models/category.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/category_provider.dart';
@@ -28,7 +28,9 @@ import '../../providers/wishlist_provider.dart';
 import '../../utils/image_upload_helper.dart';
 import '../../utils/logger.dart';
 import '../../widgets/friendly_error_display.dart';
+import '../../widgets/market_demand_card.dart';
 import '../../widgets/market_info_card.dart';
+import '../buyer/market_demand_detail_screen.dart';
 import '../categories/subcategories_screen.dart';
 import '../../widgets/rating_stars.dart';
 import '../../models/service.dart';
@@ -57,6 +59,11 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
   bool _isServicesLoading = false;
   String? _servicesError;
 
+  // Market Demands
+  List<BuyingRequest> _marketDemands = [];
+  bool _isDemandsLoading = false;
+  String? _demandsError;
+
   bool _shouldShowErrorNotification() {
     final now = DateTime.now();
     if (_lastErrorNotificationTime == null) {
@@ -81,6 +88,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
       _loadMarketInfo();
       _loadTransports();
       _loadFeaturedServices();
+      _loadMarketDemands();
 
       final provider = context.read<CategoryProvider>();
       provider.loadMainCategories().whenComplete(() {
@@ -211,20 +219,52 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
     }
   }
 
+  Future<void> _loadMarketDemands() async {
+    if (!mounted) return;
+    setState(() {
+      _isDemandsLoading = true;
+      _demandsError = null;
+    });
+    try {
+      final apiService = context.read<ApiService>();
+      final response =
+          await apiService.getPublicRequest('market-demands?per_page=10');
+      if (!mounted) return;
+      if (response.containsKey('data') && response['data'] is List) {
+        setState(() {
+          _marketDemands = (response['data'] as List)
+              .map((j) => BuyingRequest.fromJson(j))
+              .toList();
+          _isDemandsLoading = false;
+        });
+      } else {
+        setState(() {
+          _isDemandsLoading = false;
+          _demandsError = 'No procurement requests available.';
+        });
+      }
+    } catch (e) {
+      Log.e('HomeContentScreen: Error loading market demands: $e');
+      if (mounted) {
+        setState(() {
+          _isDemandsLoading = false;
+          _demandsError = e.toFriendlyError;
+        });
+      }
+    }
+  }
+
   Future<void> _refreshAll() async {
     try {
-      // Fetch sequentially to prevent hitting API rate limits or connection reset errors
       await context.read<CategoryProvider>().loadMainCategories();
       await _loadData();
       await _loadMarketInfo();
       await _loadTransports();
       await _loadFeaturedServices();
-      
-      // Reset failure counter on successful refresh
+      await _loadMarketDemands();
       _consecutiveLoadFailures = 0;
     } catch (e) {
       Log.e('HomeContentScreen: Error during refresh: $e');
-      // Don't show error here - the individual methods will handle it
     }
   }
 
@@ -846,6 +886,81 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                 );
               },
             ),
+
+            const SizedBox(height: 24),
+
+            // =========================
+            // Market Demands Section
+            // =========================
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: _sectionHeader(
+                icon: Icons.campaign_outlined,
+                title: 'Market Demands',
+                seeAllText: 'See All',
+                onSeeAll: () {},
+              ),
+            ),
+            const SizedBox(height: 4),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Text(
+                'What buyers are actively looking for',
+                style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+              ),
+            ),
+            const SizedBox(height: 12),
+            if (_isDemandsLoading)
+              const SizedBox(
+                height: 230,
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (_demandsError != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: FriendlyErrorDisplay(
+                  error: _demandsError,
+                  onRetry: _loadMarketDemands,
+                ),
+              )
+            else if (_marketDemands.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20.0),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Icon(Icons.campaign_outlined,
+                          size: 48, color: Colors.grey[400]),
+                      const SizedBox(height: 10),
+                      Text('No active demands yet',
+                          style: TextStyle(
+                              fontSize: 14, color: Colors.grey[600])),
+                    ],
+                  ),
+                ),
+              )
+            else
+              SizedBox(
+                height: 270,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.only(left: 20, right: 6),
+                  itemCount: _marketDemands.length,
+                  itemBuilder: (context, index) {
+                    final demand = _marketDemands[index];
+                    return MarketDemandCard(
+                      demand: demand,
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              MarketDemandDetailScreen(demand: demand),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
 
             const SizedBox(height: 24),
 
