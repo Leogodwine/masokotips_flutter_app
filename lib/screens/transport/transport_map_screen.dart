@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:map_launcher/map_launcher.dart';
 import 'package:provider/provider.dart';
 import 'package:masoko_tips/models/transport.dart';
 import 'package:masoko_tips/providers/transport_provider.dart';
@@ -118,6 +119,84 @@ class _TransportMapScreenState extends State<TransportMapScreen> {
     }
   }
 
+  Future<void> _navigateToTransport(Transport item) async {
+    if (item.latitude == null || item.longitude == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('This truck does not have a GPS location set.'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
+
+    final availableMaps = await MapLauncher.installedMaps;
+    if (availableMaps.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No maps app found on this device.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
+    final coords = Coords(item.latitude!, item.longitude!);
+    final title = item.title;
+
+    if (!mounted) return;
+
+    if (availableMaps.length == 1) {
+      // Only one maps app — open it directly
+      await availableMaps.first.showDirections(
+        destination: coords,
+        destinationTitle: title,
+      );
+    } else {
+      // Multiple maps apps — show picker
+      showModalBottomSheet(
+        context: context,
+        builder: (ctx) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  'Navigate with...',
+                  style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ),
+              ...availableMaps.map((map) => ListTile(
+                    leading: Image.asset(
+                      map.icon,
+                      height: 30,
+                      width: 30,
+                      package: 'map_launcher',
+                    ),
+                    title: Text(map.mapName),
+                    onTap: () async {
+                      Navigator.pop(ctx);
+                      await map.showDirections(
+                        destination: coords,
+                        destinationTitle: title,
+                      );
+                    },
+                  )),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      );
+    }
+  }
+
   void _showTransportBottomSheet(Transport item) {
     String distanceStr = "Distance unknown";
     if (_currentPosition != null && item.latitude != null && item.longitude != null) {
@@ -202,7 +281,7 @@ class _TransportMapScreenState extends State<TransportMapScreen> {
                   ),
                 ],
               ),
-               const SizedBox(height: 20),
+              const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -216,28 +295,55 @@ class _TransportMapScreenState extends State<TransportMapScreen> {
                               fontSize: 18, fontWeight: FontWeight.bold)),
                     ],
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              TransportDetailsScreen(transport: item),
+                  Row(
+                    children: [
+                      // Navigate button
+                      if (item.latitude != null && item.longitude != null)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              Navigator.pop(ctx);
+                              _navigateToTransport(item);
+                            },
+                            icon: const Icon(Icons.directions, size: 18),
+                            label: const Text("Navigate"),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20)),
+                              side: BorderSide(
+                                  color: Theme.of(context).primaryColor),
+                              foregroundColor: Theme.of(context).primaryColor,
+                            ),
+                          ),
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 25, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20)),
-                      backgroundColor: Theme.of(context).primaryColor,
-                    ),
-                    child: const Text(
-                      "View Details",
-                      style: TextStyle(color: Colors.white, fontSize: 16),
-                    ),
+                      // View Details button
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  TransportDetailsScreen(transport: item),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                          backgroundColor: Theme.of(context).primaryColor,
+                        ),
+                        child: const Text(
+                          "View Details",
+                          style: TextStyle(color: Colors.white, fontSize: 14),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               )
