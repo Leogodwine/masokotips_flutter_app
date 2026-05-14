@@ -241,7 +241,7 @@ class _MarketDemandDetailScreenState extends State<MarketDemandDetailScreen> {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.4),
+      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -274,7 +274,7 @@ class _MarketDemandDetailScreenState extends State<MarketDemandDetailScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFF1A8C4E).withOpacity(0.1),
+              color: const Color(0xFF1A8C4E).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, size: 18, color: const Color(0xFF1A8C4E)),
@@ -298,7 +298,7 @@ class _MarketDemandDetailScreenState extends State<MarketDemandDetailScreen> {
   }
 
   Widget _divider() =>
-      Divider(height: 1, color: Colors.grey.withOpacity(0.2));
+      Divider(height: 1, color: Colors.grey.withValues(alpha: 0.2));
 
   Widget _buyerCard(
     BuildContext ctx,
@@ -323,7 +323,7 @@ class _MarketDemandDetailScreenState extends State<MarketDemandDetailScreen> {
           elevation: 0,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.4),
+          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -333,7 +333,7 @@ class _MarketDemandDetailScreenState extends State<MarketDemandDetailScreen> {
                     CircleAvatar(
                       radius: 26,
                       backgroundColor:
-                          const Color(0xFF1A8C4E).withOpacity(0.15),
+                          const Color(0xFF1A8C4E).withValues(alpha: 0.15),
                       backgroundImage: buyerAvatar != null
                           ? NetworkImage(
                               ImageUploadHelper.constructFullImageUrl(
@@ -453,7 +453,7 @@ class _MarketDemandDetailScreenState extends State<MarketDemandDetailScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -477,7 +477,7 @@ class _MarketDemandDetailScreenState extends State<MarketDemandDetailScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: (isOpen ? Colors.green : Colors.orange).withOpacity(0.1),
+        color: (isOpen ? Colors.green : Colors.orange).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
             color: isOpen ? Colors.green : Colors.orange, width: 0.8),

@@ -30,13 +30,13 @@ class MarketDemandCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.07),
+              color: Colors.black.withValues(alpha: 0.07),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
           ],
           border: Border.all(
-            color: const Color(0xFF1A8C4E).withOpacity(0.18),
+            color: const Color(0xFF1A8C4E).withValues(alpha: 0.18),
             width: 1.2,
           ),
         ),
@@ -133,7 +133,7 @@ class MarketDemandCard extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 13,
-                        backgroundColor: const Color(0xFF1A8C4E).withOpacity(0.12),
+                        backgroundColor: const Color(0xFF1A8C4E).withValues(alpha: 0.12),
                         backgroundImage: buyerAvatar != null
                             ? NetworkImage(ImageUploadHelper
                                 .constructFullImageUrl(buyerAvatar))
@@ -200,7 +200,7 @@ class MarketDemandCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(

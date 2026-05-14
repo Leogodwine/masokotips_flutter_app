@@ -166,7 +166,7 @@ class _AddBuyingRequestScreenState extends State<AddBuyingRequestScreen> {
                         Expanded(
                           flex: 1,
                           child: DropdownButtonFormField<String>(
-                            value: _selectedUnit,
+                            initialValue: _selectedUnit,
                             decoration: const InputDecoration(
                               labelText: 'Unit',
                               border: OutlineInputBorder(),
