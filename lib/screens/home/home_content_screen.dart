@@ -1652,14 +1652,12 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                     ),
                   );
                 } else if (category.name.toLowerCase().contains('transport')) {
-                  // Transport - navigate to products screen with transport filter
+                  // Transport - navigate to dedicated transport list screen
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => ProductListScreen(
-                        title: category.name,
-                        categoryId: category.id,
-                        subcategory: category.name.toLowerCase(),
+                      builder: (_) => TransportListScreen(
+                        category: category.name,
                       ),
                     ),
                   );

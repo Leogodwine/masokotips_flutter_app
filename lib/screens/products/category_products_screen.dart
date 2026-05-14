@@ -4,6 +4,7 @@ import '../../providers/product_provider.dart';
 import '../../providers/cart_provider.dart';
 import 'product_details_screen.dart';
 import '../../widgets/cached_network_image_with_cors.dart';
+import '../transport/transport_map_screen.dart';
 
 class CategoryProductsScreen extends StatefulWidget {
   final int categoryId;
@@ -103,6 +104,25 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
           ),
         ],
       ),
+      floatingActionButton:
+          widget.parentCategoryName?.toLowerCase().contains('transport') == true
+              ? FloatingActionButton.extended(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => TransportMapScreen(
+                          category: widget.categoryName,
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.map_outlined),
+                  label: const Text('View Map'),
+                  backgroundColor: Theme.of(context).primaryColor,
+                  foregroundColor: Colors.white,
+                )
+              : null,
       body: Consumer<ProductProvider>(
         builder: (context, productProvider, child) {
           if (productProvider.isLoading) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:masoko_tips/screens/market_info/market_info_screen.dart';
 import 'package:masoko_tips/screens/products/product_list_screen.dart';
+import 'package:masoko_tips/screens/transport/transport_list_screen.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/category_provider.dart';
 import '../../providers/cart_provider.dart';
@@ -49,14 +50,12 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
         ),
       );
     } else if (categoryName.contains('transport')) {
-      // Transport - navigate to products screen
+      // Transport - navigate to dedicated transport list screen
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => ProductListScreen(
-            title: widget.category.name,
-            categoryId: widget.category.id,
-            subcategory: categoryName,
+          builder: (_) => TransportListScreen(
+            category: widget.category.name,
           ),
         ),
       );

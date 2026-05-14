@@ -108,7 +108,7 @@ class _TransportMapScreenState extends State<TransportMapScreen> {
             categoryId: _categoryId?.toString(),
           );
     } catch (e) {
-      debugPrint("Error loading transports for map: \$e");
+      debugPrint("Error loading transports for map: $e");
     } finally {
       if (mounted) {
         setState(() {
@@ -118,18 +118,18 @@ class _TransportMapScreenState extends State<TransportMapScreen> {
     }
   }
 
-  void _showTransportBottomSheet(Transport transport) {
+  void _showTransportBottomSheet(Transport item) {
     String distanceStr = "Distance unknown";
-    if (_currentPosition != null && transport.latitude != null && transport.longitude != null) {
+    if (_currentPosition != null && item.latitude != null && item.longitude != null) {
       final m = _distance.as(
         LengthUnit.Meter,
         _currentPosition!,
-        LatLng(transport.latitude!, transport.longitude!),
+        LatLng(item.latitude!, item.longitude!),
       );
       if (m > 1000) {
-        distanceStr = "\${(m / 1000).toStringAsFixed(1)} km away";
+        distanceStr = "${(m / 1000).toStringAsFixed(1)} km away";
       } else {
-        distanceStr = "\${m.toStringAsFixed(0)} m away";
+        distanceStr = "${m.toStringAsFixed(0)} m away";
       }
     }
 
@@ -159,8 +159,8 @@ class _TransportMapScreenState extends State<TransportMapScreen> {
                       borderRadius: BorderRadius.circular(12),
                       image: DecorationImage(
                         image: NetworkImage(
-                          transport.processedImageUrl.isNotEmpty
-                              ? transport.processedImageUrl
+                          item.processedImageUrl.isNotEmpty
+                              ? item.processedImageUrl
                               : 'https://via.placeholder.com/150',
                         ),
                         fit: BoxFit.cover,
@@ -173,15 +173,15 @@ class _TransportMapScreenState extends State<TransportMapScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          transport.title,
+                          item.title,
                           style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 5),
                         Text(
-                          transport.vehicleType,
-                          style:
-                              TextStyle(color: Colors.grey[700], fontSize: 14),
+                          item.vehicleType,
+                          style: const TextStyle(
+                              color: Color(0xFF616161), fontSize: 14),
                         ),
                         const SizedBox(height: 5),
                         Row(
@@ -202,16 +202,16 @@ class _TransportMapScreenState extends State<TransportMapScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text("Price / Trip",
+                       const Text("Price / Trip",
                           style: TextStyle(color: Colors.grey, fontSize: 12)),
-                      Text("TZS \${transport.price.toStringAsFixed(0)}",
+                      Text("TZS ${item.price.toStringAsFixed(0)}",
                           style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold)),
                     ],
@@ -223,7 +223,7 @@ class _TransportMapScreenState extends State<TransportMapScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (_) =>
-                              TransportDetailsScreen(transport: transport),
+                              TransportDetailsScreen(transport: item),
                         ),
                       );
                     },
@@ -252,7 +252,7 @@ class _TransportMapScreenState extends State<TransportMapScreen> {
   Widget build(BuildContext context) {
     if (_isLoading || _currentPosition == null) {
       return Scaffold(
-        appBar: AppBar(title: Text("\${widget.category} Map")),
+        appBar: AppBar(title: Text("${widget.category} Map")),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -313,7 +313,7 @@ class _TransportMapScreenState extends State<TransportMapScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("\${widget.category} Map"),
+        title: Text("${widget.category} Map"),
         centerTitle: true,
       ),
       body: FlutterMap(
@@ -323,7 +323,7 @@ class _TransportMapScreenState extends State<TransportMapScreen> {
           initialZoom: 12.0,
         ),
         children: [
-          TileLayer(
+           TileLayer(
             urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
             userAgentPackageName: 'com.masoko.tips',
           ),
