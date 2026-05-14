@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:geolocator/geolocator.dart';
 import 'dart:io';
 import '../../models/transport.dart';
 import '../../models/category.dart';
@@ -42,6 +43,9 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
   File? _selectedImage;
   bool _isLoading = false;
   ApiService? _apiService;
+  double? _latitude;
+  double? _longitude;
+  bool _isCapturingGps = false;
 
   final List<String> _vehicleTypes = [
     'Truck',
@@ -98,6 +102,10 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
       _statusOptions.add(widget.transport.status);
     }
     _selectedStatus = widget.transport.status;
+
+    // Pre-fill existing GPS coordinates if available
+    _latitude = widget.transport.latitude;
+    _longitude = widget.transport.longitude;
   }
 
   Future<void> _loadCategories() async {
@@ -133,6 +141,63 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
           _isLoadingCategories = false;
         });
       }
+    }
+  }
+
+  Future<void> _captureGps() async {
+    setState(() => _isCapturingGps = true);
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Please enable location services'),
+                backgroundColor: Colors.orange),
+          );
+        }
+        return;
+      }
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) return;
+      }
+      if (permission == LocationPermission.deniedForever) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text(
+                    'Location permission permanently denied. Enable in settings.'),
+                backgroundColor: Colors.red),
+          );
+        }
+        return;
+      }
+      final position = await Geolocator.getCurrentPosition();
+      if (mounted) {
+        setState(() {
+          _latitude = position.latitude;
+          _longitude = position.longitude;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                'GPS captured: ${_latitude!.toStringAsFixed(5)}, ${_longitude!.toStringAsFixed(5)}'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Error capturing GPS: $e'),
+              backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isCapturingGps = false);
     }
   }
 
@@ -180,13 +245,14 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
         'description': _descriptionController.text.trim(),
         'vehicle_type': _selectedVehicleType,
         'vehicle_location': _vehicleLocationController.text.trim(),
-        'price': double.parse(_pricePerKmController
-            .text), // Fixed: use 'price' instead of 'price_per_km'
+        'price': double.parse(_pricePerKmController.text),
         'capacity': int.parse(_capacityController.text),
         'contact_phone': _contactPhoneController.text.trim(),
         'status': _selectedStatus.toLowerCase(),
         'image_url': imageUrl,
         'category_id': _selectedCategory?.id,
+        if (_latitude != null) 'latitude': _latitude,
+        if (_longitude != null) 'longitude': _longitude,
       };
 
       Log.e('Updating transport: $transportData');
@@ -404,6 +470,68 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
                   }
                   return null;
                 },
+              ),
+              const SizedBox(height: 16),
+
+              // GPS Location Capture
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                      color: _latitude != null
+                          ? Colors.green
+                          : Colors.grey.shade400),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: Row(
+                  children: [
+                    Icon(
+                      _latitude != null
+                          ? Icons.gps_fixed
+                          : Icons.gps_not_fixed,
+                      color: _latitude != null ? Colors.green : Colors.grey,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'GPS Location (for Map)',
+                            style: TextStyle(
+                                fontSize: 12, color: Colors.grey[600]),
+                          ),
+                          Text(
+                            _latitude != null
+                                ? '${_latitude!.toStringAsFixed(5)}, ${_longitude!.toStringAsFixed(5)}'
+                                : 'Not captured yet',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: _latitude != null
+                                  ? Colors.green[700]
+                                  : Colors.grey[500],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: _isCapturingGps ? null : _captureGps,
+                      icon: _isCapturingGps
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child:
+                                  CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.my_location, size: 18),
+                      label: Text(
+                          _latitude != null ? 'Update' : 'Use My Location'),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 16),
 

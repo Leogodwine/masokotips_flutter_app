@@ -234,17 +234,29 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CategoryProductsScreen(
-                categoryId: subcategory.id,
-                categoryName: subcategory.name,
-                subcategory: subcategory.name,
-                parentCategoryName: widget.category.name,
+          if (widget.category.name.toLowerCase().contains('transport')) {
+            // Transport subcategory -> show transport listings via TransportListScreen
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TransportListScreen(
+                  category: subcategory.name,
+                ),
               ),
-            ),
-          );
+            );
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CategoryProductsScreen(
+                  categoryId: subcategory.id,
+                  categoryName: subcategory.name,
+                  subcategory: subcategory.name,
+                  parentCategoryName: widget.category.name,
+                ),
+              ),
+            );
+          }
         },
         child: Container(
           padding: const EdgeInsets.all(16),
