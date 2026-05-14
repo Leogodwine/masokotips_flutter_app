@@ -42,6 +42,8 @@ class MarketDemandCard extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          clipBehavior: Clip.hardEdge,
           children: [
             // ── Top: image OR placeholder banner ──
             ClipRRect(
