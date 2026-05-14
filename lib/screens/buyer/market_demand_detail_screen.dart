@@ -1,31 +1,80 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../models/buying_request.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/image_upload_helper.dart';
+import '../chat/chat_screen.dart';
 
 class MarketDemandDetailScreen extends StatelessWidget {
   final BuyingRequest demand;
 
   const MarketDemandDetailScreen({super.key, required this.demand});
 
+  // ── Phone call launcher ─────────────────────────────────────────
+  Future<void> _callPhone(BuildContext context, String phone) async {
+    // Normalize: ensure it starts with + or digits only
+    final cleaned = phone.replaceAll(RegExp(r'[^\d+]'), '');
+    final uri = Uri(scheme: 'tel', path: cleaned);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Cannot open dialer for $phone')),
+        );
+      }
+    }
+  }
+
+  // ── Open chat with buyer ────────────────────────────────────────
+  void _openChat(BuildContext context, String buyerName, String? buyerAvatar) {
+    final buyerId = demand.userId;
+    final currentUserId = context.read<AuthProvider>().user?.id;
+
+    if (currentUserId == null) {
+      Navigator.pushNamed(context, '/login');
+      return;
+    }
+
+    if (currentUserId == buyerId) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('You cannot chat with yourself.')),
+      );
+      return;
+    }
+
+    final avatarUrl = buyerAvatar != null
+        ? ImageUploadHelper.constructFullImageUrl(buyerAvatar)
+        : '';
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ChatScreen(
+          receiverId: buyerId,
+          receiverName: buyerName,
+          receiverImage: avatarUrl,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isAuthenticated =
-        context.read<AuthProvider>().isAuthenticated;
+    final isAuthenticated = context.read<AuthProvider>().isAuthenticated;
     final buyer = demand.user;
     final buyerName = buyer?['name'] ?? 'Anonymous Buyer';
     final buyerPhone = buyer?['phone'];
     final buyerAvatar = buyer?['avatar'];
-    final hasImage =
-        demand.imageUrl != null && demand.imageUrl!.isNotEmpty;
+    final hasImage = demand.imageUrl != null && demand.imageUrl!.isNotEmpty;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: CustomScrollView(
         slivers: [
-          // ── App Bar with hero image ──
+          // ── Hero App Bar ──
           SliverAppBar(
             expandedHeight: 260,
             pinned: true,
@@ -33,8 +82,7 @@ class MarketDemandDetailScreen extends StatelessWidget {
             flexibleSpace: FlexibleSpaceBar(
               background: hasImage
                   ? Image.network(
-                      ImageUploadHelper.constructFullImageUrl(
-                          demand.imageUrl!),
+                      ImageUploadHelper.constructFullImageUrl(demand.imageUrl!),
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => _heroBanner(),
                     )
@@ -48,12 +96,10 @@ class MarketDemandDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── WANTED badge + status ──
+                  // ── Badge + status ──
                   Row(
                     children: [
-                      _badge(
-                          Icons.shopping_bag_outlined,
-                          'PROCUREMENT REQUEST',
+                      _badge(Icons.shopping_bag_outlined, 'PROCUREMENT REQUEST',
                           const Color(0xFF1A8C4E)),
                       const Spacer(),
                       _statusChip(demand.status),
@@ -64,27 +110,27 @@ class MarketDemandDetailScreen extends StatelessWidget {
                   // ── Title ──
                   Text(
                     demand.title,
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w800),
+                    style: theme.textTheme.headlineSmall
+                        ?.copyWith(fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 10),
 
                   // ── Description ──
                   Text(
                     demand.description,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[700], height: 1.6),
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(color: Colors.grey[700], height: 1.6),
                   ),
                   const SizedBox(height: 20),
 
-                  // ── Key Details ──
-                  _detailsCard(theme, context),
+                  // ── Key Details Card ──
+                  _detailsCard(theme),
 
                   const SizedBox(height: 20),
 
                   // ── Buyer / Contact Info ──
-                  _buyerCard(context, theme, isAuthenticated,
-                      buyerName, buyerPhone, buyerAvatar),
+                  _buyerCard(context, theme, isAuthenticated, buyerName,
+                      buyerPhone, buyerAvatar),
                 ],
               ),
             ),
@@ -94,7 +140,7 @@ class MarketDemandDetailScreen extends StatelessWidget {
     );
   }
 
-  // ── Helper Widgets ──────────────────────────────────────────────
+  // ── Widgets ─────────────────────────────────────────────────────
 
   Widget _heroBanner() {
     return Container(
@@ -112,7 +158,7 @@ class MarketDemandDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _detailsCard(ThemeData theme, BuildContext context) {
+  Widget _detailsCard(ThemeData theme) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -127,11 +173,8 @@ class MarketDemandDetailScreen extends StatelessWidget {
             _detailRow(Icons.location_on_outlined, 'Delivery Location',
                 demand.deliveryLocation, theme),
             _divider(),
-            _detailRow(
-                Icons.calendar_today_outlined,
-                'Posted',
-                _formatDate(demand.createdAt),
-                theme),
+            _detailRow(Icons.calendar_today_outlined, 'Posted',
+                _formatDate(demand.createdAt), theme),
           ],
         ),
       ),
@@ -153,15 +196,18 @@ class MarketDemandDetailScreen extends StatelessWidget {
             child: Icon(icon, size: 18, color: const Color(0xFF1A8C4E)),
           ),
           const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label,
-                  style: TextStyle(fontSize: 11, color: Colors.grey[500])),
-              Text(value,
-                  style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w700)),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label,
+                    style:
+                        TextStyle(fontSize: 11, color: Colors.grey[500])),
+                Text(value,
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w700)),
+              ],
+            ),
           ),
         ],
       ),
@@ -172,12 +218,16 @@ class MarketDemandDetailScreen extends StatelessWidget {
       Divider(height: 1, color: Colors.grey.withOpacity(0.2));
 
   Widget _buyerCard(
-      BuildContext context,
-      ThemeData theme,
-      bool isAuthenticated,
-      String buyerName,
-      String? buyerPhone,
-      String? buyerAvatar) {
+    BuildContext context,
+    ThemeData theme,
+    bool isAuthenticated,
+    String buyerName,
+    String? buyerPhone,
+    String? buyerAvatar,
+  ) {
+    final hasRealPhone =
+        buyerPhone != null && buyerPhone.isNotEmpty && buyerPhone != '****';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -194,6 +244,7 @@ class MarketDemandDetailScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
+                // Buyer info row
                 Row(
                   children: [
                     CircleAvatar(
@@ -234,59 +285,90 @@ class MarketDemandDetailScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 16),
 
-                // Phone — shown only to subscribers, masked otherwise
-                if (isAuthenticated && buyerPhone != null &&
-                    buyerPhone != '****')
-                  _contactButton(context, buyerPhone)
-                else
-                  _subscribeToContact(context),
+                // Action buttons
+                if (isAuthenticated && hasRealPhone) ...[
+                  // ── Call Button ──
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () => _callPhone(context, buyerPhone),
+                      icon: const Icon(Icons.phone_outlined),
+                      label: Text(buyerPhone),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1A8C4E),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // ── Chat Button ──
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () =>
+                          _openChat(context, buyerName, buyerAvatar),
+                      icon: const Icon(Icons.chat_bubble_outline, size: 18),
+                      label: Text('Chat with $buyerName'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF1A8C4E),
+                        side:
+                            const BorderSide(color: Color(0xFF1A8C4E), width: 1.5),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                ] else if (isAuthenticated && !hasRealPhone) ...[
+                  // Authenticated but phone masked (shouldn't happen for
+                  // subscribed users, but just in case)
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () =>
+                          _openChat(context, buyerName, buyerAvatar),
+                      icon: const Icon(Icons.chat_bubble_outline, size: 18),
+                      label: Text('Chat with $buyerName'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF1A8C4E),
+                        side: const BorderSide(color: Color(0xFF1A8C4E)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                ] else ...[
+                  // Not authenticated → subscribe CTA
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () =>
+                          Navigator.pushNamed(context, '/subscription'),
+                      icon: const Icon(Icons.lock_outline, size: 18),
+                      label: const Text('Subscribe to view contact & chat'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF1A8C4E),
+                        side: const BorderSide(color: Color(0xFF1A8C4E)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
         ),
       ],
-    );
-  }
-
-  Widget _contactButton(BuildContext context, String phone) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Contact: $phone')),
-          );
-        },
-        icon: const Icon(Icons.phone_outlined),
-        label: Text(phone),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF1A8C4E),
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      ),
-    );
-  }
-
-  Widget _subscribeToContact(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton.icon(
-        onPressed: () => Navigator.pushNamed(context, '/subscription'),
-        icon: const Icon(Icons.lock_outline, size: 18),
-        label: const Text('Subscribe to view contact'),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: const Color(0xFF1A8C4E),
-          side: const BorderSide(color: Color(0xFF1A8C4E)),
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      ),
     );
   }
 
