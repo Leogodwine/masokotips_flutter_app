@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -6,50 +7,76 @@ import '../../providers/auth_provider.dart';
 import '../../utils/image_upload_helper.dart';
 import '../chat/chat_screen.dart';
 
-class MarketDemandDetailScreen extends StatelessWidget {
+class MarketDemandDetailScreen extends StatefulWidget {
   final BuyingRequest demand;
-
   const MarketDemandDetailScreen({super.key, required this.demand});
 
-  // ── Phone call launcher ─────────────────────────────────────────
-  Future<void> _callPhone(BuildContext context, String phone) async {
-    // Normalize: ensure it starts with + or digits only
+  @override
+  State<MarketDemandDetailScreen> createState() =>
+      _MarketDemandDetailScreenState();
+}
+
+class _MarketDemandDetailScreenState extends State<MarketDemandDetailScreen> {
+  Timer? _timer;
+  Duration _remaining = Duration.zero;
+
+  @override
+  void initState() {
+    super.initState();
+    _updateRemaining();
+    if (widget.demand.expiresAt != null) {
+      // Tick every second so the countdown stays live
+      _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (mounted) _updateRemaining();
+      });
+    }
+  }
+
+  void _updateRemaining() {
+    final exp = widget.demand.expiresAt;
+    if (exp == null) return;
+    final diff = exp.difference(DateTime.now());
+    setState(() => _remaining = diff.isNegative ? Duration.zero : diff);
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  // ── Phone call ──────────────────────────────────────────────────
+  Future<void> _callPhone(BuildContext ctx, String phone) async {
     final cleaned = phone.replaceAll(RegExp(r'[^\d+]'), '');
     final uri = Uri(scheme: 'tel', path: cleaned);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
-    } else {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Cannot open dialer for $phone')),
-        );
-      }
+    } else if (ctx.mounted) {
+      ScaffoldMessenger.of(ctx).showSnackBar(
+        SnackBar(content: Text('Cannot open dialer for $phone')),
+      );
     }
   }
 
-  // ── Open chat with buyer ────────────────────────────────────────
-  void _openChat(BuildContext context, String buyerName, String? buyerAvatar) {
-    final buyerId = demand.userId;
-    final currentUserId = context.read<AuthProvider>().user?.id;
-
+  // ── Open chat ───────────────────────────────────────────────────
+  void _openChat(BuildContext ctx, String buyerName, String? buyerAvatar) {
+    final buyerId = widget.demand.userId;
+    final currentUserId = ctx.read<AuthProvider>().user?.id;
     if (currentUserId == null) {
-      Navigator.pushNamed(context, '/login');
+      Navigator.pushNamed(ctx, '/login');
       return;
     }
-
     if (currentUserId == buyerId) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(ctx).showSnackBar(
         const SnackBar(content: Text('You cannot chat with yourself.')),
       );
       return;
     }
-
     final avatarUrl = buyerAvatar != null
         ? ImageUploadHelper.constructFullImageUrl(buyerAvatar)
         : '';
-
     Navigator.push(
-      context,
+      ctx,
       MaterialPageRoute(
         builder: (_) => ChatScreen(
           receiverId: buyerId,
@@ -60,16 +87,43 @@ class MarketDemandDetailScreen extends StatelessWidget {
     );
   }
 
+  // ── Countdown label ─────────────────────────────────────────────
+  String _countdownLabel() {
+    if (widget.demand.expiresAt == null) return '';
+    if (_remaining == Duration.zero) return 'Expired';
+
+    final d = _remaining.inDays;
+    final h = _remaining.inHours % 24;
+    final m = _remaining.inMinutes % 60;
+    final s = _remaining.inSeconds % 60;
+
+    if (d > 0) {
+      return '${d}d ${h}h left';
+    } else if (h > 0) {
+      return '${h}h ${m}m left';
+    } else {
+      return '${m}m ${s.toString().padLeft(2, '0')}s left';
+    }
+  }
+
+  Color _countdownColor() {
+    final hours = _remaining.inHours;
+    if (hours < 6) return Colors.red;
+    if (hours < 24) return Colors.orange;
+    return const Color(0xFF1A8C4E);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isAuthenticated = context.read<AuthProvider>().isAuthenticated;
-    final buyer = demand.user;
+    final buyer = widget.demand.user;
     final buyerName = buyer?['name'] ?? 'Anonymous Buyer';
     final buyerUsername = buyer?['username'] ?? buyerName;
     final buyerPhone = buyer?['phone'];
     final buyerAvatar = buyer?['avatar'];
-    final hasImage = demand.imageUrl != null && demand.imageUrl!.isNotEmpty;
+    final hasImage =
+        widget.demand.imageUrl != null && widget.demand.imageUrl!.isNotEmpty;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -83,7 +137,8 @@ class MarketDemandDetailScreen extends StatelessWidget {
             flexibleSpace: FlexibleSpaceBar(
               background: hasImage
                   ? Image.network(
-                      ImageUploadHelper.constructFullImageUrl(demand.imageUrl!),
+                      ImageUploadHelper.constructFullImageUrl(
+                          widget.demand.imageUrl!),
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => _heroBanner(),
                     )
@@ -97,20 +152,46 @@ class MarketDemandDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── Badge + status ──
+                  // ── Badge + status + countdown ──
                   Row(
                     children: [
                       _badge(Icons.shopping_bag_outlined, 'PROCUREMENT REQUEST',
                           const Color(0xFF1A8C4E)),
                       const Spacer(),
-                      _statusChip(demand.status),
+                      _statusChip(widget.demand.status),
                     ],
                   ),
+
+                  // Countdown timer row (below status)
+                  if (widget.demand.expiresAt != null) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(
+                          _remaining.inHours < 6
+                              ? Icons.timer_outlined
+                              : Icons.access_time_outlined,
+                          size: 14,
+                          color: _countdownColor(),
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          _countdownLabel(),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: _countdownColor(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+
                   const SizedBox(height: 14),
 
                   // ── Title ──
                   Text(
-                    demand.title,
+                    widget.demand.title,
                     style: theme.textTheme.headlineSmall
                         ?.copyWith(fontWeight: FontWeight.w800),
                   ),
@@ -118,18 +199,17 @@ class MarketDemandDetailScreen extends StatelessWidget {
 
                   // ── Description ──
                   Text(
-                    demand.description,
+                    widget.demand.description,
                     style: theme.textTheme.bodyMedium
                         ?.copyWith(color: Colors.grey[700], height: 1.6),
                   ),
                   const SizedBox(height: 20),
 
-                  // ── Key Details Card ──
+                  // ── Key Details ──
                   _detailsCard(theme),
-
                   const SizedBox(height: 20),
 
-                  // ── Buyer / Contact Info ──
+                  // ── Buyer / Contact ──
                   _buyerCard(context, theme, isAuthenticated, buyerName,
                       buyerUsername, buyerPhone, buyerAvatar),
                 ],
@@ -141,23 +221,21 @@ class MarketDemandDetailScreen extends StatelessWidget {
     );
   }
 
-  // ── Widgets ─────────────────────────────────────────────────────
+  // ── Helper Widgets ───────────────────────────────────────────────
 
-  Widget _heroBanner() {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF1A8C4E), Color(0xFF0D5C32)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
+  Widget _heroBanner() => Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF1A8C4E), Color(0xFF0D5C32)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
         ),
-      ),
-      child: const Center(
-        child: Icon(Icons.shopping_basket_outlined,
-            size: 80, color: Colors.white24),
-      ),
-    );
-  }
+        child: const Center(
+          child: Icon(Icons.shopping_basket_outlined,
+              size: 80, color: Colors.white24),
+        ),
+      );
 
   Widget _detailsCard(ThemeData theme) {
     return Card(
@@ -169,13 +247,18 @@ class MarketDemandDetailScreen extends StatelessWidget {
         child: Column(
           children: [
             _detailRow(Icons.scale_outlined, 'Quantity',
-                '${demand.quantity} ${demand.unit}', theme),
+                '${widget.demand.quantity} ${widget.demand.unit}', theme),
             _divider(),
             _detailRow(Icons.location_on_outlined, 'Delivery Location',
-                demand.deliveryLocation, theme),
+                widget.demand.deliveryLocation, theme),
             _divider(),
             _detailRow(Icons.calendar_today_outlined, 'Posted',
-                _formatDate(demand.createdAt), theme),
+                _formatDate(widget.demand.createdAt), theme),
+            if (widget.demand.expiresAt != null) ...[
+              _divider(),
+              _detailRow(Icons.event_busy_outlined, 'Post Expires',
+                  _formatDate(widget.demand.expiresAt!), theme),
+            ],
           ],
         ),
       ),
@@ -202,8 +285,7 @@ class MarketDemandDetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(label,
-                    style:
-                        TextStyle(fontSize: 11, color: Colors.grey[500])),
+                    style: TextStyle(fontSize: 11, color: Colors.grey[500])),
                 Text(value,
                     style: const TextStyle(
                         fontSize: 14, fontWeight: FontWeight.w700)),
@@ -219,7 +301,7 @@ class MarketDemandDetailScreen extends StatelessWidget {
       Divider(height: 1, color: Colors.grey.withOpacity(0.2));
 
   Widget _buyerCard(
-    BuildContext context,
+    BuildContext ctx,
     ThemeData theme,
     bool isAuthenticated,
     String buyerName,
@@ -234,8 +316,8 @@ class MarketDemandDetailScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Posted By',
-            style: theme.textTheme.titleMedium
-                ?.copyWith(fontWeight: FontWeight.bold)),
+            style:
+                theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         Card(
           elevation: 0,
@@ -246,7 +328,6 @@ class MarketDemandDetailScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                // Buyer info row
                 Row(
                   children: [
                     CircleAvatar(
@@ -279,7 +360,7 @@ class MarketDemandDetailScreen extends StatelessWidget {
                               style: const TextStyle(
                                   fontSize: 16, fontWeight: FontWeight.w700)),
                           const SizedBox(height: 2),
-                          Text('Verified Buyer',
+                          Text('@$buyerUsername',
                               style: TextStyle(
                                   fontSize: 12, color: Colors.grey[600])),
                         ],
@@ -287,16 +368,14 @@ class MarketDemandDetailScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 16),
 
-                // Action buttons
                 if (isAuthenticated && hasRealPhone) ...[
-                  // ── Call Button ──
+                  // Call button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: () => _callPhone(context, buyerPhone),
+                      onPressed: () => _callPhone(ctx, buyerPhone),
                       icon: const Icon(Icons.phone_outlined),
                       label: Text(buyerPhone),
                       style: ElevatedButton.styleFrom(
@@ -309,33 +388,30 @@ class MarketDemandDetailScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
-
-                  // ── Chat Button ──
+                  // Chat button
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       onPressed: () =>
-                          _openChat(context, buyerName, buyerAvatar),
+                          _openChat(ctx, buyerName, buyerAvatar),
                       icon: const Icon(Icons.chat_bubble_outline, size: 18),
                       label: Text('Chat with @$buyerUsername'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFF1A8C4E),
-                        side:
-                            const BorderSide(color: Color(0xFF1A8C4E), width: 1.5),
+                        side: const BorderSide(
+                            color: Color(0xFF1A8C4E), width: 1.5),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                   ),
-                ] else if (isAuthenticated && !hasRealPhone) ...[
-                  // Authenticated but phone masked (shouldn't happen for
-                  // subscribed users, but just in case)
+                ] else if (isAuthenticated) ...[
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       onPressed: () =>
-                          _openChat(context, buyerName, buyerAvatar),
+                          _openChat(ctx, buyerName, buyerAvatar),
                       icon: const Icon(Icons.chat_bubble_outline, size: 18),
                       label: Text('Chat with @$buyerUsername'),
                       style: OutlinedButton.styleFrom(
@@ -348,12 +424,11 @@ class MarketDemandDetailScreen extends StatelessWidget {
                     ),
                   ),
                 ] else ...[
-                  // Not authenticated → subscribe CTA
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       onPressed: () =>
-                          Navigator.pushNamed(context, '/subscription'),
+                          Navigator.pushNamed(ctx, '/subscription'),
                       icon: const Icon(Icons.lock_outline, size: 18),
                       label: const Text('Subscribe to view contact & chat'),
                       style: OutlinedButton.styleFrom(

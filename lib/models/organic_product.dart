@@ -45,14 +45,6 @@ class OrganicProduct {
     if (path.isEmpty) return '';
 
     if (path.startsWith('http://') || path.startsWith('https://')) {
-      path = path.replaceAll(RegExp(r'/storage/+/storage/'), '/storage/');
-      path = path.replaceAll(RegExp(r'/+/'), '/');
-      if (path.startsWith('https:/') && !path.startsWith('https://')) {
-        path = path.replaceFirst('https:/', 'https://');
-      }
-      if (path.startsWith('http:/') && !path.startsWith('http://')) {
-        path = path.replaceFirst('http:/', 'http://');
-      }
       return path;
     }
 

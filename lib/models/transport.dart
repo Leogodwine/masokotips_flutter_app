@@ -7,16 +7,8 @@ String _processTransportImageUrl(String path) {
   if (path.isEmpty) return '';
 
   if (path.startsWith('http://') || path.startsWith('https://')) {
-    path = path.replaceAll(RegExp(r'/storage/+/storage/'), '/storage/');
-    path = path.replaceAll(RegExp(r'/+/'), '/');
-    if (path.startsWith('https:/') && !path.startsWith('https://')) {
-      path = path.replaceFirst('https:/', 'https://');
+      return path;
     }
-    if (path.startsWith('http:/') && !path.startsWith('http://')) {
-      path = path.replaceFirst('http:/', 'http://');
-    }
-    return path;
-  }
 
   // Use the same robust cleanup logic as OrganicProduct
   final baseUrl = ApiConfig.baseUrl.replaceAll('/api', '');

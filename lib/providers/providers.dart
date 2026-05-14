@@ -14,3 +14,5 @@ export 'reviews_provider.dart' show ReviewsProvider;
 export 'search_provider.dart' show SearchProvider, SearchResult;
 export 'transport_provider.dart' show TransportProvider;
 export 'wishlist_provider.dart' show WishlistProvider;
+export 'buyer_provider.dart' show BuyerProvider;
+export 'market_demand_provider.dart' show MarketDemandProvider;

@@ -1,0 +1,150 @@
+  Future<Product> createProduct({
+    required String name,
+    required String description,
+    required double price,
+    required int stock,
+    required String unit,
+    required int categoryId,
+    required bool isActive,
+    required bool isFeatured,
+    required List<XFile> images,
+  }) async {
+    try {
+      Log.d('Creating product with data:');
+      Log.d('- name: $name');
+      Log.d('- is_active: $isActive');
+      Log.d('- is_featured: $isFeatured');
+      Log.d('- category_id: $categoryId');
+
+      // First, verify the category exists
+      try {
+        final categories = await getCategories();
+        final defaultCategories = [
+          Category(id: 1, name: 'Products', subcategories: [
+            Category(id: 6, name: 'Vegetables'),
+            Category(id: 7, name: 'Fruits'),
+            Category(id: 8, name: 'Spices'),
+            Category(id: 9, name: 'Cash Crops'),
+            Category(id: 10, name: 'Cereals'),
+            Category(id: 11, name: 'Seeds and Seedling'),
+            Category(id: 12, name: 'Livestock and poultry'),
+          ]),
+        ];
+
+        // Check both API categories and default categories
+        final allCategories = [...categories, ...defaultCategories];
+        final categoryExists = allCategories.any((category) {
+          if (category.subcategories != null) {
+            return category.subcategories!
+                .any((child) => child.id == categoryId);
+          }
+          return category.id == categoryId;
+        });
+
+        if (!categoryExists) {
+          throw Exception('Category with ID $categoryId does not exist');
+        }
+      } catch (e) {
+        Log.e('Error verifying category: $e');
+        rethrow;
+      }
+
+      // Generate unique slug from name with timestamp
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final baseSlug = name
+          .toLowerCase()
+          .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+          .replaceAll(RegExp(r'^-|-$'), '');
+      final slug = '$baseSlug-$timestamp';
+
+      Log.d('Generated unique slug: $slug');
+
+      final formData = FormData.fromMap({
+        'name': name,
+        'slug': slug,
+        'description': description,
+        'price': price.toString(),
+        'stock': stock.toString(),
+        'unit': unit,
+        'category_id': categoryId.toString(),
+        'is_active': isActive ? 1 : 0,
+        'is_featured': isFeatured ? 1 : 0,
+      });
+
+      // Handle image uploads - only add files if images are provided
+      if (images.isNotEmpty) {
+        Log.d('Adding ${images.length} images to form data');
+        for (var i = 0; i < images.length; i++) {
+          if (kIsWeb) {
+            // Web platform - use bytes
+            final bytes = await images[i].readAsBytes();
+            formData.files.add(MapEntry(
+              'images[$i]', // Use indexed field names for proper array handling
+              MultipartFile.fromBytes(
+                bytes,
+                filename: images[i].name,
+              ),
+            ));
+          } else {
+            // Mobile platform - use file path
+            formData.files.add(MapEntry(
+              'images[$i]', // Use indexed field names for proper array handling
+              await MultipartFile.fromFile(
+                images[i].path,
+                filename: images[i].name,
+              ),
+            ));
+          }
+        }
+      } else {
+        Log.d('No images provided, sending empty images array');
+        formData.fields.add(const MapEntry('images', '[]'));
+      }
+
+      final response = await _dio.post(
+        '/admin/products',
+        data: formData,
+        options: Options(
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'multipart/form-data',
+          },
+          validateStatus: (status) => status! < 500,
+        ),
+      );
+
+      if (response.statusCode == 201) {
+        Log.d('Product created successfully');
+        Log.d('Response data: ${response.data}');
+
+        // Ensure is_featured is included in the response data
+        final responseData = response.data['data'] as Map<String, dynamic>;
+        if (!responseData.containsKey('is_featured')) {
+          responseData['is_featured'] = isFeatured;
+        }
+        // Convert is_featured to boolean if it's a string
+        if (responseData['is_featured'] is String) {
+          responseData['is_featured'] = responseData['is_featured'] == '1';
+        }
+
+        return Product.fromJson(responseData);
+      } else {
+        Log.e('Failed to create product: ${response.statusMessage}');
+        Log.e('Response data: ${response.data}');
+        throw Exception(
+            'Failed to create product: ${response.data['message'] ?? response.statusMessage}');
+      }
+    } catch (e) {
+      Log.e('Error creating product: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> deleteProduct(int productId) async {
+    const int maxRetries = 3;
+    int retryCount = 0;
+
+    while (retryCount < maxRetries) {
+      try {
+        Log.d(
+            'Attempting to delete product $productId (attempt ${retryCount + 1})');

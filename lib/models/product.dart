@@ -223,24 +223,6 @@ class Product {
     if (path.isEmpty) return '';
 
     if (path.startsWith('http://') || path.startsWith('https://')) {
-      // Fix malformed URLs with double 'storage/' or extra slashes
-      // Example: https://masokotips.com/storage//storage/products/xxx.jpg
-      // Should be: https://masokotips.com/storage/products/xxx.jpg
-
-      // First fix: remove duplicate 'storage/'
-      path = path.replaceAll(RegExp(r'/storage/+/storage/'), '/storage/');
-
-      // Second fix: remove any double slashes (//) that remain
-      path = path.replaceAll(RegExp(r'/+/'), '/');
-
-      // Fix incomplete protocol (https:/ instead of https://)
-      if (path.startsWith('https:/') && !path.startsWith('https://')) {
-        path = path.replaceFirst('https:/', 'https://');
-      }
-      if (path.startsWith('http:/') && !path.startsWith('http://')) {
-        path = path.replaceFirst('http:/', 'http://');
-      }
-
       return path;
     }
 

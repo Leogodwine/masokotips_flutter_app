@@ -14,15 +14,13 @@ class SubscriptionService {
     return ApiConfig.getHeaders(token);
   }
 
+  /// Parse HTTP response to JSON.
+  /// For error responses (4xx / 5xx) we still return the decoded body so
+  /// callers can surface the real error message to the user instead of a
+  /// generic "no response" message.
   Map<String, dynamic>? _safeJson(http.Response res) {
     Log.d('HTTP ${res.statusCode}');
-    Log.d('HEADERS ${res.headers}');
     Log.d('BODY ${res.body}');
-
-    if (res.statusCode != 200 && res.statusCode != 201) {
-      Log.e('Server error: ${res.statusCode}');
-      return null;
-    }
 
     if (ApiResponse.looksLikeSecurityChallenge(res.body)) {
       Log.e('Security challenge returned instead of JSON');
@@ -30,14 +28,30 @@ class SubscriptionService {
     }
 
     final contentType = res.headers['content-type'] ?? '';
-    if (!contentType.contains('application/json') &&
-        !res.body.trimLeft().startsWith('{') &&
-        !res.body.trimLeft().startsWith('[')) {
-      Log.e('Invalid content-type: $contentType');
+    final isJson = contentType.contains('application/json') ||
+        res.body.trimLeft().startsWith('{') ||
+        res.body.trimLeft().startsWith('[');
+
+    if (!isJson) {
+      Log.e('Invalid content-type: $contentType (status ${res.statusCode})');
+      if (res.statusCode != 200 && res.statusCode != 201) {
+        return {'success': false, 'message': 'Server error (${res.statusCode})'};
+      }
       return null;
     }
 
-    return ApiResponse.decodeJson(res.body);
+    final decoded = ApiResponse.decodeJson(res.body);
+
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      Log.e('Server error ${res.statusCode}: ${res.body}');
+      if (decoded != null) {
+        // Ensure success flag is false so callers handle it as an error.
+        return {'success': false, ...decoded};
+      }
+      return {'success': false, 'message': 'Server error (${res.statusCode})'};
+    }
+
+    return decoded;
   }
 
   Future<Map<String, dynamic>?> getSubscriptionPackages() async {
@@ -100,11 +114,7 @@ class SubscriptionService {
   }) async {
     try {
       final res = await http.post(
-        // ✅ FIXED ROUTE:
         Uri.parse('$_baseUrl/zenopay/checkout'),
-        // If your backend uses /checkout/initiate, use:
-        // Uri.parse('$_baseUrl/zenopay/checkout/initiate'),
-
         headers: await _headers(auth: true),
         body: jsonEncode({
           'subscription_id': subscriptionId,
@@ -112,7 +122,6 @@ class SubscriptionService {
           'phone': phone,
         }),
       );
-
       return _safeJson(res);
     } catch (e) {
       Log.e('Start Zenopay checkout error', e);

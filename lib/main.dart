@@ -18,6 +18,8 @@ import 'providers/locale_provider.dart';
 import 'providers/subscription_provider.dart';
 import 'providers/favorites_provider.dart';
 import 'providers/chat_provider.dart';
+import 'providers/buyer_provider.dart';
+import 'providers/market_demand_provider.dart';
 import 'services/organic_product_service.dart';
 import 'services/api_service.dart';
 import 'services/market_info_service.dart';
@@ -27,6 +29,7 @@ import 'screens/splash_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/cart/cart_screen.dart';
+import 'screens/buyer/buyer_dashboard_screen.dart';
 import 'screens/wishlist/wishlist_screen.dart';
 import 'screens/orders/orders_screen.dart';
 import 'screens/profile/profile_screen.dart';
@@ -156,6 +159,8 @@ class _MyAppState extends State<MyApp> {
             return provider;
           },
         ),
+        ChangeNotifierProvider(create: (_) => BuyerProvider()),
+        ChangeNotifierProvider(create: (_) => MarketDemandProvider()),
       ],
       child: Consumer<LocaleProvider>(
         builder: (context, localeProvider, child) {
@@ -183,6 +188,7 @@ class _MyAppState extends State<MyApp> {
               '/wishlist': (context) => const WishlistScreen(),
               '/orders': (context) => const OrdersScreen(),
               '/profile': (context) => const ProfileScreen(),
+              '/buyer/dashboard': (context) => const BuyerDashboardScreen(),
               '/seller/dashboard': (context) => const SellerDashboardScreen(),
               '/organic-products': (context) => const OrganicProductsScreen(),
               '/organic-products/add': (context) =>

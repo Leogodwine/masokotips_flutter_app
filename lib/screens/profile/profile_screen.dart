@@ -194,6 +194,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   }
                                 },
                               ),
+                            if (user.roles.contains('buyer'))
+                              _buildQuickActionButton(
+                                context,
+                                icon: Icons.campaign,
+                                label: 'Buy Requests',
+                                onPressed: () {
+                                  final hasBuyerSub = subscriptionProvider.hasActiveSubscriptionFor('buyer');
+                                  if (hasBuyerSub) {
+                                    Navigator.pushNamed(context, '/buyer/dashboard');
+                                  } else {
+                                    _showSubscriptionRequiredDialog(context);
+                                  }
+                                },
+                              ),
                             // Subscribe button - positioned after Post
                             _buildQuickActionButton(
                               context,
@@ -348,6 +362,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         }
                       },
                     ),
+                    // Add Buyer Dashboard for users with buyer role
+                    if (isLoggedIn &&
+                        user != null &&
+                        user.roles.contains('buyer')) ...[
+                      ListTile(
+                        leading: const Icon(Icons.campaign),
+                        title: const Text('My Buying Requests'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () {
+                          final hasBuyerSub = subscriptionProvider.hasActiveSubscriptionFor('buyer');
+                          if (hasBuyerSub) {
+                            Navigator.pushNamed(context, '/buyer/dashboard');
+                          } else {
+                            _showSubscriptionRequiredDialog(context);
+                          }
+                        },
+                      ),
+                      const Divider(height: 1),
+                    ],
                     // Add Seller Dashboard for users with seller role
                     if (isLoggedIn &&
                         user != null &&
@@ -387,8 +420,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    const ProviderDashboardScreen(),
+                                builder: (context) => const ProviderDashboardScreen(),
                               ),
                             );
                           } else {

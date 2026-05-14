@@ -1,6 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import '../../models/buying_request.dart';
-import '../../utils/image_upload_helper.dart';
+import '../models/buying_request.dart';
+import '../utils/image_upload_helper.dart';
 
 class MarketDemandCard extends StatelessWidget {
   final BuyingRequest demand;
@@ -113,6 +114,12 @@ class MarketDemandCard extends StatelessWidget {
                       ),
                     ],
                   ),
+
+                  // Expiry indicator
+                  if (demand.expiresAt != null) ...[
+                    const SizedBox(height: 4),
+                    _ExpiryIndicator(expiresAt: demand.expiresAt!),
+                  ],
                   const SizedBox(height: 10),
 
                   // Divider
@@ -213,5 +220,69 @@ class MarketDemandCard extends StatelessWidget {
     if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
     if (diff.inHours < 24) return '${diff.inHours}h ago';
     return '${diff.inDays}d ago';
+  }
+}
+
+// ── Compact expiry indicator (self-updating) ────────────────────────────────
+class _ExpiryIndicator extends StatefulWidget {
+  final DateTime expiresAt;
+  const _ExpiryIndicator({required this.expiresAt});
+
+  @override
+  State<_ExpiryIndicator> createState() => _ExpiryIndicatorState();
+}
+
+class _ExpiryIndicatorState extends State<_ExpiryIndicator> {
+  late Timer _timer;
+  late Duration _remaining;
+
+  @override
+  void initState() {
+    super.initState();
+    _updateRemaining();
+    _timer = Timer.periodic(const Duration(minutes: 1), (_) {
+      if (mounted) _updateRemaining();
+    });
+  }
+
+  void _updateRemaining() {
+    final diff = widget.expiresAt.difference(DateTime.now());
+    setState(() => _remaining = diff.isNegative ? Duration.zero : diff);
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  Color get _color {
+    if (_remaining.inHours < 6) return Colors.red;
+    if (_remaining.inHours < 24) return Colors.orange;
+    return const Color(0xFF1A8C4E);
+  }
+
+  String get _label {
+    if (_remaining == Duration.zero) return 'Expired';
+    final d = _remaining.inDays;
+    final h = _remaining.inHours % 24;
+    if (d > 0) return '${d}d ${h}h left';
+    final m = _remaining.inMinutes % 60;
+    return '${_remaining.inHours}h ${m}m left';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(Icons.access_time_outlined, size: 11, color: _color),
+        const SizedBox(width: 3),
+        Text(
+          _label,
+          style: TextStyle(
+              fontSize: 11, fontWeight: FontWeight.w700, color: _color),
+        ),
+      ],
+    );
   }
 }
