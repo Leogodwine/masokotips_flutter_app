@@ -4,6 +4,8 @@
     <!-- Advertising ID permission (required if using Google Mobile Services) -->
     <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     
     <!-- Required for picking images/files from gallery -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"

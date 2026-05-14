@@ -4,7 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:masoko_tips/models/transport.dart';
 import 'package:masoko_tips/providers/transport_provider.dart';
 import 'package:masoko_tips/screens/transport/transport_details_screen.dart';
-
+import 'package:masoko_tips/screens/transport/transport_map_screen.dart';
 class TransportListScreen extends StatefulWidget {
   final String category;
 
@@ -447,6 +447,18 @@ class _TransportListScreenState extends State<TransportListScreen> {
         elevation: 0,
         centerTitle: true,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.map_outlined),
+            tooltip: 'View on Map',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => TransportMapScreen(category: widget.category),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: _toggleFilters,

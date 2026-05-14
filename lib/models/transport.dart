@@ -56,6 +56,8 @@ class Transport {
   final models.Category? category;
   final Map<String, dynamic>? user;
   final int? userId;
+  final double? latitude;
+  final double? longitude;
 
   // Computed properties for seller info
   String get sellerName {
@@ -128,6 +130,8 @@ class Transport {
     this.category,
     this.user,
     this.userId,
+    this.latitude,
+    this.longitude,
   });
 
   // Getter for processed image URL
@@ -176,6 +180,8 @@ class Transport {
           : null,
       user: json['user'] as Map<String, dynamic>?,
       userId: (json['user_id'] as num?)?.toInt(),
+      latitude: _stringToDoubleNullable(json['latitude']?.toString()),
+      longitude: _stringToDoubleNullable(json['longitude']?.toString()),
     );
   }
 
@@ -210,6 +216,8 @@ class Transport {
       'amount': amount,
       'category_id': categoryId,
       'user_id': userId,
+      'latitude': latitude,
+      'longitude': longitude,
     };
   }
 
@@ -245,6 +253,8 @@ class Transport {
     models.Category? category,
     Map<String, dynamic>? user,
     int? userId,
+    double? latitude,
+    double? longitude,
   }) {
     return Transport(
       id: id ?? this.id,
@@ -280,6 +290,8 @@ class Transport {
       category: category ?? this.category,
       user: user ?? this.user,
       userId: userId ?? this.userId,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
     );
   }
 }

@@ -178,6 +178,8 @@ class TransportProvider with ChangeNotifier {
     double? pricePerKg,
     required String driverName,
     required String driverPhone,
+    double? latitude,
+    double? longitude,
   }) async {
     _isLoading = true;
     _error = null;
@@ -206,6 +208,8 @@ class TransportProvider with ChangeNotifier {
         pricePerKg: pricePerKg,
         driverName: driverName,
         driverPhone: driverPhone,
+        latitude: latitude,
+        longitude: longitude,
       );
 
       _transports.add(transport);
@@ -334,3 +338,4 @@ class TransportProvider with ChangeNotifier {
     }).toList();
   }
 }
+

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:geolocator/geolocator.dart';
 import '../../models/transport.dart';
 import '../../providers/transport_provider.dart';
 
@@ -37,6 +38,11 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
     'Other'
   ];
 
+  // GPS coordinates
+  double? _latitude;
+  double? _longitude;
+  bool _isCapturingLocation = false;
+
   @override
   void initState() {
     super.initState();
@@ -62,6 +68,8 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
         widget.transport?.isTemperatureControlled ?? false;
     _hasInsurance = widget.transport?.hasInsurance ?? false;
     _selectedProductTypes = widget.transport?.supportedProductTypes ?? [];
+    _latitude = widget.transport?.latitude;
+    _longitude = widget.transport?.longitude;
   }
 
   @override
@@ -74,6 +82,75 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
     _capacityController.dispose();
     _insuranceDetailsController.dispose();
     super.dispose();
+  }
+
+  Future<void> _captureCurrentLocation() async {
+    setState(() => _isCapturingLocation = true);
+
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location services are disabled.')),
+          );
+        }
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Location permission denied.')),
+            );
+          }
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text(
+                    'Location permission permanently denied. Enable in settings.')),
+          );
+        }
+        return;
+      }
+
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
+
+      setState(() {
+        _latitude = position.latitude;
+        _longitude = position.longitude;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                'Location captured: ${_latitude!.toStringAsFixed(5)}, ${_longitude!.toStringAsFixed(5)}'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not get location: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isCapturingLocation = false);
+    }
   }
 
   Future<void> _submitForm() async {
@@ -103,6 +180,8 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
               ownerName: _titleController.text,
               driverName: _titleController.text,
               driverPhone: '+255715000000',
+              latitude: _latitude,
+              longitude: _longitude,
             );
       } else {
         final updatedTransport = widget.transport!.copyWith(
@@ -117,6 +196,8 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
           insuranceDetails: _insuranceDetailsController.text,
           amenities: amenities,
           status: _status,
+          latitude: _latitude,
+          longitude: _longitude,
         );
         await context
             .read<TransportProvider>()
@@ -164,8 +245,9 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
             TextFormField(
               controller: _vehicleLocationController,
               decoration: const InputDecoration(
-                labelText: 'Vehicle Location',
+                labelText: 'Vehicle Location (City/Area name)',
                 border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.location_city_outlined),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -175,12 +257,83 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
               },
             ),
             const SizedBox(height: 16),
+            // ─── GPS Location Capture ───────────────────────────────────
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: _latitude != null
+                    ? Colors.green.shade50
+                    : Colors.grey.shade100,
+                border: Border.all(
+                  color: _latitude != null
+                      ? Colors.green.shade300
+                      : Colors.grey.shade300,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    _latitude != null
+                        ? Icons.gps_fixed
+                        : Icons.gps_not_fixed,
+                    color: _latitude != null ? Colors.green : Colors.grey,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'GPS Coordinates (for map pin)',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: _latitude != null
+                                ? Colors.green.shade800
+                                : Colors.grey.shade700,
+                          ),
+                        ),
+                        Text(
+                          _latitude != null
+                              ? '${_latitude!.toStringAsFixed(5)}, ${_longitude!.toStringAsFixed(5)}'
+                              : 'Not captured yet — tap button to set map pin',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: _latitude != null
+                                ? Colors.green.shade700
+                                : Colors.grey.shade500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  _isCapturingLocation
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : ElevatedButton.icon(
+                          onPressed: _captureCurrentLocation,
+                          icon: const Icon(Icons.my_location, size: 16),
+                          label: Text(_latitude != null ? 'Update' : 'Capture'),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
+                          ),
+                        ),
+                ],
+              ),
+            ),
+            // ────────────────────────────────────────────────────────────
+            const SizedBox(height: 16),
             TextFormField(
               controller: _priceController,
               decoration: const InputDecoration(
                 labelText: 'Price',
                 border: OutlineInputBorder(),
-                prefixText: 'TZS',
+                prefixText: 'TZS ',
               ),
               keyboardType: TextInputType.number,
               validator: (value) {

@@ -125,6 +125,8 @@ class TransportService {
     double? pricePerKg,
     required String driverName,
     required String driverPhone,
+    double? latitude,
+    double? longitude,
   }) async {
     _checkAuthToken();
     try {
@@ -153,6 +155,8 @@ class TransportService {
           'price_per_kg': pricePerKg,
           'driver_name': driverName,
           'driver_phone': driverPhone,
+          'latitude': latitude,
+          'longitude': longitude,
         }),
       );
 
@@ -243,3 +247,4 @@ class TransportService {
     }
   }
 }
+
