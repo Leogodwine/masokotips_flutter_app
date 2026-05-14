@@ -66,6 +66,7 @@ class MarketDemandDetailScreen extends StatelessWidget {
     final isAuthenticated = context.read<AuthProvider>().isAuthenticated;
     final buyer = demand.user;
     final buyerName = buyer?['name'] ?? 'Anonymous Buyer';
+    final buyerUsername = buyer?['username'] ?? buyerName;
     final buyerPhone = buyer?['phone'];
     final buyerAvatar = buyer?['avatar'];
     final hasImage = demand.imageUrl != null && demand.imageUrl!.isNotEmpty;
@@ -130,7 +131,7 @@ class MarketDemandDetailScreen extends StatelessWidget {
 
                   // ── Buyer / Contact Info ──
                   _buyerCard(context, theme, isAuthenticated, buyerName,
-                      buyerPhone, buyerAvatar),
+                      buyerUsername, buyerPhone, buyerAvatar),
                 ],
               ),
             ),
@@ -222,6 +223,7 @@ class MarketDemandDetailScreen extends StatelessWidget {
     ThemeData theme,
     bool isAuthenticated,
     String buyerName,
+    String buyerUsername,
     String? buyerPhone,
     String? buyerAvatar,
   ) {
@@ -315,7 +317,7 @@ class MarketDemandDetailScreen extends StatelessWidget {
                       onPressed: () =>
                           _openChat(context, buyerName, buyerAvatar),
                       icon: const Icon(Icons.chat_bubble_outline, size: 18),
-                      label: Text('Chat with $buyerName'),
+                      label: Text('Chat with @$buyerUsername'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFF1A8C4E),
                         side:
@@ -335,7 +337,7 @@ class MarketDemandDetailScreen extends StatelessWidget {
                       onPressed: () =>
                           _openChat(context, buyerName, buyerAvatar),
                       icon: const Icon(Icons.chat_bubble_outline, size: 18),
-                      label: Text('Chat with $buyerName'),
+                      label: Text('Chat with @$buyerUsername'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFF1A8C4E),
                         side: const BorderSide(color: Color(0xFF1A8C4E)),
