@@ -281,69 +281,91 @@ class _TransportMapScreenState extends State<TransportMapScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
+              // Price row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                       const Text("Price / Trip",
+                      const Text("Price / Trip",
                           style: TextStyle(color: Colors.grey, fontSize: 12)),
                       Text("TZS ${item.price.toStringAsFixed(0)}",
                           style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold)),
                     ],
                   ),
-                  Row(
-                    children: [
-                      // Navigate button
-                      if (item.latitude != null && item.longitude != null)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: OutlinedButton.icon(
-                            onPressed: () {
-                              Navigator.pop(ctx);
-                              _navigateToTransport(item);
-                            },
-                            icon: const Icon(Icons.directions, size: 18),
-                            label: const Text("Navigate"),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20)),
-                              side: BorderSide(
-                                  color: Theme.of(context).primaryColor),
-                              foregroundColor: Theme.of(context).primaryColor,
-                            ),
-                          ),
-                        ),
-                      // View Details button
-                      ElevatedButton(
+                  if (item.latitude != null && item.longitude != null)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.gps_fixed, size: 13, color: Colors.green),
+                          SizedBox(width: 4),
+                          Text("GPS Set",
+                              style: TextStyle(
+                                  color: Colors.green,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600)),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              // Action buttons — always full width so nothing is cut off
+              Row(
+                children: [
+                  if (item.latitude != null && item.longitude != null) ...[
+                    Expanded(
+                      child: OutlinedButton.icon(
                         onPressed: () {
                           Navigator.pop(ctx);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  TransportDetailsScreen(transport: item),
-                            ),
-                          );
+                          _navigateToTransport(item);
                         },
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 12),
+                        icon: const Icon(Icons.directions, size: 18),
+                        label: const Text("Navigate"),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20)),
-                          backgroundColor: Theme.of(context).primaryColor,
-                        ),
-                        child: const Text(
-                          "View Details",
-                          style: TextStyle(color: Colors.white, fontSize: 14),
+                          side: BorderSide(
+                              color: Theme.of(context).primaryColor),
+                          foregroundColor: Theme.of(context).primaryColor,
                         ),
                       ),
-                    ],
+                    ),
+                    const SizedBox(width: 10),
+                  ],
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                TransportDetailsScreen(transport: item),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.info_outline,
+                          size: 18, color: Colors.white),
+                      label: const Text("View Details",
+                          style: TextStyle(color: Colors.white)),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20)),
+                        backgroundColor: Theme.of(context).primaryColor,
+                      ),
+                    ),
                   ),
                 ],
               )
