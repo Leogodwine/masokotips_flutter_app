@@ -94,22 +94,32 @@ class CategoryProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      // Special handling for Agricultural Services (category ID 5)
-      // Use the dedicated endpoint to avoid 404 issues
-      if (categoryId == 5) {
+      // Find the category in our loaded list to check its name/slug
+      final category = _mainCategories.firstWhere(
+        (c) => c.id == categoryId,
+        orElse: () => models.Category(id: categoryId, name: ''),
+      );
+
+      final isAgriServices = category.slug == 'agricultural-services' || 
+                            category.name.toLowerCase().contains('agricultural services');
+      final isTransport = category.slug == 'transport' || 
+                         category.name.toLowerCase().contains('transport');
+
+      if (isAgriServices) {
+        // Special handling for Agricultural Services
         Log.i(
             'CategoryProvider: Using dedicated endpoint for Agricultural Services');
         final response = await _apiService.getAgriculturalServiceCategories();
         _subcategories = response;
         _error = null;
-      } else if (categoryId == 3) {
-        // Special handling for Transport (category ID 3)
+      } else if (isTransport) {
+        // Special handling for Transport
         // Use the dedicated endpoint to avoid 404 issues
         Log.i('CategoryProvider: Using dedicated endpoint for Transport');
         final response = await _apiService.getTransportSubcategories();
         _subcategories = response;
         _error = null;
-      } else if (categoryId == 1 || categoryId == 2 || categoryId == 4) {
+      } else {
         // For other known categories (Products, Market Info, Organic Products)
         // Try the generic endpoint but handle 404 gracefully
         Log.i(
@@ -129,7 +139,10 @@ class CategoryProvider with ChangeNotifier {
             rethrow;
           }
         }
-      } else {
+      }
+
+      if (_subcategories.isEmpty && _error == null) {
+        // Fallback or additional logic if subcategories are still empty
         // Find the category in the loaded mainCategories list from API
         final category = _mainCategories.firstWhere(
           (cat) => cat.id == categoryId,

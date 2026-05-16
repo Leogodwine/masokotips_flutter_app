@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/market_info.dart';
 import 'cached_network_image_with_cors.dart';
+import '../utils/image_upload_helper.dart';
 
 class MarketInfoCard extends StatelessWidget {
   final MarketInfo marketInfo;
@@ -45,6 +46,7 @@ class MarketInfoCard extends StatelessWidget {
   }
 
   Widget _buildImageSection(BuildContext context) {
+    final imageUrl = ImageUploadHelper.constructFullImageUrl(marketInfo.imageUrl);
     return Stack(
       children: [
         ClipRRect(
@@ -53,7 +55,7 @@ class MarketInfoCard extends StatelessWidget {
           ),
           child: marketInfo.imageUrl.isNotEmpty
               ? CachedNetworkImageWithCors(
-                  imageUrl: marketInfo.imageUrl,
+                  imageUrl: imageUrl,
                   height: 140,
                   width: double.infinity,
                   fit: BoxFit.cover,

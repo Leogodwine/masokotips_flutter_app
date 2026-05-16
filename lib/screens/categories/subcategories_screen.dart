@@ -56,6 +56,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
         MaterialPageRoute(
           builder: (_) => TransportListScreen(
             category: widget.category.name,
+            categoryId: widget.category.id,
           ),
         ),
       );
@@ -241,6 +242,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
               MaterialPageRoute(
                 builder: (context) => TransportListScreen(
                   category: subcategory.name,
+                  categoryId: subcategory.id,
                 ),
               ),
             );

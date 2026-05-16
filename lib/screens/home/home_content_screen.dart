@@ -1658,6 +1658,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                     MaterialPageRoute(
                       builder: (_) => TransportListScreen(
                         category: category.name,
+                        categoryId: category.id,
                       ),
                     ),
                   );

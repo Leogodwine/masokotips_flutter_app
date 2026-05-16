@@ -240,6 +240,7 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
         amount: _amountController.text.isEmpty
             ? null
             : double.parse(_amountController.text),
+        categoryId: widget.transport.categoryId,
         latitude: _latitude,
         longitude: _longitude,
       );

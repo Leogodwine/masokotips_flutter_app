@@ -7,9 +7,11 @@ import 'package:masoko_tips/screens/transport/transport_details_screen.dart';
 import 'package:masoko_tips/screens/transport/transport_map_screen.dart';
 class TransportListScreen extends StatefulWidget {
   final String category;
+  final int? categoryId;
 
   const TransportListScreen({
     super.key,
+    this.categoryId,
     required this.category,
   });
 
@@ -22,7 +24,7 @@ class _TransportListScreenState extends State<TransportListScreen> {
   bool _showFilters = false;
   final _locationController = TextEditingController();
 
-  // Map category names to their IDs
+  // Map category names to their IDs (Fallback for when categoryId is not provided)
   static const Map<String, int> _categoryIds = {
     'Tandem': 13,
     'Kirikuu': 14,
@@ -40,7 +42,7 @@ class _TransportListScreenState extends State<TransportListScreen> {
     'Tracker Trailers': 25,
   };
 
-  int? get _categoryId => _categoryIds[widget.category];
+  int? get _categoryId => widget.categoryId ?? _categoryIds[widget.category];
 
   @override
   void initState() {
@@ -454,7 +456,10 @@ class _TransportListScreenState extends State<TransportListScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => TransportMapScreen(category: widget.category),
+                  builder: (_) => TransportMapScreen(
+                    category: widget.category,
+                    categoryId: _categoryId,
+                  ),
                 ),
               );
             },
@@ -555,13 +560,6 @@ class _TransportListScreenState extends State<TransportListScreen> {
                       ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, '/transport/add');
-        },
-        tooltip: 'Add Transport',
-        child: const Icon(Icons.add),
       ),
     );
   }

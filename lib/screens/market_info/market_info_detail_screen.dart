@@ -5,6 +5,8 @@ import 'package:masoko_tips/models/market_info.dart';
 import 'package:masoko_tips/utils/date_utils.dart';
 import 'package:masoko_tips/widgets/cached_network_image_with_cors.dart';
 
+import 'package:masoko_tips/utils/image_upload_helper.dart';
+
 class MarketInfoDetailScreen extends StatefulWidget {
   final MarketInfo marketInfo;
 
@@ -135,7 +137,7 @@ class _MarketInfoDetailScreenState extends State<MarketInfoDetailScreen> {
             // Image
             widget.marketInfo.imageUrl.isNotEmpty
                 ? CachedNetworkImageWithCors(
-                    imageUrl: widget.marketInfo.imageUrl,
+                    imageUrl: ImageUploadHelper.constructFullImageUrl(widget.marketInfo.imageUrl),
                     width: double.infinity,
                     height: double.infinity,
                     fit: BoxFit.cover,

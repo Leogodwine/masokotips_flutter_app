@@ -11,9 +11,11 @@ import 'package:masoko_tips/screens/transport/transport_details_screen.dart';
 
 class TransportMapScreen extends StatefulWidget {
   final String category;
+  final int? categoryId;
 
   const TransportMapScreen({
     super.key,
+    this.categoryId,
     required this.category,
   });
 
@@ -27,7 +29,7 @@ class _TransportMapScreenState extends State<TransportMapScreen> {
   bool _isLoading = true;
   final Distance _distance = const Distance();
 
-  // Same category mapping as TransportListScreen
+  // Same category mapping as TransportListScreen (Fallback)
   static const Map<String, int> _categoryIds = {
     'Tandem': 13,
     'Kirikuu': 14,
@@ -45,7 +47,7 @@ class _TransportMapScreenState extends State<TransportMapScreen> {
     'Tracker Trailers': 25,
   };
 
-  int? get _categoryId => _categoryIds[widget.category];
+  int? get _categoryId => widget.categoryId ?? _categoryIds[widget.category];
 
   @override
   void initState() {
