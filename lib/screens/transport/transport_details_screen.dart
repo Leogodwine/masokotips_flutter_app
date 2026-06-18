@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../models/transport.dart';
+import '../../providers/auth_provider.dart';
+import '../chat/chat_screen.dart';
 import 'package:masoko_tips/widgets/cached_network_image_with_cors.dart';
 import '../seller/seller_public_profile_screen.dart' as import_profile;
 
@@ -67,10 +71,10 @@ class TransportDetailsScreen extends StatelessWidget {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.black.withValues(),
+                          Colors.black.withValues(alpha: 0.3),
                           Colors.transparent,
                           Colors.transparent,
-                          Colors.black.withValues(),
+                          Colors.black.withValues(alpha: 0.6),
                         ],
                       ),
                     ),
@@ -90,7 +94,7 @@ class TransportDetailsScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(),
+                            color: Colors.black.withValues(alpha: 0.3),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -268,6 +272,17 @@ class TransportDetailsScreen extends StatelessWidget {
                           label: transport.vehicleLocation,
                           fullWidth: true,
                         ),
+                        if (transport.latitude != null && transport.longitude != null) ...[
+                          const SizedBox(height: 8),
+                          _buildFeatureChip(
+                            context,
+                            icon: Icons.gps_fixed,
+                            label:
+                                'GPS: ${transport.latitude!.toStringAsFixed(4)}, ${transport.longitude!.toStringAsFixed(4)}',
+                            fullWidth: true,
+                            color: Colors.green,
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -506,11 +521,43 @@ class TransportDetailsScreen extends StatelessWidget {
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content:
-                                    Text('Contact functionality coming soon'),
-                                backgroundColor: Colors.blue,
+                            final authProvider = context.read<AuthProvider>();
+                            if (authProvider.user == null) {
+                              Navigator.pushNamed(context, '/login');
+                              return;
+                            }
+                            
+                            final currentUserId = authProvider.user!.id;
+                            final receiverId = int.tryParse(transport.user?['id']?.toString() ?? '') ?? transport.userId ?? 0;
+                            
+                            if (receiverId == 0) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Provider contact info is not available.'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                              return;
+                            }
+
+                            if (currentUserId == receiverId) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('You cannot chat with yourself.'),
+                                  backgroundColor: Colors.orange,
+                                ),
+                              );
+                              return;
+                            }
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ChatScreen(
+                                  receiverId: receiverId,
+                                  receiverName: transport.sellerName,
+                                  receiverImage: transport.sellerAvatar ?? '',
+                                ),
                               ),
                             );
                           },
@@ -535,14 +582,30 @@ class TransportDetailsScreen extends StatelessWidget {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: isActive
-                              ? () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                          'Booking functionality coming soon'),
-                                      backgroundColor: Colors.green,
-                                    ),
-                                  );
+                              ? () async {
+                                  final phone = transport.driverPhone ?? transport.sellerPhone;
+                                  final messenger = ScaffoldMessenger.of(context);
+                                  if (phone == null || phone.isEmpty) {
+                                    messenger.showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Phone number not available for booking.'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                    return;
+                                  }
+
+                                  final Uri url = Uri.parse('tel:$phone');
+                                  if (await canLaunchUrl(url)) {
+                                    await launchUrl(url);
+                                  } else {
+                                    messenger.showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Could not launch phone dialer.'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
                                 }
                               : null,
                           style: ElevatedButton.styleFrom(
@@ -665,13 +728,19 @@ class TransportDetailsScreen extends StatelessWidget {
           if (isPhone)
             IconButton(
               icon: const Icon(Icons.phone, color: Colors.green),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Phone call functionality coming soon'),
-                    backgroundColor: Colors.orange,
-                  ),
-                );
+              onPressed: () async {
+                final Uri url = Uri.parse('tel:$value');
+                final messenger = ScaffoldMessenger.of(context);
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(url);
+                } else {
+                  messenger.showSnackBar(
+                    const SnackBar(
+                      content: Text('Could not launch phone dialer.'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
               },
             ),
         ],
@@ -684,7 +753,9 @@ class TransportDetailsScreen extends StatelessWidget {
     required IconData icon,
     required String label,
     bool fullWidth = false,
+    Color? color,
   }) {
+    final chipColor = color ?? Theme.of(context).primaryColor;
     return Container(
       width: fullWidth ? double.infinity : null,
       padding: const EdgeInsets.symmetric(
@@ -692,10 +763,10 @@ class TransportDetailsScreen extends StatelessWidget {
         vertical: 8,
       ),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: color != null ? color.withValues(alpha: 0.08) : Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.grey[200]!,
+          color: color != null ? color.withValues(alpha: 0.3) : Colors.grey[200]!,
           width: 1,
         ),
       ),
@@ -705,14 +776,15 @@ class TransportDetailsScreen extends StatelessWidget {
           Icon(
             icon,
             size: 16,
-            color: Theme.of(context).primaryColor,
+            color: chipColor,
           ),
           const SizedBox(width: 6),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
+              color: chipColor,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
