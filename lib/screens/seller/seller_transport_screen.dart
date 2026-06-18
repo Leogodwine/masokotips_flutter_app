@@ -473,7 +473,7 @@ class _SellerTransportScreenState extends State<SellerTransportScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        'TZS ${transport.pricePerKg?.toStringAsFixed(0) ?? '0'}/kg',
+                        'TZS ${transport.price.toStringAsFixed(0)}',
                         style: TextStyle(
                           color: Theme.of(context).primaryColor,
                           fontSize: 14,
