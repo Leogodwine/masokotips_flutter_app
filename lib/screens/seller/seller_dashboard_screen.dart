@@ -11,9 +11,12 @@ import 'seller_organic_products_screen.dart';
 import 'seller_transport_screen.dart';
 import 'seller_food_beverages_screen.dart';
 import '../../utils/extensions.dart';
+import '../../widgets/subscription_guard.dart';
 
 class SellerDashboardScreen extends StatefulWidget {
-  const SellerDashboardScreen({Key? key}) : super(key: key);
+  final int initialIndex;
+  const SellerDashboardScreen({Key? key, this.initialIndex = 0})
+      : super(key: key);
 
   @override
   State<SellerDashboardScreen> createState() => _SellerDashboardScreenState();
@@ -25,11 +28,12 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
   final ProductService _productService = ProductService();
   String? _errorMessage;
   String _selectedCategory = 'All';
-  int _selectedIndex = 0;
+  late int _selectedIndex;
 
   @override
   void initState() {
     super.initState();
+    _selectedIndex = widget.initialIndex;
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     if (authProvider.token != null) {
       _productService.setAuthToken(authProvider.token!);
@@ -53,9 +57,18 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
     } catch (e) {
       debugPrint('Error loading seller products: $e');
 
-      setState(() {
-        _errorMessage = e.toFriendlyError;
-      });
+      final errorStr = e.toFriendlyError;
+      if (errorStr.contains('subscription_required') ||
+          errorStr.contains('SUBSCRIPTION_EXPIRED')) {
+        setState(() {
+          _errorMessage =
+              'Your Seller subscription has expired or is inactive.';
+        });
+      } else {
+        setState(() {
+          _errorMessage = errorStr;
+        });
+      }
     } finally {
       setState(() {
         _isLoading = false;
@@ -165,16 +178,21 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Hide dashboard AppBar if we are on a tab that provides its own Scaffold/AppBar
+    bool showDashboardAppBar = _selectedIndex == 0;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.sellerDashboardTitle),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadSellerProducts,
-          ),
-        ],
-      ),
+      appBar: showDashboardAppBar
+          ? AppBar(
+              title: Text(AppLocalizations.of(context)!.sellerDashboardTitle),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: _loadSellerProducts,
+                ),
+              ],
+            )
+          : null,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           border: Border(
@@ -192,40 +210,6 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
             setState(() {
               _selectedIndex = index;
             });
-            if (index == 1) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const SellerTransportScreen(),
-                ),
-              ).then((_) {
-                setState(() {
-                  _selectedIndex = 0;
-                });
-              });
-            } else if (index == 2) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const SellerOrganicProductsScreen(),
-                ),
-              ).then((_) {
-                setState(() {
-                  _selectedIndex = 0;
-                });
-              });
-            } else if (index == 3) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const SellerFoodBeveragesScreen(),
-                ),
-              ).then((_) {
-                setState(() {
-                  _selectedIndex = 0;
-                });
-              });
-            }
           },
           items: [
             BottomNavigationBarItem(
@@ -276,8 +260,39 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
             )
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      body: _buildProductsSection(),
+      body: _buildBody(),
     );
+  }
+
+
+  Widget _buildBody() {
+    switch (_selectedIndex) {
+      case 0:
+        return SubscriptionRequired(
+          requiredRole: 'seller',
+          child: _buildProductsSection(),
+        );
+      case 1:
+        return const SubscriptionRequired(
+          requiredRole: 'transporter',
+          child: SellerTransportScreen(),
+        );
+      case 2:
+        return const SubscriptionRequired(
+          requiredRole: 'seller',
+          child: SellerOrganicProductsScreen(),
+        );
+      case 3:
+        return const SubscriptionRequired(
+          requiredRole: 'seller',
+          child: SellerFoodBeveragesScreen(),
+        );
+      default:
+        return SubscriptionRequired(
+          requiredRole: 'seller',
+          child: _buildProductsSection(),
+        );
+    }
   }
 
   Widget _buildProductsSection() {
@@ -341,8 +356,8 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
       children: [
         Container(
           padding: const EdgeInsets.all(16),
-        child: DropdownButtonFormField<String>(
-          initialValue: _selectedCategory,
+          child: DropdownButtonFormField<String>(
+            initialValue: _selectedCategory,
             decoration: InputDecoration(
               labelText: 'Filter by Category',
               border: OutlineInputBorder(
@@ -384,11 +399,12 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
   }
 
   Widget _buildProductCard(Product product) {
-    final imageUrl = product.firstImageUrl.isNotEmpty 
-        ? product.firstImageUrl 
+    final imageUrl = product.firstImageUrl.isNotEmpty
+        ? product.firstImageUrl
         : product.imageUrl;
-    
-    debugPrint('Product: ${product.name}, imageUrl: $imageUrl, images: ${product.images}');
+
+    debugPrint(
+        'Product: ${product.name}, imageUrl: $imageUrl, images: ${product.images}');
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -463,9 +479,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                     Text(
                       '(${product.ratingCount})',
                       style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey[600],
-                          height: 1.2),
+                          fontSize: 11, color: Colors.grey[600], height: 1.2),
                     ),
                   ],
                 ),
@@ -529,7 +543,8 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                             children: [
                               Icon(Icons.delete, color: Colors.red),
                               SizedBox(width: 8),
-                              Text('Delete', style: TextStyle(color: Colors.red)),
+                              Text('Delete',
+                                  style: TextStyle(color: Colors.red)),
                             ],
                           ),
                         ),

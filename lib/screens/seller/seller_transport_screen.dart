@@ -8,6 +8,7 @@ import '../../config/api_config.dart';
 import '../../utils/logger.dart';
 import 'add_transport_screen.dart';
 import 'edit_transport_screen.dart';
+import '../../utils/extensions.dart';
 
 class SellerTransportScreen extends StatefulWidget {
   const SellerTransportScreen({Key? key}) : super(key: key);
@@ -79,7 +80,13 @@ class _SellerTransportScreenState extends State<SellerTransportScreen> {
       }
     } catch (e) {
       Log.e('Error loading seller transports: $e');
-      _error = e.toString();
+      final errorStr = e.toFriendlyError;
+      if (errorStr.contains('subscription_required') ||
+          errorStr.contains('SUBSCRIPTION_EXPIRED')) {
+        _error = 'Your Transporter subscription has expired or is inactive.';
+      } else {
+        _error = errorStr;
+      }
     } finally {
       setState(() {
         _isLoading = false;

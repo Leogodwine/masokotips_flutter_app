@@ -8,6 +8,7 @@ import '../../utils/logger.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'add_organic_product_screen.dart';
 import 'edit_organic_product_screen.dart';
+import '../../utils/extensions.dart';
 
 class SellerOrganicProductsScreen extends StatefulWidget {
   const SellerOrganicProductsScreen({Key? key}) : super(key: key);
@@ -71,7 +72,13 @@ class _SellerOrganicProductsScreenState
       }
     } catch (e) {
       Log.e('Error fetching seller organic products: $e');
-      _errorMessage = e.toString();
+      final errorStr = e.toFriendlyError;
+      if (errorStr.contains('subscription_required') ||
+          errorStr.contains('SUBSCRIPTION_EXPIRED')) {
+        _errorMessage = 'Your Seller subscription has expired or is inactive.';
+      } else {
+        _errorMessage = errorStr;
+      }
     } finally {
       setState(() {
         _isLoading = false;
