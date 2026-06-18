@@ -34,18 +34,31 @@ class SubscriptionGuard extends StatelessWidget {
         }
 
         final user = authProvider.user!;
-        final userRole =
-            requiredRole ?? user.primaryRole ?? 'registered_user';
+        
+        bool needsSubscription;
+        String displayRole = requiredRole ?? user.primaryRole ?? 'registered_user';
 
-        // Check if user needs subscription
-        final needsSubscription =
-            subscriptionProvider.needsSubscription(userRole);
+        if (requiredRole != null) {
+          needsSubscription = subscriptionProvider.needsSubscription(requiredRole);
+        } else {
+          // If no specific role required, check if user has ANY active subscription 
+          // matching one of their existing roles.
+          needsSubscription = true;
+          for (final role in user.roles) {
+            if (subscriptionProvider.hasActiveSubscriptionFor(role)) {
+              needsSubscription = false;
+              break;
+            }
+          }
+          // If still needs one, default to primaryRole for the dialog
+          displayRole = user.primaryRole ?? 'registered_user';
+        }
 
         if (needsSubscription) {
           // Show subscription required dialog or navigate to subscription screen
           _showSubscriptionRequiredDialog(
             context,
-            userRole,
+            displayRole,
             subscriptionProvider,
           );
           return const SizedBox.shrink();
@@ -142,7 +155,7 @@ class SubscriptionRequired extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer2<AuthProvider, SubscriptionProvider>(
-      builder: (context, authProvider, subscriptionProvider, child) {
+      builder: (context, authProvider, subscriptionProvider, _) {
         // Show loading while checking subscription status
         if (subscriptionProvider.isLoading) {
           return loadingWidget ?? const LoadingIndicator();
@@ -155,19 +168,31 @@ class SubscriptionRequired extends StatelessWidget {
         }
 
         final user = authProvider.user!;
-        final userRole =
-            requiredRole ?? user.primaryRole ?? 'registered_user';
+        
+        bool needsSubscription;
+        String displayRole = requiredRole ?? user.primaryRole ?? 'registered_user';
 
-        // Check if user needs subscription
-        final needsSubscription =
-            subscriptionProvider.needsSubscription(userRole);
+        if (requiredRole != null) {
+          needsSubscription = subscriptionProvider.needsSubscription(requiredRole);
+        } else {
+          // If no specific role required, check if user has ANY active subscription 
+          // matching one of their existing roles.
+          needsSubscription = true;
+          for (final role in user.roles) {
+            if (subscriptionProvider.hasActiveSubscriptionFor(role)) {
+              needsSubscription = false;
+              break;
+            }
+          }
+          displayRole = user.primaryRole ?? 'registered_user';
+        }
 
         if (needsSubscription) {
           return placeholderWidget ??
-              _buildSubscriptionPlaceholder(context, userRole);
+              _buildSubscriptionPlaceholder(context, displayRole);
         }
 
-        return child ?? const SizedBox.shrink();
+        return child;
       },
     );
   }
