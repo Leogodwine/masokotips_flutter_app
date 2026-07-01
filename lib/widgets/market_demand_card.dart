@@ -52,7 +52,7 @@ class MarketDemandCard extends StatelessWidget {
               child: hasImage
                   ? Image.network(
                       ImageUploadHelper.constructFullImageUrl(demand.imageUrl!),
-                      height: 130,
+                      height: 120,
                       width: double.infinity,
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => _placeholderBanner(),
@@ -85,7 +85,7 @@ class MarketDemandCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
 
                   // Title
                   Text(
@@ -122,11 +122,11 @@ class MarketDemandCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     _ExpiryIndicator(expiresAt: demand.expiresAt!),
                   ],
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
 
                   // Divider
                   Divider(height: 1, color: Colors.grey[200]),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
 
                   // Buyer row
                   Row(
@@ -180,7 +180,7 @@ class MarketDemandCard extends StatelessWidget {
 
   Widget _placeholderBanner() {
     return Container(
-      height: 130,
+      height: 120,
       width: double.infinity,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
