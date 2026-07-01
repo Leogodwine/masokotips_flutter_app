@@ -22,6 +22,8 @@ class TransportDetailsScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final statusLower = transport.status.toLowerCase();
     final isActive = statusLower == 'active' || statusLower == 'available';
+    final receiverId = int.tryParse(transport.user?['id']?.toString() ?? '') ?? transport.userId ?? 0;
+    final hasProvider = receiverId != 0;
 
     return Scaffold(
       body: CustomScrollView(
@@ -523,60 +525,50 @@ class TransportDetailsScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: () {
-                            final authProvider = context.read<AuthProvider>();
-                            if (authProvider.user == null) {
-                              Navigator.pushNamed(context, '/login');
-                              return;
-                            }
-                                                        _handleProtectedAction(context, () {
-                              final currentUserId = authProvider.user!.id;
-                              final receiverId = int.tryParse(transport.user?['id']?.toString() ?? '') ?? transport.userId ?? 0;
-                              
-                              if (receiverId == 0) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Provider contact info is not available.'),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                                return;
-                              }
+                          onPressed: hasProvider
+                              ? () {
+                                  final authProvider = context.read<AuthProvider>();
+                                  if (authProvider.user == null) {
+                                    Navigator.pushNamed(context, '/login');
+                                    return;
+                                  }
+                                  _handleProtectedAction(context, () {
+                                    final currentUserId = authProvider.user!.id;
+                                    if (currentUserId == receiverId) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('You cannot chat with yourself.'),
+                                          backgroundColor: Colors.orange,
+                                        ),
+                                      );
+                                      return;
+                                    }
 
-                              if (currentUserId == receiverId) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('You cannot chat with yourself.'),
-                                    backgroundColor: Colors.orange,
-                                  ),
-                                );
-                                return;
-                              }
-
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => ChatScreen(
-                                    receiverId: receiverId,
-                                    receiverName: transport.sellerName,
-                                    receiverImage: transport.sellerAvatar ?? '',
-                                  ),
-                                ),
-                              );
-                            });
-                          },
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => ChatScreen(
+                                          receiverId: receiverId,
+                                          receiverName: transport.sellerName,
+                                          receiverImage: transport.sellerAvatar ?? '',
+                                        ),
+                                      ),
+                                    );
+                                  });
+                                }
+                              : null,
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            side: BorderSide(color: theme.primaryColor),
+                            side: BorderSide(color: hasProvider ? theme.primaryColor : Colors.grey),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          icon: Icon(Icons.message, color: theme.primaryColor),
+                          icon: Icon(Icons.message, color: hasProvider ? theme.primaryColor : Colors.grey),
                           label: Text(
                             'Message',
                             style: TextStyle(
-                              color: theme.primaryColor,
+                              color: hasProvider ? theme.primaryColor : Colors.grey,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -585,7 +577,7 @@ class TransportDetailsScreen extends StatelessWidget {
                       const SizedBox(width: 16),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: isActive
+                          onPressed: (isActive && hasProvider)
                               ? () {
                                   final authProvider = context.read<AuthProvider>();
                                   if (authProvider.user == null) {
@@ -612,7 +604,7 @@ class TransportDetailsScreen extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             backgroundColor:
-                                isActive ? theme.primaryColor : Colors.grey,
+                                (isActive && hasProvider) ? theme.primaryColor : Colors.grey,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
