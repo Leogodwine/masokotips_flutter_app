@@ -6,6 +6,8 @@ import '../../providers/auth_provider.dart';
 import '../chat/chat_screen.dart';
 import 'package:masoko_tips/widgets/cached_network_image_with_cors.dart';
 import '../seller/seller_public_profile_screen.dart' as import_profile;
+import '../../providers/subscription_provider.dart';
+import '../subscription/subscription_screen.dart';
 
 class TransportDetailsScreen extends StatelessWidget {
   final Transport transport;
@@ -527,40 +529,41 @@ class TransportDetailsScreen extends StatelessWidget {
                               Navigator.pushNamed(context, '/login');
                               return;
                             }
-                            
-                            final currentUserId = authProvider.user!.id;
-                            final receiverId = int.tryParse(transport.user?['id']?.toString() ?? '') ?? transport.userId ?? 0;
-                            
-                            if (receiverId == 0) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Provider contact info is not available.'),
-                                  backgroundColor: Colors.red,
+                                                        _handleProtectedAction(context, () {
+                              final currentUserId = authProvider.user!.id;
+                              final receiverId = int.tryParse(transport.user?['id']?.toString() ?? '') ?? transport.userId ?? 0;
+                              
+                              if (receiverId == 0) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Provider contact info is not available.'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                                return;
+                              }
+
+                              if (currentUserId == receiverId) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('You cannot chat with yourself.'),
+                                    backgroundColor: Colors.orange,
+                                  ),
+                                );
+                                return;
+                              }
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ChatScreen(
+                                    receiverId: receiverId,
+                                    receiverName: transport.sellerName,
+                                    receiverImage: transport.sellerAvatar ?? '',
+                                  ),
                                 ),
                               );
-                              return;
-                            }
-
-                            if (currentUserId == receiverId) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('You cannot chat with yourself.'),
-                                  backgroundColor: Colors.orange,
-                                ),
-                              );
-                              return;
-                            }
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ChatScreen(
-                                  receiverId: receiverId,
-                                  receiverName: transport.sellerName,
-                                  receiverImage: transport.sellerAvatar ?? '',
-                                ),
-                              ),
-                            );
+                            });
                           },
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -583,20 +586,27 @@ class TransportDetailsScreen extends StatelessWidget {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: isActive
-                              ? () async {
-                                  const phone = '0799711705';
-                                  final messenger = ScaffoldMessenger.of(context);
-                                  final Uri url = Uri.parse('tel:$phone');
-                                  if (await canLaunchUrl(url)) {
-                                    await launchUrl(url);
-                                  } else {
-                                    messenger.showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Could not launch phone dialer.'),
-                                        backgroundColor: Colors.red,
-                                      ),
-                                    );
+                              ? () {
+                                  final authProvider = context.read<AuthProvider>();
+                                  if (authProvider.user == null) {
+                                    Navigator.pushNamed(context, '/login');
+                                    return;
                                   }
+                                  _handleProtectedAction(context, () async {
+                                    const phone = '0799711705';
+                                    final messenger = ScaffoldMessenger.of(context);
+                                    final Uri url = Uri.parse('tel:$phone');
+                                    if (await canLaunchUrl(url)) {
+                                      await launchUrl(url);
+                                    } else {
+                                      messenger.showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Could not launch phone dialer.'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  });
                                 }
                               : null,
                           style: ElevatedButton.styleFrom(
@@ -783,5 +793,42 @@ class TransportDetailsScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _showSubscriptionDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Subscription Required'),
+        content: const Text(
+          'Chat and Contact features are available for active subscribers only. Subscribe now to connect directly!',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('CANCEL'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SubscriptionScreen()),
+              );
+            },
+            child: const Text('SUBSCRIBE NOW'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleProtectedAction(BuildContext context, VoidCallback action) {
+    final subProvider = context.read<SubscriptionProvider>();
+    if (subProvider.hasActiveSubscription) {
+      action();
+    } else {
+      _showSubscriptionDialog(context);
+    }
   }
 }

@@ -7,6 +7,8 @@ import '../../providers/auth_provider.dart';
 import '../chat/chat_screen.dart';
 import '../../widgets/cached_network_image_with_cors.dart';
 import '../seller/seller_public_profile_screen.dart' as import_profile;
+import '../../providers/subscription_provider.dart';
+import '../subscription/subscription_screen.dart';
 
 class ServiceDetailScreen extends StatefulWidget {
   final Service service;
@@ -459,29 +461,31 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                       );
                       return;
                     }
-                    final currentUserId = authProvider.user!.id;
-                    final receiverId = widget.service.userId;
+                    _handleProtectedAction(context, () {
+                      final currentUserId = authProvider.user!.id;
+                      final receiverId = widget.service.userId;
 
-                    if (receiverId == currentUserId) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('You cannot chat with yourself.'),
-                          backgroundColor: Colors.orange,
+                      if (receiverId == currentUserId) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('You cannot chat with yourself.'),
+                            backgroundColor: Colors.orange,
+                          ),
+                        );
+                        return;
+                      }
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ChatScreen(
+                            receiverId: receiverId,
+                            receiverName: widget.service.sellerName,
+                            receiverImage: widget.service.providerImage ?? '',
+                          ),
                         ),
                       );
-                      return;
-                    }
-
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ChatScreen(
-                          receiverId: receiverId,
-                          receiverName: widget.service.sellerName,
-                          receiverImage: widget.service.providerImage ?? '',
-                        ),
-                      ),
-                    );
+                    });
                   },
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -504,22 +508,34 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
               Expanded(
                 child: ElevatedButton(
                   onPressed: isActive
-                      ? () async {
-                          final phone = widget.service.contactPhone ??
-                              widget.service.sellerPhone ??
-                              '0799711705';
-                          final messenger = ScaffoldMessenger.of(context);
-                          final Uri url = Uri.parse('tel:$phone');
-                          if (await canLaunchUrl(url)) {
-                            await launchUrl(url);
-                          } else {
-                            messenger.showSnackBar(
+                      ? () {
+                          final authProvider = context.read<AuthProvider>();
+                          if (authProvider.user == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Could not launch phone dialer.'),
-                                backgroundColor: Colors.red,
+                                content: Text('Please login to call.'),
+                                backgroundColor: Colors.orange,
                               ),
                             );
+                            return;
                           }
+                          _handleProtectedAction(context, () async {
+                            final phone = widget.service.contactPhone ??
+                                widget.service.sellerPhone ??
+                                '0799711705';
+                            final messenger = ScaffoldMessenger.of(context);
+                            final Uri url = Uri.parse('tel:$phone');
+                            if (await canLaunchUrl(url)) {
+                              await launchUrl(url);
+                            } else {
+                              messenger.showSnackBar(
+                                const SnackBar(
+                                  content: Text('Could not launch phone dialer.'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          });
                         }
                       : null,
                   style: ElevatedButton.styleFrom(
@@ -544,5 +560,42 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
         ),
       ),
     );
+  }
+
+  void _showSubscriptionDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Subscription Required'),
+        content: const Text(
+          'Chat and Contact features are available for active subscribers only. Subscribe now to connect directly!',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('CANCEL'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SubscriptionScreen()),
+              );
+            },
+            child: const Text('SUBSCRIBE NOW'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleProtectedAction(BuildContext context, VoidCallback action) {
+    final subProvider = context.read<SubscriptionProvider>();
+    if (subProvider.hasActiveSubscription) {
+      action();
+    } else {
+      _showSubscriptionDialog(context);
+    }
   }
 }
