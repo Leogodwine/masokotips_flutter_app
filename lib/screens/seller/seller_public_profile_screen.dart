@@ -258,7 +258,9 @@ class _SellerPublicProfileScreenState extends State<SellerPublicProfileScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            "${_profile!.name.toUpperCase()} (Seller)",
+            _profile!.name.contains(' ')
+                ? "${_profile!.name} (Seller)"
+                : "@${_profile!.name.toLowerCase()} (Seller)",
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -270,7 +272,7 @@ class _SellerPublicProfileScreenState extends State<SellerPublicProfileScreen> {
             children: [
               const Text('Rate:', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(width: 8),
-              _buildRatingStars(_profile!.rating),
+              _buildRatingStars(_profile!.rating, isInteractive: true),
               const SizedBox(width: 8),
               Text('(${_profile!.rating.toStringAsFixed(1)})', 
                 style: const TextStyle(color: Colors.grey)),
@@ -281,19 +283,31 @@ class _SellerPublicProfileScreenState extends State<SellerPublicProfileScreen> {
     );
   }
 
-  Widget _buildRatingStars(double rating) {
+  Widget _buildRatingStars(double rating, {bool isInteractive = false}) {
     int fullStars = rating.floor();
     bool hasHalfStar = (rating - fullStars) >= 0.5;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: List.generate(5, (index) {
+        Widget starIcon;
         if (index < fullStars) {
-          return const Icon(Icons.star, color: Colors.amber, size: 20);
+          starIcon = const Icon(Icons.star, color: Colors.amber, size: 20);
         } else if (index == fullStars && hasHalfStar) {
-          return const Icon(Icons.star_half, color: Colors.amber, size: 20);
+          starIcon = const Icon(Icons.star_half, color: Colors.amber, size: 20);
         } else {
-          return const Icon(Icons.star_border, color: Colors.amber, size: 20);
+          starIcon = const Icon(Icons.star_border, color: Colors.amber, size: 20);
         }
+
+        if (isInteractive) {
+          return InkWell(
+            onTap: () => _showRatingDialog(index + 1.0),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: starIcon,
+            ),
+          );
+        }
+        return starIcon;
       }),
     );
   }
@@ -457,6 +471,141 @@ class _SellerPublicProfileScreenState extends State<SellerPublicProfileScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showRatingDialog(double initialRating) {
+    double selectedRating = initialRating;
+    final commentController = TextEditingController();
+    bool isSubmitting = false;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: const Text(
+                'Rate Provider',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Tap a star to set your rating:',
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (index) {
+                      return IconButton(
+                        icon: Icon(
+                          index < selectedRating ? Icons.star : Icons.star_border,
+                          color: Colors.amber,
+                          size: 32,
+                        ),
+                        onPressed: isSubmitting
+                            ? null
+                            : () {
+                                setState(() {
+                                  selectedRating = index + 1.0;
+                                });
+                              },
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: commentController,
+                    enabled: !isSubmitting,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      hintText: 'Write a review/feedback (optional)...',
+                      hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Theme.of(context).primaryColor),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isSubmitting ? null : () => Navigator.pop(context),
+                  child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: isSubmitting
+                      ? null
+                      : () async {
+                          final apiService = context.read<ApiService>();
+                          final navigator = Navigator.of(context);
+                          final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+                          setState(() {
+                            isSubmitting = true;
+                          });
+
+                          final res = await apiService.rateUser(
+                            widget.sellerId,
+                            selectedRating,
+                            comment: commentController.text.trim(),
+                          );
+
+                          if (mounted) {
+                            navigator.pop();
+                            if (res['success'] == true) {
+                              scaffoldMessenger.showSnackBar(
+                                SnackBar(
+                                  content: Text(res['message'] ?? 'Rating submitted successfully!'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                              _loadProfile(); // Reload profile
+                            } else {
+                              scaffoldMessenger.showSnackBar(
+                                SnackBar(
+                                  content: Text(res['message'] ?? 'Failed to submit rating.'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          }
+                        },
+                  child: isSubmitting
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : const Text('Submit'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }

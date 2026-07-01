@@ -2271,4 +2271,24 @@ class ApiService {
       throw Exception('Error sending message: ${e.toFriendlyError}');
     }
   }
+
+  // Rate a user
+  Future<Map<String, dynamic>> rateUser(String userId, double rating, {String? comment}) async {
+    try {
+      final response = await post('users/$userId/rate', body: {
+        'rating': rating.toInt(),
+        'comment': comment ?? '',
+      });
+      return {
+        'success': response['success'] ?? true,
+        'message': response['message'] ?? 'Rating submitted',
+      };
+    } catch (e) {
+      Log.e('Error rating user: $e');
+      return {
+        'success': false,
+        'message': 'Failed to submit rating. Please try again.',
+      };
+    }
+  }
 }
