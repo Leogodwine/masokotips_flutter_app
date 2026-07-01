@@ -2220,7 +2220,7 @@ class ApiService {
         final data = _decodeJson(response.body);
         return data['data'] ?? {};
       } else {
-        throw Exception('Failed to fetch conversation');
+        throw Exception('Failed to load conversation: ${response.statusCode}');
       }
     } catch (e) {
       Log.e('Error fetching conversation: $e');
