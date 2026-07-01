@@ -1088,9 +1088,15 @@ class ApiService {
     }
   }
 
+  String _buildUrl(String endpoint) {
+    final cleanBase = baseUrl.endsWith('/') ? baseUrl.substring(0, baseUrl.length - 1) : baseUrl;
+    final cleanEndpoint = endpoint.startsWith('/') ? endpoint : '/$endpoint';
+    return '$cleanBase$cleanEndpoint';
+  }
+
   Future<dynamic> get(String endpoint, {Map<String, String>? headers}) async {
     final response = await http.get(
-      Uri.parse('$baseUrl$endpoint'),
+      Uri.parse(_buildUrl(endpoint)),
       headers: {
         ...this.headers,
         'X-API-Key': apiKey,
@@ -1108,7 +1114,7 @@ class ApiService {
   Future<dynamic> post(String endpoint,
       {Map<String, String>? headers, Map<String, dynamic>? body}) async {
     final response = await http.post(
-      Uri.parse('$baseUrl$endpoint'),
+      Uri.parse(_buildUrl(endpoint)),
       headers: {
         ...this.headers,
         'X-API-Key': apiKey,
@@ -1127,7 +1133,7 @@ class ApiService {
   Future<dynamic> put(String endpoint,
       {Map<String, String>? headers, Map<String, dynamic>? body}) async {
     final response = await http.put(
-      Uri.parse('$baseUrl$endpoint'),
+      Uri.parse(_buildUrl(endpoint)),
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
@@ -1146,7 +1152,7 @@ class ApiService {
 
   Future<void> delete(String endpoint, {Map<String, String>? headers}) async {
     final response = await http.delete(
-      Uri.parse('$baseUrl$endpoint'),
+      Uri.parse(_buildUrl(endpoint)),
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
