@@ -31,6 +31,7 @@ import '../../widgets/friendly_error_display.dart';
 import '../../widgets/market_demand_card.dart';
 import '../../widgets/market_info_card.dart';
 import '../buyer/market_demand_detail_screen.dart';
+import '../buyer/market_demands_screen.dart';
 import '../categories/subcategories_screen.dart';
 import '../../widgets/rating_stars.dart';
 import '../../models/service.dart';
@@ -898,7 +899,14 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                 icon: Icons.campaign_outlined,
                 title: 'Market Demands',
                 seeAllText: 'See All',
-                onSeeAll: () {},
+                onSeeAll: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const MarketDemandsScreen(),
+                    ),
+                  );
+                },
               ),
             ),
             const SizedBox(height: 4),
