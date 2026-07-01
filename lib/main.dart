@@ -58,6 +58,8 @@ import 'screens/settings/about_settings_screen.dart';
 import 'screens/settings/language_settings_screen.dart';
 import 'screens/settings/language_selection_screen.dart';
 
+import 'providers/agent_provider.dart';
+import 'screens/agent/agent_dashboard_screen.dart';
 import 'services/service_service.dart';
 import 'models/transport.dart';
 import 'models/organic_product.dart';
@@ -161,6 +163,7 @@ class _MyAppState extends State<MyApp> {
         ),
         ChangeNotifierProvider(create: (_) => BuyerProvider()),
         ChangeNotifierProvider(create: (_) => MarketDemandProvider()),
+        ChangeNotifierProvider(create: (_) => AgentProvider()),
       ],
       child: Consumer<LocaleProvider>(
         builder: (context, localeProvider, child) {
@@ -227,6 +230,7 @@ class _MyAppState extends State<MyApp> {
               '/admin/transport': (context) =>
                   const AdminTransportManagementScreen(),
               '/categories': (context) => const MainCategoriesScreen(),
+              '/agent/dashboard': (context) => const AgentDashboardScreen(),
               '/service_provider/add-service': (context) {
                 final args = ModalRoute.of(context)!.settings.arguments
                     as Map<String, dynamic>;

@@ -72,7 +72,13 @@ class User {
       try {
         final decoded = jsonDecode(rolesRaw);
         if (decoded is List) {
-          parsedRoles = decoded.map((e) => e.toString()).toList();
+          for (var item in decoded) {
+            if (item is Map) {
+              parsedRoles.add((item['name'] ?? item['slug'] ?? item.toString()).toString());
+            } else {
+              parsedRoles.add(item.toString());
+            }
+          }
         } else {
           parsedRoles = [rolesRaw];
         }
@@ -80,7 +86,14 @@ class User {
         parsedRoles = [rolesRaw];
       }
     } else if (rolesRaw is List) {
-      parsedRoles = rolesRaw.map((e) => e.toString()).toList();
+      for (var item in rolesRaw) {
+        if (item is Map) {
+          // Handle list of role objects: [{"id": 1, "name": "seller"}]
+          parsedRoles.add((item['name'] ?? item['slug'] ?? item.toString()).toString());
+        } else {
+          parsedRoles.add(item.toString());
+        }
+      }
     } else if (rolesRaw != null) {
       parsedRoles = [rolesRaw.toString()];
     }

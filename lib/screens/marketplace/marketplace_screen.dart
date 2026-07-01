@@ -88,7 +88,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
       sellerName = item.sellerName;
       sellerImage = item.providerImage ?? '';
     } else if (item is Transport) {
-      sellerId = item.user?['id']?.toString() ?? '0';
+      sellerId = item.user?['id']?.toString() ?? item.userId?.toString() ?? '0';
       sellerName = item.sellerName;
       sellerImage = item.sellerAvatar ?? '';
     }

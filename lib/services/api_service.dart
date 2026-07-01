@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import '../models/user.dart';
 import '../models/product.dart'; // Ensure this file contains the Product class definition
@@ -54,7 +55,8 @@ class ApiService {
 
     if (_looksLikeSecurityChallenge(trimmedBody)) {
       Log.e('Security challenge detected: HTML returned instead of JSON');
-      Log.d('Challenge body snippet: ${trimmedBody.length > 500 ? trimmedBody.substring(0, 500) : trimmedBody}');
+      Log.d(
+          'Challenge body snippet: ${trimmedBody.length > 500 ? trimmedBody.substring(0, 500) : trimmedBody}');
       throw Exception(
           'Security Check: The server is verifying your request. Please wait a few seconds and try again.');
     }
@@ -76,7 +78,8 @@ class ApiService {
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
       if (isHtml) {
-        Log.e('Bot interference detected at $url (HTML returned instead of JSON)');
+        Log.e(
+            'Bot interference detected at $url (HTML returned instead of JSON)');
         throw Exception(
             'Security Check: Our system is verifying your connection. Please try again in a moment.');
       }
@@ -88,7 +91,8 @@ class ApiService {
     if (response.statusCode == 403 || response.statusCode == 503) {
       final lowerBody = body.toLowerCase();
       if (_looksLikeSecurityChallenge(lowerBody)) {
-        Log.e('Security challenge (HTTP ${response.statusCode}) detected at $url');
+        Log.e(
+            'Security challenge (HTTP ${response.statusCode}) detected at $url');
         throw Exception(
             'Security Check: The server is verifying your request. Please wait a few seconds and try again.');
       }
@@ -217,7 +221,7 @@ class ApiService {
       );
 
       final result = _handleResponse(response);
-      
+
       if (result is Map<String, dynamic> && result.containsKey('token')) {
         return result;
       }
@@ -241,9 +245,11 @@ class ApiService {
             }
           }
         }
-        
+
         final message = errorData['message'].toString().toLowerCase();
-        if (message.contains('invalid') || message.contains('credentials') || message.contains('unauthorized')) {
+        if (message.contains('invalid') ||
+            message.contains('credentials') ||
+            message.contains('unauthorized')) {
           throw Exception('Invalid username or password');
         }
         throw Exception(errorData['message']);
@@ -372,10 +378,14 @@ class ApiService {
           request.fields['referral_code'] = referralCode;
         }
 
-        // Add file
-        request.files.add(await http.MultipartFile.fromPath(
+        // Add file — use fromBytes to avoid dart:io MultipartFile.fromPath issues
+        final proofBytes = await proofOfAddress.readAsBytes();
+        final proofFilename =
+            proofOfAddress.path.split('/').last.split('\\').last;
+        request.files.add(http.MultipartFile.fromBytes(
           'proof_of_address',
-          proofOfAddress.path,
+          proofBytes,
+          filename: proofFilename,
         ));
 
         // Use proper headers for multipart request
@@ -484,7 +494,8 @@ class ApiService {
       }
     } catch (e) {
       Log.e('Reset password error: $e');
-      throw Exception('Error sending reset password email: ${e.toFriendlyError}');
+      throw Exception(
+          'Error sending reset password email: ${e.toFriendlyError}');
     }
   }
 
@@ -533,9 +544,12 @@ class ApiService {
       if (bio != null) request.fields['bio'] = bio;
 
       if (avatarPath != null) {
-        request.files.add(await http.MultipartFile.fromPath(
+        final avatarBytes = await File(avatarPath).readAsBytes();
+        final avatarFilename = avatarPath.split('/').last.split('\\').last;
+        request.files.add(http.MultipartFile.fromBytes(
           'avatar',
-          avatarPath,
+          avatarBytes,
+          filename: avatarFilename,
         ));
       }
 
@@ -559,15 +573,14 @@ class ApiService {
     try {
       final url = Uri.parse('$baseUrl/profile/avatar');
       final request = http.MultipartRequest('POST', url);
-
-      request.headers.addAll({
-        'Authorization': 'Bearer $_authToken',
-        'Accept': 'application/json',
-        'User-Agent':
-            ApiConfig.getHeaders()['User-Agent']!,
-      });
-      request.files.add(await http.MultipartFile.fromPath('avatar', imagePath));
-
+      final bytes = await File(imagePath).readAsBytes();
+      final filename = imagePath.split('/').last.split('\\').last;
+      request.headers['Authorization'] = 'Bearer $_authToken';
+      request.headers['Accept'] = 'application/json';
+      final ua = ApiConfig.userAgent;
+      if (ua.isNotEmpty) request.headers['User-Agent'] = ua;
+      request.files.add(
+          http.MultipartFile.fromBytes('avatar', bytes, filename: filename));
       final response = await request.send();
       if (response.statusCode != 200) {
         throw Exception('Failed to upload profile image');
@@ -638,11 +651,11 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final dynamic responseData = _decodeJson(response.body);
-        
+
         List<dynamic> productsData = [];
         if (responseData is Map<String, dynamic>) {
           if (responseData.containsKey('products')) {
-            productsData = responseData['products'] is Map 
+            productsData = responseData['products'] is Map
                 ? (responseData['products']['data'] ?? [])
                 : responseData['products'];
           } else if (responseData.containsKey('data')) {
@@ -864,16 +877,16 @@ class ApiService {
 
       final data = _handleResponse(response);
 
-        if (data is Map<String, dynamic> && data.containsKey('data')) {
-          final List<dynamic> categoriesJson = data['data'];
-          final categories =
-              categoriesJson.map((json) => Category.fromJson(json)).toList();
-          Log.e(
-              'ApiService: Successfully parsed ${categories.length} main categories');
-          return categories;
-        }
-        return [];
-      } catch (e, stackTrace) {
+      if (data is Map<String, dynamic> && data.containsKey('data')) {
+        final List<dynamic> categoriesJson = data['data'];
+        final categories =
+            categoriesJson.map((json) => Category.fromJson(json)).toList();
+        Log.e(
+            'ApiService: Successfully parsed ${categories.length} main categories');
+        return categories;
+      }
+      return [];
+    } catch (e, stackTrace) {
       Log.e('ApiService: Error fetching main categories: $e');
       Log.e('ApiService: Stack trace: $stackTrace');
       throw Exception('Error fetching main categories: ${e.toFriendlyError}');
@@ -894,24 +907,24 @@ class ApiService {
 
       final data = _handleResponse(response);
 
-        if (data is Map<String, dynamic> && data.containsKey('data')) {
-          // Wrapped response format: {"data": [...]}
-          final List<dynamic> subcategoriesJson = data['data'];
-          final subcategories =
-              subcategoriesJson.map((json) => Category.fromJson(json)).toList();
-          Log.e(
-              'ApiService: Successfully parsed ${subcategories.length} subcategories from wrapped response');
-          return subcategories;
-        } else if (data is List) {
-          // Direct array format: [...]
-          final subcategories =
-              data.map((json) => Category.fromJson(json)).toList();
-          Log.e(
-              'ApiService: Successfully parsed ${subcategories.length} subcategories from direct array');
-          return subcategories;
-        }
-        return [];
-      } catch (e, stackTrace) {
+      if (data is Map<String, dynamic> && data.containsKey('data')) {
+        // Wrapped response format: {"data": [...]}
+        final List<dynamic> subcategoriesJson = data['data'];
+        final subcategories =
+            subcategoriesJson.map((json) => Category.fromJson(json)).toList();
+        Log.e(
+            'ApiService: Successfully parsed ${subcategories.length} subcategories from wrapped response');
+        return subcategories;
+      } else if (data is List) {
+        // Direct array format: [...]
+        final subcategories =
+            data.map((json) => Category.fromJson(json)).toList();
+        Log.e(
+            'ApiService: Successfully parsed ${subcategories.length} subcategories from direct array');
+        return subcategories;
+      }
+      return [];
+    } catch (e, stackTrace) {
       Log.e('ApiService: Error fetching subcategories: $e');
       Log.e('ApiService: Stack trace: $stackTrace');
       throw Exception('Error fetching subcategories: ${e.toFriendlyError}');
@@ -931,23 +944,24 @@ class ApiService {
 
       final data = _handleResponse(response);
 
-        // Handle the response format: {"success": true, "data": [...], "message": "..."}
-        if (data is Map<String, dynamic> && data.containsKey('data')) {
-          final List<dynamic> subcategoriesJson = data['data'];
-          final subcategories =
-              subcategoriesJson.map((json) => Category.fromJson(json)).toList();
-          Log.i(
-              'ApiService: Successfully parsed ${subcategories.length} Transport subcategories');
-          return subcategories;
-        } else if (data is List) {
-          final subcategories =
-              data.map((json) => Category.fromJson(json)).toList();
-          return subcategories;
-        }
-        return [];
-      } catch (e) {
+      // Handle the response format: {"success": true, "data": [...], "message": "..."}
+      if (data is Map<String, dynamic> && data.containsKey('data')) {
+        final List<dynamic> subcategoriesJson = data['data'];
+        final subcategories =
+            subcategoriesJson.map((json) => Category.fromJson(json)).toList();
+        Log.i(
+            'ApiService: Successfully parsed ${subcategories.length} Transport subcategories');
+        return subcategories;
+      } else if (data is List) {
+        final subcategories =
+            data.map((json) => Category.fromJson(json)).toList();
+        return subcategories;
+      }
+      return [];
+    } catch (e) {
       Log.e('ApiService: Error fetching Transport subcategories: $e');
-      throw Exception('Error fetching Transport subcategories: ${e.toFriendlyError}');
+      throw Exception(
+          'Error fetching Transport subcategories: ${e.toFriendlyError}');
     }
   }
 
@@ -963,16 +977,16 @@ class ApiService {
 
       final data = _handleResponse(response);
 
-        if (data is Map<String, dynamic> && data.containsKey('data')) {
-          final List<dynamic> productsJson = data['data'];
-          final products =
-              productsJson.map((json) => Product.fromJson(json)).toList();
-          Log.e(
-              'ApiService: Successfully parsed ${products.length} featured products');
-          return products;
-        }
-        return [];
-      } catch (e, stackTrace) {
+      if (data is Map<String, dynamic> && data.containsKey('data')) {
+        final List<dynamic> productsJson = data['data'];
+        final products =
+            productsJson.map((json) => Product.fromJson(json)).toList();
+        Log.e(
+            'ApiService: Successfully parsed ${products.length} featured products');
+        return products;
+      }
+      return [];
+    } catch (e, stackTrace) {
       Log.e('ApiService: Error fetching featured products: $e');
       Log.e('ApiService: Stack trace: $stackTrace');
       throw Exception('Error fetching featured products: ${e.toFriendlyError}');
@@ -1426,8 +1440,7 @@ class ApiService {
       // Add enhanced headers to bypass bot detection
       request.headers.addAll({
         'Accept': 'application/json',
-        'User-Agent':
-            ApiConfig.getHeaders()['User-Agent']!,
+        'User-Agent': ApiConfig.userAgent,
         'Origin': baseUrl.replaceAll('/api', ''),
         'Referer': baseUrl.replaceAll('/api', ''),
         if (_authToken != null) 'Authorization': 'Bearer $_authToken',
@@ -1497,8 +1510,7 @@ class ApiService {
       // Add enhanced headers to bypass bot detection
       request.headers.addAll({
         'Accept': 'application/json',
-        'User-Agent':
-            ApiConfig.getHeaders()['User-Agent']!,
+        'User-Agent': ApiConfig.userAgent,
         'Origin': baseUrl.replaceAll('/api', ''),
         'Referer': baseUrl.replaceAll('/api', ''),
         if (_authToken != null) 'Authorization': 'Bearer $_authToken',
@@ -1575,22 +1587,21 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> uploadOrganicProductImage(File imageFile) async {
+  Future<Map<String, dynamic>> uploadOrganicProductImage(
+      Uint8List imageBytes, String filename) async {
     try {
-      Log.e('Uploading organic product image: ${imageFile.path}');
+      Log.e('Uploading organic product image...');
+      final bytes = imageBytes;
       var request = http.MultipartRequest(
         'POST',
         Uri.parse('$baseUrl/seller/organic-products/upload-image'),
       );
-
-      request.headers.addAll({
-        'Authorization': 'Bearer $_authToken',
-        'Accept': 'application/json',
-        'User-Agent':
-            ApiConfig.getHeaders()['User-Agent']!,
-      });
-      request.files
-          .add(await http.MultipartFile.fromPath('image', imageFile.path));
+      request.headers['Authorization'] = 'Bearer $_authToken';
+      request.headers['Accept'] = 'application/json';
+      final ua = ApiConfig.userAgent;
+      if (ua.isNotEmpty) request.headers['User-Agent'] = ua;
+      request.files.add(
+          http.MultipartFile.fromBytes('image', bytes, filename: filename));
 
       var response = await request.send();
       var responseBody = await response.stream.bytesToString();
@@ -1665,7 +1676,8 @@ class ApiService {
       }
     } catch (e) {
       Log.e('Error in getOrganicProductCategories: $e');
-      throw Exception('Failed to load organic product categories: ${e.toFriendlyError}');
+      throw Exception(
+          'Failed to load organic product categories: ${e.toFriendlyError}');
     }
   }
 
@@ -1722,8 +1734,7 @@ class ApiService {
 
       request.headers.addAll({
         'Accept': 'application/json',
-        'User-Agent':
-            ApiConfig.getHeaders()['User-Agent']!,
+        'User-Agent': ApiConfig.userAgent,
         'Origin': baseUrl.replaceAll('/api', ''),
         'Referer': baseUrl.replaceAll('/api', ''),
         if (_authToken != null) 'Authorization': 'Bearer $_authToken',
@@ -1747,8 +1758,7 @@ class ApiService {
           'storage_conditions': productData['storage_conditions'].toString(),
         if (productData['preparation_time'] != null)
           'preparation_time': productData['preparation_time'].toString(),
-        if (productData['unit'] != null)
-          'unit': productData['unit'].toString(),
+        if (productData['unit'] != null) 'unit': productData['unit'].toString(),
       });
 
       final images = productData['images'] as List<String>?;
@@ -1782,8 +1792,7 @@ class ApiService {
 
       request.headers.addAll({
         'Accept': 'application/json',
-        'User-Agent':
-            ApiConfig.getHeaders()['User-Agent']!,
+        'User-Agent': ApiConfig.userAgent,
         'Origin': baseUrl.replaceAll('/api', ''),
         'Referer': baseUrl.replaceAll('/api', ''),
         if (_authToken != null) 'Authorization': 'Bearer $_authToken',
@@ -1807,8 +1816,7 @@ class ApiService {
           'storage_conditions': productData['storage_conditions'].toString(),
         if (productData['preparation_time'] != null)
           'preparation_time': productData['preparation_time'].toString(),
-        if (productData['unit'] != null)
-          'unit': productData['unit'].toString(),
+        if (productData['unit'] != null) 'unit': productData['unit'].toString(),
       });
 
       final images = productData['images'] as List<String>?;
@@ -1851,22 +1859,20 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> uploadFoodBeverageImage(File imageFile) async {
+  Future<Map<String, dynamic>> uploadFoodBeverageImage(
+      Uint8List imageBytes, String filename) async {
     try {
-      Log.e('Uploading food beverage image: ${imageFile.path}');
+      Log.e('Uploading food beverage image...');
       var request = http.MultipartRequest(
         'POST',
         Uri.parse('$baseUrl/seller/food-beverages/upload-image'),
       );
-
-      request.headers.addAll({
-        'Authorization': 'Bearer $_authToken',
-        'Accept': 'application/json',
-        'User-Agent':
-            ApiConfig.getHeaders()['User-Agent']!,
-      });
-      request.files
-          .add(await http.MultipartFile.fromPath('image', imageFile.path));
+      request.headers['Authorization'] = 'Bearer $_authToken';
+      request.headers['Accept'] = 'application/json';
+      final ua = ApiConfig.userAgent;
+      if (ua.isNotEmpty) request.headers['User-Agent'] = ua;
+      request.files.add(http.MultipartFile.fromBytes('image', imageBytes,
+          filename: filename));
 
       var response = await request.send();
       var responseBody = await response.stream.bytesToString();
@@ -1909,7 +1915,6 @@ class ApiService {
     }
   }
 
-
   // Get agricultural service subcategories
   Future<List<Category>> getAgriculturalServiceCategories() async {
     try {
@@ -1940,7 +1945,8 @@ class ApiService {
       }
     } catch (e, stackTrace) {
       Log.e('Error in getAgriculturalServiceCategories: $e\n$stackTrace');
-      throw Exception('Failed to load agricultural service categories: ${e.toFriendlyError}');
+      throw Exception(
+          'Failed to load agricultural service categories: ${e.toFriendlyError}');
     }
   }
 
@@ -1958,6 +1964,11 @@ class ApiService {
 
       if (response.statusCode == 200) {
         return _decodeJson(response.body);
+      } else if (response.statusCode == 403) {
+        // User doesn't have required role - return empty data instead of throwing exception
+        Log.e(
+            'User does not have required role for transports - returning empty list');
+        return {'success': true, 'data': [], 'message': 'Access denied'};
       } else {
         throw Exception(
             'Failed to fetch transport categories: ${response.statusCode}');
@@ -1983,6 +1994,11 @@ class ApiService {
 
       if (response.statusCode == 200) {
         return _decodeJson(response.body);
+      } else if (response.statusCode == 403) {
+        // User doesn't have required role - return empty data instead of throwing
+        Log.e(
+            'User does not have required role for transports - returning empty list');
+        return {'success': true, 'data': [], 'message': 'Access denied'};
       } else {
         throw Exception(
             'Failed to fetch seller transports: ${response.statusCode}');
@@ -2067,34 +2083,41 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> uploadTransportImage(File imageFile) async {
+  Future<Map<String, dynamic>> uploadTransportImage(
+      Uint8List imageBytes, String filename) async {
     try {
       Log.e('Uploading transport image...');
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('$baseUrl/seller/transports/upload-image'),
+        Uri.parse('$baseUrl/transports/upload-image'),
       );
-
-      request.headers.addAll({
-        'Authorization': 'Bearer $_authToken',
-        'Accept': 'application/json',
-        'User-Agent':
-            ApiConfig.getHeaders()['User-Agent']!,
-      });
-      request.files
-          .add(await http.MultipartFile.fromPath('image', imageFile.path));
-
+      request.headers['Authorization'] = 'Bearer $_authToken';
+      request.headers['Accept'] = 'application/json';
+      final ua = ApiConfig.userAgent;
+      if (ua.isNotEmpty) request.headers['User-Agent'] = ua;
+      request.files.add(
+        http.MultipartFile.fromBytes('image', imageBytes, filename: filename),
+      );
       var response = await request.send();
       var responseBody = await response.stream.bytesToString();
-
-      Log.e('Upload transport image response status: ${response.statusCode}');
-      Log.e('Upload transport image response body: $responseBody');
-
-      if (response.statusCode == 200) {
-        return _decodeJson(responseBody);
+      Log.e('Upload transport image status: ${response.statusCode}');
+      Log.e('Upload transport image body: $responseBody');
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final decoded = _decodeJson(responseBody);
+        if (decoded == null || decoded is! Map<String, dynamic>) {
+          throw Exception('Unexpected server response: $responseBody');
+        }
+        return decoded;
+      } else if (response.statusCode == 403) {
+        Map<String, dynamic>? decoded;
+        try {
+          decoded = _decodeJson(responseBody) as Map<String, dynamic>?;
+        } catch (_) {}
+        throw Exception(decoded?['message']?.toString() ??
+            'Subscription required. Please check your subscription is active.');
       } else {
         throw Exception(
-            'Failed to upload transport image: ${response.statusCode}');
+            'Failed to upload image: ${response.statusCode} — $responseBody');
       }
     } catch (e) {
       Log.e('Error uploading transport image: $e');
@@ -2206,17 +2229,16 @@ class ApiService {
   }
 
   // Start new conversation implicitly by sending first message
-  Future<Map<String, dynamic>> startConversation(int receiverId, String message) async {
+  Future<Map<String, dynamic>> startConversation(
+      int receiverId, String message) async {
     try {
       final uri = Uri.parse('$baseUrl/chat/conversations');
-      final response = await http.post(
-        uri, 
-        headers: headers,
-        body: jsonEncode({
-          'receiver_id': receiverId,
-          'message': message,
-        })
-      );
+      final response = await http.post(uri,
+          headers: headers,
+          body: jsonEncode({
+            'receiver_id': receiverId,
+            'message': message,
+          }));
       if (response.statusCode == 201 || response.statusCode == 200) {
         return _decodeJson(response.body);
       } else {
@@ -2229,16 +2251,16 @@ class ApiService {
   }
 
   // Send message to existing conversation
-  Future<Map<String, dynamic>> sendMessage(int conversationId, String content) async {
+  Future<Map<String, dynamic>> sendMessage(
+      int conversationId, String content) async {
     try {
-      final uri = Uri.parse('$baseUrl/chat/conversations/$conversationId/messages');
-      final response = await http.post(
-        uri, 
-        headers: headers,
-        body: jsonEncode({
-          'content': content,
-        })
-      );
+      final uri =
+          Uri.parse('$baseUrl/chat/conversations/$conversationId/messages');
+      final response = await http.post(uri,
+          headers: headers,
+          body: jsonEncode({
+            'content': content,
+          }));
       if (response.statusCode == 201 || response.statusCode == 200) {
         return _decodeJson(response.body);
       } else {
@@ -2250,4 +2272,3 @@ class ApiService {
     }
   }
 }
-

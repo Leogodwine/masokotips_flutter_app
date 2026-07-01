@@ -31,7 +31,9 @@ class ApiResponse {
     }
 
     try {
-      return jsonDecode(trimmedBody);
+      final decoded = jsonDecode(trimmedBody);
+      if (decoded == null) return {};
+      return decoded;
     } on FormatException {
       throw Exception(
         'The server returned an invalid response. Please try again in a moment.',

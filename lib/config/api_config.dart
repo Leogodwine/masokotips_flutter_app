@@ -16,6 +16,11 @@ class ApiConfig {
     // Configuration debug info - removed print statements
   }
 
+  /// Safe User-Agent string — empty on web (browser sets it automatically)
+  static String get userAgent => kIsWeb
+      ? ''
+      : 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1';
+
   /// Get standard headers for API requests to bypass bot detection
   static Map<String, String> getHeaders([String? token]) {
     final Map<String, String> h = {

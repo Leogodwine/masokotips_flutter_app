@@ -87,15 +87,19 @@ class SubscriptionService {
     String? phone,
   }) async {
     try {
+      final body = <String, dynamic>{
+        'subscription_type': subscriptionType,
+        'duration': duration,
+        'payment_method': paymentMethod,
+      };
+      // Only include phone when it has a real value — card payments don't need it
+      if (phone != null && phone.trim().isNotEmpty) {
+        body['phone'] = phone;
+      }
       final res = await http.post(
         Uri.parse('$_baseUrl/subscriptions'),
         headers: await _headers(auth: true),
-        body: jsonEncode({
-          'subscription_type': subscriptionType,
-          'duration': duration,
-          'payment_method': paymentMethod,
-          'phone': phone,
-        }),
+        body: jsonEncode(body),
       );
       return _safeJson(res);
     } catch (e) {
@@ -165,6 +169,21 @@ class SubscriptionService {
       return _safeJson(res);
     } catch (e) {
       Log.e('Check subscription status error', e);
+      return null;
+    }
+  }
+
+  /// Cancel a stuck pending/pending_checkout subscription so the user can retry.
+  Future<Map<String, dynamic>?> cancelPendingSubscription(
+      int subscriptionId) async {
+    try {
+      final res = await http.post(
+        Uri.parse('$_baseUrl/zenopay/subscription/$subscriptionId/cancel'),
+        headers: await _headers(auth: true),
+      );
+      return _safeJson(res);
+    } catch (e) {
+      Log.e('Cancel pending subscription error', e);
       return null;
     }
   }

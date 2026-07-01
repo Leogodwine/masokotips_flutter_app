@@ -4,9 +4,9 @@ import '../home/home_content_screen.dart';
 import '../../widgets/app_scaffold.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/locale_provider.dart';
+import '../../providers/subscription_provider.dart';
 import '../../screens/auth/register_screen.dart'; // Add register screen import
 import '../../screens/auth/login_screen.dart'; // Add login screen import
-import '../../screens/subscription/subscription_screen.dart'; // Add subscription screen import
 import '../../l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -192,20 +192,21 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SubscriptionScreen(),
-                  ),
-                );
+                Navigator.pushNamed(context, '/profile');
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
+                backgroundColor:
+                    context.watch<SubscriptionProvider>().hasActiveSubscription
+                        ? Colors.blue
+                        : Colors.green,
                 foregroundColor: Colors.white,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
-              child: const Text('Subscribe Now'),
+              child: Text(
+                  context.watch<SubscriptionProvider>().hasActiveSubscription
+                      ? 'My Membership'
+                      : 'Subscribe Now'),
             ),
           ),
         ],

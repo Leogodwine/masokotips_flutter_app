@@ -109,7 +109,7 @@ class SubscriptionProvider with ChangeNotifier {
     required String subscriptionType,
     required String duration,
     required String paymentMethod,
-    required String phone,
+    String? phone, // optional — not needed for card payments
   }) async {
     try {
       _setLoading(true);
@@ -164,17 +164,32 @@ class SubscriptionProvider with ChangeNotifier {
     return sorted.first;
   }
 
-  /// Returns the latest subscription of a specific type
+  /// Returns the latest subscription of a specific type.
+  /// Prioritises: active > completed-expired > pending > failed
   Subscription? getLatestSubscriptionByType(String type) {
     if (_userSubscriptions == null || _userSubscriptions!.isEmpty) {
       return null;
     }
 
-    final typeSubs =
-        _userSubscriptions!.where((s) => s.subscriptionType == type).toList();
+    final typeSubs = _userSubscriptions!
+        .where((s) => s.subscriptionType == type)
+        .toList();
     if (typeSubs.isEmpty) return null;
 
-    typeSubs.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    // Priority order: active first, then completed (expired), then pending, then failed
+    int priority(Subscription s) {
+      if (s.isActive) return 0;
+      if (s.status == 'completed') return 1; // completed but expired
+      if (s.isPending) return 2;
+      return 3; // failed / cancelled
+    }
+
+    typeSubs.sort((a, b) {
+      final pa = priority(a);
+      final pb = priority(b);
+      if (pa != pb) return pa.compareTo(pb);
+      return b.createdAt.compareTo(a.createdAt); // newest first within same priority
+    });
     return typeSubs.first;
   }
 
@@ -277,6 +292,29 @@ class SubscriptionProvider with ChangeNotifier {
     } catch (e) {
       Log.e('Check Zenopay order status failed: $e');
       return null;
+    }
+  }
+
+  /* ============================================================
+   | CANCEL PENDING SUBSCRIPTION (so user can retry payment)
+   ============================================================ */
+  Future<bool> cancelPendingSubscription(int subscriptionId) async {
+    try {
+      final res = await _subscriptionService.cancelPendingSubscription(
+          subscriptionId);
+      if (res != null && res['success'] == true) {
+        // Refresh subscriptions so UI updates
+        await loadUserSubscriptions();
+        return true;
+      }
+      _errorMessage = res?['message'] ?? 'Could not cancel. Please try again.';
+      notifyListeners();
+      return false;
+    } catch (e) {
+      Log.e('Cancel pending subscription error: $e');
+      _errorMessage = 'Connection error.';
+      notifyListeners();
+      return false;
     }
   }
 

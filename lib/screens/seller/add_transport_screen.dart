@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:io';
+import 'dart:typed_data';
 import '../../models/transport.dart';
 import '../../models/category.dart';
 import '../../providers/auth_provider.dart';
@@ -37,6 +38,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
   String _selectedVehicleType = 'Truck';
   String _selectedStatus = 'Active';
   File? _selectedImage;
+  Uint8List? _selectedImageBytes;
   bool _isLoading = false;
   ApiService? _apiService;
   double? _latitude;
@@ -116,8 +118,10 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
     );
 
     if (image != null) {
+      final bytes = await image.readAsBytes();
       setState(() {
         _selectedImage = File(image.path);
+        _selectedImageBytes = bytes;
       });
     }
   }
@@ -193,11 +197,40 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
       // Upload image if selected
       if (_selectedImage != null) {
         Log.e('Uploading transport image...');
-        final uploadResponse =
-            await _apiService!.uploadTransportImage(_selectedImage!);
+        Map<String, dynamic> uploadResponse;
+        try {
+          final bytes = _selectedImageBytes ?? await _selectedImage!.readAsBytes();
+          final filename = _selectedImage!.path.split('/').last.split('\\').last;
+          uploadResponse = await _apiService!.uploadTransportImage(bytes, filename);
+        } catch (e) {
+          Log.e('Image upload failed: $e');
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to upload image: $e'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          return;
+        }
         if (uploadResponse['success'] == true) {
-          imageUrl = uploadResponse['data']['url'];
+          final data = uploadResponse['data'];
+          if (data is Map) {
+            imageUrl = data['url'] as String?;
+          }
           Log.e('Image uploaded successfully: $imageUrl');
+        } else {
+          final message = uploadResponse['message'] ?? 'Image upload failed';
+          Log.e('Image upload unsuccessful: $message');
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(message),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
         }
       }
 
@@ -779,11 +812,11 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
               ),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: _selectedImage != null
+            child: _selectedImageBytes != null
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: Image.file(
-                      _selectedImage!,
+                    child: Image.memory(
+                      _selectedImageBytes!,
                       fit: BoxFit.cover,
                     ),
                   )

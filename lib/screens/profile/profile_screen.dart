@@ -3,12 +3,14 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/subscription_provider.dart';
+import '../../providers/agent_provider.dart';
 import 'dart:io';
 import '../seller/seller_dashboard_screen.dart';
 import '../service_provider/provider_dashboard_screen.dart';
 import './admin_login_screen.dart';
 import '../subscription/subscription_screen.dart';
 import '../../models/subscription.dart';
+import '../buyer/add_buying_request_screen.dart';
 import '../../l10n/app_localizations.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -46,37 +48,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
         subscriptionProvider.hasActiveSubscriptionFor('service_provider');
     final hasTransporterSubscription =
         subscriptionProvider.hasActiveSubscriptionFor('transporter');
-    
+    final hasBuyerSubscription =
+        subscriptionProvider.hasActiveSubscriptionFor('buyer');
+
     // Select the most relevant subscription to display
     Subscription? displaySubscription;
     if (isLoggedIn && user != null) {
-      // 1. Try to find an ACTIVE professional subscription first
-      if (user.isSeller) {
-        displaySubscription = subscriptionProvider.getUserSubscription(type: 'seller');
-      } else if (user.isTransporter) {
-        displaySubscription = subscriptionProvider.getUserSubscription(type: 'transporter');
-      } else if (user.isServiceProvider) {
-        displaySubscription = subscriptionProvider.getUserSubscription(type: 'service_provider');
-      }
-      
-      // 2. If no active professional, look for an ACTIVE buyer subscription
-      displaySubscription ??= subscriptionProvider.getUserSubscription(type: 'buyer');
-      
-      // 3. If still no active subscription, look for the LATEST professional subscription (even if expired)
-      if (displaySubscription == null) {
-        if (user.isSeller) {
-          displaySubscription = subscriptionProvider.getLatestSubscriptionByType('seller');
-        } else if (user.isTransporter) {
-          displaySubscription = subscriptionProvider.getLatestSubscriptionByType('transporter');
-        } else if (user.isServiceProvider) {
-          displaySubscription = subscriptionProvider.getLatestSubscriptionByType('service_provider');
+      // 1. Try to find an ACTIVE subscription first, checking all roles
+      for (final role in user.roles) {
+        final sub = subscriptionProvider.getUserSubscription(type: role);
+        if (sub != null && sub.isActive) {
+          displaySubscription = sub;
+          break;
         }
       }
-      
-      // 4. Final fallback: Show the latest overall only if the user is NOT a professional 
+
+      // 2. If no active professional, look for an ACTIVE buyer subscription (as backup if not in roles list)
+      if (displaySubscription == null && !user.roles.contains('buyer')) {
+        displaySubscription =
+            subscriptionProvider.getUserSubscription(type: 'buyer');
+      }
+
+      // 3. If still no active subscription, look for the LATEST professional subscription (even if expired)
+      if (displaySubscription == null) {
+        for (final role in [
+          'seller',
+          'transporter',
+          'service_provider',
+          'buyer'
+        ]) {
+          if (user.roles.contains(role)) {
+            final sub = subscriptionProvider.getLatestSubscriptionByType(role);
+            if (sub != null) {
+              if (displaySubscription == null ||
+                  sub.createdAt.isAfter(displaySubscription.createdAt)) {
+                displaySubscription = sub;
+              }
+            }
+          }
+        }
+      }
+
+      // 4. Final fallback: Show the latest overall only if the user is NOT a professional
       // or if they have no professional subscription record at all.
-      // This prevents confusing "Buyer Membership" cards for Sellers.
-      if (displaySubscription == null && !user.isSeller && !user.isTransporter && !user.isServiceProvider) {
+      if (displaySubscription == null &&
+          !user.isSeller &&
+          !user.isTransporter &&
+          !user.isServiceProvider) {
         displaySubscription = subscriptionProvider.getLatestSubscription();
       }
     }
@@ -137,7 +155,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       // Subscription Badge
-                      if (displaySubscription != null && displaySubscription.isActive)
+                      if (displaySubscription != null &&
+                          displaySubscription.isActive)
                         _buildSubscriptionBadge(context, displaySubscription),
                       const SizedBox(height: 8),
                       // User role badges
@@ -173,63 +192,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            if (user.roles.contains('seller') ||
-                                user.roles.contains('transporter'))
+                            // Unified Post button for professional/buyer users
+                            // Show it if they HAVE the role OR if they HAVE an active subscription
+                            if (user.isSeller ||
+                                user.isTransporter ||
+                                user.isServiceProvider ||
+                                user.isBuyer ||
+                                hasSellerSubscription ||
+                                hasTransporterSubscription ||
+                                hasServiceProviderSubscription ||
+                                hasBuyerSubscription)
                               _buildQuickActionButton(
                                 context,
                                 icon: Icons.add_circle,
                                 label: 'Post',
                                 onPressed: () {
+                                  // Smart routing: prefer dashboard where user HAS an active subscription
                                   if (hasSellerSubscription ||
                                       hasTransporterSubscription) {
+                                    // If user is ONLY a transporter or has transporter sub but no seller sub,
+                                    // go to transport tab (index 1)
+                                    int initialIndex = 0;
+                                    if (hasTransporterSubscription &&
+                                        !hasSellerSubscription) {
+                                      initialIndex = 1;
+                                    } else if (user.isTransporter &&
+                                        !user.isSeller) {
+                                      initialIndex = 1;
+                                    }
+
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                            const SellerDashboardScreen(),
+                                            SellerDashboardScreen(
+                                                initialIndex: initialIndex),
                                       ),
                                     );
-                                  } else {
-                                    _showSubscriptionRequiredDialog(context);
-                                  }
-                                },
-                              ),
-                            if (user.roles.contains('buyer'))
-                              _buildQuickActionButton(
-                                context,
-                                icon: Icons.campaign,
-                                label: 'Buy Requests',
-                                onPressed: () {
-                                  final hasBuyerSub = subscriptionProvider.hasActiveSubscriptionFor('buyer');
-                                  if (hasBuyerSub) {
-                                    Navigator.pushNamed(context, '/buyer/dashboard');
-                                  } else {
-                                    _showSubscriptionRequiredDialog(context);
-                                  }
-                                },
-                              ),
-                            // Subscribe button - positioned after Post
-                            _buildQuickActionButton(
-                              context,
-                              icon: Icons.subscriptions,
-                              label: 'Subscribe',
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const SubscriptionScreen(),
-                                  ),
-                                );
-                              },
-                            ),
-                            if (user.roles.contains('service_provider'))
-                              _buildQuickActionButton(
-                                context,
-                                icon: Icons.add,
-                                label: 'Post',
-                                onPressed: () {
-                                  if (hasServiceProviderSubscription) {
+                                  } else if (hasServiceProviderSubscription) {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -237,9 +237,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             const ProviderDashboardScreen(),
                                       ),
                                     );
+                                  } else if (hasBuyerSubscription) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const AddBuyingRequestScreen(),
+                                      ),
+                                    );
                                   } else {
+                                    // Fallback if they have the role but no active sub yet
                                     _showSubscriptionRequiredDialog(context);
                                   }
+                                },
+                              ),
+
+                            // Only show "Subscribe" if they don't have an active subscription
+                            if (!hasSellerSubscription &&
+                                !hasTransporterSubscription &&
+                                !hasServiceProviderSubscription &&
+                                !hasBuyerSubscription)
+                              _buildQuickActionButton(
+                                context,
+                                icon: Icons.rocket_launch,
+                                label: 'Subscribe',
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const SubscriptionScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+
+                            // Agent dashboard button
+                            if (user.roles.contains('agent'))
+                              _buildQuickActionButton(
+                                context,
+                                icon: Icons.bar_chart,
+                                label: 'My Dashboard',
+                                onPressed: () {
+                                  context.read<AgentProvider>().loadDashboard();
+                                  Navigator.pushNamed(
+                                      context, '/agent/dashboard');
                                 },
                               ),
                             if (user.roles.contains('admin'))
@@ -316,8 +358,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
 
-              // Subscription Status Card
-              if (isLoggedIn && displaySubscription != null)
+              // Subscription Status Card (hide for agents, and hide stale failed records
+              // when the user has an active subscription already shown via the badge)
+              if (isLoggedIn &&
+                  displaySubscription != null &&
+                  !(user?.roles.contains('agent') ?? false) &&
+                  !displaySubscription.isFailed)
                 _buildSubscriptionStatusCard(context, displaySubscription),
 
               const SizedBox(height: 32),
@@ -371,8 +417,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         title: const Text('My Buying Requests'),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
-                          final hasBuyerSub = subscriptionProvider.hasActiveSubscriptionFor('buyer');
-                          if (hasBuyerSub) {
+                          if (subscriptionProvider.hasActiveSubscription) {
                             Navigator.pushNamed(context, '/buyer/dashboard');
                           } else {
                             _showSubscriptionRequiredDialog(context);
@@ -387,17 +432,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         (user.roles.contains('seller') ||
                             user.roles.contains('transporter'))) ...[
                       ListTile(
-                        leading: const Icon(Icons.add_circle_outlined),
-                        title: const Text('Post'),
+                        leading: const Icon(Icons.inventory_2_outlined),
+                        title: Text(user.isTransporter && !user.isSeller
+                            ? 'Post Transport'
+                            : 'Post Products / Transport'),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
                           if (hasSellerSubscription ||
                               hasTransporterSubscription) {
+                            int initialIndex = 0;
+                            if (hasTransporterSubscription &&
+                                !hasSellerSubscription) {
+                              initialIndex = 1;
+                            } else if (user.isTransporter && !user.isSeller) {
+                              initialIndex = 1;
+                            }
+
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    const SellerDashboardScreen(),
+                                builder: (context) => SellerDashboardScreen(
+                                    initialIndex: initialIndex),
                               ),
                             );
                           } else {
@@ -412,15 +467,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         user != null &&
                         user.roles.contains('service_provider')) ...[
                       ListTile(
-                        leading: const Icon(Icons.add),
-                        title: const Text('Post'),
+                        leading: const Icon(Icons.handyman_outlined),
+                        title: const Text('Post Services'),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
                           if (hasServiceProviderSubscription) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const ProviderDashboardScreen(),
+                                builder: (context) =>
+                                    const ProviderDashboardScreen(),
                               ),
                             );
                           } else {
@@ -902,7 +958,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.attach_money, size: 18),
+                      const Icon(Icons.payments_outlined, size: 18),
                       const SizedBox(width: 8),
                       Text(
                         '${subscription.currency} ${subscription.amount!.toStringAsFixed(0)}',
@@ -915,29 +971,146 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
               const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Manage Subscription'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SubscriptionScreen(),
+              // If pending/pending_checkout: show Cancel & Retry + Check Now
+              if (subscription.isPending) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        icon: const Icon(Icons.close, size: 18),
+                        label: const Text('Cancel & Retry'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.red,
+                          side: const BorderSide(color: Colors.red),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () async {
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              title: const Text('Cancel Payment?'),
+                              content: const Text(
+                                  'This will cancel the pending payment so you can try again with a new payment request.'),
+                              actions: [
+                                TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, false),
+                                    child: const Text('No')),
+                                TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, true),
+                                    child: const Text('Yes, Cancel',
+                                        style: TextStyle(color: Colors.red))),
+                              ],
+                            ),
+                          );
+                          if (confirm == true && context.mounted) {
+                            final provider = Provider.of<SubscriptionProvider>(
+                                context,
+                                listen: false);
+                            final ok = await provider
+                                .cancelPendingSubscription(subscription.id);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(ok
+                                      ? 'Cancelled. You can now subscribe again.'
+                                      : provider.errorMessage ??
+                                          'Failed to cancel.'),
+                                  backgroundColor:
+                                      ok ? Colors.green : Colors.red,
+                                ),
+                              );
+                              if (ok) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const SubscriptionScreen(),
+                                  ),
+                                );
+                              }
+                            }
+                          }
+                        },
                       ),
-                    );
-                  },
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.refresh, size: 18),
+                        label: const Text('Check Now'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).primaryColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                          onPressed: () async {
+                            final provider = Provider.of<SubscriptionProvider>(
+                                context,
+                                listen: false);
+                            final result = await provider
+                                .checkSubscriptionStatus(subscription.id);
+                            if (context.mounted) {
+                              if (result?.status == 'active') {
+                                  await provider.loadUserSubscriptions();
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                            'Payment confirmed! Subscription is now active.'),
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    );
+                                  }
+                              } else {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                          'Payment still pending. Please approve on your phone or cancel to retry.'),
+                                      backgroundColor: Colors.orange,
+                                    ),
+                                  );
+                                }
+                              }
+                            }
+                          },
+                      ),
+                    ),
+                  ],
                 ),
-              ),
+              ] else ...[
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Manage Subscription'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).primaryColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SubscriptionScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -951,12 +1124,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showSubscriptionRequiredDialog(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = authProvider.user;
+    String contentText = 'Your subscription has expired or you don\'t have an active membership. Please subscribe to access premium features and post items.';
+    if (user != null) {
+      if (user.isBuyer && !user.isSeller && !user.isTransporter && !user.isServiceProvider) {
+        contentText = 'Your subscription has expired or you don\'t have an active membership. Please subscribe to post buying requests.';
+      } else if (user.isSeller || user.isTransporter || user.isServiceProvider) {
+        contentText = 'Your subscription has expired or you don\'t have an active membership. Please subscribe to access seller features and post items.';
+      }
+    }
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Subscription Required'),
-        content: const Text(
-            'Your subscription has expired or you don\'t have an active membership. Please subscribe to access seller features and post items.'),
+        content: Text(contentText),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

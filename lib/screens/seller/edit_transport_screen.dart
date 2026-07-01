@@ -231,8 +231,10 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
       // Upload new image if selected
       if (_selectedImage != null) {
         Log.e('Uploading new transport image...');
+        final bytes = await _selectedImage!.readAsBytes();
+        final filename = _selectedImage!.path.split('/').last.split('\\').last;
         final uploadResponse =
-            await _apiService!.uploadTransportImage(_selectedImage!);
+            await _apiService!.uploadTransportImage(bytes, filename);
         if (uploadResponse['success'] == true) {
           imageUrl = uploadResponse['data']['url'];
           Log.e('New image uploaded successfully: $imageUrl');

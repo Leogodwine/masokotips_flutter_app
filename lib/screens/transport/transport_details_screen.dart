@@ -18,7 +18,8 @@ class TransportDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isActive = transport.status.toLowerCase() == 'active';
+    final statusLower = transport.status.toLowerCase();
+    final isActive = statusLower == 'active' || statusLower == 'available';
 
     return Scaffold(
       body: CustomScrollView(
@@ -583,18 +584,8 @@ class TransportDetailsScreen extends StatelessWidget {
                         child: ElevatedButton(
                           onPressed: isActive
                               ? () async {
-                                  final phone = transport.driverPhone ?? transport.sellerPhone;
+                                  const phone = '0799711705';
                                   final messenger = ScaffoldMessenger.of(context);
-                                  if (phone == null || phone.isEmpty) {
-                                    messenger.showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Phone number not available for booking.'),
-                                        backgroundColor: Colors.red,
-                                      ),
-                                    );
-                                    return;
-                                  }
-
                                   final Uri url = Uri.parse('tel:$phone');
                                   if (await canLaunchUrl(url)) {
                                     await launchUrl(url);

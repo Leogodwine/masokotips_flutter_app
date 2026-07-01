@@ -214,9 +214,11 @@ class TransportService {
       String transportId, String imageName, Uint8List imageBytes) async {
     _checkAuthToken();
     try {
+      // Use the shared transports/upload-image endpoint so that both sellers
+      // and transporters can pass middleware and auto-assign roles in the controller
       final request = http.MultipartRequest(
         'POST',
-        Uri.parse('${ApiConfig.baseUrl}/transports/$transportId/image'),
+        Uri.parse('${ApiConfig.baseUrl}/transports/upload-image'),
       );
 
       request.headers.addAll({
@@ -234,16 +236,29 @@ class TransportService {
 
       final response = await request.send();
       final responseData = await response.stream.bytesToString();
-      final jsonData = ApiResponse.decodeJson(responseData);
 
-      if (response.statusCode == 200) {
-        return jsonData['data']['image_url'];
+      debugPrint('Transport image upload status: ${response.statusCode}');
+      debugPrint('Transport image upload response: $responseData');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final jsonData = ApiResponse.decodeJson(responseData);
+        final url = (jsonData['data'] is Map)
+            ? (jsonData['data'] as Map)['url'] as String?
+            : null;
+        if (url == null || url.isEmpty) {
+          throw Exception('Server did not return a valid image URL. Response: $responseData');
+        }
+        return url;
+      } else if (response.statusCode == 403) {
+        final jsonData = ApiResponse.decodeJson(responseData);
+        final msg = jsonData['message'] ?? 'Subscription required to upload images.';
+        throw Exception(msg.toString());
       } else {
         throw Exception(
-            'Failed to upload image. Status code: ${response.statusCode}');
+            'Failed to upload image. Status: ${response.statusCode}. Response: $responseData');
       }
     } catch (e) {
-      throw Exception('Error uploading image: $e');
+      throw Exception('Error uploading transport image: $e');
     }
   }
 }

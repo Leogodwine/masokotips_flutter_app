@@ -135,7 +135,9 @@ class _EditFoodBeverageScreenState extends State<EditFoodBeverageScreen> {
       List<String> imageUrls = [];
       for (var image in _selectedImages) {
         try {
-          final response = await _apiService!.uploadFoodBeverageImage(image);
+          final bytes = await image.readAsBytes();
+          final filename = image.path.split('/').last.split('\\').last;
+          final response = await _apiService!.uploadFoodBeverageImage(bytes, filename);
           if (response['status'] == 'success' && response['url'] != null) {
             imageUrls.add(response['url']);
           }

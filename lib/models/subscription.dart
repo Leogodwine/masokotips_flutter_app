@@ -210,7 +210,8 @@ class Subscription {
     return expiresAt!.isAfter(DateTime.now());
   }
 
-  bool get isPending => status == 'pending';
+  bool get isPending => status == 'pending' || status == 'pending_checkout';
+  bool get isPendingCheckout => status == 'pending_checkout';
   bool get isFailed => status == 'failed';
   bool get isExpired => status == 'expired' || (status == 'completed' && expiresAt != null && expiresAt!.isBefore(DateTime.now()));
   bool get isCancelled => status == 'cancelled';
@@ -221,6 +222,8 @@ class Subscription {
     switch (status) {
       case 'pending':
         return 'Pending Payment';
+      case 'pending_checkout':
+        return 'Payment Processing';
       case 'completed':
         return 'Active';
       case 'failed':

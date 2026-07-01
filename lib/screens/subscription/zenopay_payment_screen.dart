@@ -7,6 +7,9 @@ import '../../providers/subscription_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/logger.dart';
 
+// Payment screen states
+enum _PayState { starting, waiting, checking, success, failed, timedOut }
+
 class ZenopayPaymentScreen extends StatefulWidget {
   final Subscription subscription;
 
@@ -19,61 +22,69 @@ class ZenopayPaymentScreen extends StatefulWidget {
   State<ZenopayPaymentScreen> createState() => _ZenopayPaymentScreenState();
 }
 
-class _ZenopayPaymentScreenState extends State<ZenopayPaymentScreen> {
-  bool _loading = true;
+class _ZenopayPaymentScreenState extends State<ZenopayPaymentScreen>
+    with SingleTickerProviderStateMixin {
+  _PayState _state = _PayState.starting;
   String? _orderId;
+  String _failReason = 'Payment failed. Please try again.';
 
   Timer? _pollingTimer;
   int _pollingAttempts = 0;
+  int _elapsedSeconds = 0;
+  Timer? _clockTimer;
 
-  static const Duration _pollingInterval = Duration(seconds: 5);
-  static const int _maxPollingAttempts = 36; // 3 minutes
+  // Poll every 5 seconds, give up after 3 minutes
+  static const Duration _pollInterval = Duration(seconds: 5);
+  static const int _maxAttempts = 36;
+
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
 
   @override
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final ok = await _startCheckout();
-      if (!mounted) return;
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
 
-      setState(() => _loading = false);
+    _pulseAnimation = Tween<double>(begin: 0.85, end: 1.0).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
 
-      if (ok) _startPolling();
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startCheckout());
   }
 
   @override
   void dispose() {
     _stopPolling();
+    _clockTimer?.cancel();
+    _pulseController.dispose();
     super.dispose();
   }
 
-  // ---------------------------------------------------------------------------
+  // ─────────────────────────────────────────────────────────
   // START CHECKOUT
-  // ---------------------------------------------------------------------------
-  Future<bool> _startCheckout() async {
+  // ─────────────────────────────────────────────────────────
+  Future<void> _startCheckout() async {
+    if (!mounted) return;
+    setState(() => _state = _PayState.starting);
+
     try {
-      final provider =
-          Provider.of<SubscriptionProvider>(context, listen: false);
+      final provider = context.read<SubscriptionProvider>();
+      final auth = context.read<AuthProvider>();
 
       final int amount = (widget.subscription.amount ?? 0).round();
       if (amount <= 0) {
-        _fail('Invalid subscription amount.');
-        return false;
+        return _setFailed('Invalid subscription amount.');
       }
 
-      final auth = Provider.of<AuthProvider>(context, listen: false);
       final phone =
           widget.subscription.metadata?['phone'] ?? auth.user?.phoneNumber;
-
       if (phone == null || phone.toString().trim().isEmpty) {
-        _fail('Phone number is required to make payment.');
-        return false;
+        return _setFailed('Phone number is required to make payment.');
       }
-
-      Log.i(
-          'ZenoPay checkout → subscription=${widget.subscription.id}, amount=$amount, phone=$phone');
 
       final result = await provider.startZenopayCheckout(
         subscriptionId: widget.subscription.id,
@@ -81,60 +92,63 @@ class _ZenopayPaymentScreenState extends State<ZenopayPaymentScreen> {
         phone: phone.toString(),
       );
 
-      if (!mounted) return false;
+      if (!mounted) return;
 
       final ok = result != null && result['success'] == true;
       final orderId = result?['order_id']?.toString();
 
       if (!ok || orderId == null || orderId.isEmpty) {
-        _fail((result?['message'] ?? 'Failed to initiate payment.').toString());
-        return false;
+        return _setFailed(
+            result?['message']?.toString() ?? 'Failed to initiate payment.');
       }
 
-      setState(() => _orderId = orderId);
-      Log.d('ZENOPAY RESULT = $result');
+      setState(() {
+        _orderId = orderId;
+        _state = _PayState.waiting;
+      });
 
-      Log.d('Zenopay checkout raw result: $result');
-      Log.i('✅ Zenopay started. order_id=$orderId');
-      _showSnack('Payment request sent. Please approve on your phone.');
-
-      return true;
+      _startClock();
+      _startPolling();
     } catch (e, st) {
-      Log.e('Checkout init error', e, st);
-      _fail('Unable to start payment.');
-      return false;
+      Log.e('ZenoPay checkout error', e, st);
+      _setFailed('Unable to start payment. Check your connection.');
     }
   }
 
-  // ---------------------------------------------------------------------------
+  // ─────────────────────────────────────────────────────────
+  // CLOCK (elapsed timer shown to user)
+  // ─────────────────────────────────────────────────────────
+  void _startClock() {
+    _elapsedSeconds = 0;
+    _clockTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() => _elapsedSeconds++);
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────
   // POLLING
-  // ---------------------------------------------------------------------------
+  // ─────────────────────────────────────────────────────────
   void _startPolling() {
     _stopPolling();
     _pollingAttempts = 0;
 
-    _pollingTimer = Timer.periodic(_pollingInterval, (timer) async {
-      if (!mounted) {
-        _stopPolling();
-        return;
-      }
-
+    _pollingTimer = Timer.periodic(_pollInterval, (_) async {
+      if (!mounted) { _stopPolling(); return; }
       _pollingAttempts++;
 
-      // 1) Primary: subscription status
+      // Check subscription status first
       final done = await _checkSubscriptionStatus();
       if (done) return;
 
-      // 2) Fallback: if too long pending, check Zenopay order status (if we have orderId)
-      if (_pollingAttempts == 12 ||
-          _pollingAttempts == 24 ||
-          _pollingAttempts == 36) {
+      // Fallback: hit Zenopay directly at 30s, 60s, 90s (faster than before)
+      if (_pollingAttempts == 6 || _pollingAttempts == 12 || _pollingAttempts == 18) {
         await _fallbackCheckZenopayStatus();
       }
 
-      if (_pollingAttempts >= _maxPollingAttempts) {
+      // Timeout after 3 minutes
+      if (_pollingAttempts >= _maxAttempts) {
         _stopPolling();
-        _showSnack('Payment verification timed out. Please check again.');
+        if (mounted) setState(() => _state = _PayState.timedOut);
       }
     });
   }
@@ -142,141 +156,594 @@ class _ZenopayPaymentScreenState extends State<ZenopayPaymentScreen> {
   void _stopPolling() {
     _pollingTimer?.cancel();
     _pollingTimer = null;
+    _clockTimer?.cancel();
+    _clockTimer = null;
   }
 
   Future<bool> _checkSubscriptionStatus() async {
-    final provider = Provider.of<SubscriptionProvider>(context, listen: false);
+    if (!mounted) return true;
+    setState(() => _state = _PayState.checking);
 
-    Log.i('📡 Checking subscription status for ID: ${widget.subscription.id}');
-    final result =
-        await provider.checkSubscriptionStatus(widget.subscription.id);
+    final provider = context.read<SubscriptionProvider>();
+    final result = await provider.checkSubscriptionStatus(widget.subscription.id);
 
     if (!mounted) return true;
 
     if (result == null) {
-      Log.w('⚠️ Subscription status check returned null');
+      // Network blip — stay waiting
+      if (mounted) setState(() => _state = _PayState.waiting);
       return false;
     }
 
-    Log.i('📡 Subscription status: ${result.status}');
+    Log.i('📡 Status poll result: ${result.status}');
 
     if (result.status == 'active') {
       _stopPolling();
-      _showSuccess();
+      setState(() => _state = _PayState.success);
+      await Future.delayed(const Duration(milliseconds: 600));
+      _showSuccessDialog();
       return true;
     }
 
     if (result.status == 'failed') {
       _stopPolling();
-      _showSnack('Payment failed. Please try again.');
+      _setFailed(_resolveFailReason(result));
       return true;
     }
 
-    return false; // still pending
+    // Still pending — go back to waiting state
+    if (mounted) setState(() => _state = _PayState.waiting);
+    return false;
   }
 
   Future<void> _fallbackCheckZenopayStatus() async {
     final orderId = _orderId;
-    if (orderId == null) return;
+    if (orderId == null || !mounted) return;
 
-    final provider = Provider.of<SubscriptionProvider>(context, listen: false);
-    Log.i('🧾 Fallback: checking Zenopay order status for $orderId');
-
+    Log.i('🧾 Fallback Zenopay check for $orderId');
+    final provider = context.read<SubscriptionProvider>();
     final res = await provider.checkZenopayOrderStatus(orderId);
     if (!mounted || res == null) return;
 
-    // Your backend status endpoint might return:
-    // { success: true, gateway: {...} } or { success: true, payment_status: "FAILED" ... }
-    final paymentStatus =
-        (res['payment_status'] ?? '').toString().toUpperCase();
+    final payStatus = (res['payment_status'] ?? '').toString().toUpperCase();
+    Log.i('🧾 Fallback Zenopay payment_status: $payStatus');
 
-    if (paymentStatus == 'FAILED' || paymentStatus == 'CANCELLED') {
+    const failStatuses = ['FAILED', 'CANCELLED', 'REJECTED', 'DECLINED',
+                          'EXPIRED', 'TIMEOUT', 'INSUFFICIENT_FUNDS'];
+
+    if (failStatuses.contains(payStatus)) {
       _stopPolling();
-      _showSnack('Payment failed (wallet rejected). Please try again.');
+      _setFailed(_zenopayStatusToMessage(payStatus));
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // UI
-  // ---------------------------------------------------------------------------
-  void _fail(String message) {
+  // ─────────────────────────────────────────────────────────
+  // HELPERS
+  // ─────────────────────────────────────────────────────────
+  void _setFailed(String reason) {
     if (!mounted) return;
-    setState(() => _loading = false);
-    _showSnack(message);
+    _stopPolling();
+    setState(() {
+      _failReason = reason;
+      _state = _PayState.failed;
+    });
   }
 
-  void _showSnack(String msg) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  String _resolveFailReason(dynamic result) {
+    // Try to extract a meaningful message from the status result
+    final msg = result?.message?.toString() ?? '';
+    if (msg.isNotEmpty) return msg;
+    return 'Payment was declined. Please check your balance and try again.';
   }
 
-  void _showSuccess() {
+  String _zenopayStatusToMessage(String status) {
+    switch (status) {
+      case 'INSUFFICIENT_FUNDS':
+        return 'Insufficient balance. Please top up your mobile wallet and try again.';
+      case 'CANCELLED':
+        return 'Payment was cancelled. You can try again.';
+      case 'REJECTED':
+      case 'DECLINED':
+        return 'Payment was declined by your network. Please try again.';
+      case 'EXPIRED':
+      case 'TIMEOUT':
+        return 'Payment request expired. Please try again.';
+      default:
+        return 'Payment failed ($status). Please try again.';
+    }
+  }
+
+  String _formatElapsed() {
+    final m = _elapsedSeconds ~/ 60;
+    final s = _elapsedSeconds % 60;
+    if (m > 0) return '${m}m ${s.toString().padLeft(2, '0')}s';
+    return '${s}s';
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // SUCCESS DIALOG
+  // ─────────────────────────────────────────────────────────
+  void _showSuccessDialog() {
     if (!mounted) return;
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        title: const Text('Payment Successful'),
-        content: const Text('Your subscription is now active.'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.check_circle, color: Colors.green, size: 64),
+            SizedBox(height: 16),
+            Text(
+              'Payment Successful!',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Your subscription is now active.\nWelcome aboard!',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey),
+            ),
+          ],
+        ),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // close dialog
-              Navigator.of(context).pop(true); // close payment screen
-            },
-            child: const Text('Continue'),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); // close dialog
+                Navigator.of(context).pop(true); // return success to caller
+              },
+              child: const Text('Continue'),
+            ),
           ),
         ],
       ),
     );
   }
 
+  // ─────────────────────────────────────────────────────────
+  // BUILD
+  // ─────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text('Processing Payment'),
+        backgroundColor: theme.primaryColor,
+        foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
+        elevation: 0,
       ),
-      body: Center(
-        child: _loading
-            ? const CircularProgressIndicator()
-            : Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'Waiting for payment approval...\nPlease approve on your phone.',
-                    textAlign: TextAlign.center,
-                  ),
-                  if (_orderId != null) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      'Order: $_orderId',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                  const SizedBox(height: 18),
-                  ElevatedButton(
-                    onPressed: () async {
-                      setState(() => _loading = true);
-
-                      final done = await _checkSubscriptionStatus();
-
-                      if (!mounted) {
-                        return;
-                      }
-
-                      setState(() => _loading = false);
-
-                      if (!done) {
-                        _showSnack('Still pending. Please wait a bit.');
-                      }
-                    },
-                    child: const Text('Check status now'),
-                  ),
-                ],
-              ),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: _buildBody(theme),
+          ),
+        ),
       ),
     );
+  }
+
+  Widget _buildBody(ThemeData theme) {
+    switch (_state) {
+      case _PayState.starting:
+        return _buildStarting(theme);
+      case _PayState.waiting:
+      case _PayState.checking:
+        return _buildWaiting(theme);
+      case _PayState.success:
+        return _buildSuccess(theme);
+      case _PayState.failed:
+        return _buildFailed(theme);
+      case _PayState.timedOut:
+        return _buildTimedOut(theme);
+    }
+  }
+
+  // ── Starting ──────────────────────────────────────────────
+  Widget _buildStarting(ThemeData theme) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CircularProgressIndicator(color: theme.primaryColor),
+        const SizedBox(height: 24),
+        const Text(
+          'Initiating payment...',
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      ],
+    );
+  }
+
+  // ── Waiting / Checking ────────────────────────────────────
+  Widget _buildWaiting(ThemeData theme) {
+    final isChecking = _state == _PayState.checking;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Pulsing icon
+        ScaleTransition(
+          scale: _pulseAnimation,
+          child: Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: theme.primaryColor.withValues(alpha: 0.1),
+            ),
+            child: Icon(
+              Icons.phone_android,
+              size: 50,
+              color: theme.primaryColor,
+            ),
+          ),
+        ),
+        const SizedBox(height: 28),
+
+        Text(
+          isChecking ? 'Checking payment status...' : 'Waiting for payment approval',
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'A push notification was sent to your phone.\nApprove it to complete your subscription.',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.grey[600], height: 1.5),
+        ),
+        const SizedBox(height: 20),
+
+        // Order ID
+        if (_orderId != null)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.receipt_outlined, size: 16, color: Colors.grey[600]),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    'Order: $_orderId',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+        const SizedBox(height: 8),
+        // Elapsed time
+        Text(
+          'Waiting: ${_formatElapsed()}',
+          style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+        ),
+
+        const SizedBox(height: 32),
+
+        // Tip card
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.amber.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.lightbulb_outline, color: Colors.amber, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Make sure your mobile wallet has enough balance before approving. '
+                  'If the request does not appear, tap "Check status now".',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey[700],
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 24),
+
+        // Check Now button
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: isChecking
+                ? null
+                : () async {
+                    final done = await _checkSubscriptionStatus();
+                    if (!mounted) return;
+                    if (!done && _state == _PayState.waiting) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Still pending — please approve on your phone.'),
+                          duration: Duration(seconds: 3),
+                        ),
+                      );
+                    }
+                  },
+            icon: isChecking
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: Colors.white),
+                  )
+                : const Icon(Icons.refresh),
+            label: Text(isChecking ? 'Checking...' : 'Check status now'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: theme.primaryColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        // Cancel button
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () => _confirmCancel(),
+            icon: const Icon(Icons.close, size: 18),
+            label: const Text('Cancel payment'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.red,
+              side: const BorderSide(color: Colors.red),
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── Success ───────────────────────────────────────────────
+  Widget _buildSuccess(ThemeData theme) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Icon(Icons.check_circle, color: Colors.green, size: 80),
+        const SizedBox(height: 16),
+        const Text('Payment Confirmed!',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        Text('Your subscription is now active.',
+            style: TextStyle(color: Colors.grey[600])),
+      ],
+    );
+  }
+
+  // ── Failed ────────────────────────────────────────────────
+  Widget _buildFailed(ThemeData theme) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 90,
+          height: 90,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.red.withValues(alpha: 0.1),
+          ),
+          child: const Icon(Icons.error_outline, color: Colors.red, size: 50),
+        ),
+        const SizedBox(height: 24),
+
+        const Text(
+          'Payment Failed',
+          style: TextStyle(
+              fontSize: 22, fontWeight: FontWeight.bold, color: Colors.red),
+        ),
+        const SizedBox(height: 12),
+
+        // Reason card
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.red.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.red.withValues(alpha: 0.2)),
+          ),
+          child: Text(
+            _failReason,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontSize: 15, color: Colors.red[700], height: 1.5),
+          ),
+        ),
+
+        const SizedBox(height: 28),
+
+        // Try Again
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () => _startCheckout(),
+            icon: const Icon(Icons.refresh),
+            label: const Text('Try Again'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: theme.primaryColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        // Go Back
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('Go Back'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── Timed Out ─────────────────────────────────────────────
+  Widget _buildTimedOut(ThemeData theme) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 90,
+          height: 90,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.orange.withValues(alpha: 0.1),
+          ),
+          child:
+              const Icon(Icons.hourglass_empty, color: Colors.orange, size: 50),
+        ),
+        const SizedBox(height: 24),
+
+        const Text(
+          'Request Timed Out',
+          style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.orange),
+        ),
+        const SizedBox(height: 12),
+
+        Text(
+          'We did not receive a payment confirmation after 3 minutes.\n\n'
+          'If you approved the payment on your phone, tap "Check Status" below. '
+          'Otherwise tap "Try Again" to send a new payment request.',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.grey[600], height: 1.5),
+        ),
+
+        const SizedBox(height: 28),
+
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () async {
+              setState(() => _state = _PayState.checking);
+              await _checkSubscriptionStatus();
+            },
+            icon: const Icon(Icons.search),
+            label: const Text('Check Status'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () => _startCheckout(),
+            icon: const Icon(Icons.refresh),
+            label: const Text('Try Again'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: theme.primaryColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('Go Back'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── Cancel confirmation ───────────────────────────────────
+  Future<void> _confirmCancel() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Cancel Payment?'),
+        content: const Text(
+            'This will cancel the current payment request. '
+            'You can try again later.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Keep Waiting')),
+          TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Cancel Payment')),
+        ],
+      ),
+    );
+
+    if (confirm == true && mounted) {
+      _stopPolling();
+      // Cancel on backend so user can retry fresh
+      final provider = context.read<SubscriptionProvider>();
+      await provider.cancelPendingSubscription(widget.subscription.id);
+      if (mounted) Navigator.of(context).pop(false);
+    }
   }
 }

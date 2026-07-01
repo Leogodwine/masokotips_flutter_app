@@ -140,6 +140,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
+  Future<void> _takeProofOfAddressPhoto() async {
+    final XFile? pickedFile = await _imagePicker.pickImage(
+      source: ImageSource.camera,
+      maxWidth: 2048,
+      maxHeight: 2048,
+      imageQuality: 85,
+    );
+
+    if (pickedFile != null) {
+      setState(() {
+        _proofOfAddressFile = File(pickedFile.path);
+      });
+    }
+  }
+
   void _removeProofOfAddress() {
     setState(() {
       _proofOfAddressFile = null;
@@ -346,14 +361,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   const SizedBox(height: 16),
 
-                  // Referral Code Field (Optional)
+                  // Agent / Referral Code Field (Optional)
                   TextFormField(
                     controller: _referralCodeController,
                     textInputAction: TextInputAction.next,
+                    textCapitalization: TextCapitalization.characters,
                     decoration: InputDecoration(
-                      labelText: 'Referral Code (Optional)',
-                      hintText: 'Enter referral code if you have one',
-                      prefixIcon: const Icon(Icons.card_giftcard),
+                      labelText: 'Agent / Referral Code (Optional)',
+                      hintText: 'e.g. MSK-AB12 — ask your agent',
+                      helperText: 'If an agent helped you sign up, enter their code here',
+                      helperMaxLines: 2,
+                      prefixIcon: const Icon(Icons.group_add_outlined),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -536,18 +554,52 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                'Proof of Address',
+                                'Proof of Identity',
                                 style: theme.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const Spacer(),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade200,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  'Optional',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: Colors.grey[600],
+                                  ),
                                 ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            'Upload one of the following: NIDA, Driving License, or Voter Card',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: Colors.grey[600],
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(Icons.info_outline,
+                                    size: 16, color: Colors.blue.shade700),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'Upload a clear photo of your NIDA, Driving License, or Voter Card. '
+                                    'Your document will be reviewed by our team for account verification. '
+                                    'Blurry or incorrect images will delay approval.',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: Colors.blue.shade800,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                           const SizedBox(height: 16),
@@ -591,7 +643,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           if (_proofOfAddressFile != null)
                             Container(
                               decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey.shade300),
+                                border: Border.all(color: Colors.green.shade300),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Column(
@@ -611,6 +663,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     padding: const EdgeInsets.all(8),
                                     child: Row(
                                       children: [
+                                        const Icon(Icons.check_circle,
+                                            color: Colors.green, size: 18),
+                                        const SizedBox(width: 6),
                                         Expanded(
                                           child: Text(
                                             _proofOfAddressFile!.path
@@ -622,7 +677,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         ),
                                         IconButton(
                                           icon: const Icon(
-                                            Icons.delete,
+                                            Icons.delete_outline,
                                             color: Colors.red,
                                           ),
                                           onPressed: _removeProofOfAddress,
@@ -634,45 +689,95 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             )
                           else
-                            InkWell(
-                              onTap: _pickProofOfAddress,
-                              child: Container(
-                                height: 120,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: theme.colorScheme.primary
-                                        .withAlpha(100),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: InkWell(
+                                    onTap: _pickProofOfAddress,
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Container(
+                                      height: 100,
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: theme.colorScheme.primary
+                                              .withAlpha(100),
+                                        ),
+                                        borderRadius:
+                                            BorderRadius.circular(12),
+                                        color: theme.colorScheme.primary
+                                            .withAlpha(15),
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.photo_library_outlined,
+                                            size: 32,
+                                            color: theme.colorScheme.primary,
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            'Gallery',
+                                            style: TextStyle(
+                                              color: theme.colorScheme.primary,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                  borderRadius: BorderRadius.circular(12),
-                                  color:
-                                      theme.colorScheme.primary.withAlpha(20),
                                 ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.cloud_upload_outlined,
-                                      size: 40,
-                                      color: theme.colorScheme.primary,
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      'Tap to upload document',
-                                      style: TextStyle(
-                                        color: theme.colorScheme.primary,
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: InkWell(
+                                    onTap: _takeProofOfAddressPhoto,
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Container(
+                                      height: 100,
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: Colors.teal.withAlpha(150),
+                                        ),
+                                        borderRadius:
+                                            BorderRadius.circular(12),
+                                        color: Colors.teal.withAlpha(15),
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.camera_alt_outlined,
+                                            size: 32,
+                                            color: Colors.teal.shade600,
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            'Camera',
+                                            style: TextStyle(
+                                              color: Colors.teal.shade600,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    Text(
-                                      'JPG, PNG up to 5MB',
-                                      style:
-                                          theme.textTheme.bodySmall?.copyWith(
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
+                              ],
+                            ),
+                          if (_proofOfAddressFile == null) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              'Tip: Place your ID on a flat surface with good lighting before taking a photo.',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: Colors.grey[600],
+                                fontStyle: FontStyle.italic,
                               ),
                             ),
+                          ],
                         ],
                       ),
                     ),

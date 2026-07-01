@@ -77,9 +77,16 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
       });
     } catch (e) {
       debugPrint('Error loading services: $e');
-      setState(() {
-        _errorMessage = 'Failed to load services: ${e.toString()}';
-      });
+      final errorStr = e.toString();
+      if (errorStr.contains('subscription_required') || errorStr.contains('SUBSCRIPTION_EXPIRED')) {
+        setState(() {
+          _errorMessage = 'Your Service Provider subscription has expired or is inactive.';
+        });
+      } else {
+        setState(() {
+          _errorMessage = 'Failed to load services: $errorStr';
+        });
+      }
     } finally {
       setState(() {
         _isLoading = false;

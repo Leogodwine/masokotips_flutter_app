@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'dart:typed_data';
 import '../../models/organic_product.dart';
 import '../../providers/category_provider.dart';
 import '../../services/api_service.dart';
@@ -35,7 +35,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
   DateTime? _harvestDate;
   bool _isActive = true;
   bool _isFeatured = false;
-  final List<File> _selectedImages = [];
+  final List<XFile> _selectedImages = [];
   bool _isLoading = false;
   String? _errorMessage;
   ApiService? _apiService;
@@ -125,7 +125,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
 
       if (images.isNotEmpty) {
         setState(() {
-          _selectedImages.addAll(images.map((image) => File(image.path)));
+          _selectedImages.addAll(images);
         });
       }
     } catch (e) {
@@ -160,7 +160,9 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
       List<String> imageUrls = [];
       for (var image in _selectedImages) {
         try {
-          final response = await _apiService!.uploadOrganicProductImage(image);
+          final bytes = await image.readAsBytes();
+          final filename = image.name;
+          final response = await _apiService!.uploadOrganicProductImage(bytes, filename);
           if (response['status'] == 'success' && response['url'] != null) {
             imageUrls.add(response['url']);
           }
@@ -550,11 +552,18 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                                     margin: const EdgeInsets.only(right: 8),
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(8),
-                                      child: Image.file(
-                                        _selectedImages[index],
+                                      child: Image.network(
+                                        _selectedImages[index].path,
                                         width: 100,
                                         height: 100,
                                         fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) =>
+                                            FutureBuilder<Uint8List>(
+                                          future: _selectedImages[index].readAsBytes(),
+                                          builder: (_, snap) => snap.hasData
+                                              ? Image.memory(snap.data!, width: 100, height: 100, fit: BoxFit.cover)
+                                              : const SizedBox(width: 100, height: 100),
+                                        ),
                                       ),
                                     ),
                                   );

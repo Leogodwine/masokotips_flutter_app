@@ -13,6 +13,11 @@ import '../../utils/logger.dart';
 
 // SCREENS
 import 'zenopay_phone_input_screen.dart';
+import 'card_payment_screen.dart';
+import '../seller/seller_dashboard_screen.dart';
+import '../service_provider/provider_dashboard_screen.dart';
+import '../buyer/buyer_dashboard_screen.dart';
+import '../../providers/auth_provider.dart';
 
 // WIDGET COMPONENTS
 import 'widgets/header_section.dart';
@@ -102,7 +107,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   }
 
   // ---------------------------------------------------------------------------
-  // SUBSCRIBE → PHONE INPUT SCREEN
+  // SUBSCRIBE → choose payment method
   // ---------------------------------------------------------------------------
   Future<void> _subscribe() async {
     if (selectedPackage == null || selectedPlan == null) {
@@ -112,17 +117,224 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       return;
     }
 
-    // Navigate to phone input screen
     if (!mounted) return;
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ZenopayPhoneInputScreen(
-          package: selectedPackage!,
-          plan: selectedPlan!,
+
+    // Show payment method picker
+    await showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Choose Payment Method',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'TZS ${selectedPlan!.price!.toStringAsFixed(0)} · ${selectedPlan!.durationLabel}',
+                style: const TextStyle(color: Colors.grey),
+              ),
+              const SizedBox(height: 20),
+
+              // Mobile Money
+              _paymentMethodTile(
+                ctx,
+                icon: Icons.phone_android,
+                iconColor: Colors.green,
+                title: 'Mobile Money',
+                subtitle: 'M-Pesa · Airtel Money',
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ZenopayPhoneInputScreen(
+                        package: selectedPackage!,
+                        plan: selectedPlan!,
+                      ),
+                    ),
+                  );
+
+                  if (result == true && mounted) {
+                    _handlePostSubscriptionRedirection();
+                  }
+                },
+              ),
+
+              const SizedBox(height: 12),
+
+              // Card
+              _paymentMethodTile(
+                ctx,
+                icon: Icons.credit_card,
+                iconColor: Colors.blue,
+                title: 'Card Payment',
+                subtitle: 'Visa · Mastercard · All cards',
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  final result = await _startCardPayment();
+                  if (result == true && mounted) {
+                    _handlePostSubscriptionRedirection();
+                  }
+                },
+              ),
+
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  Widget _paymentMethodTile(
+    BuildContext ctx, {
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade200),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: iconColor),
+              ),
+              const SizedBox(width: 14),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 15)),
+                  Text(subtitle,
+                      style: const TextStyle(
+                          color: Colors.grey, fontSize: 12)),
+                ],
+              ),
+              const Spacer(),
+              const Icon(Icons.chevron_right, color: Colors.grey),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<bool?> _startCardPayment() async {
+    if (selectedPackage == null || selectedPlan == null) return false;
+
+    // First create the subscription record
+    setState(() => isSubscribing = true);
+    try {
+      final provider = context.read<SubscriptionProvider>();
+      final subscription = await provider.createSubscription(
+        subscriptionType: selectedPackage!.id,
+        duration: selectedPlan!.duration,
+        paymentMethod: 'card',
+        // phone not needed for card payment
+      );
+
+      if (!mounted) return false;
+      setState(() => isSubscribing = false);
+
+      if (subscription == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  provider.errorMessage ?? 'Failed to create subscription')),
+        );
+        return false;
+      }
+
+      return await Navigator.push<bool>(
+        context,
+        MaterialPageRoute(
+          builder: (_) => CardPaymentScreen(subscription: subscription),
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        setState(() => isSubscribing = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+      return false;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // REDIRECTION AFTER SUCCESS
+  // ---------------------------------------------------------------------------
+  Future<void> _handlePostSubscriptionRedirection() async {
+    if (!mounted) return;
+
+    final subscriptionProvider = context.read<SubscriptionProvider>();
+    final authProvider = context.read<AuthProvider>();
+
+    await subscriptionProvider.loadUserSubscriptions();
+    await authProvider.fetchUserProfile();
+
+    if (!mounted) return;
+
+    final type = selectedPackage?.id;
+    Log.i('Redirecting after successful subscription of type: $type');
+
+    if (type == 'transporter') {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+            builder: (_) => const SellerDashboardScreen(initialIndex: 1)),
+        (route) => route.isFirst,
+      );
+    } else if (type == 'seller') {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+            builder: (_) => const SellerDashboardScreen(initialIndex: 0)),
+        (route) => route.isFirst,
+      );
+    } else if (type == 'service_provider') {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const ProviderDashboardScreen()),
+        (route) => route.isFirst,
+      );
+    } else if (type == 'buyer') {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const BuyerDashboardScreen()),
+        (route) => route.isFirst,
+      );
+    } else {
+      // Default fallback to profile
+      Navigator.popUntil(context, (route) => route.isFirst);
+      Navigator.pushNamed(context, '/profile');
+    }
   }
 
   // ---------------------------------------------------------------------------

@@ -214,8 +214,10 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_getAppBarTitle(_selectedIndex)),
+      appBar: _selectedIndex == 1
+          ? null
+          : AppBar(
+              title: Text(_getAppBarTitle(_selectedIndex)),
         actions: [
           if (_selectedIndex == 0) // Only show refresh on dashboard
             IconButton(

@@ -445,7 +445,11 @@ class _TransportListScreenState extends State<TransportListScreen> {
     // Determine if it's loading based on the local state
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.category),
+        title: Text(
+          widget.category.toLowerCase() == 'all'
+              ? 'Available Vehicles'
+              : widget.category,
+        ),
         elevation: 0,
         centerTitle: true,
         actions: [

@@ -19,12 +19,16 @@ class TransportFormScreen extends StatefulWidget {
 class _TransportFormScreenState extends State<TransportFormScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
+  late TextEditingController _descriptionController;
   late TextEditingController _vehicleLocationController;
   late TextEditingController _priceController;
   late TextEditingController _vehicleTypeController;
   late TextEditingController _amenitiesController;
   late TextEditingController _capacityController;
   late TextEditingController _insuranceDetailsController;
+  late TextEditingController _ownerNameController;
+  late TextEditingController _driverNameController;
+  late TextEditingController _driverPhoneController;
   String _status = 'active';
   bool _isTemperatureControlled = false;
   bool _hasInsurance = false;
@@ -48,6 +52,8 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
     super.initState();
     _titleController =
         TextEditingController(text: widget.transport?.title ?? '');
+    _descriptionController =
+        TextEditingController(text: widget.transport?.description ?? '');
     _vehicleLocationController =
         TextEditingController(text: widget.transport?.vehicleLocation ?? '');
     _priceController =
@@ -63,6 +69,12 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
     _insuranceDetailsController = TextEditingController(
       text: widget.transport?.insuranceDetails ?? '',
     );
+    _ownerNameController =
+        TextEditingController(text: widget.transport?.ownerName ?? '');
+    _driverNameController =
+        TextEditingController(text: widget.transport?.driverName ?? '');
+    _driverPhoneController =
+        TextEditingController(text: widget.transport?.driverPhone ?? '');
     _status = widget.transport?.status ?? 'active';
     _isTemperatureControlled =
         widget.transport?.isTemperatureControlled ?? false;
@@ -75,12 +87,16 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
   @override
   void dispose() {
     _titleController.dispose();
+    _descriptionController.dispose();
     _vehicleLocationController.dispose();
     _priceController.dispose();
     _vehicleTypeController.dispose();
     _amenitiesController.dispose();
     _capacityController.dispose();
     _insuranceDetailsController.dispose();
+    _ownerNameController.dispose();
+    _driverNameController.dispose();
+    _driverPhoneController.dispose();
     super.dispose();
   }
 
@@ -166,7 +182,7 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
       if (widget.transport == null) {
         await context.read<TransportProvider>().addTransport(
               title: _titleController.text,
-              description: _titleController.text,
+              description: _descriptionController.text,
               vehicleLocation: _vehicleLocationController.text,
               vehicleType: _vehicleTypeController.text,
               price: double.parse(_priceController.text),
@@ -177,9 +193,9 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
               insuranceDetails: _insuranceDetailsController.text,
               amenities: amenities,
               status: _status,
-              ownerName: _titleController.text,
-              driverName: _titleController.text,
-              driverPhone: '+255715000000',
+              ownerName: _ownerNameController.text,
+              driverName: _driverNameController.text,
+              driverPhone: _driverPhoneController.text,
               latitude: _latitude,
               longitude: _longitude,
             );
@@ -237,6 +253,62 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter a title';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _descriptionController,
+              decoration: const InputDecoration(
+                labelText: 'Description',
+                border: OutlineInputBorder(),
+                hintText: 'Describe the transport service',
+              ),
+              maxLines: 3,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _ownerNameController,
+              decoration: const InputDecoration(
+                labelText: 'Owner Name',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.person_outline),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter the owner name';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _driverNameController,
+              decoration: const InputDecoration(
+                labelText: 'Driver Name',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.drive_eta_outlined),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter the driver name';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _driverPhoneController,
+              decoration: const InputDecoration(
+                labelText: 'Driver Phone',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.phone_outlined),
+              ),
+              keyboardType: TextInputType.phone,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter the driver phone number';
                 }
                 return null;
               },

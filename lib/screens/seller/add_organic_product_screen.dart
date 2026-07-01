@@ -142,7 +142,9 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
       for (var image in _selectedImages) {
         try {
           Log.e('Uploading image: ${image.path}');
-          final response = await _apiService!.uploadOrganicProductImage(image);
+          final bytes = await image.readAsBytes();
+          final filename = image.path.split('/').last.split('\\').last;
+          final response = await _apiService!.uploadOrganicProductImage(bytes, filename);
           Log.e('Image upload response: $response');
           // Response has 'url' key directly, not 'data'->'image_url'
           if (response['status'] == 'success' && response['url'] != null) {

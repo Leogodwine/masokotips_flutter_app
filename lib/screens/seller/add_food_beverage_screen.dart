@@ -140,7 +140,9 @@ class _AddFoodBeverageScreenState extends State<AddFoodBeverageScreen> {
       for (var image in _selectedImages) {
         try {
           Log.e('Uploading image: ${image.path}');
-          final response = await _apiService!.uploadFoodBeverageImage(image);
+          final bytes = await image.readAsBytes();
+          final filename = image.path.split('/').last.split('\\').last;
+          final response = await _apiService!.uploadFoodBeverageImage(bytes, filename);
           Log.e('Image upload response: $response');
           if (response['status'] == 'success' && response['url'] != null) {
             imageUrls.add(response['url']);
