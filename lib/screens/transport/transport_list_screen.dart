@@ -308,7 +308,7 @@ class _TransportListScreenState extends State<TransportListScreen> {
                           ],
                         ),
                         child: Text(
-                          'TZS ${transport.price.toStringAsFixed(0)}',
+                          transport.price == 0 ? 'Negotiable' : 'TZS ${transport.price.toStringAsFixed(0)}',
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,

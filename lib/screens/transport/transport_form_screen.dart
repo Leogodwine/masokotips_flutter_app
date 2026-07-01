@@ -185,7 +185,7 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
               description: _descriptionController.text,
               vehicleLocation: _vehicleLocationController.text,
               vehicleType: _vehicleTypeController.text,
-              price: double.parse(_priceController.text),
+              price: _priceController.text.isNotEmpty ? double.parse(_priceController.text) : 0.0,
               capacity: double.parse(_capacityController.text),
               isTemperatureControlled: _isTemperatureControlled,
               supportedProductTypes: _selectedProductTypes,
@@ -204,7 +204,7 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
           title: _titleController.text,
           vehicleLocation: _vehicleLocationController.text,
           vehicleType: _vehicleTypeController.text,
-          price: double.parse(_priceController.text),
+          price: _priceController.text.isNotEmpty ? double.parse(_priceController.text) : 0.0,
           capacity: double.parse(_capacityController.text),
           isTemperatureControlled: _isTemperatureControlled,
           supportedProductTypes: _selectedProductTypes,
@@ -403,17 +403,16 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
             TextFormField(
               controller: _priceController,
               decoration: const InputDecoration(
-                labelText: 'Price',
+                labelText: 'Price (Optional)',
                 border: OutlineInputBorder(),
                 prefixText: 'TZS ',
               ),
               keyboardType: TextInputType.number,
               validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a price';
-                }
-                if (double.tryParse(value) == null) {
-                  return 'Please enter a valid price';
+                if (value != null && value.isNotEmpty) {
+                  if (double.tryParse(value) == null) {
+                    return 'Please enter a valid price';
+                  }
                 }
                 return null;
               },

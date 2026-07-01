@@ -206,7 +206,7 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
         description: _descriptionController.text,
         vehicleLocation: _vehicleLocationController.text,
         vehicleType: _vehicleTypeController.text,
-        price: double.parse(_priceController.text),
+        price: _priceController.text.isNotEmpty ? double.parse(_priceController.text) : 0.0,
         capacity: double.parse(_capacityController.text),
         isTemperatureControlled: widget.transport.isTemperatureControlled,
         temperatureRange: _temperatureRangeController.text.isEmpty
@@ -401,17 +401,16 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
               TextFormField(
                 controller: _priceController,
                 decoration: const InputDecoration(
-                  labelText: 'Price',
+                  labelText: 'Price (Optional)',
                   prefixText: 'TZS ',
                   prefixIcon: Icon(Icons.monetization_on),
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a price';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Please enter a valid number';
+                  if (value != null && value.isNotEmpty) {
+                    if (double.tryParse(value) == null) {
+                      return 'Please enter a valid number';
+                    }
                   }
                   return null;
                 },

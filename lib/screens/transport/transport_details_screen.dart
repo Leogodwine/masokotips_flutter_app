@@ -23,7 +23,6 @@ class TransportDetailsScreen extends StatelessWidget {
     final statusLower = transport.status.toLowerCase();
     final isActive = statusLower == 'active' || statusLower == 'available';
     final receiverId = int.tryParse(transport.user?['id']?.toString() ?? '') ?? transport.userId ?? 0;
-    final hasProvider = receiverId != 0;
 
     return Scaffold(
       body: CustomScrollView(
@@ -212,7 +211,7 @@ class TransportDetailsScreen extends StatelessWidget {
                         child: Column(
                           children: [
                             Text(
-                              'TZS ${transport.price.toStringAsFixed(2)}',
+                              transport.price == 0 ? 'Negotiable' : 'TZS ${transport.price.toStringAsFixed(2)}',
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
@@ -525,50 +524,57 @@ class TransportDetailsScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: hasProvider
-                              ? () {
-                                  final authProvider = context.read<AuthProvider>();
-                                  if (authProvider.user == null) {
-                                    Navigator.pushNamed(context, '/login');
-                                    return;
-                                  }
-                                  _handleProtectedAction(context, () {
-                                    final currentUserId = authProvider.user!.id;
-                                    if (currentUserId == receiverId) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('You cannot chat with yourself.'),
-                                          backgroundColor: Colors.orange,
-                                        ),
-                                      );
-                                      return;
-                                    }
+                          onPressed: () {
+                            final authProvider = context.read<AuthProvider>();
+                            if (authProvider.user == null) {
+                              Navigator.pushNamed(context, '/login');
+                              return;
+                            }
+                            _handleProtectedAction(context, () {
+                              if (receiverId == 0) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Provider contact info is not available. Please call instead.'),
+                                    backgroundColor: Colors.orange,
+                                  ),
+                                );
+                                return;
+                              }
+                              final currentUserId = authProvider.user!.id;
+                              if (currentUserId == receiverId) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('You cannot chat with yourself.'),
+                                    backgroundColor: Colors.orange,
+                                  ),
+                                );
+                                return;
+                              }
 
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => ChatScreen(
-                                          receiverId: receiverId,
-                                          receiverName: transport.sellerName,
-                                          receiverImage: transport.sellerAvatar ?? '',
-                                        ),
-                                      ),
-                                    );
-                                  });
-                                }
-                              : null,
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ChatScreen(
+                                    receiverId: receiverId,
+                                    receiverName: transport.sellerName,
+                                    receiverImage: transport.sellerAvatar ?? '',
+                                  ),
+                                ),
+                              );
+                            });
+                          },
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            side: BorderSide(color: hasProvider ? theme.primaryColor : Colors.grey),
+                            side: BorderSide(color: theme.primaryColor),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          icon: Icon(Icons.message, color: hasProvider ? theme.primaryColor : Colors.grey),
+                          icon: Icon(Icons.message, color: theme.primaryColor),
                           label: Text(
                             'Message',
                             style: TextStyle(
-                              color: hasProvider ? theme.primaryColor : Colors.grey,
+                              color: theme.primaryColor,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -577,7 +583,7 @@ class TransportDetailsScreen extends StatelessWidget {
                       const SizedBox(width: 16),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: (isActive && hasProvider)
+                          onPressed: isActive
                               ? () {
                                   final authProvider = context.read<AuthProvider>();
                                   if (authProvider.user == null) {
@@ -585,7 +591,9 @@ class TransportDetailsScreen extends StatelessWidget {
                                     return;
                                   }
                                   _handleProtectedAction(context, () async {
-                                    const phone = '0799711705';
+                                    final phone = transport.driverPhone ??
+                                        transport.sellerPhone ??
+                                        '0799711705';
                                     final messenger = ScaffoldMessenger.of(context);
                                     final Uri url = Uri.parse('tel:$phone');
                                     if (await canLaunchUrl(url)) {
@@ -604,7 +612,7 @@ class TransportDetailsScreen extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             backgroundColor:
-                                (isActive && hasProvider) ? theme.primaryColor : Colors.grey,
+                                isActive ? theme.primaryColor : Colors.grey,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),

@@ -249,7 +249,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
         description: _descriptionController.text.trim(),
         vehicleLocation: _vehicleLocationController.text,
         vehicleType: _selectedVehicleType ?? '',
-        price: double.parse(_priceController.text),
+        price: _priceController.text.isNotEmpty ? double.parse(_priceController.text) : 0.0,
         capacity: double.parse(_capacityController.text),
         isTemperatureControlled: _isTemperatureControlled,
         temperatureRange:
@@ -476,7 +476,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
                     TextFormField(
                       controller: _priceController,
                       decoration: InputDecoration(
-                        labelText: 'Price',
+                        labelText: 'Price (Optional)',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -486,11 +486,10 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
                       ),
                       keyboardType: TextInputType.number,
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a price';
-                        }
-                        if (double.tryParse(value) == null) {
-                          return 'Please enter a valid number';
+                        if (value != null && value.isNotEmpty) {
+                          if (double.tryParse(value) == null) {
+                            return 'Please enter a valid number';
+                          }
                         }
                         return null;
                       },

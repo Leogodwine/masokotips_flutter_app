@@ -293,7 +293,7 @@ class _TransportMapScreenState extends State<TransportMapScreen> {
                     children: [
                       const Text("Price / Trip",
                           style: TextStyle(color: Colors.grey, fontSize: 12)),
-                      Text("TZS ${item.price.toStringAsFixed(0)}",
+                      Text(item.price == 0 ? 'Negotiable' : "TZS ${item.price.toStringAsFixed(0)}",
                           style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold)),
                     ],
