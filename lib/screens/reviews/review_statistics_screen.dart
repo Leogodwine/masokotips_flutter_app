@@ -21,7 +21,7 @@ class ReviewStatisticsScreen extends StatelessWidget {
         builder: (context, reviewsProvider, child) {
           final reviews = reviewsProvider
               .getUserReviews('all')
-              .where((r) => r.productId.toString() == serviceId)
+              .where((r) => r.reviewableId.toString() == serviceId)
               .toList();
           final averageRating = reviews.isEmpty
               ? 0.0

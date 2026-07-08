@@ -177,7 +177,7 @@ class AnalyticsScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text('70%'), // Replace with actual data
+                    const Text('70%'), // Replace with actual data
                   ],
                 ),
               );

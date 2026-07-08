@@ -396,13 +396,15 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
       ),
     );
 
+    final successMessage = AppLocalizations.of(context)!.productDeletedSuccessfully;
+    
     if (confirmed == true && mounted) {
       try {
         await provider.deleteProduct(product.id);
         if (mounted) {
           scaffoldMessenger.showSnackBar(
             SnackBar(
-              content: Text(AppLocalizations.of(context)!.productDeletedSuccessfully),
+              content: Text(successMessage),
               backgroundColor: Colors.green,
             ),
           );

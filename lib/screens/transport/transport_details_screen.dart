@@ -612,13 +612,14 @@ class TransportDetailsScreen extends StatelessWidget {
                                         transport.sellerPhone ??
                                         '0799711705';
                                     final messenger = ScaffoldMessenger.of(context);
+                                    final errorMsg = AppLocalizations.of(context)!.couldNotLaunchPhoneDialer;
                                     final Uri url = Uri.parse('tel:$phone');
                                     if (await canLaunchUrl(url)) {
                                       await launchUrl(url);
                                     } else {
                                       messenger.showSnackBar(
                                         SnackBar(
-                                          content: Text(AppLocalizations.of(context)!.couldNotLaunchPhoneDialer),
+                                          content: Text(errorMsg),
                                           backgroundColor: Colors.red,
                                         ),
                                       );
@@ -749,12 +750,13 @@ class TransportDetailsScreen extends StatelessWidget {
               onPressed: () async {
                 final Uri url = Uri.parse('tel:$value');
                 final messenger = ScaffoldMessenger.of(context);
+                final errorMsg = AppLocalizations.of(context)!.couldNotLaunchPhoneDialer;
                 if (await canLaunchUrl(url)) {
                   await launchUrl(url);
                 } else {
                   messenger.showSnackBar(
                     SnackBar(
-                      content: Text(AppLocalizations.of(context)!.couldNotLaunchPhoneDialer),
+                      content: Text(errorMsg),
                       backgroundColor: Colors.red,
                     ),
                   );
