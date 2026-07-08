@@ -7,6 +7,7 @@ import '../products/product_details_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../organic/organic_product_detail_screen.dart';
 import '../transport/transport_details_screen.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({Key? key}) : super(key: key);
@@ -215,7 +216,7 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
               TextButton(
                 onPressed: () => provider.clearHistory(),
-                child: const Text('Clear all'),
+                child: Text(AppLocalizations.of(context)!.clearAll),
               ),
             ],
           ),
@@ -348,7 +349,7 @@ class _SearchScreenState extends State<SearchScreen> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => _performSearch(_searchController.text),
-                child: const Text('Retry'),
+                child: Text(AppLocalizations.of(context)!.retry),
               ),
             ],
           ),
@@ -466,7 +467,7 @@ class _SearchScreenState extends State<SearchScreen> {
     }
 
     if (items.isEmpty) {
-      return const Center(child: Text('No items found'));
+      return Center(child: Text(AppLocalizations.of(context)!.noItemsFound));
     }
 
     return GridView.builder(

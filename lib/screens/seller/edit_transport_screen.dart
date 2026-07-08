@@ -9,6 +9,7 @@ import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
 import '../../config/api_config.dart';
 import '../../utils/logger.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class EditTransportScreen extends StatefulWidget {
   final Transport transport;
@@ -151,8 +152,8 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
       if (!serviceEnabled) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Please enable location services'),
+            SnackBar(
+                content: Text(AppLocalizations.of(context)!.pleaseEnableLocationServices),
                 backgroundColor: Colors.orange),
           );
         }
@@ -166,9 +167,8 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
       if (permission == LocationPermission.deniedForever) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text(
-                    'Location permission permanently denied. Enable in settings.'),
+            SnackBar(
+                content: Text(AppLocalizations.of(context)!.locationPermissionPermanentlyDeniedEnableIn),
                 backgroundColor: Colors.red),
           );
         }
@@ -268,8 +268,8 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Transport service updated successfully!'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.transportServiceUpdatedSuccessfully),
               backgroundColor: Colors.green,
             ),
           );
@@ -310,7 +310,7 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Transport Service'),
+        title: Text(AppLocalizations.of(context)!.editTransportService),
         actions: [
           TextButton(
             onPressed: _isLoading ? null : _submitForm,

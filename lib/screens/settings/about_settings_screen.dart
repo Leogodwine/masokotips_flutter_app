@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../l10n/app_localizations.dart';
 
 class AboutSettingsScreen extends StatelessWidget {
   const AboutSettingsScreen({super.key});
@@ -11,36 +12,36 @@ class AboutSettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings & About'),
+        title: Text(AppLocalizations.of(context)!.settingsAndAbout),
       ),
       body: ListView(
         children: [
           const SizedBox(height: 8),
-          _sectionHeader(context, 'Legal'),
+          _sectionHeader(context, AppLocalizations.of(context)!.legal),
           ListTile(
             leading: const Icon(Icons.privacy_tip_rounded),
-            title: const Text('Privacy Policy'),
+            title: Text(AppLocalizations.of(context)!.privacyPolicyMenu),
             trailing: const Icon(Icons.open_in_new_rounded),
             onTap: () => _openExternalUrl(context, _privacyPolicyUrl),
           ),
           ListTile(
             leading: const Icon(Icons.delete_forever_rounded),
-            title: const Text('Request Account Deletion'),
+            title: Text(AppLocalizations.of(context)!.requestAccountDeletion),
             trailing: const Icon(Icons.open_in_new_rounded),
             onTap: () => _composeDeletionEmail(context),
           ),
           const Divider(height: 0),
           const SizedBox(height: 16),
-          _sectionHeader(context, 'App'),
-          const ListTile(
-            leading: Icon(Icons.info_outline_rounded),
-            title: Text('App Name'),
-            subtitle: Text('maSOKOtips'),
+          _sectionHeader(context, AppLocalizations.of(context)!.appTitleSection),
+          ListTile(
+            leading: const Icon(Icons.info_outline_rounded),
+            title: Text(AppLocalizations.of(context)!.appNameLabel),
+            subtitle: Text(AppLocalizations.of(context)!.masokotips),
           ),
-          const ListTile(
-            leading: Icon(Icons.tag_rounded),
-            title: Text('Version'),
-            subtitle: Text('See store listing for latest'),
+          ListTile(
+            leading: const Icon(Icons.tag_rounded),
+            title: Text(AppLocalizations.of(context)!.versionLabel),
+            subtitle: Text(AppLocalizations.of(context)!.seeStoreListingForLatest),
           ),
           const SizedBox(height: 24),
         ],
@@ -68,7 +69,7 @@ class AboutSettingsScreen extends StatelessWidget {
     } else {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open link')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.couldNotOpenLink)),
         );
       }
     }
@@ -79,10 +80,8 @@ class AboutSettingsScreen extends StatelessWidget {
       scheme: 'mailto',
       path: 'info@masokotips.com',
       queryParameters: <String, String>{
-        'subject': 'Account Deletion Request - maSOKOtips',
-        'body':
-            'Hello maSOKOtips Team,\n\nI would like to request deletion of my account and associated data.'
-                '\n\nPlease confirm once completed.\n\nThanks.',
+        'subject': AppLocalizations.of(context)!.accountDeletionRequestSubject,
+        'body': AppLocalizations.of(context)!.accountDeletionRequestBody,
       },
     );
     if (await canLaunchUrl(uri)) {
@@ -90,7 +89,7 @@ class AboutSettingsScreen extends StatelessWidget {
     } else {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No email app found to send request')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.noEmailAppFound)),
         );
       }
     }

@@ -7,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import '../../config/api_config.dart';
 import '../../utils/logger.dart';
 import '../../providers/category_provider.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class AddOrganicProductScreen extends StatefulWidget {
   const AddOrganicProductScreen({Key? key}) : super(key: key);
@@ -192,8 +193,8 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
       if (isSuccess) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Organic product created successfully!'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.organicProductCreatedSuccessfully),
               backgroundColor: Colors.green,
             ),
           );
@@ -223,7 +224,7 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Organic Product'),
+        title: Text(AppLocalizations.of(context)!.addOrganicProduct),
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
       ),
@@ -367,8 +368,8 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
                             fillColor: Colors.grey[50],
                           ),
                           hint: _isLoadingCategories
-                              ? const Text('Loading categories...')
-                              : const Text('Select Organic Category'),
+                              ? Text(AppLocalizations.of(context)!.loadingCategories)
+                              : Text(AppLocalizations.of(context)!.selectOrganicCategory),
                           items: provider.subcategories.map((category) {
                             return DropdownMenuItem<int?>(
                               value: category.id,
@@ -517,7 +518,7 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
                               TextButton.icon(
                                 onPressed: _pickImages,
                                 icon: const Icon(Icons.add_photo_alternate),
-                                label: const Text('Add Images'),
+                                label: Text(AppLocalizations.of(context)!.addImages),
                               ),
                             ],
                           ),
@@ -557,9 +558,8 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
                         child: Column(
                           children: [
                             SwitchListTile(
-                              title: const Text('Active'),
-                              subtitle: const Text(
-                                  'Make this product visible to customers'),
+                              title: Text(AppLocalizations.of(context)!.active),
+                              subtitle: Text(AppLocalizations.of(context)!.makeThisProductVisibleToCustomers),
                               value: _isActive,
                               onChanged: (value) {
                                 setState(() {
@@ -568,9 +568,8 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
                               },
                             ),
                             SwitchListTile(
-                              title: const Text('Featured'),
-                              subtitle: const Text(
-                                  'Show this product in featured section'),
+                              title: Text(AppLocalizations.of(context)!.featured),
+                              subtitle: Text(AppLocalizations.of(context)!.showThisProductInFeaturedSection),
                               value: _isFeatured,
                               onChanged: (value) {
                                 setState(() {

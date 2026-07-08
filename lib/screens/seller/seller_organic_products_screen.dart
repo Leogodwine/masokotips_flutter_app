@@ -9,6 +9,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'add_organic_product_screen.dart';
 import 'edit_organic_product_screen.dart';
 import '../../utils/extensions.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class SellerOrganicProductsScreen extends StatefulWidget {
   const SellerOrganicProductsScreen({Key? key}) : super(key: key);
@@ -125,7 +126,7 @@ class _SellerOrganicProductsScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Organic Products'),
+        title: Text(AppLocalizations.of(context)!.myOrganicProducts),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
         actions: [
@@ -159,7 +160,7 @@ class _SellerOrganicProductsScreenState
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: _loadOrganicProducts,
-                        child: const Text('Retry'),
+                        child: Text(AppLocalizations.of(context)!.retry),
                       ),
                     ],
                   ),
@@ -194,7 +195,7 @@ class _SellerOrganicProductsScreenState
                           ElevatedButton.icon(
                             onPressed: () => _navigateToAddProduct(),
                             icon: const Icon(Icons.add),
-                            label: const Text('Add Organic Product'),
+                            label: Text(AppLocalizations.of(context)!.addOrganicProduct),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.green,
                               foregroundColor: Colors.white,
@@ -311,13 +312,13 @@ class _SellerOrganicProductsScreenState
                                           }
                                         },
                                         itemBuilder: (context) => [
-                                          const PopupMenuItem(
+                                          PopupMenuItem(
                                             value: 'edit',
                                             child: Row(
                                               children: [
-                                                Icon(Icons.edit),
-                                                SizedBox(width: 8),
-                                                Text('Edit'),
+                                                const Icon(Icons.edit),
+                                                const SizedBox(width: 8),
+                                                Text(AppLocalizations.of(context)!.edit),
                                               ],
                                             ),
                                           ),
@@ -450,13 +451,13 @@ class _SellerOrganicProductsScreenState
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Organic Product'),
+        title: Text(AppLocalizations.of(context)!.deleteOrganicProduct),
         content: Text(
             'Are you sure you want to delete "${product.name}"? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -464,7 +465,7 @@ class _SellerOrganicProductsScreenState
               _deleteOrganicProduct(product);
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../providers/agent_provider.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class AgentDashboardScreen extends StatefulWidget {
   const AgentDashboardScreen({super.key});
@@ -38,7 +39,7 @@ class _AgentDashboardScreenState extends State<AgentDashboardScreen>
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Agent Dashboard'),
+        title: Text(AppLocalizations.of(context)!.agentDashboard),
         backgroundColor: theme.primaryColor,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -70,7 +71,7 @@ class _AgentDashboardScreenState extends State<AgentDashboardScreen>
                   const SizedBox(height: 12),
                   ElevatedButton(
                     onPressed: provider.loadDashboard,
-                    child: const Text('Retry'),
+                    child: Text(AppLocalizations.of(context)!.retry),
                   ),
                 ],
               ),
@@ -156,9 +157,9 @@ class _OverviewTab extends StatelessWidget {
                         onPressed: () {
                           Clipboard.setData(ClipboardData(text: code));
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Referral code copied!'),
-                              duration: Duration(seconds: 2),
+                            SnackBar(
+                              content: Text(AppLocalizations.of(context)!.referralCodeCopied),
+                              duration: const Duration(seconds: 2),
                             ),
                           );
                         },

@@ -6,6 +6,7 @@ import '../../models/service.dart';
 import '../../models/category.dart';
 import 'add_service_screen.dart';
 import 'edit_service_screen.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class ProviderServicesScreen extends StatefulWidget {
   const ProviderServicesScreen({Key? key}) : super(key: key);
@@ -115,7 +116,7 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
       });
       if (mounted) {
         scaffoldMessenger.showSnackBar(
-          const SnackBar(content: Text('Service deleted successfully')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.serviceDeletedSuccessfully)),
         );
       }
     } catch (e) {
@@ -132,12 +133,12 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Service'),
+        title: Text(AppLocalizations.of(context)!.deleteService),
         content: Text('Are you sure you want to delete "${service.title}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -155,7 +156,7 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Agricultural Services'),
+        title: Text(AppLocalizations.of(context)!.myAgriculturalServices),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
       ),
@@ -180,7 +181,7 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: _loadServices,
-                        child: const Text('Retry'),
+                        child: Text(AppLocalizations.of(context)!.retry),
                       ),
                     ],
                   ),
@@ -244,7 +245,7 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
                                 );
                               },
                               icon: const Icon(Icons.add),
-                              label: const Text('Add Your First Service'),
+                              label: Text(AppLocalizations.of(context)!.addYourFirstService),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Theme.of(context).primaryColor,
                                 foregroundColor: Colors.white,
@@ -424,14 +425,14 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
                                               color: Colors.grey[600],
                                             ),
                                             itemBuilder: (context) => [
-                                              const PopupMenuItem(
+                                              PopupMenuItem(
                                                 value: 'edit',
                                                 child: Row(
                                                   children: [
-                                                    Icon(Icons.edit,
+                                                    const Icon(Icons.edit,
                                                         color: Colors.blue),
-                                                    SizedBox(width: 12),
-                                                    Text('Edit Service'),
+                                                    const SizedBox(width: 12),
+                                                    Text(AppLocalizations.of(context)!.editService),
                                                   ],
                                                 ),
                                               ),

@@ -5,6 +5,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../screens/auth/login_screen.dart';
 import '../seller/seller_public_profile_screen.dart' as import_profile;
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class OrganicProductDetailScreen extends StatefulWidget {
   final dynamic product;
@@ -110,7 +111,7 @@ class _OrganicProductDetailScreenState extends State<OrganicProductDetailScreen>
                 return;
               }
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Added to wishlist')),
+                SnackBar(content: Text(AppLocalizations.of(context)!.addedToWishlist)),
               );
             },
           ),
@@ -237,7 +238,7 @@ class _OrganicProductDetailScreenState extends State<OrganicProductDetailScreen>
             ElevatedButton.icon(
               onPressed: _handleAddToCart,
               icon: const Icon(Icons.add_shopping_cart),
-              label: const Text('Add to Cart'),
+              label: Text(AppLocalizations.of(context)!.addToCart),
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 50),
                 backgroundColor: theme.primaryColor,

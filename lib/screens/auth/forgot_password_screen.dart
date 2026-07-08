@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -17,7 +18,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Future<void> _resetPassword() async {
     if (_emailController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your email address')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseEnterYourEmailAddress)),
       );
       return;
     }
@@ -30,8 +31,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Reset link sent to your email'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.resetLinkSentToYourEmail),
             backgroundColor: Colors.green,
           ),
         );
@@ -57,7 +58,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Reset Password'),
+        title: Text(AppLocalizations.of(context)!.resetPassword),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
         leading: Navigator.canPop(context)
@@ -85,7 +86,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               onPressed: _isLoading ? null : _resetPassword,
               child: _isLoading
                   ? const CircularProgressIndicator()
-                  : const Text('SEND RESET LINK'),
+                  : Text(AppLocalizations.of(context)!.sendResetLink),
             ),
           ],
         ),

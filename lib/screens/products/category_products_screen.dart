@@ -5,6 +5,7 @@ import '../../providers/cart_provider.dart';
 import 'product_details_screen.dart';
 import '../../widgets/cached_network_image_with_cors.dart';
 import '../transport/transport_map_screen.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class CategoryProductsScreen extends StatefulWidget {
   final int categoryId;
@@ -118,7 +119,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                     );
                   },
                   icon: const Icon(Icons.map_outlined),
-                  label: const Text('View Map'),
+                  label: Text(AppLocalizations.of(context)!.viewMap),
                   backgroundColor: Theme.of(context).primaryColor,
                   foregroundColor: Colors.white,
                 )
@@ -147,7 +148,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                         categoryName: widget.parentCategoryName,
                       );
                     },
-                    child: const Text('Retry'),
+                    child: Text(AppLocalizations.of(context)!.retry),
                   ),
                 ],
               ),

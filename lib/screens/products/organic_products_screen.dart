@@ -459,7 +459,7 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
           scaffoldMessenger.showSnackBar(
             SnackBar(
                 content: Text(
-                    localizations.productDeletedSuccessfully(product.name))),
+                    localizations.productDeletedSuccessfully)),
           );
           _loadOrganicProducts();
         }

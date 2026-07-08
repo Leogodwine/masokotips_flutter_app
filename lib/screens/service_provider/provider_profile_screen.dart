@@ -3,6 +3,7 @@ import '../../models/provider_profile.dart';
 import '../../models/service.dart';
 import '../services/service_detail_screen.dart';
 import '../chat/chat_screen.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class ProviderProfileScreen extends StatelessWidget {
   final ProviderProfile provider;
@@ -162,7 +163,7 @@ class ProviderProfileScreen extends StatelessWidget {
           );
         },
         icon: const Icon(Icons.chat),
-        label: const Text('Chat'),
+        label: Text(AppLocalizations.of(context)!.chat),
       ),
     );
   }

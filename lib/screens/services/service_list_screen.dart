@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/service_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../config/api_config.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class ServiceListScreen extends StatefulWidget {
   final String category;
@@ -218,7 +219,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                           _minRating = 0;
                         });
                       },
-                      child: const Text('Reset'),
+                      child: Text(AppLocalizations.of(context)!.reset),
                     ),
                   ],
                 ),
@@ -281,7 +282,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size.fromHeight(50),
                   ),
-                  child: const Text('Apply Filters'),
+                  child: Text(AppLocalizations.of(context)!.applyFilters),
                 ),
               ),
             ],
@@ -340,7 +341,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
               Navigator.pushNamed(context, '/service_provider/add-service');
             },
             icon: const Icon(Icons.add),
-            label: const Text('Add a Service'),
+            label: Text(AppLocalizations.of(context)!.addAService),
           ),
         ],
       ),
@@ -374,7 +375,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
           ElevatedButton.icon(
             onPressed: _loadInitialServices,
             icon: const Icon(Icons.refresh),
-            label: const Text('Try Again'),
+            label: Text(AppLocalizations.of(context)!.tryAgain),
           ),
         ],
       ),
@@ -417,9 +418,9 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
             icon: const Icon(Icons.sort),
             onSelected: _handleSort,
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: null,
-                child: Text('Default'),
+                child: Text(AppLocalizations.of(context)!.defaultAddress),
               ),
               ..._sortOptions.entries.map(
                 (entry) => PopupMenuItem(
@@ -671,7 +672,7 @@ class ServiceSearchDelegate extends SearchDelegate<String> {
   @override
   Widget buildResults(BuildContext context) {
     if (query.isEmpty) {
-      return _buildSearchHistory();
+      return _buildSearchHistory(context);
     }
     onSearch(query);
     return Container(); // Results will be shown in the main screen
@@ -680,7 +681,7 @@ class ServiceSearchDelegate extends SearchDelegate<String> {
   @override
   Widget buildSuggestions(BuildContext context) {
     if (query.isEmpty) {
-      return _buildSearchHistory();
+      return _buildSearchHistory(context);
     }
 
     // Filter history based on query
@@ -706,10 +707,10 @@ class ServiceSearchDelegate extends SearchDelegate<String> {
     );
   }
 
-  Widget _buildSearchHistory() {
+  Widget _buildSearchHistory(BuildContext context) {
     if (_searchHistory.isEmpty) {
-      return const Center(
-        child: Text('No recent searches'),
+      return Center(
+        child: Text(AppLocalizations.of(context)!.noRecentSearches),
       );
     }
 

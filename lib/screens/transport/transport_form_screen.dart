@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../models/transport.dart';
 import '../../providers/transport_provider.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class TransportFormScreen extends StatefulWidget {
   final Transport? transport;
@@ -108,7 +109,7 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
       if (!serviceEnabled) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Location services are disabled.')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.locationServicesAreDisabled)),
           );
         }
         return;
@@ -120,7 +121,7 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
         if (permission == LocationPermission.denied) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Location permission denied.')),
+              SnackBar(content: Text(AppLocalizations.of(context)!.locationPermissionDenied)),
             );
           }
           return;
@@ -130,9 +131,8 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
       if (permission == LocationPermission.deniedForever) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text(
-                    'Location permission permanently denied. Enable in settings.')),
+            SnackBar(
+                content: Text(AppLocalizations.of(context)!.locationPermissionPermanentlyDeniedEnableIn)),
           );
         }
         return;
@@ -460,7 +460,7 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
             ),
             const SizedBox(height: 16),
             SwitchListTile(
-              title: const Text('Temperature Controlled'),
+              title: Text(AppLocalizations.of(context)!.temperatureControlled),
               value: _isTemperatureControlled,
               onChanged: (value) {
                 setState(() {
@@ -489,7 +489,7 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
             ),
             const SizedBox(height: 16),
             SwitchListTile(
-              title: const Text('Has Insurance'),
+              title: Text(AppLocalizations.of(context)!.hasInsurance),
               value: _hasInsurance,
               onChanged: (value) {
                 setState(() {
@@ -515,14 +515,14 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
                 labelText: 'Status',
                 border: OutlineInputBorder(),
               ),
-              items: const [
+              items: [
                 DropdownMenuItem(
                   value: 'active',
-                  child: Text('Active'),
+                  child: Text(AppLocalizations.of(context)!.active),
                 ),
                 DropdownMenuItem(
                   value: 'inactive',
-                  child: Text('Inactive'),
+                  child: Text(AppLocalizations.of(context)!.inactive),
                 ),
               ],
               onChanged: (value) {

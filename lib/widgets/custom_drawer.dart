@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:masoko_tips/providers/auth_provider.dart';
+import '../l10n/app_localizations.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
@@ -71,7 +72,7 @@ class CustomDrawer extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              isAuthenticated ? 'Welcome' : 'Hello Guest',
+                              isAuthenticated ? 'Karibu' : AppLocalizations.of(context)!.helloGuest,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -82,7 +83,7 @@ class CustomDrawer extends StatelessWidget {
                             Text(
                               isAuthenticated
                                   ? user?.name ?? 'User'
-                                  : 'Sign in to your account',
+                                  : AppLocalizations.of(context)!.signInToYourAccount,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 20,
@@ -111,7 +112,7 @@ class CustomDrawer extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text('Sign In'),
+                        child: Text(AppLocalizations.of(context)!.signIn),
                       ),
                     ),
                   ],
@@ -127,7 +128,7 @@ class CustomDrawer extends StatelessWidget {
                   _buildDrawerItem(
                     context,
                     icon: Icons.home_rounded,
-                    title: 'Home',
+                    title: AppLocalizations.of(context)!.homeMenu,
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.pushReplacementNamed(context, '/home');
@@ -136,7 +137,7 @@ class CustomDrawer extends StatelessWidget {
                   _buildDrawerItem(
                     context,
                     icon: Icons.shopping_basket_rounded,
-                    title: 'Products',
+                    title: AppLocalizations.of(context)!.productsMenu,
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.pushNamed(context, '/products');
@@ -145,7 +146,7 @@ class CustomDrawer extends StatelessWidget {
                   _buildDrawerItem(
                     context,
                     icon: Icons.local_shipping_rounded,
-                    title: 'Transport',
+                    title: AppLocalizations.of(context)!.transportMenu,
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.pushNamed(context, '/transport');
@@ -154,7 +155,7 @@ class CustomDrawer extends StatelessWidget {
                   _buildDrawerItem(
                     context,
                     icon: Icons.analytics_rounded,
-                    title: 'Market Info',
+                    title: AppLocalizations.of(context)!.marketInfoMenu,
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.pushNamed(context, '/market-info');
@@ -174,7 +175,7 @@ class CustomDrawer extends StatelessWidget {
                     _buildDrawerItem(
                       context,
                       icon: Icons.person_rounded,
-                      title: 'Profile',
+                      title: AppLocalizations.of(context)!.profileMenu,
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.pushNamed(context, '/profile');
@@ -183,7 +184,7 @@ class CustomDrawer extends StatelessWidget {
                     _buildDrawerItem(
                       context,
                       icon: Icons.shopping_bag_rounded,
-                      title: 'My Orders',
+                      title: AppLocalizations.of(context)!.myOrdersMenu,
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.pushNamed(context, '/orders');
@@ -192,7 +193,7 @@ class CustomDrawer extends StatelessWidget {
                     _buildDrawerItem(
                       context,
                       icon: Icons.favorite_rounded,
-                      title: 'Wishlist',
+                      title: AppLocalizations.of(context)!.wishlistMenu,
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.pushNamed(context, '/wishlist');
@@ -212,7 +213,7 @@ class CustomDrawer extends StatelessWidget {
                   _buildDrawerItem(
                     context,
                     icon: Icons.settings_rounded,
-                    title: 'Settings',
+                    title: AppLocalizations.of(context)!.settingsMenu,
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.pushNamed(context, '/settings');
@@ -221,7 +222,7 @@ class CustomDrawer extends StatelessWidget {
                   _buildDrawerItem(
                     context,
                     icon: Icons.delete_forever_rounded,
-                    title: 'Request Account Deletion',
+                    title: AppLocalizations.of(context)!.requestAccountDeletion,
                     onTap: () async {
                       Navigator.pop(context);
                       await _composeDeletionEmail(context);
@@ -230,7 +231,7 @@ class CustomDrawer extends StatelessWidget {
                   _buildDrawerItem(
                     context,
                     icon: Icons.privacy_tip_rounded,
-                    title: 'Privacy Policy',
+                    title: AppLocalizations.of(context)!.privacyPolicyMenu,
                     onTap: () async {
                       Navigator.pop(context);
                       await _openExternalUrl(
@@ -242,7 +243,7 @@ class CustomDrawer extends StatelessWidget {
                   _buildDrawerItem(
                     context,
                     icon: Icons.help_rounded,
-                    title: 'Help & Support',
+                    title: AppLocalizations.of(context)!.helpAndSupportMenu,
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.pushNamed(context, '/help');
@@ -251,7 +252,7 @@ class CustomDrawer extends StatelessWidget {
                   _buildDrawerItem(
                     context,
                     icon: Icons.info_rounded,
-                    title: 'About',
+                    title: AppLocalizations.of(context)!.aboutMenu,
                     onTap: () {
                       Navigator.pop(context);
                       _showAboutDialog(context);
@@ -261,7 +262,7 @@ class CustomDrawer extends StatelessWidget {
                     _buildDrawerItem(
                       context,
                       icon: Icons.logout_rounded,
-                      title: 'Logout',
+                      title: AppLocalizations.of(context)!.logoutMenu,
                       onTap: () async {
                         // Capture context-dependent objects before async operation
                         final scaffoldMessenger = ScaffoldMessenger.of(context);
@@ -269,8 +270,8 @@ class CustomDrawer extends StatelessWidget {
                         await authProvider.logout();
                         if (context.mounted) {
                           scaffoldMessenger.showSnackBar(
-                            const SnackBar(
-                              content: Text('Logged out successfully'),
+                            SnackBar(
+                              content: Text(AppLocalizations.of(context)!.loggedOutSuccessfully),
                             ),
                           );
                         }
@@ -319,15 +320,12 @@ class CustomDrawer extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('About maSOKO tips'),
-        content: const Text(
-          'maSOKO tips is your agricultural marketplace companion. '
-          'Find products, services, and market information all in one place.',
-        ),
+        title: Text(AppLocalizations.of(context)!.aboutMasokoTips),
+        content: Text(AppLocalizations.of(context)!.aboutMasokoTipsDescription),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: Text(AppLocalizations.of(context)!.closeButton),
           ),
         ],
       ),
@@ -367,10 +365,8 @@ class CustomDrawer extends StatelessWidget {
       scheme: 'mailto',
       path: 'info@masokotips.com',
       queryParameters: <String, String>{
-        'subject': 'Account Deletion Request - maSOKOtips',
-        'body':
-            'Hello maSOKOtips Team,\n\nI would like to request deletion of my account and associated data.'
-                '\n\nPlease confirm once completed.\n\nThanks.',
+        'subject': AppLocalizations.of(context)!.accountDeletionRequestSubject,
+        'body': AppLocalizations.of(context)!.accountDeletionRequestBody,
       },
     );
     if (await canLaunchUrl(uri)) {
@@ -378,7 +374,7 @@ class CustomDrawer extends StatelessWidget {
     } else {
       if (context.mounted) {
         scaffoldMessenger.showSnackBar(
-          const SnackBar(content: Text('No email app found to send request')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.noEmailAppFound)),
         );
       }
     }

@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/foundation.dart';
+import '../../utils/image_upload_helper.dart';
 import '../../providers/buyer_provider.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class AddBuyingRequestScreen extends StatefulWidget {
   const AddBuyingRequestScreen({Key? key}) : super(key: key);
@@ -24,8 +26,8 @@ class _AddBuyingRequestScreenState extends State<AddBuyingRequestScreen> {
   final List<String> _units = ['tons', 'kg', 'liters', 'bags', 'pieces'];
 
   Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await ImageUploadHelper.pickAndCropImage(context);
+
     if (pickedFile != null) {
       setState(() {
         _imageFile = File(pickedFile.path);
@@ -52,7 +54,7 @@ class _AddBuyingRequestScreenState extends State<AddBuyingRequestScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Request posted successfully!'), backgroundColor: Colors.green),
+          SnackBar(content: Text(AppLocalizations.of(context)!.requestPostedSuccessfully), backgroundColor: Colors.green),
         );
         Navigator.pop(context);
       }
@@ -84,7 +86,7 @@ class _AddBuyingRequestScreenState extends State<AddBuyingRequestScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Post Buying Request'),
+        title: Text(AppLocalizations.of(context)!.postBuyingRequest),
       ),
       body: _isSubmitting
           ? const Center(child: CircularProgressIndicator())
@@ -106,8 +108,10 @@ class _AddBuyingRequestScreenState extends State<AddBuyingRequestScreen> {
                         ),
                         child: _imageFile != null
                             ? ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: Image.file(_imageFile!, fit: BoxFit.cover),
+                                borderRadius: BorderRadius.circular(8),
+                                child: kIsWeb
+                                    ? Image.network(_imageFile!.path, fit: BoxFit.cover)
+                                    : Image.file(_imageFile!, fit: BoxFit.cover),
                               )
                             : Column(
                                 mainAxisAlignment: MainAxisAlignment.center,

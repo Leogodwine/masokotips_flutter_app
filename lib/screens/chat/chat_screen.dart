@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/chat_provider.dart';
 import '../../providers/auth_provider.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class ChatScreen extends StatefulWidget {
   final int? conversationId;
@@ -136,15 +137,15 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Consumer<ChatProvider>(
               builder: (context, provider, child) {
                 if (_activeConversationId == null) {
-                  return const Center(
-                    child: Text('Say hello!'),
+                  return Center(
+                    child: Text(AppLocalizations.of(context)!.sayHello),
                   );
                 }
                 
                 final messages = provider.getMessages(_activeConversationId!);
                 
                 if (messages.isEmpty) {
-                  return const Center(child: Text('No messages yet.'));
+                  return Center(child: Text(AppLocalizations.of(context)!.noMessagesYet));
                 }
                 
                 WidgetsBinding.instance.addPostFrameCallback((_) {

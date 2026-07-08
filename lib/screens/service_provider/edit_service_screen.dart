@@ -4,6 +4,7 @@ import '../../services/service_service.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../../utils/image_upload_helper.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class EditServiceScreen extends StatefulWidget {
   final Service service;
@@ -327,7 +328,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Service'),
+        title: Text(AppLocalizations.of(context)!.editService),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -395,8 +396,8 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                 builder: (context) {
                   final dropdownItems = _isLoadingCategories
                       ? <DropdownMenuItem<int>>[
-                          const DropdownMenuItem<int>(
-                              value: null, child: Text('Loading...'))
+                          DropdownMenuItem<int>(
+                              value: null, child: Text(AppLocalizations.of(context)!.loading))
                         ]
                       : _getUniqueDropdownItems();
 
@@ -427,7 +428,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
               ElevatedButton.icon(
                 onPressed: _pickImage,
                 icon: const Icon(Icons.image),
-                label: const Text('Change Service Image'),
+                label: Text(AppLocalizations.of(context)!.changeServiceImage),
               ),
               if (_imageFile != null)
                 Padding(
@@ -497,7 +498,7 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                 onPressed: _isLoading ? null : _submitForm,
                 child: _isLoading
                     ? const CircularProgressIndicator()
-                    : const Text('Update Service'),
+                    : Text(AppLocalizations.of(context)!.updateService),
               ),
             ],
           ),

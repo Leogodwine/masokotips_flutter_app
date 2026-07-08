@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../models/transport.dart';
 import '../../providers/transport_provider.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class EditTransportScreen extends StatefulWidget {
   final Transport transport;
@@ -142,8 +143,8 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
       if (!serviceEnabled) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Please enable location services'),
+            SnackBar(
+                content: Text(AppLocalizations.of(context)!.pleaseEnableLocationServices),
                 backgroundColor: Colors.orange),
           );
         }
@@ -157,9 +158,8 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
       if (permission == LocationPermission.deniedForever) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text(
-                    'Location permission permanently denied. Enable in settings.'),
+            SnackBar(
+                content: Text(AppLocalizations.of(context)!.locationPermissionPermanentlyDeniedEnableIn),
                 backgroundColor: Colors.red),
           );
         }
@@ -249,7 +249,7 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Transport updated successfully')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.transportUpdatedSuccessfully)),
         );
         Navigator.pop(context);
       }
@@ -272,7 +272,7 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Transport'),
+        title: Text(AppLocalizations.of(context)!.editTransport),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
       ),
@@ -487,7 +487,7 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
               ),
               const SizedBox(height: 16),
               SwitchListTile(
-                title: const Text('Temperature Controlled'),
+                title: Text(AppLocalizations.of(context)!.temperatureControlled),
                 value: _isTemperatureControlled,
                 onChanged: (value) {
                   setState(() {
@@ -507,7 +507,7 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
               ],
               const SizedBox(height: 16),
               SwitchListTile(
-                title: const Text('Has Insurance'),
+                title: Text(AppLocalizations.of(context)!.hasInsurance),
                 value: _hasInsurance,
                 onChanged: (value) {
                   setState(() {
@@ -614,7 +614,7 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
                             strokeWidth: 2,
                           ),
                         )
-                      : const Text('Save Changes'),
+                      : Text(AppLocalizations.of(context)!.saveChanges),
                 ),
               ),
             ],

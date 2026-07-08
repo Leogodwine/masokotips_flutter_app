@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class SecuritySettingsScreen extends StatefulWidget {
   const SecuritySettingsScreen({Key? key}) : super(key: key);
@@ -38,7 +39,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
     // Check if new and confirm password match
     if (_newPasswordController.text != _confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('New passwords do not match')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.newPasswordsDoNotMatch)),
       );
       return;
     }
@@ -64,7 +65,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
       _confirmPasswordController.clear();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password changed successfully')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.passwordChangedSuccessfully)),
       );
     } catch (e) {
       if (!mounted) return;
@@ -85,7 +86,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Security Settings'),
+        title: Text(AppLocalizations.of(context)!.securitySettings),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -219,7 +220,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                                   color: Colors.white,
                                 ),
                               )
-                            : const Text('Change Password'),
+                            : Text(AppLocalizations.of(context)!.changePassword),
                       ),
                     ),
                   ],
@@ -240,9 +241,8 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                 child: Column(
                   children: [
                     SwitchListTile(
-                      title: const Text('Two-Factor Authentication'),
-                      subtitle: const Text(
-                          'Receive a verification code when signing in'),
+                      title: Text(AppLocalizations.of(context)!.twofactorAuthentication),
+                      subtitle: Text(AppLocalizations.of(context)!.receiveAVerificationCodeWhenSigning),
                       value: _twoFactorAuth,
                       onChanged: (value) {
                         setState(() {
@@ -250,17 +250,17 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                         });
                         if (value) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
+                            SnackBar(
                               content:
-                                  Text('Two-Factor Authentication enabled'),
+                                  Text(AppLocalizations.of(context)!.twofactorAuthenticationEnabled),
                               backgroundColor: Colors.green,
                             ),
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
+                            SnackBar(
                               content:
-                                  Text('Two-Factor Authentication disabled'),
+                                  Text(AppLocalizations.of(context)!.twofactorAuthenticationDisabled),
                               backgroundColor: Colors.orange,
                             ),
                           );
@@ -269,14 +269,13 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                     ),
                     const Divider(height: 1),
                     ListTile(
-                      title: const Text('Activity Log'),
-                      subtitle: const Text('View your account activity'),
+                      title: Text(AppLocalizations.of(context)!.activityLog),
+                      subtitle: Text(AppLocalizations.of(context)!.viewYourAccountActivity),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                                'Activity log feature is under development'),
+                          SnackBar(
+                            content: Text(AppLocalizations.of(context)!.activityLogFeatureIsUnderDevelopment),
                             backgroundColor: Colors.blue,
                           ),
                         );
@@ -284,14 +283,13 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                     ),
                     const Divider(height: 1),
                     ListTile(
-                      title: const Text('Devices'),
-                      subtitle: const Text('Manage devices that are logged in'),
+                      title: Text(AppLocalizations.of(context)!.devices),
+                      subtitle: Text(AppLocalizations.of(context)!.manageDevicesThatAreLoggedIn),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                                'Device management feature is under development'),
+                          SnackBar(
+                            content: Text(AppLocalizations.of(context)!.deviceManagementFeatureIsUnderDevelopment),
                             backgroundColor: Colors.blue,
                           ),
                         );
@@ -315,9 +313,9 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                 child: Column(
                   children: [
                     SwitchListTile(
-                      title: const Text('Email Notifications'),
+                      title: Text(AppLocalizations.of(context)!.emailNotifications),
                       subtitle:
-                          const Text('Receive updates and alerts via email'),
+                          Text(AppLocalizations.of(context)!.receiveUpdatesAndAlertsViaEmail),
                       value: _emailNotifications,
                       onChanged: (value) {
                         setState(() {
@@ -327,9 +325,9 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                     ),
                     const Divider(height: 1),
                     SwitchListTile(
-                      title: const Text('SMS Notifications'),
+                      title: Text(AppLocalizations.of(context)!.smsNotifications),
                       subtitle:
-                          const Text('Receive updates and alerts via SMS'),
+                          Text(AppLocalizations.of(context)!.receiveUpdatesAndAlertsViaSms),
                       value: _smsNotifications,
                       onChanged: (value) {
                         setState(() {
@@ -371,21 +369,19 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                     showDialog(
                       context: context,
                       builder: (context) => AlertDialog(
-                        title: const Text('Delete Account?'),
-                        content: const Text(
-                            'This action cannot be undone. All your data will be permanently deleted.'),
+                        title: Text(AppLocalizations.of(context)!.deleteAccount),
+                        content: Text(AppLocalizations.of(context)!.thisActionCannotBeUndoneAll),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.of(context).pop(),
-                            child: const Text('CANCEL'),
+                            child: Text(AppLocalizations.of(context)!.cancelAlt),
                           ),
                           TextButton(
                             onPressed: () {
                               Navigator.of(context).pop();
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                      'Account deletion feature is under development'),
+                                SnackBar(
+                                  content: Text(AppLocalizations.of(context)!.accountDeletionFeatureIsUnderDevelopment),
                                   backgroundColor: Colors.orange,
                                 ),
                               );

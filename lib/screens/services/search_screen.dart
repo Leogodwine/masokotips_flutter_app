@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../providers/product_provider.dart';
 import '../../utils/logger.dart';
 import '../products/product_details_screen.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({Key? key}) : super(key: key);
@@ -174,7 +175,7 @@ class _SearchScreenState extends State<SearchScreen> {
         if (_recent.isNotEmpty)
           TextButton(
             onPressed: _clearRecent,
-            child: const Text('Clear'),
+            child: Text(AppLocalizations.of(context)!.clear),
           ),
       ],
     );
@@ -242,7 +243,7 @@ class _SearchScreenState extends State<SearchScreen> {
               ElevatedButton.icon(
                 onPressed: () => _runSearch(_query),
                 icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
+                label: Text(AppLocalizations.of(context)!.retry),
               ),
             ],
           ),

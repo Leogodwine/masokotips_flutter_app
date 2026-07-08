@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/reviews_provider.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class ReviewStatisticsScreen extends StatelessWidget {
   final String serviceId;
@@ -14,7 +15,7 @@ class ReviewStatisticsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Review Statistics'),
+        title: Text(AppLocalizations.of(context)!.reviewStatistics),
       ),
       body: Consumer<ReviewsProvider>(
         builder: (context, reviewsProvider, child) {
@@ -28,8 +29,8 @@ class ReviewStatisticsScreen extends StatelessWidget {
                   reviews.length;
 
           if (reviews.isEmpty) {
-            return const Center(
-              child: Text('No reviews yet'),
+            return Center(
+              child: Text(AppLocalizations.of(context)!.noReviewsYet),
             );
           }
 
@@ -61,7 +62,7 @@ class ReviewStatisticsScreen extends StatelessWidget {
                                     color: Theme.of(context).primaryColor,
                                   ),
                             ),
-                            const Text('Average Rating'),
+                            Text(AppLocalizations.of(context)!.averageRating),
                           ],
                         ),
                         Column(
@@ -70,7 +71,7 @@ class ReviewStatisticsScreen extends StatelessWidget {
                               reviews.length.toString(),
                               style: Theme.of(context).textTheme.headlineLarge,
                             ),
-                            const Text('Total Reviews'),
+                            Text(AppLocalizations.of(context)!.totalReviews),
                           ],
                         ),
                       ],

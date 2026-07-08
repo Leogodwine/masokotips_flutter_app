@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../home/home_content_screen.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class OrderSuccessScreen extends StatelessWidget {
   const OrderSuccessScreen({Key? key}) : super(key: key);
@@ -9,7 +10,7 @@ class OrderSuccessScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Order Confirmation'),
+        title: Text(AppLocalizations.of(context)!.orderConfirmation),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -144,7 +145,7 @@ class OrderSuccessScreen extends StatelessWidget {
                         );
                       },
                       icon: const Icon(Icons.shopping_bag),
-                      label: const Text('Continue Shopping'),
+                      label: Text(AppLocalizations.of(context)!.continueShopping),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
@@ -161,7 +162,7 @@ class OrderSuccessScreen extends StatelessWidget {
                         Navigator.pushNamed(context, '/orders');
                       },
                       icon: const Icon(Icons.history),
-                      label: const Text('View Order History'),
+                      label: Text(AppLocalizations.of(context)!.viewOrderHistory),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(

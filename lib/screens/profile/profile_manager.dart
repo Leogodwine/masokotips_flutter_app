@@ -5,6 +5,7 @@ import './profile_screen.dart';
 import './edit_profile_screen.dart';
 import './security_settings_screen.dart';
 import './address_management_screen.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 /// A utility class that provides a central way to manage user profile
 /// functionality across the application.
@@ -46,19 +47,19 @@ class ProfileManager {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        title: Text(AppLocalizations.of(context)!.logout),
+        content: Text(AppLocalizations.of(context)!.areYouSureYouWantToAltAltAlt),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('CANCEL'),
+            child: Text(AppLocalizations.of(context)!.cancelAlt),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
               Provider.of<AuthProvider>(context, listen: false).logout();
             },
-            child: const Text('LOGOUT'),
+            child: Text(AppLocalizations.of(context)!.logoutAlt),
           ),
         ],
       ),

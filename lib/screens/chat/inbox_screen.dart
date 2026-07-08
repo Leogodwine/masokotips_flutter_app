@@ -4,6 +4,7 @@ import '../../providers/chat_provider.dart';
 import '../../providers/auth_provider.dart';
 import 'chat_screen.dart';
 import 'package:intl/intl.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class InboxScreen extends StatefulWidget {
   const InboxScreen({super.key});
@@ -27,7 +28,7 @@ class _InboxScreenState extends State<InboxScreen> {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Messages'),
+        title: Text(AppLocalizations.of(context)!.messages),
         elevation: 0,
       ),
       body: Consumer<ChatProvider>(
@@ -46,7 +47,7 @@ class _InboxScreenState extends State<InboxScreen> {
                   Text(chatProvider.error!, textAlign: TextAlign.center),
                   ElevatedButton(
                     onPressed: () => chatProvider.fetchConversations(),
-                    child: const Text('Retry'),
+                    child: Text(AppLocalizations.of(context)!.retry),
                   ),
                 ],
               ),

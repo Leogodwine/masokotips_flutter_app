@@ -4,6 +4,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import '../../models/subscription.dart';
 import '../../services/card_payment_service.dart';
 import '../../utils/logger.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class CardPaymentScreen extends StatefulWidget {
   final Subscription subscription;
@@ -170,7 +171,7 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
                 Navigator.of(context).pop(); // close dialog
                 Navigator.of(context).pop(true); // return success
               },
-              child: const Text('Continue'),
+              child: Text(AppLocalizations.of(context)!.continueText),
             ),
           ),
         ],
@@ -195,7 +196,7 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Card Payment'),
+        title: Text(AppLocalizations.of(context)!.cardPayment),
         backgroundColor: theme.primaryColor,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -287,7 +288,7 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
                 child: ElevatedButton.icon(
                   onPressed: _startCheckout,
                   icon: const Icon(Icons.refresh),
-                  label: const Text('Try Again'),
+                  label: Text(AppLocalizations.of(context)!.tryAgain),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: theme.primaryColor,
                     foregroundColor: Colors.white,
@@ -306,14 +307,14 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12))),
-                  child: const Text('Go Back'),
+                  child: Text(AppLocalizations.of(context)!.goBack),
                 ),
               ),
               const SizedBox(height: 12),
               // Manual check — in case payment went through but we missed it
               TextButton(
                 onPressed: () => _verifyAndComplete(),
-                child: const Text('Check Again'),
+                child: Text(AppLocalizations.of(context)!.checkAgain),
               ),
             ],
           ),
@@ -399,16 +400,16 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Cancel Payment?'),
-        content: const Text('Go back without completing payment?'),
+        title: Text(AppLocalizations.of(context)!.cancelPaymentAlt),
+        content: Text(AppLocalizations.of(context)!.goBackWithoutCompletingPayment),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Stay')),
+              child: Text(AppLocalizations.of(context)!.stay)),
           TextButton(
               style: TextButton.styleFrom(foregroundColor: Colors.red),
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Cancel')),
+              child: Text(AppLocalizations.of(context)!.cancel)),
         ],
       ),
     );

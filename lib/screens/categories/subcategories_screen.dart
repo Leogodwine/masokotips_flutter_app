@@ -79,16 +79,15 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
     // Map common category names to localized versions
     switch (categoryName.toLowerCase()) {
       case 'products':
-        return 'Bidhaa'; // Kiswahili for Products
+        return AppLocalizations.of(context)?.productsMenu ?? 'Bidhaa';
       case 'services':
-        return AppLocalizations.of(context)?.services ??
-            'Huduma'; // Kiswahili for Services
+        return AppLocalizations.of(context)?.services ?? 'Huduma';
       case 'transport':
-        return 'Usafiri'; // Kiswahili for Transport
+        return AppLocalizations.of(context)?.transportMenu ?? 'Usafiri';
       case 'organic products':
-        return 'Bidhaa za Oganiki'; // Kiswahili for Organic Products
+        return AppLocalizations.of(context)?.organicProducts ?? 'Bidhaa Asilia';
       case 'agricultural services':
-        return 'Huduma za Kilimo'; // Kiswahili for Agricultural Services
+        return AppLocalizations.of(context)?.agriculturalServices ?? 'Huduma za Kilimo';
       default:
         return categoryName;
     }
@@ -381,7 +380,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
                     onPressed: () {
                       categoryProvider.loadSubcategories(widget.category.id);
                     },
-                    child: const Text('Retry'),
+                    child: Text(AppLocalizations.of(context)!.retry),
                   ),
                 ],
               ),
@@ -437,7 +436,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
                           );
                         },
                         icon: const Icon(Icons.info_outline),
-                        label: const Text('Go to Market Information'),
+                        label: Text(AppLocalizations.of(context)!.goToMarketInformation),
                       ),
                     ] else ...[
                       // Default retry button for other categories
@@ -448,7 +447,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
                           categoryProvider
                               .loadSubcategories(widget.category.id);
                         },
-                        child: const Text('Retry'),
+                        child: Text(AppLocalizations.of(context)!.retry),
                       ),
                     ],
                   ],

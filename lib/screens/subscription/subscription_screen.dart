@@ -22,6 +22,7 @@ import '../../providers/auth_provider.dart';
 // WIDGET COMPONENTS
 import 'widgets/header_section.dart';
 import 'widgets/subscribe_bottom_bar.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class SubscriptionScreen extends StatefulWidget {
   final String? preSelectedType;
@@ -112,7 +113,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   Future<void> _subscribe() async {
     if (selectedPackage == null || selectedPlan == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a plan')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseSelectAPlan)),
       );
       return;
     }
@@ -353,7 +354,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Subscription')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.subscription)),
       body: isLoading
           ? const Center(child: LoadingIndicator())
           : _errorMessage != null

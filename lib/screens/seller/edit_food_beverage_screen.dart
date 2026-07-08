@@ -8,6 +8,7 @@ import '../../services/api_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../config/api_config.dart';
 import '../../utils/logger.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class EditFoodBeverageScreen extends StatefulWidget {
   final FoodBeverage product;
@@ -169,7 +170,7 @@ class _EditFoodBeverageScreenState extends State<EditFoodBeverageScreen> {
       if (isSuccess) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Item updated successfully!'), backgroundColor: Colors.green),
+            SnackBar(content: Text(AppLocalizations.of(context)!.itemUpdatedSuccessfully), backgroundColor: Colors.green),
           );
           Navigator.pop(context, true);
         }
@@ -193,7 +194,7 @@ class _EditFoodBeverageScreenState extends State<EditFoodBeverageScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Food & Beverage'),
+        title: Text(AppLocalizations.of(context)!.editFoodBeverage),
         backgroundColor: Colors.orange,
         foregroundColor: Colors.white,
         actions: [
@@ -376,7 +377,7 @@ class _EditFoodBeverageScreenState extends State<EditFoodBeverageScreen> {
                               const SizedBox(width: 8),
                               const Text('Item Images', style: TextStyle(fontWeight: FontWeight.bold)),
                               const Spacer(),
-                              TextButton.icon(onPressed: _pickImages, icon: const Icon(Icons.add_photo_alternate), label: const Text('Add Images')),
+                              TextButton.icon(onPressed: _pickImages, icon: const Icon(Icons.add_photo_alternate), label: Text(AppLocalizations.of(context)!.addImages)),
                             ],
                           ),
                           if (_selectedImages.isNotEmpty) ...[
@@ -402,13 +403,13 @@ class _EditFoodBeverageScreenState extends State<EditFoodBeverageScreen> {
                       child: Column(
                         children: [
                           SwitchListTile(
-                            title: const Text('Active'),
+                            title: Text(AppLocalizations.of(context)!.active),
                             value: _isActive,
                             activeThumbColor: Colors.orange,
                             onChanged: (value) => setState(() => _isActive = value),
                           ),
                           SwitchListTile(
-                            title: const Text('Featured'),
+                            title: Text(AppLocalizations.of(context)!.featured),
                             value: _isFeatured,
                             activeThumbColor: Colors.orange,
                             onChanged: (value) => setState(() => _isFeatured = value),
@@ -434,11 +435,11 @@ class _EditFoodBeverageScreenState extends State<EditFoodBeverageScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Item'),
+        title: Text(AppLocalizations.of(context)!.deleteItem),
         content: Text('Are you sure you want to delete "${widget.product.name}"?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          TextButton(onPressed: () { Navigator.pop(context); _deleteProduct(); }, style: TextButton.styleFrom(foregroundColor: Colors.red), child: const Text('Delete')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context)!.cancel)),
+          TextButton(onPressed: () { Navigator.pop(context); _deleteProduct(); }, style: TextButton.styleFrom(foregroundColor: Colors.red), child: Text(AppLocalizations.of(context)!.delete)),
         ],
       ),
     );
@@ -449,7 +450,7 @@ class _EditFoodBeverageScreenState extends State<EditFoodBeverageScreen> {
     try {
       await _apiService!.deleteFoodBeverage(widget.product.id);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Deleted successfully'), backgroundColor: Colors.green));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.deletedSuccessfully), backgroundColor: Colors.green));
         Navigator.pop(context, true);
       }
     } catch (e) {

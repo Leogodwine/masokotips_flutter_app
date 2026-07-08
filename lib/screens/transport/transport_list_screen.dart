@@ -5,6 +5,7 @@ import 'package:masoko_tips/models/transport.dart';
 import 'package:masoko_tips/providers/transport_provider.dart';
 import 'package:masoko_tips/screens/transport/transport_details_screen.dart';
 import 'package:masoko_tips/screens/transport/transport_map_screen.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 class TransportListScreen extends StatefulWidget {
   final String category;
   final int? categoryId;
@@ -427,7 +428,7 @@ class _TransportListScreenState extends State<TransportListScreen> {
                       locationFilter.isNotEmpty ? locationFilter : null);
                   _toggleFilters(); // Close the filter panel after applying
                 },
-                child: const Text('Apply Filters'),
+                child: Text(AppLocalizations.of(context)!.applyFilters),
               ),
             ),
           ],
@@ -519,7 +520,7 @@ class _TransportListScreenState extends State<TransportListScreen> {
                               ElevatedButton.icon(
                                 onPressed: _loadTransports,
                                 icon: const Icon(Icons.refresh, size: 18),
-                                label: const Text('Refresh'),
+                                label: Text(AppLocalizations.of(context)!.refresh),
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 24, vertical: 12),

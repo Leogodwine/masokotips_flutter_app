@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/admin_provider.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class CreateAdminScreen extends StatefulWidget {
   const CreateAdminScreen({Key? key}) : super(key: key);
@@ -42,8 +43,8 @@ class CreateAdminScreenState extends State<CreateAdminScreen> {
         Navigator.pushReplacementNamed(context, '/admin/dashboard');
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to create admin account'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.failedToCreateAdminAccount),
             backgroundColor: Colors.red,
           ),
         );
@@ -59,7 +60,7 @@ class CreateAdminScreenState extends State<CreateAdminScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Admin Account'),
+        title: Text(AppLocalizations.of(context)!.createAdminAccount),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -140,7 +141,7 @@ class CreateAdminScreenState extends State<CreateAdminScreen> {
                 onPressed: _isLoading ? null : _createAdmin,
                 child: _isLoading
                     ? const CircularProgressIndicator()
-                    : const Text('Create Admin Account'),
+                    : Text(AppLocalizations.of(context)!.createAdminAccount),
               ),
             ],
           ),

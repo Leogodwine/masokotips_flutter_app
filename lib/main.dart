@@ -168,8 +168,6 @@ class _MyAppState extends State<MyApp> {
       child: Consumer<LocaleProvider>(
         builder: (context, localeProvider, child) {
           return MaterialApp(
-            key: ValueKey(
-                'app_${localeProvider.locale.languageCode}'), // Force rebuild when locale changes
             title: 'maSOKOtips',
             debugShowCheckedModeBanner: false,
             theme: ThemeConfig.getThemeData(),

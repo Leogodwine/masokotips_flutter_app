@@ -4,7 +4,10 @@ import '../../providers/auth_provider.dart';
 import '../../widgets/loading_button.dart';
 import '../../widgets/api_error_widget.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter/foundation.dart';
+import '../../utils/image_upload_helper.dart';
 import 'dart:io';
+import '../../l10n/app_localizations.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -34,7 +37,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // Proof of address fields
   String _selectedProofType = '';
   File? _proofOfAddressFile;
-  final ImagePicker _imagePicker = ImagePicker();
 
   @override
   void dispose() {
@@ -52,6 +54,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _register() async {
     if (_formKey.currentState!.validate()) {
+      final localizations = AppLocalizations.of(context)!;
       setState(() {
         _isLoading = true;
         _errorMessage = null;
@@ -87,8 +90,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         if (mounted) {
           // Registration & login were successful - redirect to profile screen
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Registration successful! Welcome to maSOKOtips.'),
+            SnackBar(
+              content: Text(localizations.registrationSuccessful),
               backgroundColor: Colors.green,
             ),
           );
@@ -101,15 +104,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
         // Check if it contains the "role" error message specifically
         if (errorMsg.contains('role') && errorMsg.contains('required')) {
-          errorMsg = 'Please select a role to register.';
+          errorMsg = localizations.selectRoleError;
         } else if (errorMsg.contains('email') && errorMsg.contains('taken')) {
-          errorMsg =
-              'This email is already registered. Please try another email or login.';
+          errorMsg = localizations.emailTaken;
         } else {
           // Generic error fallback
           errorMsg = e.toString().contains('Exception:')
               ? e.toString().split('Exception:')[1].trim()
-              : 'Registration failed. Please try again.';
+              : localizations.registrationFailed;
         }
 
         setState(() {
@@ -126,11 +128,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _pickProofOfAddress() async {
-    final XFile? pickedFile = await _imagePicker.pickImage(
+    final XFile? pickedFile = await ImageUploadHelper.pickAndCropImage(
+      context,
       source: ImageSource.gallery,
-      maxWidth: 2048,
-      maxHeight: 2048,
-      imageQuality: 85,
     );
 
     if (pickedFile != null) {
@@ -141,11 +141,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _takeProofOfAddressPhoto() async {
-    final XFile? pickedFile = await _imagePicker.pickImage(
+    final XFile? pickedFile = await ImageUploadHelper.pickAndCropImage(
+      context,
       source: ImageSource.camera,
-      maxWidth: 2048,
-      maxHeight: 2048,
-      imageQuality: 85,
     );
 
     if (pickedFile != null) {
@@ -168,7 +166,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Account'),
+        title: Text(AppLocalizations.of(context)!.createAccount),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
         centerTitle: true,
@@ -192,7 +190,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 children: [
                   // Header
                   Text(
-                    'Join maSOKOtips',
+                    AppLocalizations.of(context)!.joinMasokotips,
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -202,7 +200,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 8),
 
                   Text(
-                    'Create an account to get started',
+                    AppLocalizations.of(context)!.createAccountToGetStarted,
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: Colors.grey[600],
                     ),
@@ -222,8 +220,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _nameController,
                     textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
-                      labelText: 'Full Name',
-                      hintText: 'Enter your full name',
+                      labelText: AppLocalizations.of(context)!.fullName,
+                      hintText: AppLocalizations.of(context)!.enterFullName,
                       prefixIcon: const Icon(Icons.person_outline),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -231,7 +229,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your name';
+                        return AppLocalizations.of(context)!.pleaseEnterName;
                       }
                       return null;
                     },
@@ -244,8 +242,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _usernameController,
                     textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
-                      labelText: 'Username',
-                      hintText: 'Enter your username',
+                      labelText: AppLocalizations.of(context)!.username,
+                      hintText: AppLocalizations.of(context)!.enterUsername,
                       prefixIcon: const Icon(Icons.person_outline),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -253,13 +251,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your username';
+                        return AppLocalizations.of(context)!.pleaseEnterUsername;
                       }
                       if (value.length < 3) {
-                        return 'Username must be at least 3 characters';
+                        return AppLocalizations.of(context)!.usernameTooShort;
                       }
                       if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(value)) {
-                        return 'Username can only contain letters, numbers, and underscores';
+                        return AppLocalizations.of(context)!.usernameInvalid;
                       }
                       return null;
                     },
@@ -273,8 +271,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
-                      labelText: 'Email',
-                      hintText: 'Enter your email',
+                      labelText: AppLocalizations.of(context)!.email,
+                      hintText: AppLocalizations.of(context)!.enterEmail,
                       prefixIcon: const Icon(Icons.email_outlined),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -282,11 +280,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
+                        return AppLocalizations.of(context)!.pleaseEnterEmail;
                       }
                       if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
                           .hasMatch(value)) {
-                        return 'Please enter a valid email address';
+                        return AppLocalizations.of(context)!.invalidEmail;
                       }
                       return null;
                     },
@@ -300,8 +298,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     keyboardType: TextInputType.phone,
                     textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
-                      labelText: 'Phone Number',
-                      hintText: 'Enter your phone number',
+                      labelText: AppLocalizations.of(context)!.phoneNumber,
+                      hintText: AppLocalizations.of(context)!.enterPhoneNumber,
                       prefixIcon: const Icon(Icons.phone_outlined),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -309,7 +307,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your phone number';
+                        return AppLocalizations.of(context)!.pleaseEnterPhoneNumber;
                       }
                       return null;
                     },
@@ -322,8 +320,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _locationController,
                     textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
-                      labelText: 'Location',
-                      hintText: 'Enter your city/region',
+                      labelText: AppLocalizations.of(context)!.location,
+                      hintText: AppLocalizations.of(context)!.enterLocation,
                       prefixIcon: const Icon(Icons.location_city_outlined),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -331,7 +329,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your location';
+                        return AppLocalizations.of(context)!.pleaseEnterLocation;
                       }
                       return null;
                     },
@@ -344,8 +342,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _countryController,
                     textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
-                      labelText: 'Country',
-                      hintText: 'Enter your country',
+                      labelText: AppLocalizations.of(context)!.country,
+                      hintText: AppLocalizations.of(context)!.enterCountry,
                       prefixIcon: const Icon(Icons.public_outlined),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -353,7 +351,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your country';
+                        return AppLocalizations.of(context)!.pleaseEnterCountry;
                       }
                       return null;
                     },
@@ -367,9 +365,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     textInputAction: TextInputAction.next,
                     textCapitalization: TextCapitalization.characters,
                     decoration: InputDecoration(
-                      labelText: 'Agent / Referral Code (Optional)',
-                      hintText: 'e.g. MSK-AB12 — ask your agent',
-                      helperText: 'If an agent helped you sign up, enter their code here',
+                      labelText: AppLocalizations.of(context)!.agentCodeOptional,
+                      hintText: AppLocalizations.of(context)!.agentCodeHint,
+                      helperText: AppLocalizations.of(context)!.agentCodeHelper,
                       helperMaxLines: 2,
                       prefixIcon: const Icon(Icons.group_add_outlined),
                       border: OutlineInputBorder(
@@ -390,8 +388,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     obscureText: _obscurePassword,
                     textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
-                      labelText: 'Password',
-                      hintText: 'Enter your password',
+                      labelText: AppLocalizations.of(context)!.password,
+                      hintText: AppLocalizations.of(context)!.enterPassword,
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
                         icon: Icon(
@@ -412,10 +410,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter a password';
+                        return AppLocalizations.of(context)!.pleaseEnterPassword;
                       }
                       if (value.length < 8) {
-                        return 'Password must be at least 8 characters';
+                        return AppLocalizations.of(context)!.passwordTooShort;
                       }
                       return null;
                     },
@@ -429,8 +427,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     obscureText: _obscureConfirmPassword,
                     textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
-                      labelText: 'Confirm Password',
-                      hintText: 'Confirm your password',
+                      labelText: AppLocalizations.of(context)!.confirmPassword,
+                      hintText: AppLocalizations.of(context)!.confirmYourPassword,
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
                         icon: Icon(
@@ -451,10 +449,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please confirm your password';
+                        return AppLocalizations.of(context)!.pleaseConfirmPassword;
                       }
                       if (value != _passwordController.text) {
-                        return 'Passwords do not match';
+                        return AppLocalizations.of(context)!.passwordsDoNotMatch;
                       }
                       return null;
                     },
@@ -469,13 +467,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Padding(
                         padding: const EdgeInsets.only(left: 8),
                         child: Text(
-                          'Register as...',
+                          AppLocalizations.of(context)!.registerAs,
                           style: theme.textTheme.titleMedium,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Row(
-                        children: _roleOptions.map((role) {
+                        children: _getRoleOptions(context).map((role) {
                           return Expanded(
                             child: GestureDetector(
                               onTap: () {
@@ -554,7 +552,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                'Proof of Identity',
+                                AppLocalizations.of(context)!.proofOfIdentity,
                                 style: theme.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -568,7 +566,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
-                                  'Optional',
+                                  AppLocalizations.of(context)!.optionalText,
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: Colors.grey[600],
                                   ),
@@ -591,9 +589,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
-                                    'Upload a clear photo of your NIDA, Driving License, or Voter Card. '
-                                    'Your document will be reviewed by our team for account verification. '
-                                    'Blurry or incorrect images will delay approval.',
+                                    AppLocalizations.of(context)!.uploadDocumentHint,
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       color: Colors.blue.shade800,
                                     ),
@@ -609,25 +605,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             initialValue: _selectedProofType.isEmpty
                                 ? null
                                 : _selectedProofType,
-                            hint: const Text('Select document type'),
+                            hint: Text(AppLocalizations.of(context)!.selectDocumentType),
                             decoration: InputDecoration(
                               prefixIcon: const Icon(Icons.document_scanner),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            items: const [
+                            items: [
                               DropdownMenuItem(
                                 value: 'nida',
-                                child: Text('NIDA Card'),
+                                child: Text(AppLocalizations.of(context)!.nidaCard),
                               ),
                               DropdownMenuItem(
                                 value: 'driving_license',
-                                child: Text('Driving License'),
+                                child: Text(AppLocalizations.of(context)!.drivingLicense),
                               ),
                               DropdownMenuItem(
                                 value: 'voter_card',
-                                child: Text('Voter Card'),
+                                child: Text(AppLocalizations.of(context)!.voterCard),
                               ),
                             ],
                             onChanged: (value) {
@@ -652,12 +648,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     borderRadius: const BorderRadius.vertical(
                                       top: Radius.circular(12),
                                     ),
-                                    child: Image.file(
-                                      _proofOfAddressFile!,
-                                      height: 200,
-                                      width: double.infinity,
-                                      fit: BoxFit.cover,
-                                    ),
+                                    child: kIsWeb
+                                        ? Image.network(
+                                            _proofOfAddressFile!.path,
+                                            height: 200,
+                                            width: double.infinity,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : Image.file(
+                                            _proofOfAddressFile!,
+                                            height: 200,
+                                            width: double.infinity,
+                                            fit: BoxFit.cover,
+                                          ),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.all(8),
@@ -718,7 +721,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           ),
                                           const SizedBox(height: 6),
                                           Text(
-                                            'Gallery',
+                                            AppLocalizations.of(context)!.gallery,
                                             style: TextStyle(
                                               color: theme.colorScheme.primary,
                                               fontWeight: FontWeight.w600,
@@ -755,7 +758,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           ),
                                           const SizedBox(height: 6),
                                           Text(
-                                            'Camera',
+                                            AppLocalizations.of(context)!.camera,
                                             style: TextStyle(
                                               color: Colors.teal.shade600,
                                               fontWeight: FontWeight.w600,
@@ -771,7 +774,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           if (_proofOfAddressFile == null) ...[
                             const SizedBox(height: 8),
                             Text(
-                              'Tip: Place your ID on a flat surface with good lighting before taking a photo.',
+                              AppLocalizations.of(context)!.uploadTip,
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: Colors.grey[600],
                                 fontStyle: FontStyle.italic,
@@ -788,7 +791,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   // Register Button
                   LoadingButton(
                     isLoading: _isLoading,
-                    text: 'CREATE ACCOUNT',
+                    text: AppLocalizations.of(context)!.createAccountCaps,
                     onPressed: _register,
                   ),
 
@@ -802,19 +805,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  // Role options for selection
-  final List<Map<String, dynamic>> _roleOptions = [
-    {'value': 'buyer', 'label': 'Buyer', 'icon': Icons.shopping_cart},
-    {'value': 'seller', 'label': 'Seller', 'icon': Icons.store},
-    {
-      'value': 'transporter',
-      'label': 'Transporter',
-      'icon': Icons.local_shipping
-    },
-    {
-      'value': 'service_provider',
-      'label': 'Service Provider',
-      'icon': Icons.handyman
-    },
-  ];
+  List<Map<String, dynamic>> _getRoleOptions(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+    return [
+      {'value': 'buyer', 'label': localizations.roleBuyer, 'icon': Icons.shopping_cart},
+      {'value': 'seller', 'label': localizations.roleSeller, 'icon': Icons.store},
+      {
+        'value': 'transporter',
+        'label': localizations.roleTransporter,
+        'icon': Icons.local_shipping
+      },
+      {
+        'value': 'service_provider',
+        'label': localizations.roleServiceProvider,
+        'icon': Icons.handyman
+      },
+    ];
+  }
 }

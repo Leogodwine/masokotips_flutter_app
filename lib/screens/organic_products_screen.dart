@@ -8,6 +8,7 @@ import '../widgets/loading_indicator.dart';
 import '../widgets/error_view.dart';
 import '../widgets/empty_state_view.dart';
 import '../widgets/cached_network_image_with_cors.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class OrganicProductsScreen extends StatefulWidget {
   const OrganicProductsScreen({Key? key}) : super(key: key);
@@ -86,7 +87,7 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
           });
         },
         icon: const Icon(Icons.add),
-        label: const Text('Add Product'),
+        label: Text(AppLocalizations.of(context)!.addProduct),
         backgroundColor: theme.primaryColor,
         foregroundColor: theme.colorScheme.onPrimary,
         elevation: 4,
@@ -376,20 +377,20 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Product'),
+        title: Text(AppLocalizations.of(context)!.deleteProduct),
         content: Text(
             'Are you sure you want to delete "${product.name}"? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
-            child: const Text('Delete'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -400,8 +401,8 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
         await provider.deleteProduct(product.id);
         if (mounted) {
           scaffoldMessenger.showSnackBar(
-            const SnackBar(
-              content: Text('Product deleted successfully'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.productDeletedSuccessfully),
               backgroundColor: Colors.green,
             ),
           );

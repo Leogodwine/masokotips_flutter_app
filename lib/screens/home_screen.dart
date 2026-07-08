@@ -50,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
-              child: const Text('Sign Up'),
+              child: Text(AppLocalizations.of(context)!.signUp),
             ),
           ),
           const SizedBox(width: 8),
@@ -66,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
-              child: const Text('Login'),
+              child: Text(AppLocalizations.of(context)!.login),
             ),
           ),
         ] else ...[
@@ -82,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
-              child: const Text('Subscribe Now'),
+              child: Text(AppLocalizations.of(context)!.subscribeNow),
             ),
           ),
         ],
@@ -137,14 +137,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
-                      title: const Text('Start Your Journey'),
+                      title: Text(AppLocalizations.of(context)!.startYourJourney),
                       content: const Text(
                         'Sign up to access premium features, exclusive content, and personalized recommendations.',
                       ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context),
-                          child: const Text('Browse First'),
+                          child: Text(AppLocalizations.of(context)!.browseFirst),
                         ),
                         ElevatedButton(
                           onPressed: () {
@@ -154,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.orange,
                           ),
-                          child: const Text('Sign Up Now'),
+                          child: Text(AppLocalizations.of(context)!.signUpNow),
                         ),
                       ],
                     ),
@@ -162,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
                 backgroundColor: Colors.orange,
                 icon: const Icon(Icons.star),
-                label: const Text('Get Started'),
+                label: Text(AppLocalizations.of(context)!.getStarted),
               ),
             ),
         ],

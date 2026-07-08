@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/address.dart';
 import '../../widgets/loading_button.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class AddressManagementScreen extends StatefulWidget {
   const AddressManagementScreen({Key? key}) : super(key: key);
@@ -75,12 +76,12 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete Address'),
-        content: const Text('Are you sure you want to delete this address?'),
+        title: Text(AppLocalizations.of(context)!.deleteAddress),
+        content: Text(AppLocalizations.of(context)!.areYouSureYouWantToAltAltAltAlt),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('CANCEL'),
+            child: Text(AppLocalizations.of(context)!.cancelAlt),
           ),
           TextButton(
             onPressed: () {
@@ -89,10 +90,10 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
               });
               Navigator.of(dialogContext).pop();
               scaffoldMessenger.showSnackBar(
-                const SnackBar(content: Text('Address deleted')),
+                SnackBar(content: Text(AppLocalizations.of(context)!.addressDeleted)),
               );
             },
-            child: const Text('DELETE'),
+            child: Text(AppLocalizations.of(context)!.deleteAlt),
           ),
         ],
       ),
@@ -106,7 +107,7 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
       }
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Default address updated')),
+      SnackBar(content: Text(AppLocalizations.of(context)!.defaultAddressUpdated)),
     );
   }
 
@@ -152,7 +153,7 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Addresses'),
+        title: Text(AppLocalizations.of(context)!.manageAddresses),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -184,7 +185,7 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
                       const SizedBox(height: 24),
                       ElevatedButton(
                         onPressed: _addNewAddress,
-                        child: const Text('Add New Address'),
+                        child: Text(AppLocalizations.of(context)!.addNewAddress),
                       ),
                     ],
                   ),
@@ -241,18 +242,18 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
                                 ),
                                 PopupMenuButton(
                                   itemBuilder: (context) => [
-                                    const PopupMenuItem(
+                                    PopupMenuItem(
                                       value: 'edit',
-                                      child: Text('Edit'),
+                                      child: Text(AppLocalizations.of(context)!.edit),
                                     ),
                                     if (!address.isDefault)
-                                      const PopupMenuItem(
+                                      PopupMenuItem(
                                         value: 'default',
-                                        child: Text('Set as Default'),
+                                        child: Text(AppLocalizations.of(context)!.setAsDefault),
                                       ),
-                                    const PopupMenuItem(
+                                    PopupMenuItem(
                                       value: 'delete',
-                                      child: Text('Delete'),
+                                      child: Text(AppLocalizations.of(context)!.delete),
                                     ),
                                   ],
                                   onSelected: (value) {
@@ -288,13 +289,13 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
                                   TextButton.icon(
                                     icon:
                                         const Icon(Icons.check_circle_outline),
-                                    label: const Text('Set as Default'),
+                                    label: Text(AppLocalizations.of(context)!.setAsDefault),
                                     onPressed: () =>
                                         _setDefaultAddress(address.id),
                                   ),
                                 TextButton.icon(
                                   icon: const Icon(Icons.edit),
-                                  label: const Text('Edit'),
+                                  label: Text(AppLocalizations.of(context)!.edit),
                                   onPressed: () => _editAddress(address),
                                 ),
                                 TextButton.icon(
@@ -548,9 +549,8 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                 const SizedBox(height: 24),
                 // Set as default switch
                 SwitchListTile(
-                  title: const Text('Set as default address'),
-                  subtitle: const Text(
-                      'This address will be selected by default during checkout'),
+                  title: Text(AppLocalizations.of(context)!.setAsDefaultAddress),
+                  subtitle: Text(AppLocalizations.of(context)!.thisAddressWillBeSelectedBy),
                   value: _isDefault,
                   onChanged: (value) {
                     setState(() {

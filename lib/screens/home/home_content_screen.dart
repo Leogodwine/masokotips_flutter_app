@@ -297,7 +297,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
               child: _sectionHeader(
                 icon: Icons.category,
                 title: localizations.categories,
-                seeAllText: 'View All', // Updated as requested
+                seeAllText: localizations.seeAll,
                 onSeeAll: () {
                   Navigator.push(
                     context,
@@ -897,8 +897,8 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: _sectionHeader(
                 icon: Icons.campaign_outlined,
-                title: 'Market Demands',
-                seeAllText: 'See All',
+                title: localizations.marketDemands,
+                seeAllText: localizations.seeAll,
                 onSeeAll: () {
                   Navigator.push(
                     context,
@@ -1621,6 +1621,28 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
     }
   }
 
+  String _getTranslatedCategoryName(BuildContext context, String originalName) {
+    final localizations = AppLocalizations.of(context);
+    if (localizations == null) return originalName;
+    
+    switch (originalName.toLowerCase().trim()) {
+      case 'products':
+        return localizations.productsTab;
+      case 'organic products':
+        return localizations.organicProducts;
+      case 'agricultural services':
+        return localizations.agriculturalServices;
+      case 'transport':
+        return localizations.transportsTab;
+      case 'food and beverages':
+        return localizations.foodAndBeverages;
+      case 'market information':
+        return localizations.marketInformation;
+      default:
+        return originalName;
+    }
+  }
+
   Widget _buildCategoryCard(Category category) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -1731,7 +1753,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    category.name,
+                    _getTranslatedCategoryName(context, category.name),
                     style: TextStyle(
                       fontSize: constraints.maxWidth > 200 ? 15 : 13,
                       fontWeight: FontWeight.w700,
@@ -1751,7 +1773,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        '$count ${count == 1 ? 'item' : 'items'}',
+                        '$count ${count == 1 ? (AppLocalizations.of(context)?.localeName == 'sw' ? 'kipengee' : 'item') : (AppLocalizations.of(context)?.localeName == 'sw' ? 'vipengee' : 'items')}',
                         style: TextStyle(
                           fontSize: 10,
                           color: theme.primaryColor,

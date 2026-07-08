@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../widgets/loading_button.dart';
 import '../../utils/logger.dart';
 import '../../providers/admin_provider.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class AdminLoginScreen extends StatefulWidget {
   const AdminLoginScreen({super.key});
@@ -50,8 +51,8 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Admin login successful!'),
+              SnackBar(
+                content: Text(AppLocalizations.of(context)!.adminLoginSuccessful),
                 backgroundColor: Colors.green,
               ),
             );
@@ -103,7 +104,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Login'),
+        title: Text(AppLocalizations.of(context)!.adminLogin),
         centerTitle: true,
         elevation: 0,
       ),

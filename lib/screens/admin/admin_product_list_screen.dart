@@ -4,6 +4,7 @@ import '../../providers/admin_provider.dart';
 import '../../models/product.dart';
 import 'admin_product_form_screen.dart';
 import 'package:masoko_tips/widgets/cached_network_image_with_cors.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class AdminProductListScreen extends StatefulWidget {
   const AdminProductListScreen({Key? key}) : super(key: key);
@@ -57,14 +58,14 @@ class _AdminProductListScreenState extends State<AdminProductListScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Delete Product'),
+              title: Text(AppLocalizations.of(context)!.deleteProduct),
               content: Text('Are you sure you want to delete ${product.name}?'),
               actions: [
                 TextButton(
                   onPressed: () {
                     Navigator.of(dialogContext).pop();
                   },
-                  child: const Text('Cancel'),
+                  child: Text(AppLocalizations.of(context)!.cancel),
                 ),
                 TextButton(
                   onPressed: () async {
@@ -78,8 +79,8 @@ class _AdminProductListScreenState extends State<AdminProductListScreen> {
                       if (mounted && dialogContext.mounted) {
                         Navigator.of(dialogContext).pop(); // Close dialog
                         ScaffoldMessenger.of(dialogContext).showSnackBar(
-                          const SnackBar(
-                            content: Text('Product deleted successfully'),
+                          SnackBar(
+                            content: Text(AppLocalizations.of(context)!.productDeletedSuccessfully),
                             backgroundColor: Colors.green,
                           ),
                         );
@@ -113,7 +114,7 @@ class _AdminProductListScreenState extends State<AdminProductListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Products'),
+        title: Text(AppLocalizations.of(context)!.products),
         elevation: 0,
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
@@ -134,7 +135,7 @@ class _AdminProductListScreenState extends State<AdminProductListScreen> {
           ).then((_) => _loadProducts());
         },
         icon: const Icon(Icons.add),
-        label: const Text('Add Product'),
+        label: Text(AppLocalizations.of(context)!.addProduct),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
         elevation: 4,
@@ -175,7 +176,7 @@ class _AdminProductListScreenState extends State<AdminProductListScreen> {
                             ).then((_) => _loadProducts());
                           },
                           icon: const Icon(Icons.add),
-                          label: const Text('Add Product'),
+                          label: Text(AppLocalizations.of(context)!.addProduct),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Theme.of(context).primaryColor,
                             foregroundColor: Colors.white,

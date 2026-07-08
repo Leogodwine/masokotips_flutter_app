@@ -1,1588 +1,1891 @@
 {
-    "@@locale":  "en",
-    "appTitle":  "maSOKOtips",
-    "@appTitle":  {
-                      "description":  "The title of the application"
-                  },
-    "login":  "Login",
-    "@login":  {
-                   "description":  "Title for the login screen"
-               },
-    "welcomeBack":  "Welcome Back",
-    "@welcomeBack":  {
-                         "description":  "Welcome back message on login screen"
-                     },
-    "signInToContinue":  "Sign in to continue",
-    "@signInToContinue":  {
-                              "description":  "Sign in to continue message"
-                          },
-    "username":  "Username",
-    "@username":  {
-                      "description":  "Username field label"
-                  },
-    "enterUsername":  "Enter your username",
-    "@enterUsername":  {
-                           "description":  "Placeholder text for username field"
-                       },
-    "usernameRequired":  "Please enter your username",
-    "@usernameRequired":  {
-                              "description":  "Error message for missing username"
-                          },
-    "usernameMinLength":  "Username must be at least 3 characters",
-    "@usernameMinLength":  {
-                               "description":  "Error message for username too short"
-                           },
-    "password":  "Password",
-    "@password":  {
-                      "description":  "Password field label"
-                  },
-    "enterPassword":  "Enter your password",
-    "@enterPassword":  {
-                           "description":  "Placeholder text for password field"
-                       },
-    "passwordRequired":  "Please enter your password",
-    "@passwordRequired":  {
-                              "description":  "Error message for missing password"
-                          },
-    "forgotPassword":  "Forgot Password?",
-    "@forgotPassword":  {
-                            "description":  "Forgot password link text"
-                        },
-    "signIn":  "SIGN IN",
-    "@signIn":  {
-                    "description":  "Sign in button text"
-                },
-    "noAccount":  "Don\u0027t have an account?",
-    "@noAccount":  {
-                       "description":  "Text asking if user has no account"
-                   },
-    "register":  "REGISTER",
-    "@register":  {
-                      "description":  "Register button text"
-                  },
-    "home":  "Home",
-    "profile":  "Profile",
-    "cart":  "Cart",
-    "orders":  "Orders",
-    "settings":  "Settings",
-    "myProfile":  "My Profile",
-    "guestUser":  "Guest User",
-    "loginRegister":  "Login / Register",
-    "account":  "Account",
-    "personalDetails":  "Personal Details",
-    "requestAccountDeletion":  "Request Account Deletion",
-    "sellerDashboard":  "Seller Dashboard",
-    "serviceProviderDashboard":  "Service Provider Dashboard",
-    "manageAddresses":  "Manage Addresses",
-    "myOrders":  "My Orders",
-    "myFavorites":  "My Favorites",
-    "appSettings":  "App Settings",
-    "notifications":  "Notifications",
-    "language":  "Language",
-    "englishKiswahili":  "English / Kiswahili",
-    "helpSupport":  "Help \u0026 Support",
-    "developerSettings":  "Developer Settings",
-    "about":  "About",
-    "privacyPolicy":  "Privacy Policy",
-    "marketInformation":  "Market Information",
-    "logout":  "Logout",
-    "loginRequired":  "Login Required",
-    "loginRequiredMessage":  "You need to login to access this feature. Would you like to login now?",
-    "later":  "LATER",
-    "loginButton":  "LOGIN",
-    "@loginButton":  {
-                         "description":  "Text for login button"
-                     },
-    "admin":  "Admin",
-    "seller":  "Seller",
-    "serviceProvider":  "Service Provider",
-    "buyer":  "Buyer",
-    "editProfile":  "Edit Profile",
-    "addresses":  "Addresses",
-    "logoutConfirmation":  "Are you sure you want to logout?",
-    "homeTitle":  "Home",
-    "appName":  "maSOKOtips",
-    "appSubtitle":  "Tanzania\u0027s Premier Agricultural Marketplace",
-    "poweredBy":  "Sponsored by: COSTECH",
-    "costech":  "National Institute of Science and Technology (COSTECH)",
-    "serviceProviderUnavailable":  "Service provider dashboard is currently unavailable",
-    "notificationsComingSoon":  "Notifications settings coming soon",
-    "helpSupportComingSoon":  "Help \u0026 Support coming soon",
-    "noEmailApp":  "No email app found to send request",
-    "couldNotOpenLink":  "Could not open link",
-    "loggedOutSuccessfully":  "Logged out successfully",
-    "logoutFailed":  "Logout failed",
-    "masokoTips":  "Masoko Tips",
-    "copyright":  "Â© 2023 Masoko Tips - All rights reserved",
-    "aboutDescription":  "Masoko Tips is a platform connecting buyers and sellers of agricultural products. Our mission is to promote sustainable farming and fair trade practices.",
-    "aboutContact":  "For more information, contact us at support@masokotips.com",
-    "pleaseLoginToEditProfile":  "Please login to edit your profile",
-    "errorPickingImage":  "Error picking image",
-    "photoLibrary":  "Photo Library",
-    "camera":  "Camera",
-    "removePhoto":  "Remove Photo",
-    "profileUpdatedSuccessfully":  "Profile updated successfully",
-    "failedToUpdateProfile":  "Failed to update profile",
-    "emailAlreadyRegistered":  "This email is already registered. Please use a different email address.",
-    "fullName":  "Full Name",
-    "phoneNumber":  "Phone Number",
-    "bio":  "Bio",
-    "tellUsAboutYourself":  "Tell us about yourself",
-    "saveChanges":  "SAVE CHANGES",
-    "failedToLoadAddresses":  "Failed to load addresses",
-    "deleteAddress":  "Delete Address",
-    "confirmDeleteAddress":  "Are you sure you want to delete this address?",
-    "cancel":  "CANCEL",
-    "delete":  "Delete",
-    "addressDeleted":  "Address deleted",
-    "defaultAddressUpdated":  "Default address updated",
-    "noAddressesFound":  "No addresses found",
-    "addNewAddress":  "Add New Address",
-    "edit":  "Edit",
-    "setAsDefault":  "Set as Default",
-    "addAddress":  "Add Address",
-    "editAddress":  "Edit Address",
-    "addressName":  "Address Name",
-    "addressNameHint":  "Home, Work, etc.",
-    "streetAddress":  "Street Address",
-    "streetAddressHint":  "123 Main St",
-    "city":  "City",
-    "stateProvince":  "State/Province",
-    "zipPostalCode":  "ZIP/Postal Code",
-    "country":  "Country",
-    "setAsDefaultAddress":  "Set as default address",
-    "defaultAddressDescription":  "This address will be selected by default during checkout",
-    "saveAddress":  "SAVE ADDRESS",
-    "enterAddressName":  "Please enter an address name",
-    "enterStreetAddress":  "Please enter a street address",
-    "enterCity":  "Please enter a city",
-    "enterState":  "Please enter a state",
-    "enterZipCode":  "Please enter a ZIP code",
-    "enterCountry":  "Please enter a country",
-    "description":  "Description",
-    "addToCart":  "Add to Cart",
-    "relatedProducts":  "Related Products",
-    "noRelatedProducts":  "No related products available",
-    "addedToCart":  "{productName} added to cart",
-    "failedToAddToCart":  "Failed to add to cart: {error}",
-    "noProductsInCategory":  "No products available in this category",
-    "checkBackLater":  "Please check back later",
-    "errorLoadingProducts":  "Unable to load products. Please check your connection and try again.",
-    "retry":  "RETRY",
-    "inStock":  "{stock} in stock",
-    "organicProducts":  "Organic Products",
-    "sortAndFilter":  "Sort \u0026 Filter",
-    "sortBy":  "Sort By",
-    "nameAZ":  "Name (A-Z)",
-    "nameZA":  "Name (Z-A)",
-    "priceLowHigh":  "Price (Low-High)",
-    "priceHighLow":  "Price (High-Low)",
-    "showInStockOnly":  "Show In Stock Only",
-    "close":  "Close",
-    "searchOrganicProducts":  "Search organic products...",
-    "errorLoadingOrganicProducts":  "Error loading organic products: {error}",
-    "noOrganicProductsFound":  "No organic products found",
-    "deleteProduct":  "Delete Product",
-    "confirmDeleteProduct":  "Are you sure you want to delete {productName}?",
-    "productDeletedSuccessfully":  "{productName} deleted successfully",
-    "errorDeletingProduct":  "Error deleting product: {error}",
-    "shoppingCart":  "Shopping Cart",
-    "clearCart":  "Clear Cart",
-    "confirmClearCart":  "Are you sure you want to clear your cart?",
-    "pleaseLoginToViewCart":  "Please login to view your cart",
-    "yourCartIsEmpty":  "Your cart is empty",
-    "continueShopping":  "Continue Shopping",
-    "itemRemovedFromCart":  "Item removed from cart",
-    "removeItem":  "Remove Item",
-    "confirmRemoveItem":  "Are you sure you want to remove this item from your cart?",
-    "total":  "Total:",
-    "proceedToCheckout":  "Proceed to Checkout",
-    "checkout":  "Checkout",
-    "pleaseLoginToPlaceOrder":  "Please log in to place an order",
-    "failedToPlaceOrder":  "Failed to place order: {error}",
-    "orderSummary":  "Order Summary",
-    "deliveryInformation":  "Delivery Information",
-    "deliveryMethod":  "Delivery Method",
-    "standardDelivery":  "Standard Delivery",
-    "standardDeliveryTime":  "3-5 business days",
-    "expressDelivery":  "Express Delivery",
-    "expressDeliveryTime":  "1-2 business days",
-    "deliveryAddress":  "Delivery Address",
-    "pleaseSelectDeliveryAddress":  "Please select delivery address",
-    "phoneNumberHint":  "+255 123 456 789",
-    "phoneNumberRequired":  "Phone number is required",
-    "paymentMethod":  "Payment Method",
-    "cashOnDelivery":  "Cash on Delivery",
-    "cashOnDeliveryDescription":  "Pay when you receive your order",
-    "creditDebitCard":  "Credit/Debit Card",
-    "creditDebitCardDescription":  "Secure online payment",
-    "orderNotesOptional":  "Order Notes (Optional)",
-    "orderNotesHint":  "Any special instructions for your order...",
-    "placeOrder":  "PLACE ORDER - TZS {total}",
-    "selectAddress":  "Select Address",
-    "sellerDashboardTitle":  "Seller Dashboard",
-    "productsTab":  "Products",
-    "ordersTab":  "Orders",
-    "transportsTab":  "Transports",
-    "organicTab":  "Organic",
-    "servicesTab":  "Services",
-    "addProduct":  "Add Product",
-    "noProductsFound":  "No products found",
-    "filterByCategory":  "Filter by Category",
-    "outOfStock":  "Out of stock",
-    "failedToDeleteProduct":  "Failed to delete product: {error}",
-    "failedToLoadProducts":  "Failed to load products: {error}",
-    "addNewProduct":  "Add New Product",
-    "productName":  "Product Name",
-    "enterProductName":  "Please enter a product name",
-    "productDescription":  "Description",
-    "enterDescription":  "Please enter a description",
-    "productPrice":  "Price",
-    "required":  "Required",
-    "invalid":  "Invalid",
-    "stock":  "Stock",
-    "enterStockQuantity":  "Please enter stock quantity",
-    "invalidStockQuantity":  "Invalid stock quantity",
-    "category":  "Category",
-    "productImages":  "Product Images",
-    "addImages":  "Add Images",
-    "imagesSelected":  "{count} image(s) selected",
-    "productAddedSuccessfully":  "Product added successfully",
-    "failedToAddProduct":  "Failed to add product: {error}",
-    "editProduct":  "Edit Product",
-    "enterProductDescription":  "Please enter a product description",
-    "invalidPrice":  "Invalid price",
-    "updateProduct":  "Update Product",
-    "productUpdatedSuccessfully":  "Product updated successfully",
-    "productDeleted":  "Product deleted successfully",
-    "myOrganicProducts":  "My Organic Products",
-    "apiServiceNotInitialized":  "API service not initialized",
-    "failedToFetchOrganicProducts":  "Failed to fetch organic products",
-    "noOrganicProductsYet":  "No Organic Products Yet",
-    "startAddingOrganicProduct":  "Start by adding your first organic product",
-    "addOrganicProduct":  "Add Organic Product",
-    "stockLabel":  "Stock: {stock}",
-    "certified":  "Certified: {certification}",
-    "active":  "Active",
-    "inactive":  "Inactive",
-    "featured":  "Featured",
-    "deleteOrganicProduct":  "Delete Organic Product",
-    "confirmDeleteOrganicProduct":  "Are you sure you want to delete \"{productName}\"? This action cannot be undone.",
-    "failedToDeleteOrganicProduct":  "Failed to delete product: {error}",
-    "myTransportServices":  "My Transport Services",
-    "addTransport":  "Add Transport",
-    "errorLoadingTransports":  "Error Loading Transports",
-    "noTransportServicesYet":  "No Transport Services Yet",
-    "addTransportServicesDescription":  "Add your transport services to start offering delivery and transportation to customers.",
-    "addYourFirstTransport":  "Add Your First Transport",
-    "capacityKg":  "{capacity} kg capacity",
-    "pricePerKg":  "TZS {price}/kg",
-    "noDescriptionAvailable":  "No description available",
-    "deleteTransportService":  "Delete Transport Service",
-    "confirmDeleteTransport":  "Are you sure you want to delete \"{title}\"? This action cannot be undone.",
-    "transportDeletedSuccessfully":  "{title} deleted successfully",
-    "failedToDeleteTransport":  "Failed to delete transport: {error}",
-    "editTransportService":  "Edit Transport Service",
-    "save":  "SAVE",
-    "basicInformation":  "Basic Information",
-    "serviceTitle":  "Service Title",
-    "serviceTitleHint":  "e.g., Reliable Delivery Truck",
-    "describeService":  "Describe your transport service...",
-    "enterServiceTitle":  "Please enter a service title",
-    "enterServiceDescription":  "Please enter a description",
-    "vehicleDetails":  "Vehicle Details",
-    "vehicleType":  "Vehicle Type",
-    "vehicleLocation":  "Vehicle Location",
-    "vehicleLocationHint":  "e.g., Dar es Salaam, Tanzania",
-    "enterVehicleLocation":  "Please enter vehicle location",
-    "pricePerKm":  "Price per KM",
-    "enterPrice":  "Enter price",
-    "enterValidPrice":  "Enter valid price",
-    "capacityKgLabel":  "Capacity (kg)",
-    "enterCapacity":  "Enter capacity",
-    "enterValidCapacity":  "Enter valid capacity",
-    "contactInformation":  "Contact Information",
-    "contactPhone":  "Contact Phone",
-    "contactPhoneHint":  "e.g., +255 123 456 789",
-    "enterContactPhone":  "Please enter contact phone",
-    "status":  "Status",
-    "updateTransportService":  "Update Transport Service",
-    "transportUpdatedSuccessfully":  "Transport service updated successfully!",
-    "failedToUpdateTransport":  "Failed to update transport: {error}",
-    "sellerOrders":  "Seller Orders",
-    "errorLoadingOrders":  "Error Loading Orders",
-    "noOrdersYet":  "No Orders Yet",
-    "ordersDescription":  "Orders from customers will appear here once they start purchasing your products.",
-    "refreshOrders":  "Refresh Orders",
-    "orderNumber":  "Order #{id}",
-    "totalAmount":  "Total: TZS {amount}",
-    "itemsCount":  "Items: {count}",
-    "orderDate":  "Date: {date}",
-    "markAsProcessing":  "Mark as Processing",
-    "markAsShipped":  "Mark as Shipped",
-    "markAsDelivered":  "Mark as Delivered",
-    "orderDelivered":  "Order Delivered",
-    "orderCancelled":  "Order Cancelled",
-    "orderStatusUpdated":  "Order status updated to {status}",
-    "failedToUpdateOrderStatus":  "Failed to update order status",
-    "errorUpdatingOrderStatus":  "Error updating order status: {error}",
-    "emailLabel":  "Email: {email}",
-    "phoneLabel":  "Phone: {phone}",
-    "addressLabel":  "Address: {address}",
-    "serviceCategories":  "Service Categories",
-    "services":  "Services",
-    "noServicesAvailable":  "No services available",
-    "chat":  "Chat",
-    "noTitle":  "No Title",
-    "notAvailable":  "N/A",
-    "addNewService":  "Add New Service",
-    "createYourService":  "Create Your Service",
-    "fillServiceDetails":  "Fill in the details to offer your agricultural service",
-    "serviceTitleExample":  "e.g., Irrigation System Installation",
-    "enterTitle":  "Please enter a title",
-    "describeServiceDetail":  "Describe your service in detail...",
-    "priceTzs":  "Price (TZS)",
-    "enterServicePrice":  "Enter service price",
-    "enterValidServicePrice":  "Please enter a valid price",
-    "agriculturalServiceCategory":  "Agricultural Service Category",
-    "selectCategory":  "Select a category",
-    "loadingCategories":  "Loading categories...",
-    "serviceImage":  "Service Image",
-    "addImageToService":  "Add an image to make your service more appealing",
-    "chooseImage":  "Choose Image",
-    "creatingService":  "Creating Service...",
-    "createService":  "Create Service",
-    "selectCategoryError":  "Please select a category",
-    "failedToLoadCategories":  "Failed to load categories: {error}",
-    "editService":  "Edit Service",
-    "changeServiceImage":  "Change Service Image",
-    "updateService":  "Update Service",
-    "myAgriculturalServices":  "My Agricultural Services",
-    "serviceProviderRoleRequired":  "You need to have Service Provider role to manage services.",
-    "failedToLoadServices":  "Failed to load services: {error}",
-    "noServicesYet":  "No Services Yet",
-    "startOfferingServices":  "Start offering agricultural services to farmers and grow your business",
-    "addYourFirstService":  "Add Your First Service",
-    "noDescription":  "No Description",
-    "servicePrice":  "TZS {price}",
-    "pending":  "Pending",
-    "editServiceLabel":  "Edit Service",
-    "deleteServiceLabel":  "Delete Service",
-    "confirmDeleteService":  "Are you sure you want to delete \"{title}\"?",
-    "serviceDeletedSuccessfully":  "Service deleted successfully",
-    "failedToDeleteService":  "Failed to delete service: {error}",
-    "addService":  "Add Service",
-    "welcomeTo":  "Welcome to",
-    "agricultureDescription":  "Everything you need to know about agriculture is here",
-    "searchProducts":  "Search products...",
-    "categories":  "Categories",
-    "seeAll":  "See All",
-    "noCategoriesAvailable":  "No categories available",
-    "marketNews":  "Market News",
-    "loadingMarketNews":  "Loading market news...",
-    "failedToLoadMarketNews":  "Failed to load market news",
-    "noMarketNewsAvailable":  "No market news available",
-    "tapToRetry":  "Tap to retry",
-    "stayUpdatedMarketNews":  "Stay Updated with Market News",
-    "marketNewsDescription":  "Get the latest agricultural market trends, prices, and insights to make informed decisions.",
-    "exploreNews":  "Explore News",
-    "featuredProducts":  "Featured Products",
-    "noFeaturedProductsAvailable":  "No featured products available",
-    "errorLoadingFeaturedProducts":  "Error loading featured products: {error}",
-    "failedToLoadMarketInformation":  "Failed to load market information.",
-    "removedFromWishlist":  "Removed from wishlist",
-    "addedToWishlist":  "Added to wishlist",
-    "productAddedToCart":  "{productName} added to cart",
-    "viewCart":  "View Cart",
-    "noCategoriesFound":  "No categories found",
-    "featuredTransports": "Featured Transports",
-    "noFeaturedTransportsAvailable": "No featured transports available",
-    "@home":  {
-                  "description":  "Description for home"
-              },
-    "@profile":  {
-                     "description":  "Description for profile"
-                 },
-    "@cart":  {
-                  "description":  "Description for cart"
-              },
-    "@orders":  {
-                    "description":  "Description for orders"
-                },
-    "@settings":  {
-                      "description":  "Description for settings"
-                  },
-    "@myProfile":  {
-                       "description":  "Description for myProfile"
-                   },
-    "@guestUser":  {
-                       "description":  "Description for guestUser"
-                   },
-    "@loginRegister":  {
-                           "description":  "Description for loginRegister"
-                       },
-    "@account":  {
-                     "description":  "Description for account"
-                 },
-    "@personalDetails":  {
-                             "description":  "Description for personalDetails"
-                         },
-    "@requestAccountDeletion":  {
-                                    "description":  "Description for requestAccountDeletion"
-                                },
-    "@sellerDashboard":  {
-                             "description":  "Description for sellerDashboard"
-                         },
-    "@serviceProviderDashboard":  {
-                                      "description":  "Description for serviceProviderDashboard"
-                                  },
-    "@manageAddresses":  {
-                             "description":  "Description for manageAddresses"
-                         },
-    "@myOrders":  {
-                      "description":  "Description for myOrders"
-                  },
-    "@myFavorites":  {
-                         "description":  "Description for myFavorites"
-                     },
-    "@appSettings":  {
-                         "description":  "Description for appSettings"
-                     },
-    "@notifications":  {
-                           "description":  "Description for notifications"
-                       },
-    "@language":  {
-                      "description":  "Description for language"
-                  },
-    "@englishKiswahili":  {
-                              "description":  "Description for englishKiswahili"
-                          },
-    "@helpSupport":  {
-                         "description":  "Description for helpSupport"
-                     },
-    "@developerSettings":  {
-                               "description":  "Description for developerSettings"
-                           },
-    "@about":  {
-                   "description":  "Description for about"
-               },
-    "@privacyPolicy":  {
-                           "description":  "Description for privacyPolicy"
-                       },
-    "@marketInformation":  {
-                               "description":  "Description for marketInformation"
-                           },
-    "@logout":  {
-                    "description":  "Description for logout"
-                },
-    "@loginRequired":  {
-                           "description":  "Description for loginRequired"
-                       },
-    "@loginRequiredMessage":  {
-                                  "description":  "Description for loginRequiredMessage"
-                              },
-    "@later":  {
-                   "description":  "Description for later"
-               },
-    "@admin":  {
-                   "description":  "Description for admin"
-               },
-    "@seller":  {
-                    "description":  "Description for seller"
-                },
-    "@serviceProvider":  {
-                             "description":  "Description for serviceProvider"
-                         },
-    "@buyer":  {
-                   "description":  "Description for buyer"
-               },
-    "@editProfile":  {
-                         "description":  "Description for editProfile"
-                     },
-    "@addresses":  {
-                       "description":  "Description for addresses"
-                   },
-    "@logoutConfirmation":  {
-                                "description":  "Description for logoutConfirmation"
-                            },
-    "@homeTitle":  {
-                       "description":  "Description for homeTitle"
-                   },
-    "@appName":  {
-                     "description":  "Description for appName"
-                 },
-    "@appSubtitle":  {
-                         "description":  "Description for appSubtitle"
-                     },
-    "@poweredBy":  {
-                       "description":  "Description for poweredBy"
-                   },
-    "@costech":  {
-                     "description":  "Description for costech"
-                 },
-    "@serviceProviderUnavailable":  {
-                                        "description":  "Description for serviceProviderUnavailable"
-                                    },
-    "@notificationsComingSoon":  {
-                                     "description":  "Description for notificationsComingSoon"
-                                 },
-    "@helpSupportComingSoon":  {
-                                   "description":  "Description for helpSupportComingSoon"
-                               },
-    "@noEmailApp":  {
-                        "description":  "Description for noEmailApp"
-                    },
-    "@couldNotOpenLink":  {
-                              "description":  "Description for couldNotOpenLink"
-                          },
-    "@loggedOutSuccessfully":  {
-                                   "description":  "Description for loggedOutSuccessfully"
-                               },
-    "@logoutFailed":  {
-                          "description":  "Description for logoutFailed"
-                      },
-    "@masokoTips":  {
-                        "description":  "Description for masokoTips"
-                    },
-    "@copyright":  {
-                       "description":  "Description for copyright"
-                   },
-    "@aboutDescription":  {
-                              "description":  "Description for aboutDescription"
-                          },
-    "@aboutContact":  {
-                          "description":  "Description for aboutContact"
-                      },
-    "@pleaseLoginToEditProfile":  {
-                                      "description":  "Description for pleaseLoginToEditProfile"
-                                  },
-    "@errorPickingImage":  {
-                               "description":  "Description for errorPickingImage"
-                           },
-    "@photoLibrary":  {
-                          "description":  "Description for photoLibrary"
-                      },
-    "@camera":  {
-                    "description":  "Description for camera"
-                },
-    "@removePhoto":  {
-                         "description":  "Description for removePhoto"
-                     },
-    "@profileUpdatedSuccessfully":  {
-                                        "description":  "Description for profileUpdatedSuccessfully"
-                                    },
-    "@failedToUpdateProfile":  {
-                                   "description":  "Description for failedToUpdateProfile"
-                               },
-    "@emailAlreadyRegistered":  {
-                                    "description":  "Description for emailAlreadyRegistered"
-                                },
-    "@fullName":  {
-                      "description":  "Description for fullName"
-                  },
-    "@phoneNumber":  {
-                         "description":  "Description for phoneNumber"
-                     },
-    "@bio":  {
-                 "description":  "Description for bio"
-             },
-    "@tellUsAboutYourself":  {
-                                 "description":  "Description for tellUsAboutYourself"
-                             },
-    "@saveChanges":  {
-                         "description":  "Description for saveChanges"
-                     },
-    "@failedToLoadAddresses":  {
-                                   "description":  "Description for failedToLoadAddresses"
-                               },
-    "@deleteAddress":  {
-                           "description":  "Description for deleteAddress"
-                       },
-    "@confirmDeleteAddress":  {
-                                  "description":  "Description for confirmDeleteAddress"
-                              },
-    "@cancel":  {
-                    "description":  "Description for cancel"
-                },
-    "@delete":  {
-                    "description":  "Description for delete"
-                },
-    "@addressDeleted":  {
-                            "description":  "Description for addressDeleted"
-                        },
-    "@defaultAddressUpdated":  {
-                                   "description":  "Description for defaultAddressUpdated"
-                               },
-    "@noAddressesFound":  {
-                              "description":  "Description for noAddressesFound"
-                          },
-    "@addNewAddress":  {
-                           "description":  "Description for addNewAddress"
-                       },
-    "@edit":  {
-                  "description":  "Description for edit"
-              },
-    "@setAsDefault":  {
-                          "description":  "Description for setAsDefault"
-                      },
-    "@addAddress":  {
-                        "description":  "Description for addAddress"
-                    },
-    "@editAddress":  {
-                         "description":  "Description for editAddress"
-                     },
-    "@addressName":  {
-                         "description":  "Description for addressName"
-                     },
-    "@addressNameHint":  {
-                             "description":  "Description for addressNameHint"
-                         },
-    "@streetAddress":  {
-                           "description":  "Description for streetAddress"
-                       },
-    "@streetAddressHint":  {
-                               "description":  "Description for streetAddressHint"
-                           },
-    "@city":  {
-                  "description":  "Description for city"
-              },
-    "@stateProvince":  {
-                           "description":  "Description for stateProvince"
-                       },
-    "@zipPostalCode":  {
-                           "description":  "Description for zipPostalCode"
-                       },
-    "@country":  {
-                     "description":  "Description for country"
-                 },
-    "@setAsDefaultAddress":  {
-                                 "description":  "Description for setAsDefaultAddress"
-                             },
-    "@defaultAddressDescription":  {
-                                       "description":  "Description for defaultAddressDescription"
-                                   },
-    "@saveAddress":  {
-                         "description":  "Description for saveAddress"
-                     },
-    "@enterAddressName":  {
-                              "description":  "Description for enterAddressName"
-                          },
-    "@enterStreetAddress":  {
-                                "description":  "Description for enterStreetAddress"
-                            },
-    "@enterCity":  {
-                       "description":  "Description for enterCity"
-                   },
-    "@enterState":  {
-                        "description":  "Description for enterState"
-                    },
-    "@enterZipCode":  {
-                          "description":  "Description for enterZipCode"
-                      },
-    "@enterCountry":  {
-                          "description":  "Description for enterCountry"
-                      },
-    "@description":  {
-                         "description":  "Description for description"
-                     },
-    "@addToCart":  {
-                       "description":  "Description for addToCart"
-                   },
-    "@relatedProducts":  {
-                             "description":  "Description for relatedProducts"
-                         },
-    "@noRelatedProducts":  {
-                               "description":  "Description for noRelatedProducts"
-                           },
-    "@addedToCart":  {
-                              "description":  "Description for addedToCart",
-                              "placeholders":  {
-                                  "productName":  {
-                                      "type": "String"
-                                  }
-                              }
-                          },
-    "@failedToAddToCart":  {
-                                    "description":  "Description for failedToAddToCart",
-                                    "placeholders":  {
-                                        "error":  {
-                                            "type": "String"
-                                        }
-                                    }
-                                },
-    "@noProductsInCategory":  {
-                                  "description":  "Description for noProductsInCategory"
-                              },
-    "@checkBackLater":  {
-                            "description":  "Description for checkBackLater"
-                        },
-    "@errorLoadingProducts":  {
-                                       "description":  "Description for errorLoadingProducts"
-                                   },
-    "@retry":  {
-                   "description":  "Description for retry"
-               },
-    "@inStock":  {
-                          "description":  "Description for inStock",
-                          "placeholders":  {
-                              "stock":  {
-                                  "type":  "num"
-                              }
-                          }
-                      },
-    "@organicProducts":  {
-                             "description":  "Description for organicProducts"
-                         },
-    "@sortAndFilter":  {
-                           "description":  "Description for sortAndFilter"
-                       },
-    "@sortBy":  {
-                    "description":  "Description for sortBy"
-                },
-    "@nameAZ":  {
-                    "description":  "Description for nameAZ"
-                },
-    "@nameZA":  {
-                    "description":  "Description for nameZA"
-                },
-    "@priceLowHigh":  {
-                          "description":  "Description for priceLowHigh"
-                      },
-    "@priceHighLow":  {
-                          "description":  "Description for priceHighLow"
-                      },
-    "@showInStockOnly":  {
-                             "description":  "Description for showInStockOnly"
-                         },
-    "@close":  {
-                   "description":  "Description for close"
-               },
-    "@searchOrganicProducts":  {
-                                   "description":  "Description for searchOrganicProducts"
-                               },
-    "@errorLoadingOrganicProducts":  {
-                                              "description":  "Description for errorLoadingOrganicProducts",
-                                              "placeholders":  {
-                                                  "error":  {
-                                                      "type": "String"
-                                                  }
-                                              }
-                                          },
-    "@noOrganicProductsFound":  {
-                                    "description":  "Description for noOrganicProductsFound"
-                                },
-    "@deleteProduct":  {
-                           "description":  "Description for deleteProduct"
-                       },
-    "@confirmDeleteProduct":  {
-                                       "description":  "Description for confirmDeleteProduct",
-                                       "placeholders":  {
-                                           "productName":  {
-                                               "type": "String"
-                                           }
-                                       }
-                                   },
-    "@productDeletedSuccessfully":  {
-                                             "description":  "Description for productDeletedSuccessfully",
-                                             "placeholders":  {
-                                                 "productName":  {
-                                                     "type": "String"
-                                                 }
-                                             }
-                                         },
-    "@errorDeletingProduct":  {
-                                       "description":  "Description for errorDeletingProduct",
-                                       "placeholders":  {
-                                           "error":  {
-                                               "type": "String"
-                                           }
-                                       }
-                                   },
-    "@shoppingCart":  {
-                          "description":  "Description for shoppingCart"
-                      },
-    "@clearCart":  {
-                       "description":  "Description for clearCart"
-                   },
-    "@confirmClearCart":  {
-                              "description":  "Description for confirmClearCart"
-                          },
-    "@pleaseLoginToViewCart":  {
-                                   "description":  "Description for pleaseLoginToViewCart"
-                               },
-    "@yourCartIsEmpty":  {
-                             "description":  "Description for yourCartIsEmpty"
-                         },
-    "@continueShopping":  {
-                              "description":  "Description for continueShopping"
-                          },
-    "@itemRemovedFromCart":  {
-                                 "description":  "Description for itemRemovedFromCart"
-                             },
-    "@removeItem":  {
-                        "description":  "Description for removeItem"
-                    },
-    "@confirmRemoveItem":  {
-                               "description":  "Description for confirmRemoveItem"
-                           },
-    "@total":  {
-                   "description":  "Description for total"
-               },
-    "@proceedToCheckout":  {
-                               "description":  "Description for proceedToCheckout"
-                           },
-    "@checkout":  {
-                      "description":  "Description for checkout"
-                  },
-    "@pleaseLoginToPlaceOrder":  {
-                                     "description":  "Description for pleaseLoginToPlaceOrder"
-                                 },
-    "@failedToPlaceOrder":  {
-                                     "description":  "Description for failedToPlaceOrder",
-                                     "placeholders":  {
-                                         "error":  {
-                                             "type": "String"
-                                         }
-                                     }
-                                 },
-    "@orderSummary":  {
-                          "description":  "Description for orderSummary"
-                      },
-    "@deliveryInformation":  {
-                                 "description":  "Description for deliveryInformation"
-                             },
-    "@deliveryMethod":  {
-                            "description":  "Description for deliveryMethod"
-                        },
-    "@standardDelivery":  {
-                              "description":  "Description for standardDelivery"
-                          },
-    "@standardDeliveryTime":  {
-                                  "description":  "Description for standardDeliveryTime"
-                              },
-    "@expressDelivery":  {
-                             "description":  "Description for expressDelivery"
-                         },
-    "@expressDeliveryTime":  {
-                                 "description":  "Description for expressDeliveryTime"
-                             },
-    "@deliveryAddress":  {
-                             "description":  "Description for deliveryAddress"
-                         },
-    "@pleaseSelectDeliveryAddress":  {
-                                         "description":  "Description for pleaseSelectDeliveryAddress"
-                                     },
-    "@phoneNumberHint":  {
-                             "description":  "Description for phoneNumberHint"
-                         },
-    "@phoneNumberRequired":  {
-                                 "description":  "Description for phoneNumberRequired"
-                             },
-    "@paymentMethod":  {
-                           "description":  "Description for paymentMethod"
-                       },
-    "@cashOnDelivery":  {
-                            "description":  "Description for cashOnDelivery"
-                        },
-    "@cashOnDeliveryDescription":  {
-                                       "description":  "Description for cashOnDeliveryDescription"
-                                   },
-    "@creditDebitCard":  {
-                             "description":  "Description for creditDebitCard"
-                         },
-    "@creditDebitCardDescription":  {
-                                        "description":  "Description for creditDebitCardDescription"
-                                    },
-    "@orderNotesOptional":  {
-                                "description":  "Description for orderNotesOptional"
-                            },
-    "@orderNotesHint":  {
-                            "description":  "Description for orderNotesHint"
-                        },
-    "@placeOrder":  {
-                             "description":  "Description for placeOrder",
-                             "placeholders":  {
-                                 "total":  {
-                                     "type":  "num"
-                                 }
-                             }
-                         },
-    "@selectAddress":  {
-                           "description":  "Description for selectAddress"
-                       },
-    "@sellerDashboardTitle":  {
-                                  "description":  "Description for sellerDashboardTitle"
-                              },
-    "@productsTab":  {
-                         "description":  "Description for productsTab"
-                     },
-    "@ordersTab":  {
-                       "description":  "Description for ordersTab"
-                   },
-    "@transportsTab":  {
-                           "description":  "Description for transportsTab"
-                       },
-    "@organicTab":  {
-                        "description":  "Description for organicTab"
-                    },
-    "@servicesTab":  {
-                         "description":  "Description for servicesTab"
-                     },
-    "@addProduct":  {
-                        "description":  "Description for addProduct"
-                    },
-    "@noProductsFound":  {
-                             "description":  "Description for noProductsFound"
-                         },
-    "@filterByCategory":  {
-                              "description":  "Description for filterByCategory"
-                          },
-    "@outOfStock":  {
-                        "description":  "Description for outOfStock"
-                    },
-    "@failedToDeleteProduct":  {
-                                        "description":  "Description for failedToDeleteProduct",
-                                        "placeholders":  {
-                                            "error":  {
-                                                "type": "String"
-                                            }
-                                        }
-                                    },
-    "@failedToLoadProducts":  {
-                                       "description":  "Description for failedToLoadProducts",
-                                       "placeholders":  {
-                                           "error":  {
-                                               "type": "String"
-                                           }
-                                       }
-                                   },
-    "@addNewProduct":  {
-                           "description":  "Description for addNewProduct"
-                       },
-    "@productName":  {
-                         "description":  "Description for productName"
-                     },
-    "@enterProductName":  {
-                              "description":  "Description for enterProductName"
-                          },
-    "@productDescription":  {
-                                "description":  "Description for productDescription"
-                            },
-    "@enterDescription":  {
-                              "description":  "Description for enterDescription"
-                          },
-    "@productPrice":  {
-                          "description":  "Description for productPrice"
-                      },
-    "@required":  {
-                      "description":  "Description for required"
-                  },
-    "@invalid":  {
-                     "description":  "Description for invalid"
-                 },
-    "@stock":  {
-                   "description":  "Description for stock"
-               },
-    "@enterStockQuantity":  {
-                                "description":  "Description for enterStockQuantity"
-                            },
-    "@invalidStockQuantity":  {
-                                  "description":  "Description for invalidStockQuantity"
-                              },
-    "@category":  {
-                      "description":  "Description for category"
-                  },
-    "@productImages":  {
-                           "description":  "Description for productImages"
-                       },
-    "@addImages":  {
-                       "description":  "Description for addImages"
-                   },
-    "@imagesSelected":  {
-                                 "description":  "Description for imagesSelected",
-                                 "placeholders":  {
-                                     "count":  {
-                                         "type":  "num"
-                                     }
-                                 }
-                             },
-    "@productAddedSuccessfully":  {
-                                      "description":  "Description for productAddedSuccessfully"
-                                  },
-    "@failedToAddProduct":  {
-                                     "description":  "Description for failedToAddProduct",
-                                     "placeholders":  {
-                                         "error":  {
-                                             "type": "String"
-                                         }
-                                     }
-                                 },
-    "@editProduct":  {
-                         "description":  "Description for editProduct"
-                     },
-    "@enterProductDescription":  {
-                                     "description":  "Description for enterProductDescription"
-                                 },
-    "@invalidPrice":  {
-                          "description":  "Description for invalidPrice"
-                      },
-    "@updateProduct":  {
-                           "description":  "Description for updateProduct"
-                       },
-    "@productUpdatedSuccessfully":  {
-                                        "description":  "Description for productUpdatedSuccessfully"
-                                    },
-    "@productDeleted":  {
-                            "description":  "Description for productDeleted"
-                        },
-    "@myOrganicProducts":  {
-                               "description":  "Description for myOrganicProducts"
-                           },
-    "@apiServiceNotInitialized":  {
-                                      "description":  "Description for apiServiceNotInitialized"
-                                  },
-    "@failedToFetchOrganicProducts":  {
-                                          "description":  "Description for failedToFetchOrganicProducts"
-                                      },
-    "@noOrganicProductsYet":  {
-                                  "description":  "Description for noOrganicProductsYet"
-                              },
-    "@startAddingOrganicProduct":  {
-                                       "description":  "Description for startAddingOrganicProduct"
-                                   },
-    "@addOrganicProduct":  {
-                               "description":  "Description for addOrganicProduct"
-                           },
-    "@stockLabel":  {
-                             "description":  "Description for stockLabel",
-                             "placeholders":  {
-                                 "stock":  {
-                                     "type":  "num"
-                                 }
-                             }
-                         },
-    "@certified":  {
-                            "description":  "Description for certified",
-                            "placeholders":  {
-                                "certification":  {
-                                    "type": "String"
-                                }
-                            }
-                        },
-    "@active":  {
-                    "description":  "Description for active"
-                },
-    "@inactive":  {
-                      "description":  "Description for inactive"
-                  },
-    "@featured":  {
-                      "description":  "Description for featured"
-                  },
-    "@deleteOrganicProduct":  {
-                                  "description":  "Description for deleteOrganicProduct"
-                              },
-    "@confirmDeleteOrganicProduct":  {
-                                              "description":  "Description for confirmDeleteOrganicProduct",
-                                              "placeholders":  {
-                                                  "productName":  {
-                                                      "type": "String"
-                                                  }
-                                              }
-                                          },
-    "@failedToDeleteOrganicProduct":  {
-                                               "description":  "Description for failedToDeleteOrganicProduct",
-                                               "placeholders":  {
-                                                   "error":  {
-                                                       "type": "String"
-                                                   }
-                                               }
-                                           },
-    "@myTransportServices":  {
-                                 "description":  "Description for myTransportServices"
-                             },
-    "@addTransport":  {
-                          "description":  "Description for addTransport"
-                      },
-    "@errorLoadingTransports":  {
-                                    "description":  "Description for errorLoadingTransports"
-                                },
-    "@noTransportServicesYet":  {
-                                    "description":  "Description for noTransportServicesYet"
-                                },
-    "@addTransportServicesDescription":  {
-                                             "description":  "Description for addTransportServicesDescription"
-                                         },
-    "@addYourFirstTransport":  {
-                                   "description":  "Description for addYourFirstTransport"
-                               },
-    "@capacityKg":  {
-                             "description":  "Description for capacityKg",
-                             "placeholders":  {
-                                 "capacity":  {
-                                     "type":  "num"
-                                 }
-                             }
-                         },
-    "@pricePerKg":  {
-                             "description":  "Description for pricePerKg",
-                             "placeholders":  {
-                                 "price":  {
-                                     "type":  "num"
-                                 }
-                             }
-                         },
-    "@noDescriptionAvailable":  {
-                                    "description":  "Description for noDescriptionAvailable"
-                                },
-    "@deleteTransportService":  {
-                                    "description":  "Description for deleteTransportService"
-                                },
-    "@confirmDeleteTransport":  {
-                                         "description":  "Description for confirmDeleteTransport",
-                                         "placeholders":  {
-                                             "title":  {
-                                                 "type": "String"
-                                             }
-                                         }
-                                     },
-    "@transportDeletedSuccessfully":  {
-                                               "description":  "Description for transportDeletedSuccessfully",
-                                               "placeholders":  {
-                                                   "title":  {
-                                                       "type": "String"
-                                                   }
-                                               }
-                                           },
-    "@failedToDeleteTransport":  {
-                                          "description":  "Description for failedToDeleteTransport",
-                                          "placeholders":  {
-                                              "error":  {
-                                                  "type": "String"
-                                              }
-                                          }
-                                      },
-    "@editTransportService":  {
-                                  "description":  "Description for editTransportService"
-                              },
-    "@save":  {
-                  "description":  "Description for save"
-              },
-    "@basicInformation":  {
-                              "description":  "Description for basicInformation"
-                          },
-    "@serviceTitle":  {
-                          "description":  "Description for serviceTitle"
-                      },
-    "@serviceTitleHint":  {
-                              "description":  "Description for serviceTitleHint"
-                          },
-    "@describeService":  {
-                             "description":  "Description for describeService"
-                         },
-    "@enterServiceTitle":  {
-                               "description":  "Description for enterServiceTitle"
-                           },
-    "@enterServiceDescription":  {
-                                     "description":  "Description for enterServiceDescription"
-                                 },
-    "@vehicleDetails":  {
-                            "description":  "Description for vehicleDetails"
-                        },
-    "@vehicleType":  {
-                         "description":  "Description for vehicleType"
-                     },
-    "@vehicleLocation":  {
-                             "description":  "Description for vehicleLocation"
-                         },
-    "@vehicleLocationHint":  {
-                                 "description":  "Description for vehicleLocationHint"
-                             },
-    "@enterVehicleLocation":  {
-                                  "description":  "Description for enterVehicleLocation"
-                              },
-    "@pricePerKm":  {
-                        "description":  "Description for pricePerKm"
-                    },
-    "@enterPrice":  {
-                        "description":  "Description for enterPrice"
-                    },
-    "@enterValidPrice":  {
-                             "description":  "Description for enterValidPrice"
-                         },
-    "@capacityKgLabel":  {
-                             "description":  "Description for capacityKgLabel"
-                         },
-    "@enterCapacity":  {
-                           "description":  "Description for enterCapacity"
-                       },
-    "@enterValidCapacity":  {
-                                "description":  "Description for enterValidCapacity"
-                            },
-    "@contactInformation":  {
-                                "description":  "Description for contactInformation"
-                            },
-    "@contactPhone":  {
-                          "description":  "Description for contactPhone"
-                      },
-    "@contactPhoneHint":  {
-                              "description":  "Description for contactPhoneHint"
-                          },
-    "@enterContactPhone":  {
-                               "description":  "Description for enterContactPhone"
-                           },
-    "@status":  {
-                    "description":  "Description for status"
-                },
-    "@updateTransportService":  {
-                                    "description":  "Description for updateTransportService"
-                                },
-    "@transportUpdatedSuccessfully":  {
-                                          "description":  "Description for transportUpdatedSuccessfully"
-                                      },
-    "@failedToUpdateTransport":  {
-                                          "description":  "Description for failedToUpdateTransport",
-                                          "placeholders":  {
-                                              "error":  {
-                                                  "type": "String"
-                                              }
-                                          }
-                                      },
-    "@sellerOrders":  {
-                          "description":  "Description for sellerOrders"
-                      },
-    "@errorLoadingOrders":  {
-                                "description":  "Description for errorLoadingOrders"
-                            },
-    "@noOrdersYet":  {
-                         "description":  "Description for noOrdersYet"
-                     },
-    "@ordersDescription":  {
-                               "description":  "Description for ordersDescription"
-                           },
-    "@refreshOrders":  {
-                           "description":  "Description for refreshOrders"
-                       },
-    "@orderNumber":  {
-                              "description":  "Description for orderNumber",
-                              "placeholders":  {
-                                  "id":  {
-                                      "type": "String"
-                                  }
-                              }
-                          },
-    "@totalAmount":  {
-                              "description":  "Description for totalAmount",
-                              "placeholders":  {
-                                  "amount":  {
-                                      "type":  "num"
-                                  }
-                              }
-                          },
-    "@itemsCount":  {
-                             "description":  "Description for itemsCount",
-                             "placeholders":  {
-                                 "count":  {
-                                     "type":  "num"
-                                 }
-                             }
-                         },
-    "@orderDate":  {
-                            "description":  "Description for orderDate",
-                            "placeholders":  {
-                                "date":  {
-                                    "type": "String"
-                                }
-                            }
-                        },
-    "@markAsProcessing":  {
-                              "description":  "Description for markAsProcessing"
-                          },
-    "@markAsShipped":  {
-                           "description":  "Description for markAsShipped"
-                       },
-    "@markAsDelivered":  {
-                             "description":  "Description for markAsDelivered"
-                         },
-    "@orderDelivered":  {
-                            "description":  "Description for orderDelivered"
-                        },
-    "@orderCancelled":  {
-                            "description":  "Description for orderCancelled"
-                        },
-    "@orderStatusUpdated":  {
-                                     "description":  "Description for orderStatusUpdated",
-                                     "placeholders":  {
-                                         "status":  {
-                                             "type": "String"
-                                         }
-                                     }
-                                 },
-    "@failedToUpdateOrderStatus":  {
-                                       "description":  "Description for failedToUpdateOrderStatus"
-                                   },
-    "@errorUpdatingOrderStatus":  {
-                                           "description":  "Description for errorUpdatingOrderStatus",
-                                           "placeholders":  {
-                                               "error":  {
-                                                   "type": "String"
-                                               }
-                                           }
-                                       },
-    "@emailLabel":  {
-                             "description":  "Description for emailLabel",
-                             "placeholders":  {
-                                 "email":  {
-                                     "type": "String"
-                                 }
-                             }
-                         },
-    "@phoneLabel":  {
-                             "description":  "Description for phoneLabel",
-                             "placeholders":  {
-                                 "phone":  {
-                                     "type": "String"
-                                 }
-                             }
-                         },
-    "@addressLabel":  {
-                               "description":  "Description for addressLabel",
-                               "placeholders":  {
-                                   "address":  {
-                                       "type": "String"
-                                   }
-                               }
-                           },
-    "@serviceCategories":  {
-                               "description":  "Description for serviceCategories"
-                           },
-    "@services":  {
-                      "description":  "Description for services"
-                  },
-    "@noServicesAvailable":  {
-                                 "description":  "Description for noServicesAvailable"
-                             },
-    "@chat":  {
-                  "description":  "Description for chat"
-              },
-    "@noTitle":  {
-                     "description":  "Description for noTitle"
-                 },
-    "@notAvailable":  {
-                          "description":  "Description for notAvailable"
-                      },
-    "@addNewService":  {
-                           "description":  "Description for addNewService"
-                       },
-    "@createYourService":  {
-                               "description":  "Description for createYourService"
-                           },
-    "@fillServiceDetails":  {
-                                "description":  "Description for fillServiceDetails"
-                            },
-    "@serviceTitleExample":  {
-                                 "description":  "Description for serviceTitleExample"
-                             },
-    "@enterTitle":  {
-                        "description":  "Description for enterTitle"
-                    },
-    "@describeServiceDetail":  {
-                                   "description":  "Description for describeServiceDetail"
-                               },
-    "@priceTzs":  {
-                      "description":  "Description for priceTzs"
-                  },
-    "@enterServicePrice":  {
-                               "description":  "Description for enterServicePrice"
-                           },
-    "@enterValidServicePrice":  {
-                                    "description":  "Description for enterValidServicePrice"
-                                },
-    "@agriculturalServiceCategory":  {
-                                         "description":  "Description for agriculturalServiceCategory"
-                                     },
-    "@selectCategory":  {
-                            "description":  "Description for selectCategory"
-                        },
-    "@loadingCategories":  {
-                               "description":  "Description for loadingCategories"
-                           },
-    "@serviceImage":  {
-                          "description":  "Description for serviceImage"
-                      },
-    "@addImageToService":  {
-                               "description":  "Description for addImageToService"
-                           },
-    "@chooseImage":  {
-                         "description":  "Description for chooseImage"
-                     },
-    "@creatingService":  {
-                             "description":  "Description for creatingService"
-                         },
-    "@createService":  {
-                           "description":  "Description for createService"
-                       },
-    "@selectCategoryError":  {
-                                 "description":  "Description for selectCategoryError"
-                             },
-    "@failedToLoadCategories":  {
-                                         "description":  "Description for failedToLoadCategories",
-                                         "placeholders":  {
-                                             "error":  {
-                                                 "type": "String"
-                                             }
-                                         }
-                                     },
-    "@editService":  {
-                         "description":  "Description for editService"
-                     },
-    "@changeServiceImage":  {
-                                "description":  "Description for changeServiceImage"
-                            },
-    "@updateService":  {
-                           "description":  "Description for updateService"
-                       },
-    "@myAgriculturalServices":  {
-                                    "description":  "Description for myAgriculturalServices"
-                                },
-    "@serviceProviderRoleRequired":  {
-                                         "description":  "Description for serviceProviderRoleRequired"
-                                     },
-    "@failedToLoadServices":  {
-                                       "description":  "Description for failedToLoadServices",
-                                       "placeholders":  {
-                                           "error":  {
-                                               "type": "String"
-                                           }
-                                       }
-                                   },
-    "@noServicesYet":  {
-                           "description":  "Description for noServicesYet"
-                       },
-    "@startOfferingServices":  {
-                                   "description":  "Description for startOfferingServices"
-                               },
-    "@addYourFirstService":  {
-                                 "description":  "Description for addYourFirstService"
-                             },
-    "@noDescription":  {
-                           "description":  "Description for noDescription"
-                       },
-    "@servicePrice":  {
-                               "description":  "Description for servicePrice",
-                               "placeholders":  {
-                                   "price":  {
-                                       "type":  "num"
-                                   }
-                               }
-                           },
-    "@pending":  {
-                     "description":  "Description for pending"
-                 },
-    "@editServiceLabel":  {
-                              "description":  "Description for editServiceLabel"
-                          },
-    "@deleteServiceLabel":  {
-                                "description":  "Description for deleteServiceLabel"
-                            },
-    "@confirmDeleteService":  {
-                                       "description":  "Description for confirmDeleteService",
-                                       "placeholders":  {
-                                           "title":  {
-                                               "type": "String"
-                                           }
-                                       }
-                                   },
-    "@serviceDeletedSuccessfully":  {
-                                        "description":  "Description for serviceDeletedSuccessfully"
-                                    },
-    "@failedToDeleteService":  {
-                                        "description":  "Description for failedToDeleteService",
-                                        "placeholders":  {
-                                            "error":  {
-                                                "type": "String"
-                                            }
-                                        }
-                                    },
-    "@addService":  {
-                        "description":  "Description for addService"
-                    },
-    "@welcomeTo":  {
-                       "description":  "Description for welcomeTo"
-                   },
-    "@agricultureDescription":  {
-                                    "description":  "Description for agricultureDescription"
-                                },
-    "@searchProducts":  {
-                            "description":  "Description for searchProducts"
-                        },
-    "@categories":  {
-                        "description":  "Description for categories"
-                    },
-    "@seeAll":  {
-                    "description":  "Description for seeAll"
-                },
-    "@noCategoriesAvailable":  {
-                                   "description":  "Description for noCategoriesAvailable"
-                               },
-    "@marketNews":  {
-                        "description":  "Description for marketNews"
-                    },
-    "@loadingMarketNews":  {
-                               "description":  "Description for loadingMarketNews"
-                           },
-    "@failedToLoadMarketNews":  {
-                                     "description":  "Description for failedToLoadMarketNews"
-                                 },
-    "@noMarketNewsAvailable":  {
-                                     "description":  "Description for noMarketNewsAvailable"
-                                 },
-    "@tapToRetry":  {
-                         "description":  "Description for tapToRetry"
-                     },
-    "@stayUpdatedMarketNews":  {
-                                   "description":  "Description for stayUpdatedMarketNews"
-                               },
-    "@marketNewsDescription":  {
-                                   "description":  "Description for marketNewsDescription"
-                               },
-    "@exploreNews":  {
-                         "description":  "Description for exploreNews"
-                     },
-    "@featuredProducts":  {
-                              "description":  "Description for featuredProducts"
-                          },
-    "@noFeaturedProductsAvailable":  {
-                                         "description":  "Description for noFeaturedProductsAvailable"
-                                     },
-    "@errorLoadingFeaturedProducts":  {
-                                               "description":  "Description for errorLoadingFeaturedProducts",
-                                               "placeholders":  {
-                                                   "error":  {
-                                                       "type": "String"
-                                                   }
-                                               }
-                                           },
-    "@failedToLoadMarketInformation":  {
-                                           "description":  "Description for failedToLoadMarketInformation"
-                                       },
-    "@removedFromWishlist":  {
-                                 "description":  "Description for removedFromWishlist"
-                             },
-    "@addedToWishlist":  {
-                             "description":  "Description for addedToWishlist"
-                         },
-    "@productAddedToCart":  {
-                                 "description":  "Description for productAddedToCart",
-                                 "placeholders":  {
-                                     "productName":  {
-                                         "type": "String"
-                                     }
-                                 }
-                             },
-    "@viewCart":  {
-                      "description":  "Description for viewCart"
-                  },
-    "@noCategoriesFound":  {
-                               "description":  "Description for noCategoriesFound"
-                           }
+  "@@locale": "en",
+  "appTitle": "maSOKOtips",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "login": "Login",
+  "@login": {
+    "description": "Title for the login screen"
+  },
+  "welcomeBack": "Welcome Back",
+  "@welcomeBack": {
+    "description": "Welcome back message on login screen"
+  },
+  "signInToContinue": "Sign in to continue",
+  "@signInToContinue": {
+    "description": "Sign in to continue message"
+  },
+  "username": "Username",
+  "@username": {
+    "description": "Username field label"
+  },
+  "enterUsername": "Enter your username",
+  "@enterUsername": {
+    "description": "Placeholder text for username field"
+  },
+  "usernameRequired": "Please enter your username",
+  "@usernameRequired": {
+    "description": "Error message for missing username"
+  },
+  "usernameMinLength": "Username must be at least 3 characters",
+  "@usernameMinLength": {
+    "description": "Error message for username too short"
+  },
+  "password": "Password",
+  "@password": {
+    "description": "Password field label"
+  },
+  "enterPassword": "Enter your password",
+  "@enterPassword": {
+    "description": "Placeholder text for password field"
+  },
+  "passwordRequired": "Please enter your password",
+  "@passwordRequired": {
+    "description": "Error message for missing password"
+  },
+  "forgotPassword": "Forgot Password?",
+  "@forgotPassword": {
+    "description": "Forgot password link text"
+  },
+  "signIn": "SIGN IN",
+  "@signIn": {
+    "description": "Sign in button text"
+  },
+  "noAccount": "Don't have an account?",
+  "@noAccount": {
+    "description": "Text asking if user has no account"
+  },
+  "register": "REGISTER",
+  "@register": {
+    "description": "Register button text"
+  },
+  "home": "Home",
+  "profile": "Profile",
+  "cart": "Cart",
+  "orders": "Orders",
+  "settings": "Settings",
+  "myProfile": "My Profile",
+  "guestUser": "Guest User",
+  "loginRegister": "Login / Register",
+  "account": "Account",
+  "personalDetails": "Personal Details",
+  "requestAccountDeletion": "Request Account Deletion",
+  "sellerDashboard": "Seller Dashboard",
+  "serviceProviderDashboard": "Service Provider Dashboard",
+  "manageAddresses": "Manage Addresses",
+  "myOrders": "My Orders",
+  "myFavorites": "My Favorites",
+  "appSettings": "App Settings",
+  "notifications": "Notifications",
+  "language": "Language",
+  "englishKiswahili": "English / Kiswahili",
+  "helpSupport": "Help & Support",
+  "developerSettings": "Developer Settings",
+  "about": "About",
+  "privacyPolicy": "Privacy Policy",
+  "marketInformation": "Market Information",
+  "logout": "Logout",
+  "loginRequired": "Login Required",
+  "loginRequiredMessage": "You need to login to access this feature. Would you like to login now?",
+  "later": "LATER",
+  "loginButton": "LOGIN",
+  "@loginButton": {
+    "description": "Text for login button"
+  },
+  "admin": "Admin",
+  "seller": "Seller",
+  "serviceProvider": "Service Provider",
+  "buyer": "Buyer",
+  "editProfile": "Edit Profile",
+  "addresses": "Addresses",
+  "logoutConfirmation": "Are you sure you want to logout?",
+  "homeTitle": "Home",
+  "appName": "maSOKOtips",
+  "appSubtitle": "Tanzania's Premier Agricultural Marketplace",
+  "poweredBy": "Sponsored by: COSTECH",
+  "costech": "National Institute of Science and Technology (COSTECH)",
+  "serviceProviderUnavailable": "Service provider dashboard is currently unavailable",
+  "notificationsComingSoon": "Notifications settings coming soon",
+  "helpSupportComingSoon": "Help & Support coming soon",
+  "noEmailApp": "No email app found to send request",
+  "couldNotOpenLink": "Could not open link",
+  "loggedOutSuccessfully": "Logged out successfully",
+  "logoutFailed": "Logout failed",
+  "masokoTips": "Masoko Tips",
+  "copyright": "Â© 2023 Masoko Tips - All rights reserved",
+  "aboutDescription": "Masoko Tips is a platform connecting buyers and sellers of agricultural products. Our mission is to promote sustainable farming and fair trade practices.",
+  "aboutContact": "For more information, contact us at support@masokotips.com",
+  "pleaseLoginToEditProfile": "Please login to edit your profile",
+  "errorPickingImage": "Error picking image",
+  "photoLibrary": "Photo Library",
+  "camera": "Camera",
+  "removePhoto": "Remove Photo",
+  "profileUpdatedSuccessfully": "Profile updated successfully",
+  "failedToUpdateProfile": "Failed to update profile",
+  "emailAlreadyRegistered": "This email is already registered. Please use a different email address.",
+  "fullName": "Full Name",
+  "phoneNumber": "Phone Number",
+  "bio": "Bio",
+  "tellUsAboutYourself": "Tell us about yourself",
+  "saveChanges": "SAVE CHANGES",
+  "failedToLoadAddresses": "Failed to load addresses",
+  "deleteAddress": "Delete Address",
+  "confirmDeleteAddress": "Are you sure you want to delete this address?",
+  "cancel": "CANCEL",
+  "delete": "Delete",
+  "addressDeleted": "Address deleted",
+  "defaultAddressUpdated": "Default address updated",
+  "noAddressesFound": "No addresses found",
+  "addNewAddress": "Add New Address",
+  "edit": "Edit",
+  "setAsDefault": "Set as Default",
+  "addAddress": "Add Address",
+  "editAddress": "Edit Address",
+  "addressName": "Address Name",
+  "addressNameHint": "Home, Work, etc.",
+  "streetAddress": "Street Address",
+  "streetAddressHint": "123 Main St",
+  "city": "City",
+  "stateProvince": "State/Province",
+  "zipPostalCode": "ZIP/Postal Code",
+  "country": "Country",
+  "setAsDefaultAddress": "Set as default address",
+  "defaultAddressDescription": "This address will be selected by default during checkout",
+  "saveAddress": "SAVE ADDRESS",
+  "enterAddressName": "Please enter an address name",
+  "enterStreetAddress": "Please enter a street address",
+  "enterCity": "Please enter a city",
+  "enterState": "Please enter a state",
+  "enterZipCode": "Please enter a ZIP code",
+  "enterCountry": "Enter your country",
+  "description": "Description",
+  "addToCart": "Add to Cart",
+  "relatedProducts": "Related Products",
+  "noRelatedProducts": "No related products available",
+  "addedToCart": "Added to cart",
+  "failedToAddToCart": "Failed to add to cart: {error}",
+  "noProductsInCategory": "No products available in this category",
+  "checkBackLater": "Please check back later",
+  "errorLoadingProducts": "Unable to load products. Please check your connection and try again.",
+  "retry": "RETRY",
+  "inStock": "{stock} in stock",
+  "organicProducts": "Organic Products",
+  "sortAndFilter": "Sort & Filter",
+  "sortBy": "Sort By",
+  "nameAZ": "Name (A-Z)",
+  "nameZA": "Name (Z-A)",
+  "priceLowHigh": "Price (Low-High)",
+  "priceHighLow": "Price (High-Low)",
+  "showInStockOnly": "Show In Stock Only",
+  "close": "Close",
+  "searchOrganicProducts": "Search organic products...",
+  "errorLoadingOrganicProducts": "Error loading organic products: {error}",
+  "noOrganicProductsFound": "No organic products found",
+  "deleteProduct": "Delete Product",
+  "confirmDeleteProduct": "Are you sure you want to delete {productName}?",
+  "productDeletedSuccessfully": "Product deleted successfully",
+  "errorDeletingProduct": "Error deleting product: {error}",
+  "shoppingCart": "Shopping Cart",
+  "clearCart": "Clear Cart",
+  "confirmClearCart": "Are you sure you want to clear your cart?",
+  "pleaseLoginToViewCart": "Please login to view your cart",
+  "yourCartIsEmpty": "Your cart is empty",
+  "continueShopping": "Continue Shopping",
+  "itemRemovedFromCart": "Item removed from cart",
+  "removeItem": "Remove Item",
+  "confirmRemoveItem": "Are you sure you want to remove this item from your cart?",
+  "total": "Total:",
+  "proceedToCheckout": "Proceed to Checkout",
+  "checkout": "Checkout",
+  "pleaseLoginToPlaceOrder": "Please log in to place an order",
+  "failedToPlaceOrder": "Failed to place order: {error}",
+  "orderSummary": "Order Summary",
+  "deliveryInformation": "Delivery Information",
+  "deliveryMethod": "Delivery Method",
+  "standardDelivery": "Standard Delivery",
+  "standardDeliveryTime": "3-5 business days",
+  "expressDelivery": "Express Delivery",
+  "expressDeliveryTime": "1-2 business days",
+  "deliveryAddress": "Delivery Address",
+  "pleaseSelectDeliveryAddress": "Please select delivery address",
+  "phoneNumberHint": "+255 123 456 789",
+  "phoneNumberRequired": "Phone number is required",
+  "paymentMethod": "Payment Method",
+  "cashOnDelivery": "Cash on Delivery",
+  "cashOnDeliveryDescription": "Pay when you receive your order",
+  "creditDebitCard": "Credit/Debit Card",
+  "creditDebitCardDescription": "Secure online payment",
+  "orderNotesOptional": "Order Notes (Optional)",
+  "orderNotesHint": "Any special instructions for your order...",
+  "placeOrder": "PLACE ORDER - TZS {total}",
+  "selectAddress": "Select Address",
+  "sellerDashboardTitle": "Seller Dashboard",
+  "productsTab": "Products",
+  "ordersTab": "Orders",
+  "transportsTab": "Transports",
+  "organicTab": "Organic",
+  "servicesTab": "Services",
+  "addProduct": "Add Product",
+  "noProductsFound": "No products found",
+  "filterByCategory": "Filter by Category",
+  "outOfStock": "Out of stock",
+  "failedToDeleteProduct": "Failed to delete product: {error}",
+  "failedToLoadProducts": "Failed to load products: {error}",
+  "addNewProduct": "Add New Product",
+  "productName": "Product Name",
+  "enterProductName": "Please enter a product name",
+  "productDescription": "Description",
+  "enterDescription": "Please enter a description",
+  "productPrice": "Price",
+  "required": "Required",
+  "invalid": "Invalid",
+  "stock": "Stock",
+  "enterStockQuantity": "Please enter stock quantity",
+  "invalidStockQuantity": "Invalid stock quantity",
+  "category": "Category",
+  "productImages": "Product Images",
+  "addImages": "Add Images",
+  "imagesSelected": "{count} image(s) selected",
+  "productAddedSuccessfully": "Product added successfully",
+  "failedToAddProduct": "Failed to add product: {error}",
+  "editProduct": "Edit Product",
+  "enterProductDescription": "Please enter a product description",
+  "invalidPrice": "Invalid price",
+  "updateProduct": "Update Product",
+  "productUpdatedSuccessfully": "Product updated successfully",
+  "productDeleted": "Product deleted successfully",
+  "myOrganicProducts": "My Organic Products",
+  "apiServiceNotInitialized": "API service not initialized",
+  "failedToFetchOrganicProducts": "Failed to fetch organic products",
+  "noOrganicProductsYet": "No Organic Products Yet",
+  "startAddingOrganicProduct": "Start by adding your first organic product",
+  "addOrganicProduct": "Add Organic Product",
+  "stockLabel": "Stock: {stock}",
+  "certified": "Certified: {certification}",
+  "active": "Active",
+  "inactive": "Inactive",
+  "featured": "Featured",
+  "deleteOrganicProduct": "Delete Organic Product",
+  "confirmDeleteOrganicProduct": "Are you sure you want to delete \"{productName}\"? This action cannot be undone.",
+  "failedToDeleteOrganicProduct": "Failed to delete product: {error}",
+  "myTransportServices": "My Transport Services",
+  "addTransport": "Add Transport",
+  "errorLoadingTransports": "Error Loading Transports",
+  "noTransportServicesYet": "No Transport Services Yet",
+  "addTransportServicesDescription": "Add your transport services to start offering delivery and transportation to customers.",
+  "addYourFirstTransport": "Add Your First Transport",
+  "capacityKg": "{capacity} kg capacity",
+  "pricePerKg": "TZS {price}/kg",
+  "noDescriptionAvailable": "No description available",
+  "deleteTransportService": "Delete Transport Service",
+  "confirmDeleteTransport": "Are you sure you want to delete \"{title}\"? This action cannot be undone.",
+  "transportDeletedSuccessfully": "Transport deleted successfully",
+  "failedToDeleteTransport": "Failed to delete transport: {error}",
+  "editTransportService": "Edit Transport Service",
+  "save": "SAVE",
+  "basicInformation": "Basic Information",
+  "serviceTitle": "Service Title",
+  "serviceTitleHint": "e.g., Reliable Delivery Truck",
+  "describeService": "Describe your transport service...",
+  "enterServiceTitle": "Please enter a service title",
+  "enterServiceDescription": "Please enter a description",
+  "vehicleDetails": "Vehicle Details",
+  "vehicleType": "Vehicle Type",
+  "vehicleLocation": "Vehicle Location",
+  "vehicleLocationHint": "e.g., Dar es Salaam, Tanzania",
+  "enterVehicleLocation": "Please enter vehicle location",
+  "pricePerKm": "Price per KM",
+  "enterPrice": "Enter price",
+  "enterValidPrice": "Enter valid price",
+  "capacityKgLabel": "Capacity (kg)",
+  "enterCapacity": "Enter capacity",
+  "enterValidCapacity": "Enter valid capacity",
+  "contactInformation": "Contact Information",
+  "contactPhone": "Contact Phone",
+  "contactPhoneHint": "e.g., +255 123 456 789",
+  "enterContactPhone": "Please enter contact phone",
+  "status": "Status",
+  "updateTransportService": "Update Transport Service",
+  "transportUpdatedSuccessfully": "Transport service updated successfully!",
+  "failedToUpdateTransport": "Failed to update transport: {error}",
+  "sellerOrders": "Seller Orders",
+  "errorLoadingOrders": "Error Loading Orders",
+  "noOrdersYet": "No Orders Yet",
+  "ordersDescription": "Orders from customers will appear here once they start purchasing your products.",
+  "refreshOrders": "Refresh Orders",
+  "orderNumber": "Order #{id}",
+  "totalAmount": "Total: TZS {amount}",
+  "itemsCount": "Items: {count}",
+  "orderDate": "Date: {date}",
+  "markAsProcessing": "Mark as Processing",
+  "markAsShipped": "Mark as Shipped",
+  "markAsDelivered": "Mark as Delivered",
+  "orderDelivered": "Order Delivered",
+  "orderCancelled": "Order Cancelled",
+  "orderStatusUpdated": "Order status updated to {status}",
+  "failedToUpdateOrderStatus": "Failed to update order status",
+  "errorUpdatingOrderStatus": "Error updating order status: {error}",
+  "emailLabel": "Email: {email}",
+  "phoneLabel": "Phone: {phone}",
+  "addressLabel": "Address: {address}",
+  "serviceCategories": "Service Categories",
+  "services": "Services",
+  "noServicesAvailable": "No services available",
+  "chat": "Chat",
+  "noTitle": "No Title",
+  "notAvailable": "N/A",
+  "addNewService": "Add New Service",
+  "createYourService": "Create Your Service",
+  "fillServiceDetails": "Fill in the details to offer your agricultural service",
+  "serviceTitleExample": "e.g., Irrigation System Installation",
+  "enterTitle": "Please enter a title",
+  "describeServiceDetail": "Describe your service in detail...",
+  "priceTzs": "Price (TZS)",
+  "enterServicePrice": "Enter service price",
+  "enterValidServicePrice": "Please enter a valid price",
+  "agriculturalServiceCategory": "Agricultural Service Category",
+  "selectCategory": "Select a category",
+  "loadingCategories": "Loading categories...",
+  "serviceImage": "Service Image",
+  "addImageToService": "Add an image to make your service more appealing",
+  "chooseImage": "Choose Image",
+  "creatingService": "Creating Service...",
+  "createService": "Create Service",
+  "selectCategoryError": "Please select a category",
+  "failedToLoadCategories": "Failed to load categories: {error}",
+  "editService": "Edit Service",
+  "changeServiceImage": "Change Service Image",
+  "updateService": "Update Service",
+  "myAgriculturalServices": "My Agricultural Services",
+  "serviceProviderRoleRequired": "You need to have Service Provider role to manage services.",
+  "failedToLoadServices": "Failed to load services: {error}",
+  "noServicesYet": "No Services Yet",
+  "startOfferingServices": "Start offering agricultural services to farmers and grow your business",
+  "addYourFirstService": "Add Your First Service",
+  "noDescription": "No Description",
+  "servicePrice": "TZS {price}",
+  "pending": "Pending",
+  "editServiceLabel": "Edit Service",
+  "deleteServiceLabel": "Delete Service",
+  "confirmDeleteService": "Are you sure you want to delete \"{title}\"?",
+  "serviceDeletedSuccessfully": "Service deleted successfully",
+  "failedToDeleteService": "Failed to delete service: {error}",
+  "addService": "Add Service",
+  "welcomeTo": "Welcome to",
+  "agricultureDescription": "Everything you need to know about agriculture is here",
+  "searchProducts": "Search products...",
+  "categories": "Categories",
+  "seeAll": "See All",
+  "noCategoriesAvailable": "No categories available",
+  "marketNews": "Market News",
+  "loadingMarketNews": "Loading market news...",
+  "failedToLoadMarketNews": "Failed to load market news",
+  "noMarketNewsAvailable": "No market news available",
+  "tapToRetry": "Tap to retry",
+  "stayUpdatedMarketNews": "Stay Updated with Market News",
+  "marketNewsDescription": "Get the latest agricultural market trends, prices, and insights to make informed decisions.",
+  "exploreNews": "Explore News",
+  "featuredProducts": "Featured Products",
+  "noFeaturedProductsAvailable": "No featured products available",
+  "errorLoadingFeaturedProducts": "Error loading featured products: {error}",
+  "failedToLoadMarketInformation": "Failed to load market information.",
+  "removedFromWishlist": "Removed from wishlist",
+  "addedToWishlist": "Added to wishlist",
+  "productAddedToCart": "{productName} added to cart",
+  "viewCart": "View Cart",
+  "noCategoriesFound": "No categories found",
+  "featuredTransports": "Featured Transports",
+  "noFeaturedTransportsAvailable": "No featured transports available",
+  "@home": {
+    "description": "Description for home"
+  },
+  "@profile": {
+    "description": "Description for profile"
+  },
+  "@cart": {
+    "description": "Description for cart"
+  },
+  "@orders": {
+    "description": "Description for orders"
+  },
+  "@settings": {
+    "description": "Description for settings"
+  },
+  "@myProfile": {
+    "description": "Description for myProfile"
+  },
+  "@guestUser": {
+    "description": "Description for guestUser"
+  },
+  "@loginRegister": {
+    "description": "Description for loginRegister"
+  },
+  "@account": {
+    "description": "Description for account"
+  },
+  "@personalDetails": {
+    "description": "Description for personalDetails"
+  },
+  "@requestAccountDeletion": {
+    "description": "Description for requestAccountDeletion"
+  },
+  "@sellerDashboard": {
+    "description": "Description for sellerDashboard"
+  },
+  "@serviceProviderDashboard": {
+    "description": "Description for serviceProviderDashboard"
+  },
+  "@manageAddresses": {
+    "description": "Description for manageAddresses"
+  },
+  "@myOrders": {
+    "description": "Description for myOrders"
+  },
+  "@myFavorites": {
+    "description": "Description for myFavorites"
+  },
+  "@appSettings": {
+    "description": "Description for appSettings"
+  },
+  "@notifications": {
+    "description": "Description for notifications"
+  },
+  "@language": {
+    "description": "Description for language"
+  },
+  "@englishKiswahili": {
+    "description": "Description for englishKiswahili"
+  },
+  "@helpSupport": {
+    "description": "Description for helpSupport"
+  },
+  "@developerSettings": {
+    "description": "Description for developerSettings"
+  },
+  "@about": {
+    "description": "Description for about"
+  },
+  "@privacyPolicy": {
+    "description": "Description for privacyPolicy"
+  },
+  "@marketInformation": {
+    "description": "Description for marketInformation"
+  },
+  "@logout": {
+    "description": "Description for logout"
+  },
+  "@loginRequired": {
+    "description": "Description for loginRequired"
+  },
+  "@loginRequiredMessage": {
+    "description": "Description for loginRequiredMessage"
+  },
+  "@later": {
+    "description": "Description for later"
+  },
+  "@admin": {
+    "description": "Description for admin"
+  },
+  "@seller": {
+    "description": "Description for seller"
+  },
+  "@serviceProvider": {
+    "description": "Description for serviceProvider"
+  },
+  "@buyer": {
+    "description": "Description for buyer"
+  },
+  "@editProfile": {
+    "description": "Description for editProfile"
+  },
+  "@addresses": {
+    "description": "Description for addresses"
+  },
+  "@logoutConfirmation": {
+    "description": "Description for logoutConfirmation"
+  },
+  "@homeTitle": {
+    "description": "Description for homeTitle"
+  },
+  "@appName": {
+    "description": "Description for appName"
+  },
+  "@appSubtitle": {
+    "description": "Description for appSubtitle"
+  },
+  "@poweredBy": {
+    "description": "Description for poweredBy"
+  },
+  "@costech": {
+    "description": "Description for costech"
+  },
+  "@serviceProviderUnavailable": {
+    "description": "Description for serviceProviderUnavailable"
+  },
+  "@notificationsComingSoon": {
+    "description": "Description for notificationsComingSoon"
+  },
+  "@helpSupportComingSoon": {
+    "description": "Description for helpSupportComingSoon"
+  },
+  "@noEmailApp": {
+    "description": "Description for noEmailApp"
+  },
+  "@couldNotOpenLink": {
+    "description": "Description for couldNotOpenLink"
+  },
+  "@loggedOutSuccessfully": {
+    "description": "Description for loggedOutSuccessfully"
+  },
+  "@logoutFailed": {
+    "description": "Description for logoutFailed"
+  },
+  "@masokoTips": {
+    "description": "Description for masokoTips"
+  },
+  "@copyright": {
+    "description": "Description for copyright"
+  },
+  "@aboutDescription": {
+    "description": "Description for aboutDescription"
+  },
+  "@aboutContact": {
+    "description": "Description for aboutContact"
+  },
+  "@pleaseLoginToEditProfile": {
+    "description": "Description for pleaseLoginToEditProfile"
+  },
+  "@errorPickingImage": {
+    "description": "Description for errorPickingImage"
+  },
+  "@photoLibrary": {
+    "description": "Description for photoLibrary"
+  },
+  "@camera": {
+    "description": "Description for camera"
+  },
+  "@removePhoto": {
+    "description": "Description for removePhoto"
+  },
+  "@profileUpdatedSuccessfully": {
+    "description": "Description for profileUpdatedSuccessfully"
+  },
+  "@failedToUpdateProfile": {
+    "description": "Description for failedToUpdateProfile"
+  },
+  "@emailAlreadyRegistered": {
+    "description": "Description for emailAlreadyRegistered"
+  },
+  "@fullName": {
+    "description": "Description for fullName"
+  },
+  "@phoneNumber": {
+    "description": "Description for phoneNumber"
+  },
+  "@bio": {
+    "description": "Description for bio"
+  },
+  "@tellUsAboutYourself": {
+    "description": "Description for tellUsAboutYourself"
+  },
+  "@saveChanges": {
+    "description": "Description for saveChanges"
+  },
+  "@failedToLoadAddresses": {
+    "description": "Description for failedToLoadAddresses"
+  },
+  "@deleteAddress": {
+    "description": "Description for deleteAddress"
+  },
+  "@confirmDeleteAddress": {
+    "description": "Description for confirmDeleteAddress"
+  },
+  "@cancel": {
+    "description": "Description for cancel"
+  },
+  "@delete": {
+    "description": "Description for delete"
+  },
+  "@addressDeleted": {
+    "description": "Description for addressDeleted"
+  },
+  "@defaultAddressUpdated": {
+    "description": "Description for defaultAddressUpdated"
+  },
+  "@noAddressesFound": {
+    "description": "Description for noAddressesFound"
+  },
+  "@addNewAddress": {
+    "description": "Description for addNewAddress"
+  },
+  "@edit": {
+    "description": "Description for edit"
+  },
+  "@setAsDefault": {
+    "description": "Description for setAsDefault"
+  },
+  "@addAddress": {
+    "description": "Description for addAddress"
+  },
+  "@editAddress": {
+    "description": "Description for editAddress"
+  },
+  "@addressName": {
+    "description": "Description for addressName"
+  },
+  "@addressNameHint": {
+    "description": "Description for addressNameHint"
+  },
+  "@streetAddress": {
+    "description": "Description for streetAddress"
+  },
+  "@streetAddressHint": {
+    "description": "Description for streetAddressHint"
+  },
+  "@city": {
+    "description": "Description for city"
+  },
+  "@stateProvince": {
+    "description": "Description for stateProvince"
+  },
+  "@zipPostalCode": {
+    "description": "Description for zipPostalCode"
+  },
+  "@country": {
+    "description": "Description for country"
+  },
+  "@setAsDefaultAddress": {
+    "description": "Description for setAsDefaultAddress"
+  },
+  "@defaultAddressDescription": {
+    "description": "Description for defaultAddressDescription"
+  },
+  "@saveAddress": {
+    "description": "Description for saveAddress"
+  },
+  "@enterAddressName": {
+    "description": "Description for enterAddressName"
+  },
+  "@enterStreetAddress": {
+    "description": "Description for enterStreetAddress"
+  },
+  "@enterCity": {
+    "description": "Description for enterCity"
+  },
+  "@enterState": {
+    "description": "Description for enterState"
+  },
+  "@enterZipCode": {
+    "description": "Description for enterZipCode"
+  },
+  "@enterCountry": {
+    "description": "Description for enterCountry"
+  },
+  "@description": {
+    "description": "Description for description"
+  },
+  "@addToCart": {
+    "description": "Description for addToCart"
+  },
+  "@relatedProducts": {
+    "description": "Description for relatedProducts"
+  },
+  "@noRelatedProducts": {
+    "description": "Description for noRelatedProducts"
+  },
+  "@failedToAddToCart": {
+    "description": "Description for failedToAddToCart",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@noProductsInCategory": {
+    "description": "Description for noProductsInCategory"
+  },
+  "@checkBackLater": {
+    "description": "Description for checkBackLater"
+  },
+  "@errorLoadingProducts": {
+    "description": "Description for errorLoadingProducts"
+  },
+  "@retry": {
+    "description": "Description for retry"
+  },
+  "@inStock": {
+    "description": "Description for inStock",
+    "placeholders": {
+      "stock": {
+        "type": "num"
+      }
+    }
+  },
+  "@organicProducts": {
+    "description": "Description for organicProducts"
+  },
+  "@sortAndFilter": {
+    "description": "Description for sortAndFilter"
+  },
+  "@sortBy": {
+    "description": "Description for sortBy"
+  },
+  "@nameAZ": {
+    "description": "Description for nameAZ"
+  },
+  "@nameZA": {
+    "description": "Description for nameZA"
+  },
+  "@priceLowHigh": {
+    "description": "Description for priceLowHigh"
+  },
+  "@priceHighLow": {
+    "description": "Description for priceHighLow"
+  },
+  "@showInStockOnly": {
+    "description": "Description for showInStockOnly"
+  },
+  "@close": {
+    "description": "Description for close"
+  },
+  "@searchOrganicProducts": {
+    "description": "Description for searchOrganicProducts"
+  },
+  "@errorLoadingOrganicProducts": {
+    "description": "Description for errorLoadingOrganicProducts",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@noOrganicProductsFound": {
+    "description": "Description for noOrganicProductsFound"
+  },
+  "@deleteProduct": {
+    "description": "Description for deleteProduct"
+  },
+  "@confirmDeleteProduct": {
+    "description": "Description for confirmDeleteProduct",
+    "placeholders": {
+      "productName": {
+        "type": "String"
+      }
+    }
+  },
+  "@errorDeletingProduct": {
+    "description": "Description for errorDeletingProduct",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@shoppingCart": {
+    "description": "Description for shoppingCart"
+  },
+  "@clearCart": {
+    "description": "Description for clearCart"
+  },
+  "@confirmClearCart": {
+    "description": "Description for confirmClearCart"
+  },
+  "@pleaseLoginToViewCart": {
+    "description": "Description for pleaseLoginToViewCart"
+  },
+  "@yourCartIsEmpty": {
+    "description": "Description for yourCartIsEmpty"
+  },
+  "@continueShopping": {
+    "description": "Description for continueShopping"
+  },
+  "@itemRemovedFromCart": {
+    "description": "Description for itemRemovedFromCart"
+  },
+  "@removeItem": {
+    "description": "Description for removeItem"
+  },
+  "@confirmRemoveItem": {
+    "description": "Description for confirmRemoveItem"
+  },
+  "@total": {
+    "description": "Description for total"
+  },
+  "@proceedToCheckout": {
+    "description": "Description for proceedToCheckout"
+  },
+  "@checkout": {
+    "description": "Description for checkout"
+  },
+  "@pleaseLoginToPlaceOrder": {
+    "description": "Description for pleaseLoginToPlaceOrder"
+  },
+  "@failedToPlaceOrder": {
+    "description": "Description for failedToPlaceOrder",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@orderSummary": {
+    "description": "Description for orderSummary"
+  },
+  "@deliveryInformation": {
+    "description": "Description for deliveryInformation"
+  },
+  "@deliveryMethod": {
+    "description": "Description for deliveryMethod"
+  },
+  "@standardDelivery": {
+    "description": "Description for standardDelivery"
+  },
+  "@standardDeliveryTime": {
+    "description": "Description for standardDeliveryTime"
+  },
+  "@expressDelivery": {
+    "description": "Description for expressDelivery"
+  },
+  "@expressDeliveryTime": {
+    "description": "Description for expressDeliveryTime"
+  },
+  "@deliveryAddress": {
+    "description": "Description for deliveryAddress"
+  },
+  "@pleaseSelectDeliveryAddress": {
+    "description": "Description for pleaseSelectDeliveryAddress"
+  },
+  "@phoneNumberHint": {
+    "description": "Description for phoneNumberHint"
+  },
+  "@phoneNumberRequired": {
+    "description": "Description for phoneNumberRequired"
+  },
+  "@paymentMethod": {
+    "description": "Description for paymentMethod"
+  },
+  "@cashOnDelivery": {
+    "description": "Description for cashOnDelivery"
+  },
+  "@cashOnDeliveryDescription": {
+    "description": "Description for cashOnDeliveryDescription"
+  },
+  "@creditDebitCard": {
+    "description": "Description for creditDebitCard"
+  },
+  "@creditDebitCardDescription": {
+    "description": "Description for creditDebitCardDescription"
+  },
+  "@orderNotesOptional": {
+    "description": "Description for orderNotesOptional"
+  },
+  "@orderNotesHint": {
+    "description": "Description for orderNotesHint"
+  },
+  "@placeOrder": {
+    "description": "Description for placeOrder",
+    "placeholders": {
+      "total": {
+        "type": "num"
+      }
+    }
+  },
+  "@selectAddress": {
+    "description": "Description for selectAddress"
+  },
+  "@sellerDashboardTitle": {
+    "description": "Description for sellerDashboardTitle"
+  },
+  "@productsTab": {
+    "description": "Description for productsTab"
+  },
+  "@ordersTab": {
+    "description": "Description for ordersTab"
+  },
+  "@transportsTab": {
+    "description": "Description for transportsTab"
+  },
+  "@organicTab": {
+    "description": "Description for organicTab"
+  },
+  "@servicesTab": {
+    "description": "Description for servicesTab"
+  },
+  "@addProduct": {
+    "description": "Description for addProduct"
+  },
+  "@noProductsFound": {
+    "description": "Description for noProductsFound"
+  },
+  "@filterByCategory": {
+    "description": "Description for filterByCategory"
+  },
+  "@outOfStock": {
+    "description": "Description for outOfStock"
+  },
+  "@failedToDeleteProduct": {
+    "description": "Description for failedToDeleteProduct",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@failedToLoadProducts": {
+    "description": "Description for failedToLoadProducts",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@addNewProduct": {
+    "description": "Description for addNewProduct"
+  },
+  "@productName": {
+    "description": "Description for productName"
+  },
+  "@enterProductName": {
+    "description": "Description for enterProductName"
+  },
+  "@productDescription": {
+    "description": "Description for productDescription"
+  },
+  "@enterDescription": {
+    "description": "Description for enterDescription"
+  },
+  "@productPrice": {
+    "description": "Description for productPrice"
+  },
+  "@required": {
+    "description": "Description for required"
+  },
+  "@invalid": {
+    "description": "Description for invalid"
+  },
+  "@stock": {
+    "description": "Description for stock"
+  },
+  "@enterStockQuantity": {
+    "description": "Description for enterStockQuantity"
+  },
+  "@invalidStockQuantity": {
+    "description": "Description for invalidStockQuantity"
+  },
+  "@category": {
+    "description": "Description for category"
+  },
+  "@productImages": {
+    "description": "Description for productImages"
+  },
+  "@addImages": {
+    "description": "Description for addImages"
+  },
+  "@imagesSelected": {
+    "description": "Description for imagesSelected",
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "@productAddedSuccessfully": {
+    "description": "Description for productAddedSuccessfully"
+  },
+  "@failedToAddProduct": {
+    "description": "Description for failedToAddProduct",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@editProduct": {
+    "description": "Description for editProduct"
+  },
+  "@enterProductDescription": {
+    "description": "Description for enterProductDescription"
+  },
+  "@invalidPrice": {
+    "description": "Description for invalidPrice"
+  },
+  "@updateProduct": {
+    "description": "Description for updateProduct"
+  },
+  "@productUpdatedSuccessfully": {
+    "description": "Description for productUpdatedSuccessfully"
+  },
+  "@productDeleted": {
+    "description": "Description for productDeleted"
+  },
+  "@myOrganicProducts": {
+    "description": "Description for myOrganicProducts"
+  },
+  "@apiServiceNotInitialized": {
+    "description": "Description for apiServiceNotInitialized"
+  },
+  "@failedToFetchOrganicProducts": {
+    "description": "Description for failedToFetchOrganicProducts"
+  },
+  "@noOrganicProductsYet": {
+    "description": "Description for noOrganicProductsYet"
+  },
+  "@startAddingOrganicProduct": {
+    "description": "Description for startAddingOrganicProduct"
+  },
+  "@addOrganicProduct": {
+    "description": "Description for addOrganicProduct"
+  },
+  "@stockLabel": {
+    "description": "Description for stockLabel",
+    "placeholders": {
+      "stock": {
+        "type": "num"
+      }
+    }
+  },
+  "@certified": {
+    "description": "Description for certified",
+    "placeholders": {
+      "certification": {
+        "type": "String"
+      }
+    }
+  },
+  "@active": {
+    "description": "Description for active"
+  },
+  "@inactive": {
+    "description": "Description for inactive"
+  },
+  "@featured": {
+    "description": "Description for featured"
+  },
+  "@deleteOrganicProduct": {
+    "description": "Description for deleteOrganicProduct"
+  },
+  "@confirmDeleteOrganicProduct": {
+    "description": "Description for confirmDeleteOrganicProduct",
+    "placeholders": {
+      "productName": {
+        "type": "String"
+      }
+    }
+  },
+  "@failedToDeleteOrganicProduct": {
+    "description": "Description for failedToDeleteOrganicProduct",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@myTransportServices": {
+    "description": "Description for myTransportServices"
+  },
+  "@addTransport": {
+    "description": "Description for addTransport"
+  },
+  "@errorLoadingTransports": {
+    "description": "Description for errorLoadingTransports"
+  },
+  "@noTransportServicesYet": {
+    "description": "Description for noTransportServicesYet"
+  },
+  "@addTransportServicesDescription": {
+    "description": "Description for addTransportServicesDescription"
+  },
+  "@addYourFirstTransport": {
+    "description": "Description for addYourFirstTransport"
+  },
+  "@capacityKg": {
+    "description": "Description for capacityKg",
+    "placeholders": {
+      "capacity": {
+        "type": "num"
+      }
+    }
+  },
+  "@pricePerKg": {
+    "description": "Description for pricePerKg",
+    "placeholders": {
+      "price": {
+        "type": "num"
+      }
+    }
+  },
+  "@noDescriptionAvailable": {
+    "description": "Description for noDescriptionAvailable"
+  },
+  "@deleteTransportService": {
+    "description": "Description for deleteTransportService"
+  },
+  "@confirmDeleteTransport": {
+    "description": "Description for confirmDeleteTransport",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@failedToDeleteTransport": {
+    "description": "Description for failedToDeleteTransport",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@editTransportService": {
+    "description": "Description for editTransportService"
+  },
+  "@save": {
+    "description": "Description for save"
+  },
+  "@basicInformation": {
+    "description": "Description for basicInformation"
+  },
+  "@serviceTitle": {
+    "description": "Description for serviceTitle"
+  },
+  "@serviceTitleHint": {
+    "description": "Description for serviceTitleHint"
+  },
+  "@describeService": {
+    "description": "Description for describeService"
+  },
+  "@enterServiceTitle": {
+    "description": "Description for enterServiceTitle"
+  },
+  "@enterServiceDescription": {
+    "description": "Description for enterServiceDescription"
+  },
+  "@vehicleDetails": {
+    "description": "Description for vehicleDetails"
+  },
+  "@vehicleType": {
+    "description": "Description for vehicleType"
+  },
+  "@vehicleLocation": {
+    "description": "Description for vehicleLocation"
+  },
+  "@vehicleLocationHint": {
+    "description": "Description for vehicleLocationHint"
+  },
+  "@enterVehicleLocation": {
+    "description": "Description for enterVehicleLocation"
+  },
+  "@pricePerKm": {
+    "description": "Description for pricePerKm"
+  },
+  "@enterPrice": {
+    "description": "Description for enterPrice"
+  },
+  "@enterValidPrice": {
+    "description": "Description for enterValidPrice"
+  },
+  "@capacityKgLabel": {
+    "description": "Description for capacityKgLabel"
+  },
+  "@enterCapacity": {
+    "description": "Description for enterCapacity"
+  },
+  "@enterValidCapacity": {
+    "description": "Description for enterValidCapacity"
+  },
+  "@contactInformation": {
+    "description": "Description for contactInformation"
+  },
+  "@contactPhone": {
+    "description": "Description for contactPhone"
+  },
+  "@contactPhoneHint": {
+    "description": "Description for contactPhoneHint"
+  },
+  "@enterContactPhone": {
+    "description": "Description for enterContactPhone"
+  },
+  "@status": {
+    "description": "Description for status"
+  },
+  "@updateTransportService": {
+    "description": "Description for updateTransportService"
+  },
+  "@transportUpdatedSuccessfully": {
+    "description": "Description for transportUpdatedSuccessfully"
+  },
+  "@failedToUpdateTransport": {
+    "description": "Description for failedToUpdateTransport",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@sellerOrders": {
+    "description": "Description for sellerOrders"
+  },
+  "@errorLoadingOrders": {
+    "description": "Description for errorLoadingOrders"
+  },
+  "@noOrdersYet": {
+    "description": "Description for noOrdersYet"
+  },
+  "@ordersDescription": {
+    "description": "Description for ordersDescription"
+  },
+  "@refreshOrders": {
+    "description": "Description for refreshOrders"
+  },
+  "@orderNumber": {
+    "description": "Description for orderNumber",
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "@totalAmount": {
+    "description": "Description for totalAmount",
+    "placeholders": {
+      "amount": {
+        "type": "num"
+      }
+    }
+  },
+  "@itemsCount": {
+    "description": "Description for itemsCount",
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "@orderDate": {
+    "description": "Description for orderDate",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@markAsProcessing": {
+    "description": "Description for markAsProcessing"
+  },
+  "@markAsShipped": {
+    "description": "Description for markAsShipped"
+  },
+  "@markAsDelivered": {
+    "description": "Description for markAsDelivered"
+  },
+  "@orderDelivered": {
+    "description": "Description for orderDelivered"
+  },
+  "@orderCancelled": {
+    "description": "Description for orderCancelled"
+  },
+  "@orderStatusUpdated": {
+    "description": "Description for orderStatusUpdated",
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "@failedToUpdateOrderStatus": {
+    "description": "Description for failedToUpdateOrderStatus"
+  },
+  "@errorUpdatingOrderStatus": {
+    "description": "Description for errorUpdatingOrderStatus",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@emailLabel": {
+    "description": "Description for emailLabel",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "@phoneLabel": {
+    "description": "Description for phoneLabel",
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "@addressLabel": {
+    "description": "Description for addressLabel",
+    "placeholders": {
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "@serviceCategories": {
+    "description": "Description for serviceCategories"
+  },
+  "@services": {
+    "description": "Description for services"
+  },
+  "@noServicesAvailable": {
+    "description": "Description for noServicesAvailable"
+  },
+  "@chat": {
+    "description": "Description for chat"
+  },
+  "@noTitle": {
+    "description": "Description for noTitle"
+  },
+  "@notAvailable": {
+    "description": "Description for notAvailable"
+  },
+  "@addNewService": {
+    "description": "Description for addNewService"
+  },
+  "@createYourService": {
+    "description": "Description for createYourService"
+  },
+  "@fillServiceDetails": {
+    "description": "Description for fillServiceDetails"
+  },
+  "@serviceTitleExample": {
+    "description": "Description for serviceTitleExample"
+  },
+  "@enterTitle": {
+    "description": "Description for enterTitle"
+  },
+  "@describeServiceDetail": {
+    "description": "Description for describeServiceDetail"
+  },
+  "@priceTzs": {
+    "description": "Description for priceTzs"
+  },
+  "@enterServicePrice": {
+    "description": "Description for enterServicePrice"
+  },
+  "@enterValidServicePrice": {
+    "description": "Description for enterValidServicePrice"
+  },
+  "@agriculturalServiceCategory": {
+    "description": "Description for agriculturalServiceCategory"
+  },
+  "@selectCategory": {
+    "description": "Description for selectCategory"
+  },
+  "@loadingCategories": {
+    "description": "Description for loadingCategories"
+  },
+  "@serviceImage": {
+    "description": "Description for serviceImage"
+  },
+  "@addImageToService": {
+    "description": "Description for addImageToService"
+  },
+  "@chooseImage": {
+    "description": "Description for chooseImage"
+  },
+  "@creatingService": {
+    "description": "Description for creatingService"
+  },
+  "@createService": {
+    "description": "Description for createService"
+  },
+  "@selectCategoryError": {
+    "description": "Description for selectCategoryError"
+  },
+  "@failedToLoadCategories": {
+    "description": "Description for failedToLoadCategories",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@editService": {
+    "description": "Description for editService"
+  },
+  "@changeServiceImage": {
+    "description": "Description for changeServiceImage"
+  },
+  "@updateService": {
+    "description": "Description for updateService"
+  },
+  "@myAgriculturalServices": {
+    "description": "Description for myAgriculturalServices"
+  },
+  "@serviceProviderRoleRequired": {
+    "description": "Description for serviceProviderRoleRequired"
+  },
+  "@failedToLoadServices": {
+    "description": "Description for failedToLoadServices",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@noServicesYet": {
+    "description": "Description for noServicesYet"
+  },
+  "@startOfferingServices": {
+    "description": "Description for startOfferingServices"
+  },
+  "@addYourFirstService": {
+    "description": "Description for addYourFirstService"
+  },
+  "@noDescription": {
+    "description": "Description for noDescription"
+  },
+  "@servicePrice": {
+    "description": "Description for servicePrice",
+    "placeholders": {
+      "price": {
+        "type": "num"
+      }
+    }
+  },
+  "@pending": {
+    "description": "Description for pending"
+  },
+  "@editServiceLabel": {
+    "description": "Description for editServiceLabel"
+  },
+  "@deleteServiceLabel": {
+    "description": "Description for deleteServiceLabel"
+  },
+  "@confirmDeleteService": {
+    "description": "Description for confirmDeleteService",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@serviceDeletedSuccessfully": {
+    "description": "Description for serviceDeletedSuccessfully"
+  },
+  "@failedToDeleteService": {
+    "description": "Description for failedToDeleteService",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@addService": {
+    "description": "Description for addService"
+  },
+  "@welcomeTo": {
+    "description": "Description for welcomeTo"
+  },
+  "@agricultureDescription": {
+    "description": "Description for agricultureDescription"
+  },
+  "@searchProducts": {
+    "description": "Description for searchProducts"
+  },
+  "@categories": {
+    "description": "Description for categories"
+  },
+  "@seeAll": {
+    "description": "Description for seeAll"
+  },
+  "@noCategoriesAvailable": {
+    "description": "Description for noCategoriesAvailable"
+  },
+  "@marketNews": {
+    "description": "Description for marketNews"
+  },
+  "@loadingMarketNews": {
+    "description": "Description for loadingMarketNews"
+  },
+  "@failedToLoadMarketNews": {
+    "description": "Description for failedToLoadMarketNews"
+  },
+  "@noMarketNewsAvailable": {
+    "description": "Description for noMarketNewsAvailable"
+  },
+  "@tapToRetry": {
+    "description": "Description for tapToRetry"
+  },
+  "@stayUpdatedMarketNews": {
+    "description": "Description for stayUpdatedMarketNews"
+  },
+  "@marketNewsDescription": {
+    "description": "Description for marketNewsDescription"
+  },
+  "@exploreNews": {
+    "description": "Description for exploreNews"
+  },
+  "@featuredProducts": {
+    "description": "Description for featuredProducts"
+  },
+  "@noFeaturedProductsAvailable": {
+    "description": "Description for noFeaturedProductsAvailable"
+  },
+  "@errorLoadingFeaturedProducts": {
+    "description": "Description for errorLoadingFeaturedProducts",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@failedToLoadMarketInformation": {
+    "description": "Description for failedToLoadMarketInformation"
+  },
+  "@removedFromWishlist": {
+    "description": "Description for removedFromWishlist"
+  },
+  "@addedToWishlist": {
+    "description": "Description for addedToWishlist"
+  },
+  "@productAddedToCart": {
+    "description": "Description for productAddedToCart",
+    "placeholders": {
+      "productName": {
+        "type": "String"
+      }
+    }
+  },
+  "@viewCart": {
+    "description": "Description for viewCart"
+  },
+  "@noCategoriesFound": {
+    "description": "Description for noCategoriesFound"
+  },
+  "registrationSuccessful": "Registration successful! Welcome to maSOKOtips.",
+  "selectRoleError": "Please select a role to register.",
+  "emailTaken": "This email is already registered. Please try another email or login.",
+  "registrationFailed": "Registration failed. Please try again.",
+  "createAccount": "Create Account",
+  "joinMasokotips": "Join maSOKOtips",
+  "createAccountToGetStarted": "Create an account to get started",
+  "enterFullName": "Enter your full name",
+  "pleaseEnterName": "Please enter your name",
+  "pleaseEnterUsername": "Please enter your username",
+  "usernameTooShort": "Username must be at least 3 characters",
+  "usernameInvalid": "Username can only contain letters, numbers, and underscores",
+  "email": "Email",
+  "enterEmail": "Enter your email",
+  "pleaseEnterEmail": "Please enter your email",
+  "invalidEmail": "Please enter a valid email address",
+  "enterPhoneNumber": "Enter your phone number",
+  "pleaseEnterPhoneNumber": "Please enter your phone number",
+  "location": "Location",
+  "enterLocation": "Enter your city/region",
+  "pleaseEnterLocation": "Please enter your location",
+  "pleaseEnterCountry": "Please enter your country",
+  "agentCodeOptional": "Agent / Referral Code (Optional)",
+  "agentCodeHint": "e.g. MSK-AB12 — ask your agent",
+  "agentCodeHelper": "If an agent helped you sign up, enter their code here",
+  "pleaseEnterPassword": "Please enter a password",
+  "passwordTooShort": "Password must be at least 8 characters",
+  "confirmPassword": "Confirm Password",
+  "confirmYourPassword": "Confirm your password",
+  "pleaseConfirmPassword": "Please confirm your password",
+  "passwordsDoNotMatch": "Passwords do not match",
+  "registerAs": "Register as...",
+  "roleBuyer": "Buyer",
+  "roleSeller": "Seller",
+  "roleTransporter": "Transporter",
+  "roleServiceProvider": "Service Provider",
+  "proofOfIdentity": "Proof of Identity",
+  "optionalText": "Optional",
+  "uploadDocumentHint": "Upload a clear photo of your NIDA, Driving License, or Voter Card. Your document will be reviewed by our team for account verification. Blurry or incorrect images will delay approval.",
+  "selectDocumentType": "Select document type",
+  "nidaCard": "NIDA Card",
+  "drivingLicense": "Driving License",
+  "voterCard": "Voter Card",
+  "gallery": "Gallery",
+  "uploadTip": "Tip: Place your ID on a flat surface with good lighting before taking a photo.",
+  "createAccountCaps": "CREATE ACCOUNT",
+  "featuredServices": "Featured Services",
+  "noFeaturedServicesAvailable": "No featured services available",
+  "yesCancel": "Yes, Cancel",
+  "checkNow": "Check Now",
+  "manageSubscription": "Manage Subscription",
+  "subscriptionRequired": "Subscription Required",
+  "subscribeNow": "Subscribe Now",
+  "foodAndBeverages": "Food & Beverages",
+  "myRequests": "My Requests",
+  "postServices": "Post Services",
+  "adminLoginAdmin": "Admin Login",
+  "accessAdminDashboard": "Access Admin Dashboard",
+  "cancelAndRetry": "Cancel and Retry",
+  "cancelPaymentTitle": "Cancel Payment",
+  "no": "No",
+  "marketDemands": "Market Demands",
+  "agriculturalServices": "Agricultural Services",
+  "cancelCaps": "CANCEL",
+  "subscribeNowCaps": "SUBSCRIBE NOW",
+  "phoneNumberNotAvailable": "Phone number not available",
+  "couldNotLaunchDialer": "Could not launch dialer",
+  "marketplace": "Marketplace",
+  "noItemsFound": "No items found",
+  "contacts": "Contacts",
+  "settingsAndAbout": "Settings & About",
+  "legal": "Legal",
+  "appTitleSection": "App",
+  "appNameLabel": "App Name",
+  "versionLabel": "Version",
+  "seeStoreListingForLatest": "See store listing for latest",
+  "accountDeletionRequestSubject": "Account Deletion Request - maSOKOtips",
+  "accountDeletionRequestBody": "Hello maSOKOtips Team,\n\nI would like to request deletion of my account and associated data.\n\nPlease confirm once completed.\n\nThanks.",
+  "noEmailAppFound": "No email app found to send request",
+  "helloGuest": "Hello Guest",
+  "signInToYourAccount": "Sign in to your account",
+  "homeMenu": "Home",
+  "productsMenu": "Products",
+  "transportMenu": "Transport",
+  "marketInfoMenu": "Market Info",
+  "profileMenu": "Profile",
+  "myOrdersMenu": "My Orders",
+  "wishlistMenu": "Wishlist",
+  "settingsMenu": "Settings",
+  "privacyPolicyMenu": "Privacy Policy",
+  "helpAndSupportMenu": "Help & Support",
+  "aboutMenu": "About",
+  "logoutMenu": "Logout",
+  "aboutMasokoTips": "About maSOKO tips",
+  "aboutMasokoTipsDescription": "maSOKO tips is your agricultural marketplace companion. Find products, services, and market information all in one place.",
+  "closeButton": "Close",
+  "twofactorAuthenticationEnabled": "Two-Factor Authentication enabled",
+  "viewOrderHistory": "View Order History",
+  "emailNotifications": "Email Notifications",
+  "newPasswordsDoNotMatch": "New passwords do not match",
+  "thisActionCannotBeUndoneAll": "This action cannot be undone. All your data will be permanently deleted.",
+  "pleaseLoginToSendAMessage": "Please login to send a message.",
+  "pleaseLoginToAddATransport": "Please login to add a transport",
+  "startYourJourney": "Start Your Journey",
+  "newsCopiedToClipboard": "News copied to clipboard",
+  "addFoodBeverage": "Add Food & Beverage",
+  "addNewTransport": "Add New Transport",
+  "orderConfirmation": "Order Confirmation",
+  "deleteAlt": "DELETE",
+  "noServicesFound": "No services found",
+  "english": "English",
+  "noDashboardDataAvailable": "No dashboard data available",
+  "onlyAdministratorsCanEditMarketInformation": "Only administrators can edit market information",
+  "deleteService": "Delete Service",
+  "clearWishlist": "Clear Wishlist",
+  "adminLoginSuccessful": "Admin login successful!",
+  "undoRemove": "Undo Remove",
+  "viewYourAccountActivity": "View your account activity",
+  "userManagement": "User Management",
+  "pleaseSelectACategory": "Please select a category",
+  "passwordChangedSuccessfully": "Password changed successfully",
+  "goBack": "Go Back",
+  "pleaseLogInToViewProfile": "Please log in to view profile",
+  "suspend": "Suspend",
+  "sayHello": "Say hello!",
+  "myReviews": "My Reviews",
+  "noFavoritesYet": "No favorites yet",
+  "pleaseLoginAsAdminToAccess": "Please login as admin to access organic products",
+  "activityLog": "Activity Log",
+  "pleaseLoginToAddMarketInformation": "Please login to add market information",
+  "okChangeNumber": "OK, Change Number",
+  "adminAccountCreatedSuccessfully": "Admin account created successfully!",
+  "great": "Great!",
+  "cancelPayment": "Cancel Payment",
+  "securitySettings": "Security Settings",
+  "noUsersFound": "No users found",
+  "youDoNotHavePermissionTo": "You do not have permission to access this feature.",
+  "applyFilters": "Apply Filters",
+  "bookTransportService": "Book Transport Service",
+  "pleaseAddAtLeastOneProduct": "Please add at least one product image",
+  "changeImage": "Change Image",
+  "twofactorAuthentication": "Two-Factor Authentication",
+  "unsuspendUser": "Unsuspend User",
+  "onlyAdministratorsCanAddMarketInformation": "Only administrators can add market information",
+  "marketInformationManagement": "Market Information Management",
+  "share": "Share",
+  "organicProductCreatedSuccessfully": "Organic product created successfully!",
+  "vehicleIsInsuredForCargoAnd": "Vehicle is insured for cargo and liability",
+  "itemUpdatedSuccessfully": "Item updated successfully!",
+  "organicProductUpdatedSuccessfully": "Organic product updated successfully!",
+  "unsuspendingUser": "Unsuspending user...",
+  "youCannotChatWithYourself": "You cannot chat with yourself.",
+  "pickImage": "Pick Image",
+  "transportServiceUpdatedSuccessfully": "Transport service updated successfully!",
+  "failedToCreateAdminAccount": "Failed to create admin account",
+  "smsNotifications": "SMS Notifications",
+  "pleaseLoginToCall": "Please login to call.",
+  "viewAll": "View All",
+  "receiveUpdatesAndAlertsViaEmail": "Receive updates and alerts via email",
+  "noReviewsPendingModeration": "No reviews pending moderation",
+  "postRequest": "Post Request",
+  "deletedSuccessfully": "Deleted successfully",
+  "providerContactInfoIsNotAvailable": "Provider contact info is not available. Please call instead.",
+  "cancelAlt": "CANCEL",
+  "suspended": "Suspended",
+  "areYouSureYouWantTo": "Are you sure you want to delete this market information?",
+  "price": "Price ↑",
+  "activityLogFeatureIsUnderDevelopment": "Activity log feature is under development",
+  "averageRating": "Average Rating",
+  "suspendingUser": "Suspending user...",
+  "receiveAVerificationCodeWhenSigning": "Receive a verification code when signing in",
+  "postBuyingRequest": "Post Buying Request",
+  "serviceManagement": "Service Management",
+  "date": "Date ↑",
+  "showThisItemInFeaturedSection": "Show this item in featured section",
+  "deleteRequest": "Delete Request",
+  "createAdminAccount": "Create Admin Account",
+  "couldNotLaunchPhoneDialer": "Could not launch phone dialer.",
+  "goBackWithoutCompletingPayment": "Go back without completing payment?",
+  "messages": "Messages",
+  "paymentSuccessful": "Payment Successful",
+  "areYouSureYouWantToAlt": "Are you sure you want to delete this product? This action cannot be undone.",
+  "pleaseLoginToEditYourProfile": "Please login to edit your profile",
+  "temperatureControlled": "Temperature Controlled",
+  "noMapsAppFoundOnThis": "No maps app found on this device.",
+  "organicProductDeletedSuccessfully": "Organic product deleted successfully",
+  "makeThisItemVisibleToCustomers": "Make this item visible to customers",
+  "enterPaymentNumber": "Enter Payment Number",
+  "myWishlist": "My Wishlist",
+  "logoutAlt": "LOGOUT",
+  "deviceManagementFeatureIsUnderDevelopment": "Device management feature is under development",
+  "makeProductVisibleToCustomers": "Make product visible to customers",
+  "approve": "Approve",
+  "goToMarketInformation": "Go to Market Information",
+  "editUser": "Edit User",
+  "resetLinkSentToYourEmail": "Reset link sent to your email",
+  "addMarketNews": "Add Market News",
+  "sendResetLink": "SEND RESET LINK",
+  "adminDashboard": "Admin Dashboard",
+  "requestDeletedSuccessfully": "Request deleted successfully",
+  "searchServices": "Search Services",
+  "areYouSureYouWantToAltAlt": "Are you sure you want to clear your wishlist?",
+  "showThisProductInFeaturedSection": "Show this product in featured section",
+  "accessDenied": "Access Denied",
+  "productCategoryNotFoundInCurrent": "Product category not found in current categories. Please select a category.",
+  "adminLogin": "Admin Login",
+  "bookmarkFeatureComingSoon": "Bookmark feature coming soon!",
+  "serviceAddedToCart": "Service added to cart",
+  "locationPermissionDenied": "Location permission denied.",
+  "whatsapp": "WhatsApp",
+  "tryAgain": "Try Again",
+  "paymentConfirmedSubscriptionIsNowActive": "Payment confirmed! Subscription is now active.",
+  "startShopping": "START SHOPPING",
+  "makeThisProductVisibleToCustomers": "Make this product visible to customers",
+  "myFoodBeverages": "My Food & Beverages",
+  "pleaseSelectAPlan": "Please select a plan",
+  "loginAsAdmin": "Login as Admin",
+  "keepOrder": "Keep Order",
+  "devices": "Devices",
+  "cancelOrder": "Cancel Order",
+  "productCreatedSuccessfully": "Product created successfully",
+  "editOrganicProduct": "Edit Organic Product",
+  "pleaseLoginToEditMarketInformation": "Please login to edit market information",
+  "transportServiceAddedSuccessfully": "Transport service added successfully!",
+  "checkStatus": "Check Status",
+  "call": "Call",
+  "sendEmail": "Send Email",
+  "changePassword": "Change Password",
+  "processingPayment": "Processing Payment",
+  "addTransportService": "Add Transport Service",
+  "noMessagesYet": "No messages yet.",
+  "signUpNow": "Sign Up Now",
+  "noReviewsYet": "No reviews yet",
+  "selectOrganicCategory": "Select Organic Category",
+  "deleteUser": "Delete User",
+  "browseFirst": "Browse First",
+  "loadMore": "Load More",
+  "agentDashboard": "Agent Dashboard",
+  "editFoodBeverage": "Edit Food & Beverage",
+  "cancelPaymentAlt": "Cancel Payment?",
+  "hasInsurance": "Has Insurance",
+  "reset": "Reset",
+  "areYouSureYouWantToAltAltAlt": "Are you sure you want to logout?",
+  "accountDeletionFeatureIsUnderDevelopment": "Account deletion feature is under development",
+  "transportCategories": "Transport Categories",
+  "editMarketInformation": "Edit Market Information",
+  "receiveUpdatesAndAlertsViaSms": "Receive updates and alerts via SMS",
+  "organicProductsManagement": "Organic Products Management",
+  "showProductInFeaturedSection": "Show product in featured section",
+  "orderCancelledSuccessfully": "Order cancelled successfully",
+  "foodBeverageItemCreatedSuccessfully": "Food & Beverage item created successfully!",
+  "addAService": "Add a Service",
+  "updatingUser": "Updating user...",
+  "masokotips": "maSOKOtips",
+  "noRecentSearches": "No recent searches",
+  "vehicleHasTemperatureControlForSensitive": "Vehicle has temperature control for sensitive products",
+  "loading": "Loading...",
+  "stillPendingPleaseApproveOnYour": "Still pending — please approve on your phone.",
+  "checkAgain": "Check Again",
+  "clear": "Clear",
+  "reviewStatistics": "Review Statistics",
+  "cardPayment": "Card Payment",
+  "deletingUser": "Deleting user...",
+  "areYouSureYouWantToAltAltAltAlt": "Are you sure you want to delete this address?",
+  "editTransport": "Edit Transport",
+  "areYouSureYouWantToAltAltAltAltAlt": "Are you sure you want to delete this product?",
+  "suspendUser": "Suspend User",
+  "viewMap": "View Map",
+  "pleaseEnableLocationServices": "Please enable location services",
+  "deleteAccount": "Delete Account?",
+  "transportManagement": "Transport Management",
+  "servicesManagement": "Services Management",
+  "locationServicesAreDisabled": "Location services are disabled.",
+  "unsuspend": "Unsuspend",
+  "reviewModeration": "Review Moderation",
+  "thisWillCancelThePendingPayment": "This will cancel the pending payment so you can try again with a new payment request.",
+  "stay": "Stay",
+  "message": "Message",
+  "signUp": "Sign Up",
+  "keepWaiting": "Keep Waiting",
+  "priceAlt": "Price ↓",
+  "marketInformationDeletedSuccessfully": "Market information deleted successfully",
+  "pleaseEnterYourEmailAddress": "Please enter your email address",
+  "manageDevicesThatAreLoggedIn": "Manage devices that are logged in",
+  "postARequest": "Post a Request",
+  "subscribeNowAlt": "SUBSCRIBE NOW",
+  "contact": "Contact",
+  "thisTruckDoesNotHaveA": "This truck does not have a GPS location set.",
+  "ok": "OK",
+  "thisAddressWillBeSelectedBy": "This address will be selected by default during checkout",
+  "paymentStillPendingPleaseApproveOn": "Payment still pending. Please approve on your phone or cancel to retry.",
+  "products": "Products",
+  "totalReviews": "Total Reviews",
+  "deleteMarketInformation": "Delete Market Information",
+  "retryAlt": "RETRY",
+  "twofactorAuthenticationDisabled": "Two-Factor Authentication disabled",
+  "kiswahili": "Kiswahili",
+  "filterReviews": "Filter Reviews",
+  "cancelPaymentAltAlt": "Cancel payment",
+  "name": "Name ↑",
+  "subscribeToViewContactChat": "Subscribe to view contact & chat",
+  "productsManagement": "Products Management",
+  "all": "All",
+  "getStarted": "Get Started",
+  "submit": "Submit",
+  "adminSettingsComingSoon": "Admin settings coming soon!",
+  "refresh": "Refresh",
+  "requestPostedSuccessfully": "Request posted successfully!",
+  "clearAll": "Clear all",
+  "deleteItem": "Delete Item",
+  "subscription": "Subscription",
+  "resetPassword": "Reset Password",
+  "pleaseSelectAtLeastOneSupported": "Please select at least one supported product type",
+  "referralCodeCopied": "Referral code copied!",
+  "reject": "Reject",
+  "yourSubscriptionIsNowActive": "Your subscription is now active.",
+  "onlyGifPngJpgAndJpeg": "Only .gif, .png, .jpg, and .jpeg files are allowed",
+  "deleteTransport": "Delete Transport",
+  "nameAlt": "Name ↓",
+  "locationPermissionPermanentlyDeniedEnableIn": "Location permission permanently denied. Enable in settings.",
+  "addMarketInformation": "Add Market Information",
+  "deleteFoodBeverage": "Delete Food & Beverage",
+  "updateMarketInformation": "Update Market Information",
+  "analytics": "Analytics",
+  "myBuyingRequests": "My Buying Requests",
+  "defaultAddress": "Default",
+  "continueText": "Continue"
 }

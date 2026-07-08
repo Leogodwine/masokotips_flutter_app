@@ -9,6 +9,7 @@ import '../../widgets/cached_network_image_with_cors.dart';
 import '../seller/seller_public_profile_screen.dart' as import_profile;
 import '../../providers/subscription_provider.dart';
 import '../subscription/subscription_screen.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class ServiceDetailScreen extends StatefulWidget {
   final Service service;
@@ -454,8 +455,8 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                     final authProvider = context.read<AuthProvider>();
                     if (authProvider.user == null) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Please login to send a message.'),
+                        SnackBar(
+                          content: Text(AppLocalizations.of(context)!.pleaseLoginToSendAMessage),
                           backgroundColor: Colors.orange,
                         ),
                       );
@@ -467,8 +468,8 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
 
                       if (receiverId == currentUserId) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('You cannot chat with yourself.'),
+                          SnackBar(
+                            content: Text(AppLocalizations.of(context)!.youCannotChatWithYourself),
                             backgroundColor: Colors.orange,
                           ),
                         );
@@ -512,8 +513,8 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                           final authProvider = context.read<AuthProvider>();
                           if (authProvider.user == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Please login to call.'),
+                              SnackBar(
+                                content: Text(AppLocalizations.of(context)!.pleaseLoginToCall),
                                 backgroundColor: Colors.orange,
                               ),
                             );
@@ -529,8 +530,8 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                               await launchUrl(url);
                             } else {
                               messenger.showSnackBar(
-                                const SnackBar(
-                                  content: Text('Could not launch phone dialer.'),
+                                SnackBar(
+                                  content: Text(AppLocalizations.of(context)!.couldNotLaunchPhoneDialer),
                                   backgroundColor: Colors.red,
                                 ),
                               );
@@ -566,14 +567,14 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Subscription Required'),
+        title: Text(AppLocalizations.of(context)!.subscriptionRequired),
         content: const Text(
           'Chat and Contact features are available for active subscribers only. Subscribe now to connect directly!',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL'),
+            child: Text(AppLocalizations.of(context)!.cancelAlt),
           ),
           ElevatedButton(
             onPressed: () {
@@ -583,7 +584,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                 MaterialPageRoute(builder: (_) => const SubscriptionScreen()),
               );
             },
-            child: const Text('SUBSCRIBE NOW'),
+            child: Text(AppLocalizations.of(context)!.subscribeNowAlt),
           ),
         ],
       ),

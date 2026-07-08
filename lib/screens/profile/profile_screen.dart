@@ -99,6 +99,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     }
 
+    final localizations = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.myProfile),
@@ -414,7 +416,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         user.roles.contains('buyer')) ...[
                       ListTile(
                         leading: const Icon(Icons.campaign),
-                        title: const Text('My Buying Requests'),
+                        title: Text(localizations.myRequests),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
                           if (subscriptionProvider.hasActiveSubscription) {
@@ -468,7 +470,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         user.roles.contains('service_provider')) ...[
                       ListTile(
                         leading: const Icon(Icons.handyman_outlined),
-                        title: const Text('Post Services'),
+                        title: Text(localizations.postServices),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
                           if (hasServiceProviderSubscription) {
@@ -511,8 +513,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     // Admin Login Access
                     ListTile(
                       leading: const Icon(Icons.admin_panel_settings),
-                      title: const Text('Admin Login'),
-                      subtitle: const Text('Access admin dashboard'),
+                      title: Text(localizations.adminLoginAdmin),
+                      subtitle: Text(localizations.accessAdminDashboard),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
                         Navigator.push(
@@ -855,6 +857,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildSubscriptionStatusCard(
       BuildContext context, dynamic subscription) {
+    final localizations = AppLocalizations.of(context)!;
     final Color statusColor = subscription.isActive
         ? Colors.green
         : subscription.isPending
@@ -978,7 +981,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Expanded(
                       child: OutlinedButton.icon(
                         icon: const Icon(Icons.close, size: 18),
-                        label: const Text('Cancel & Retry'),
+                        label: Text(localizations.cancelAndRetry),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.red,
                           side: const BorderSide(color: Colors.red),
@@ -991,19 +994,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           final confirm = await showDialog<bool>(
                             context: context,
                             builder: (_) => AlertDialog(
-                              title: const Text('Cancel Payment?'),
-                              content: const Text(
-                                  'This will cancel the pending payment so you can try again with a new payment request.'),
+                              title: Text(localizations.cancelPaymentTitle),
+                              content: Text(AppLocalizations.of(context)!.thisWillCancelThePendingPayment),
                               actions: [
                                 TextButton(
                                     onPressed: () =>
                                         Navigator.pop(context, false),
-                                    child: const Text('No')),
+                                    child: Text(localizations.no)),
                                 TextButton(
                                     onPressed: () =>
                                         Navigator.pop(context, true),
-                                    child: const Text('Yes, Cancel',
-                                        style: TextStyle(color: Colors.red))),
+                                    child: Text(localizations.yesCancel,
+                                        style: const TextStyle(color: Colors.red))),
                               ],
                             ),
                           );
@@ -1042,7 +1044,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Expanded(
                       child: ElevatedButton.icon(
                         icon: const Icon(Icons.refresh, size: 18),
-                        label: const Text('Check Now'),
+                        label: Text(localizations.checkNow),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Theme.of(context).primaryColor,
                           foregroundColor: Colors.white,
@@ -1062,9 +1064,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   await provider.loadUserSubscriptions();
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                            'Payment confirmed! Subscription is now active.'),
+                                      SnackBar(
+                                        content: Text(AppLocalizations.of(context)!.paymentConfirmedSubscriptionIsNowActive),
                                         backgroundColor: Colors.green,
                                       ),
                                     );
@@ -1072,9 +1073,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               } else {
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                          'Payment still pending. Please approve on your phone or cancel to retry.'),
+                                    SnackBar(
+                                      content: Text(AppLocalizations.of(context)!.paymentStillPendingPleaseApproveOn),
                                       backgroundColor: Colors.orange,
                                     ),
                                   );
@@ -1091,7 +1091,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Manage Subscription'),
+                    label: Text(localizations.manageSubscription),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).primaryColor,
                       foregroundColor: Colors.white,
@@ -1124,6 +1124,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showSubscriptionRequiredDialog(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final user = authProvider.user;
     String contentText = 'Your subscription has expired or you don\'t have an active membership. Please subscribe to access premium features and post items.';
@@ -1138,7 +1139,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Subscription Required'),
+        title: Text(localizations.subscriptionRequired),
         content: Text(contentText),
         actions: [
           TextButton(
@@ -1155,7 +1156,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               );
             },
-            child: const Text('Subscribe Now'),
+            child: Text(localizations.subscribeNow),
           ),
         ],
       ),

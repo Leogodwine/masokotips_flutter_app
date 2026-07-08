@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/admin_provider.dart';
 import '../../models/admin_dashboard_data.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -24,7 +25,7 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Dashboard'),
+        title: Text(AppLocalizations.of(context)!.adminDashboard),
       ),
       body: Consumer<AdminProvider>(
         builder: (context, adminProvider, child) {
@@ -46,7 +47,7 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     onPressed: () {
                       adminProvider.loadDashboardData();
                     },
-                    child: const Text('Retry'),
+                    child: Text(AppLocalizations.of(context)!.retry),
                   ),
                 ],
               ),
@@ -55,7 +56,7 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
           final dashboardData = adminProvider.dashboardData;
           if (dashboardData == null) {
-            return const Center(child: Text('No dashboard data available'));
+            return Center(child: Text(AppLocalizations.of(context)!.noDashboardDataAvailable));
           }
 
           return SingleChildScrollView(

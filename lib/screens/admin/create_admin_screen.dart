@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../widgets/loading_button.dart';
 import '../../widgets/api_error_widget.dart';
 import '../admin/admin_manager.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class CreateAdminScreen extends StatefulWidget {
   const CreateAdminScreen({super.key});
@@ -52,8 +53,8 @@ class _CreateAdminScreenState extends State<CreateAdminScreen> {
         if (success) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Admin account created successfully!'),
+              SnackBar(
+                content: Text(AppLocalizations.of(context)!.adminAccountCreatedSuccessfully),
                 backgroundColor: Colors.green,
               ),
             );
@@ -87,7 +88,7 @@ class _CreateAdminScreenState extends State<CreateAdminScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Admin Account'),
+        title: Text(AppLocalizations.of(context)!.createAdminAccount),
         centerTitle: true,
         elevation: 0,
       ),

@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../../providers/category_provider.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class EditProductScreen extends StatefulWidget {
   final Product product;
@@ -130,8 +131,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Product updated successfully'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.productUpdatedSuccessfully),
               backgroundColor: Colors.green,
             ),
           );
@@ -164,7 +165,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Product'),
+        title: Text(AppLocalizations.of(context)!.editProduct),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -258,8 +259,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       border: OutlineInputBorder(),
                     ),
                     hint: _isLoadingCategories
-                        ? const Text('Loading categories...')
-                        : const Text('Select Category'),
+                        ? Text(AppLocalizations.of(context)!.loadingCategories)
+                        : Text(AppLocalizations.of(context)!.selectCategory),
                     items: provider.subcategories.map((category) {
                       return DropdownMenuItem<int>(
                         value: category.id,
@@ -400,7 +401,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           ElevatedButton.icon(
                             onPressed: _pickImages,
                             icon: const Icon(Icons.add_photo_alternate),
-                            label: const Text('Add Images'),
+                            label: Text(AppLocalizations.of(context)!.addImages),
                           ),
                           if (_selectedImages.isNotEmpty)
                             Padding(
@@ -436,7 +437,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 onPressed: _isLoading ? null : _updateProduct,
                 child: _isLoading
                     ? const CircularProgressIndicator()
-                    : const Text('Update Product'),
+                    : Text(AppLocalizations.of(context)!.updateProduct),
               ),
               const SizedBox(height: 16),
 
@@ -449,7 +450,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 ),
                 child: _isLoading
                     ? const CircularProgressIndicator()
-                    : const Text('Delete Product'),
+                    : Text(AppLocalizations.of(context)!.deleteProduct),
               ),
             ],
           ),
@@ -462,20 +463,19 @@ class _EditProductScreenState extends State<EditProductScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Product'),
-        content: const Text(
-            'Are you sure you want to delete this product? This action cannot be undone.'),
+        title: Text(AppLocalizations.of(context)!.deleteProduct),
+        content: Text(AppLocalizations.of(context)!.areYouSureYouWantToAlt),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
-            child: const Text('Delete'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -492,8 +492,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Product deleted successfully'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.productDeletedSuccessfully),
               backgroundColor: Colors.green,
             ),
           );

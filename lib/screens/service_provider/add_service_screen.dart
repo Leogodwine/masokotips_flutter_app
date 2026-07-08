@@ -5,6 +5,7 @@ import '../../models/category.dart';
 import '../../services/service_service.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class AddServiceScreen extends StatefulWidget {
   final Function(Service) onServiceAdded;
@@ -112,7 +113,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: const Text('Gallery'),
+              title: Text(AppLocalizations.of(context)!.gallery),
               onTap: () {
                 Navigator.pop(context);
                 _pickImage(ImageSource.gallery);
@@ -120,7 +121,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.camera_alt),
-              title: const Text('Camera'),
+              title: Text(AppLocalizations.of(context)!.camera),
               onTap: () {
                 Navigator.pop(context);
                 _pickImage(ImageSource.camera);
@@ -242,7 +243,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text('Great!'),
+                child: Text(AppLocalizations.of(context)!.great),
               ),
             ),
           ],
@@ -587,8 +588,8 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
           ),
           items: _isLoadingCategories
               ? [
-                  const DropdownMenuItem<int>(
-                      value: null, child: Text('Loading...'))
+                  DropdownMenuItem<int>(
+                      value: null, child: Text(AppLocalizations.of(context)!.loading))
                 ]
               : _getUniqueDropdownItems(),
           onChanged: (value) => setState(() => _selectedCategoryId = value),

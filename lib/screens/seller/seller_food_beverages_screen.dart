@@ -9,6 +9,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'add_food_beverage_screen.dart';
 import 'edit_food_beverage_screen.dart';
 import '../../utils/extensions.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class SellerFoodBeveragesScreen extends StatefulWidget {
   const SellerFoodBeveragesScreen({Key? key}) : super(key: key);
@@ -125,7 +126,7 @@ class _SellerFoodBeveragesScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Food & Beverages'),
+        title: Text(AppLocalizations.of(context)!.myFoodBeverages),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
         actions: [
@@ -159,7 +160,7 @@ class _SellerFoodBeveragesScreenState
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: _loadFoodBeverages,
-                        child: const Text('Retry'),
+                        child: Text(AppLocalizations.of(context)!.retry),
                       ),
                     ],
                   ),
@@ -194,7 +195,7 @@ class _SellerFoodBeveragesScreenState
                           ElevatedButton.icon(
                             onPressed: () => _navigateToAddProduct(),
                             icon: const Icon(Icons.add),
-                            label: const Text('Add Food & Beverage'),
+                            label: Text(AppLocalizations.of(context)!.addFoodBeverage),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.orange,
                               foregroundColor: Colors.white,
@@ -310,13 +311,13 @@ class _SellerFoodBeveragesScreenState
                                           }
                                         },
                                         itemBuilder: (context) => [
-                                          const PopupMenuItem(
+                                          PopupMenuItem(
                                             value: 'edit',
                                             child: Row(
                                               children: [
-                                                Icon(Icons.edit),
-                                                SizedBox(width: 8),
-                                                Text('Edit'),
+                                                const Icon(Icons.edit),
+                                                const SizedBox(width: 8),
+                                                Text(AppLocalizations.of(context)!.edit),
                                               ],
                                             ),
                                           ),
@@ -449,13 +450,13 @@ class _SellerFoodBeveragesScreenState
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Food & Beverage'),
+        title: Text(AppLocalizations.of(context)!.deleteFoodBeverage),
         content: Text(
             'Are you sure you want to delete "${product.name}"? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -463,7 +464,7 @@ class _SellerFoodBeveragesScreenState
               _deleteFoodBeverage(product);
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),

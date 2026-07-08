@@ -9,6 +9,7 @@ import '../../utils/logger.dart';
 import 'add_transport_screen.dart';
 import 'edit_transport_screen.dart';
 import '../../utils/extensions.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class SellerTransportScreen extends StatefulWidget {
   const SellerTransportScreen({Key? key}) : super(key: key);
@@ -135,7 +136,7 @@ class _SellerTransportScreenState extends State<SellerTransportScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Transport Services'),
+        title: Text(AppLocalizations.of(context)!.myTransportServices),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -159,7 +160,7 @@ class _SellerTransportScreenState extends State<SellerTransportScreen> {
           );
         },
         icon: const Icon(Icons.add),
-        label: const Text('Add Transport'),
+        label: Text(AppLocalizations.of(context)!.addTransport),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
       ),
@@ -198,7 +199,7 @@ class _SellerTransportScreenState extends State<SellerTransportScreen> {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _loadTransports,
-              child: const Text('RETRY'),
+              child: Text(AppLocalizations.of(context)!.retryAlt),
             ),
           ],
         ),
@@ -248,7 +249,7 @@ class _SellerTransportScreenState extends State<SellerTransportScreen> {
                 );
               },
               icon: const Icon(Icons.add),
-              label: const Text('Add Your First Transport'),
+              label: Text(AppLocalizations.of(context)!.addYourFirstTransport),
             ),
           ],
         ),
@@ -557,7 +558,7 @@ class _SellerTransportScreenState extends State<SellerTransportScreen> {
                           );
                         },
                         icon: const Icon(Icons.edit, size: 18),
-                        label: const Text('Edit'),
+                        label: Text(AppLocalizations.of(context)!.edit),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.blue,
                           side: const BorderSide(color: Colors.blue),
@@ -569,7 +570,7 @@ class _SellerTransportScreenState extends State<SellerTransportScreen> {
                       child: OutlinedButton.icon(
                         onPressed: () => _showDeleteDialog(transport),
                         icon: const Icon(Icons.delete, size: 18),
-                        label: const Text('Delete'),
+                        label: Text(AppLocalizations.of(context)!.delete),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.red,
                           side: const BorderSide(color: Colors.red),
@@ -591,13 +592,13 @@ class _SellerTransportScreenState extends State<SellerTransportScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Delete Transport Service'),
+          title: Text(AppLocalizations.of(context)!.deleteTransportService),
           content: Text(
               'Are you sure you want to delete "${transport.title}"? This action cannot be undone.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             TextButton(
               onPressed: () {
@@ -605,7 +606,7 @@ class _SellerTransportScreenState extends State<SellerTransportScreen> {
                 _deleteTransport(transport);
               },
               style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Delete'),
+              child: Text(AppLocalizations.of(context)!.delete),
             ),
           ],
         );

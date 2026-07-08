@@ -6,6 +6,7 @@ import '../../models/service.dart';
 import 'service_detail_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class ServiceSearchScreen extends StatefulWidget {
   const ServiceSearchScreen({super.key});
@@ -75,7 +76,7 @@ class _ServiceSearchScreenState extends State<ServiceSearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Search Services'),
+        title: Text(AppLocalizations.of(context)!.searchServices),
       ),
       body: Column(
         children: [
@@ -139,7 +140,7 @@ class _ServiceSearchScreenState extends State<ServiceSearchScreen> {
                     ElevatedButton.icon(
                       onPressed: () => _performSearch(_searchController.text),
                       icon: const Icon(Icons.refresh),
-                      label: const Text('Try Again'),
+                      label: Text(AppLocalizations.of(context)!.tryAgain),
                     ),
                   ],
                 ),

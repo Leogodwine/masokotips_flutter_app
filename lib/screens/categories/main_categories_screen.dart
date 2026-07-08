@@ -86,7 +86,7 @@ class _MainCategoriesScreenState extends State<MainCategoriesScreen> {
             ElevatedButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
+              label: Text(AppLocalizations.of(context)!.retry),
             ),
           ],
         ),

@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/transport_provider.dart';
 import '../../providers/auth_provider.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../utils/image_upload_helper.dart';
 import 'package:geolocator/geolocator.dart';
-import 'dart:typed_data';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class AddTransportScreen extends StatefulWidget {
   const AddTransportScreen({Key? key}) : super(key: key);
@@ -82,8 +84,8 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
           } else {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Please login to add a transport'),
+                SnackBar(
+                  content: Text(AppLocalizations.of(context)!.pleaseLoginToAddATransport),
                   backgroundColor: Colors.red,
                 ),
               );
@@ -126,8 +128,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     try {
-      final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      final XFile? image = await ImageUploadHelper.pickAndCropImage(context);
 
       if (image != null) {
         final bytes = await image.readAsBytes();
@@ -152,8 +153,8 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
       if (!serviceEnabled) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Please enable location services'),
+            SnackBar(
+                content: Text(AppLocalizations.of(context)!.pleaseEnableLocationServices),
                 backgroundColor: Colors.orange),
           );
         }
@@ -167,9 +168,8 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
       if (permission == LocationPermission.deniedForever) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text(
-                    'Location permission permanently denied. Enable in settings.'),
+            SnackBar(
+                content: Text(AppLocalizations.of(context)!.locationPermissionPermanentlyDeniedEnableIn),
                 backgroundColor: Colors.red),
           );
         }
@@ -217,8 +217,8 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
     // Add validation for supportedProductTypes
     if (_selectedProductTypes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select at least one supported product type'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.pleaseSelectAtLeastOneSupported),
           backgroundColor: Colors.red,
         ),
       );
@@ -228,8 +228,8 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
     final authProvider = context.read<AuthProvider>();
     if (authProvider.token == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please login to add a transport'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.pleaseLoginToAddATransport),
           backgroundColor: Colors.red,
         ),
       );
@@ -309,7 +309,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add New Transport'),
+        title: Text(AppLocalizations.of(context)!.addNewTransport),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -637,7 +637,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
                     ),
                     const SizedBox(height: 16),
                     SwitchListTile(
-                      title: const Text('Temperature Controlled'),
+                      title: Text(AppLocalizations.of(context)!.temperatureControlled),
                       value: _isTemperatureControlled,
                       onChanged: (value) {
                         setState(() {
@@ -664,7 +664,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
                       const SizedBox(height: 16),
                     ],
                     SwitchListTile(
-                      title: const Text('Has Insurance'),
+                      title: Text(AppLocalizations.of(context)!.hasInsurance),
                       value: _hasInsurance,
                       onChanged: (value) {
                         setState(() {

@@ -47,7 +47,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please login to edit your profile')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.pleaseLoginToEditYourProfile)),
         );
       });
     }
@@ -97,7 +97,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             children: [
               ListTile(
                 leading: const Icon(Icons.photo_library),
-                title: const Text('Photo Library'),
+                title: Text(AppLocalizations.of(context)!.photoLibrary),
                 onTap: () {
                   Navigator.of(context).pop();
                   _pickImage(ImageSource.gallery);
@@ -105,7 +105,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.photo_camera),
-                title: const Text('Camera'),
+                title: Text(AppLocalizations.of(context)!.camera),
                 onTap: () {
                   Navigator.of(context).pop();
                   _pickImage(ImageSource.camera);
@@ -154,8 +154,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       if (mounted) {
         scaffoldMessenger.showSnackBar(
-          const SnackBar(
-            content: Text('Profile updated successfully'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.profileUpdatedSuccessfully),
             backgroundColor: Colors.green,
           ),
         );

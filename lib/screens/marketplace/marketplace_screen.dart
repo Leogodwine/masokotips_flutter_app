@@ -37,14 +37,14 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Subscription Required'),
+        title: Text(AppLocalizations.of(context)!.subscriptionRequired),
         content: const Text(
           'Chat and Contact features are available for active subscribers only. Subscribe now to connect directly with sellers!',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL'),
+            child: Text(AppLocalizations.of(context)!.cancelCaps),
           ),
           ElevatedButton(
             onPressed: () {
@@ -54,7 +54,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                 MaterialPageRoute(builder: (_) => const SubscriptionScreen()),
               );
             },
-            child: const Text('SUBSCRIBE NOW'),
+            child: Text(AppLocalizations.of(context)!.subscribeNowCaps),
           ),
         ],
       ),
@@ -109,7 +109,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
     if (phone == null || phone.isEmpty) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Phone number not available')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.phoneNumberNotAvailable)),
       );
       return;
     }
@@ -119,7 +119,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
     } else {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not launch dialer')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.couldNotLaunchDialer)),
       );
     }
   }
@@ -194,8 +194,8 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
       pinned: true,
       backgroundColor: theme.primaryColor,
       flexibleSpace: FlexibleSpaceBar(
-        title: const Text('Marketplace',
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: Text(AppLocalizations.of(context)!.marketplace,
+            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         background: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -348,7 +348,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                 children: [
                   Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
                   const SizedBox(height: 16),
-                  Text('No items found',
+                  Text(AppLocalizations.of(context)!.noItemsFound,
                       style: TextStyle(color: Colors.grey[600], fontSize: 18)),
                 ],
               ),
@@ -622,8 +622,8 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                           onPressed: () =>
                               _handleProtectedAction(() => _initiateChat(item)),
                           icon: const Icon(Icons.chat_bubble_outline, size: 14),
-                          label: const Text('Chat',
-                              style: TextStyle(fontSize: 11)),
+                          label: Text(AppLocalizations.of(context)!.chat,
+                              style: const TextStyle(fontSize: 11)),
                           style: OutlinedButton.styleFrom(
                             padding: EdgeInsets.zero,
                             side: BorderSide(
@@ -637,8 +637,8 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                           onPressed: () => _handleProtectedAction(
                               () => _initiateCall(phoneNumber)),
                           icon: const Icon(Icons.phone, size: 14),
-                          label: const Text('Contacts',
-                              style: TextStyle(fontSize: 10)),
+                          label: Text(AppLocalizations.of(context)!.contacts,
+                              style: const TextStyle(fontSize: 10)),
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.zero,
                             backgroundColor: badgeColor,

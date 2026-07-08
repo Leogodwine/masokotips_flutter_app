@@ -16,11 +16,11 @@
   "@signInToContinue": {
     "description": "Translation for signInToContinue"
   },
-  "username": "Jina la mtumiaji",
+  "username": "Jina la Mtumiaji",
   "@username": {
     "description": "Translation for username"
   },
-  "enterUsername": "Ingiza jina lako la mtumiaji",
+  "enterUsername": "Ingiza jina la mtumiaji",
   "@enterUsername": {
     "description": "Translation for enterUsername"
   },
@@ -440,7 +440,7 @@
   "@enterZipCode": {
     "description": "Translation for enterZipCode"
   },
-  "enterCountry": "Tafadhali ingiza nchi",
+  "enterCountry": "Ingiza nchi yako",
   "@enterCountry": {
     "description": "Translation for enterCountry"
   },
@@ -460,18 +460,14 @@
   "@noRelatedProducts": {
     "description": "Translation for noRelatedProducts"
   },
-  "addedToCart": "{productName} imeongezwa kwenye mkokoteni",
-  "@addedToCart": {
-    "description": "Translation for addedToCart",
-    "placeholders": {
-      "productName": {"type": "String"}
-    }
-  },
+  "addedToCart": "Imeongezwa kwenye kikapu",
   "failedToAddToCart": "Imeshindikana kuongeza kwenye mkokoteni: {error}",
   "@failedToAddToCart": {
     "description": "Translation for failedToAddToCart",
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "noProductsInCategory": "Hakuna bidhaa zinazopatikana katika kategoria hii",
@@ -494,10 +490,12 @@
   "@inStock": {
     "description": "Translation for inStock",
     "placeholders": {
-      "stock": {"type": "num"}
+      "stock": {
+        "type": "num"
+      }
     }
   },
-  "organicProducts": "Bidhaa za Kikaboni",
+  "organicProducts": "Bidhaa Asilia",
   "@organicProducts": {
     "description": "Translation for organicProducts"
   },
@@ -533,18 +531,20 @@
   "@close": {
     "description": "Translation for close"
   },
-  "searchOrganicProducts": "Tafuta bidhaa za kikaboni...",
+  "searchOrganicProducts": "Tafuta bidhaa asilia...",
   "@searchOrganicProducts": {
     "description": "Translation for searchOrganicProducts"
   },
-  "errorLoadingOrganicProducts": "Kosa katika kupakia bidhaa za kikaboni: {error}",
+  "errorLoadingOrganicProducts": "Kosa katika kupakia bidhaa asilia: {error}",
   "@errorLoadingOrganicProducts": {
     "description": "Translation for errorLoadingOrganicProducts",
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
-  "noOrganicProductsFound": "Hakuna bidhaa za kikaboni zilizopatikana",
+  "noOrganicProductsFound": "Hakuna bidhaa asilia zilizopatikana",
   "@noOrganicProductsFound": {
     "description": "Translation for noOrganicProductsFound"
   },
@@ -556,21 +556,19 @@
   "@confirmDeleteProduct": {
     "description": "Translation for confirmDeleteProduct",
     "placeholders": {
-      "productName": {"type": "String"}
+      "productName": {
+        "type": "String"
+      }
     }
   },
-  "productDeletedSuccessfully": "{productName} imefutwa kwa mafanikio",
-  "@productDeletedSuccessfully": {
-    "description": "Translation for productDeletedSuccessfully",
-    "placeholders": {
-      "productName": {"type": "String"}
-    }
-  },
+  "productDeletedSuccessfully": "Bidhaa imefutwa kikamilifu",
   "errorDeletingProduct": "Kosa katika kufuta bidhaa: {error}",
   "@errorDeletingProduct": {
     "description": "Translation for errorDeletingProduct",
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "shoppingCart": "Mkokoteni wa Manunuzi",
@@ -629,7 +627,9 @@
   "@failedToPlaceOrder": {
     "description": "Translation for failedToPlaceOrder",
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "orderSummary": "Muhtasari wa Agizo",
@@ -708,7 +708,9 @@
   "@placeOrder": {
     "description": "Translation for placeOrder",
     "placeholders": {
-      "total": {"type": "num"}
+      "total": {
+        "type": "num"
+      }
     }
   },
   "selectAddress": "Chagua Anwani",
@@ -759,14 +761,18 @@
   "@failedToDeleteProduct": {
     "description": "Translation for failedToDeleteProduct",
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "failedToLoadProducts": "Imeshindikana kupakia bidhaa: {error}",
   "@failedToLoadProducts": {
     "description": "Translation for failedToLoadProducts",
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "addNewProduct": "Ongeza Bidhaa Mpya",
@@ -829,7 +835,9 @@
   "@imagesSelected": {
     "description": "Translation for imagesSelected",
     "placeholders": {
-      "count": {"type": "num"}
+      "count": {
+        "type": "num"
+      }
     }
   },
   "productAddedSuccessfully": "Bidhaa imeongezwa kwa mafanikio",
@@ -840,7 +848,9 @@
   "@failedToAddProduct": {
     "description": "Translation for failedToAddProduct",
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "editProduct": "Hariri Bidhaa",
@@ -875,11 +885,11 @@
   "@apiServiceNotInitialized": {
     "description": "Translation for apiServiceNotInitialized"
   },
-  "failedToFetchOrganicProducts": "Imeshindikana kupata bidhaa za kikaboni",
+  "failedToFetchOrganicProducts": "Imeshindikana kupata bidhaa asilia",
   "@failedToFetchOrganicProducts": {
     "description": "Translation for failedToFetchOrganicProducts"
   },
-  "noOrganicProductsYet": "Hakuna Bidhaa za Kikaboni Bado",
+  "noOrganicProductsYet": "Hakuna Bidhaa Asilia Bado",
   "@noOrganicProductsYet": {
     "description": "Translation for noOrganicProductsYet"
   },
@@ -895,14 +905,18 @@
   "@stockLabel": {
     "description": "Translation for stockLabel",
     "placeholders": {
-      "stock": {"type": "num"}
+      "stock": {
+        "type": "num"
+      }
     }
   },
   "certified": "Imethibitishwa: {certification}",
   "@certified": {
     "description": "Translation for certified",
     "placeholders": {
-      "certification": {"type": "String"}
+      "certification": {
+        "type": "String"
+      }
     }
   },
   "active": "Inayotumika",
@@ -925,14 +939,18 @@
   "@confirmDeleteOrganicProduct": {
     "description": "Translation for confirmDeleteOrganicProduct",
     "placeholders": {
-      "productName": {"type": "String"}
+      "productName": {
+        "type": "String"
+      }
     }
   },
   "failedToDeleteOrganicProduct": "Imeshindikana kufuta bidhaa: {error}",
   "@failedToDeleteOrganicProduct": {
     "description": "Translation for failedToDeleteOrganicProduct",
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "myTransportServices": "Huduma Zangu za Usafiri",
@@ -963,14 +981,18 @@
   "@capacityKg": {
     "description": "Translation for capacityKg",
     "placeholders": {
-      "capacity": {"type": "num"}
+      "capacity": {
+        "type": "num"
+      }
     }
   },
   "pricePerKg": "TZS {price}/kg",
   "@pricePerKg": {
     "description": "Translation for pricePerKg",
     "placeholders": {
-      "price": {"type": "num"}
+      "price": {
+        "type": "num"
+      }
     }
   },
   "noDescriptionAvailable": "Hakuna maelezo yanayopatikana",
@@ -985,21 +1007,19 @@
   "@confirmDeleteTransport": {
     "description": "Translation for confirmDeleteTransport",
     "placeholders": {
-      "title": {"type": "String"}
+      "title": {
+        "type": "String"
+      }
     }
   },
-  "transportDeletedSuccessfully": "{title} imefutwa kwa mafanikio",
-  "@transportDeletedSuccessfully": {
-    "description": "Translation for transportDeletedSuccessfully",
-    "placeholders": {
-      "title": {"type": "String"}
-    }
-  },
+  "transportDeletedSuccessfully": "Usafiri umefutwa kikamilifu",
   "failedToDeleteTransport": "Imeshindikana kufuta usafiri: {error}",
   "@failedToDeleteTransport": {
     "description": "Translation for failedToDeleteTransport",
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "editTransportService": "Hariri Huduma ya Usafiri",
@@ -1110,7 +1130,9 @@
   "@failedToUpdateTransport": {
     "description": "Translation for failedToUpdateTransport",
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "sellerOrders": "Maagizo ya Muuzaji",
@@ -1137,28 +1159,36 @@
   "@orderNumber": {
     "description": "Translation for orderNumber",
     "placeholders": {
-      "id": {"type": "String"}
+      "id": {
+        "type": "String"
+      }
     }
   },
   "totalAmount": "Jumla: TZS {amount}",
   "@totalAmount": {
     "description": "Translation for totalAmount",
     "placeholders": {
-      "amount": {"type": "num"}
+      "amount": {
+        "type": "num"
+      }
     }
   },
   "itemsCount": "Vipengee: {count}",
   "@itemsCount": {
     "description": "Translation for itemsCount",
     "placeholders": {
-      "count": {"type": "num"}
+      "count": {
+        "type": "num"
+      }
     }
   },
   "orderDate": "Tarehe: {date}",
   "@orderDate": {
     "description": "Translation for orderDate",
     "placeholders": {
-      "date": {"type": "String"}
+      "date": {
+        "type": "String"
+      }
     }
   },
   "markAsProcessing": "Weka kama Inachakatwa",
@@ -1185,7 +1215,9 @@
   "@orderStatusUpdated": {
     "description": "Translation for orderStatusUpdated",
     "placeholders": {
-      "status": {"type": "String"}
+      "status": {
+        "type": "String"
+      }
     }
   },
   "failedToUpdateOrderStatus": "Imeshindikana kusasisha hali ya agizo",
@@ -1196,28 +1228,36 @@
   "@errorUpdatingOrderStatus": {
     "description": "Translation for errorUpdatingOrderStatus",
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "emailLabel": "Barua pepe: {email}",
   "@emailLabel": {
     "description": "Translation for emailLabel",
     "placeholders": {
-      "email": {"type": "String"}
+      "email": {
+        "type": "String"
+      }
     }
   },
   "phoneLabel": "Simu: {phone}",
   "@phoneLabel": {
     "description": "Translation for phoneLabel",
     "placeholders": {
-      "phone": {"type": "String"}
+      "phone": {
+        "type": "String"
+      }
     }
   },
   "addressLabel": "Anwani: {address}",
   "@addressLabel": {
     "description": "Translation for addressLabel",
     "placeholders": {
-      "address": {"type": "String"}
+      "address": {
+        "type": "String"
+      }
     }
   },
   "serviceCategories": "Kategoria za Huduma",
@@ -1320,7 +1360,9 @@
   "@failedToLoadCategories": {
     "description": "Translation for failedToLoadCategories",
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "editService": "Hariri Huduma",
@@ -1347,7 +1389,9 @@
   "@failedToLoadServices": {
     "description": "Translation for failedToLoadServices",
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "noServicesYet": "Hakuna Huduma Bado",
@@ -1370,7 +1414,9 @@
   "@servicePrice": {
     "description": "Translation for servicePrice",
     "placeholders": {
-      "price": {"type": "num"}
+      "price": {
+        "type": "num"
+      }
     }
   },
   "pending": "Inasubiri",
@@ -1389,7 +1435,9 @@
   "@confirmDeleteService": {
     "description": "Translation for confirmDeleteService",
     "placeholders": {
-      "title": {"type": "String"}
+      "title": {
+        "type": "String"
+      }
     }
   },
   "serviceDeletedSuccessfully": "Huduma imefutwa kwa mafanikio",
@@ -1400,7 +1448,9 @@
   "@failedToDeleteService": {
     "description": "Translation for failedToDeleteService",
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "addService": "Ongeza Huduma",
@@ -1477,7 +1527,9 @@
   "@errorLoadingFeaturedProducts": {
     "description": "Translation for errorLoadingFeaturedProducts",
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "failedToLoadMarketInformation": "Imeshindikana kupakia habari za soko.",
@@ -1496,7 +1548,9 @@
   "@productAddedToCart": {
     "description": "Translation for productAddedToCart",
     "placeholders": {
-      "productName": {"type": "String"}
+      "productName": {
+        "type": "String"
+      }
     }
   },
   "viewCart": "Ona Mkokoteni",
@@ -1506,5 +1560,332 @@
   "noCategoriesFound": "Hakuna kategoria zilizopatikana",
   "@noCategoriesFound": {
     "description": "Translation for noCategoriesFound"
-  }
+  },
+  "registrationSuccessful": "Usajili umefanikiwa! Karibu maSOKOtips.",
+  "selectRoleError": "Tafadhali chagua jukumu la kujisajili.",
+  "emailTaken": "Barua pepe hii tayari imesajiliwa. Tafadhali jaribu nyingine au ingia.",
+  "registrationFailed": "Usajili umeshindwa. Tafadhali jaribu tena.",
+  "createAccount": "Fungua Akaunti",
+  "joinMasokotips": "Jiunge na maSOKOtips",
+  "createAccountToGetStarted": "Fungua akaunti ili uanze",
+  "enterFullName": "Ingiza jina lako kamili",
+  "pleaseEnterName": "Tafadhali ingiza jina lako",
+  "pleaseEnterUsername": "Tafadhali ingiza jina la mtumiaji",
+  "usernameTooShort": "Jina la mtumiaji lazima liwe na angalau herufi 3",
+  "usernameInvalid": "Jina la mtumiaji linaweza kuwa na herufi, nambari na mistari chini pekee",
+  "email": "Barua Pepe",
+  "enterEmail": "Ingiza barua pepe yako",
+  "pleaseEnterEmail": "Tafadhali ingiza barua pepe yako",
+  "invalidEmail": "Tafadhali ingiza barua pepe halali",
+  "enterPhoneNumber": "Ingiza nambari yako ya simu",
+  "pleaseEnterPhoneNumber": "Tafadhali ingiza nambari yako ya simu",
+  "location": "Eneo",
+  "enterLocation": "Ingiza mji/mkoa wako",
+  "pleaseEnterLocation": "Tafadhali ingiza eneo lako",
+  "pleaseEnterCountry": "Tafadhali ingiza nchi yako",
+  "agentCodeOptional": "Nambari ya Wakala (Si lazima)",
+  "agentCodeHint": "mfano MSK-AB12 — muulize wakala wako",
+  "agentCodeHelper": "Kama wakala alikusaidia kujisajili, ingiza nambari yake hapa",
+  "pleaseEnterPassword": "Tafadhali ingiza nenosiri",
+  "passwordTooShort": "Nenosiri lazima liwe na angalau herufi 8",
+  "confirmPassword": "Thibitisha Nenosiri",
+  "confirmYourPassword": "Thibitisha nenosiri lako",
+  "pleaseConfirmPassword": "Tafadhali thibitisha nenosiri lako",
+  "passwordsDoNotMatch": "Manenosiri hayaendani",
+  "registerAs": "Jisajili kama...",
+  "roleBuyer": "Mnunuzi",
+  "roleSeller": "Muuzaji",
+  "roleTransporter": "Msafirishaji",
+  "roleServiceProvider": "Mtoa Huduma",
+  "proofOfIdentity": "Uthibitisho wa Utambulisho",
+  "optionalText": "Si lazima",
+  "uploadDocumentHint": "Pakia picha ya wazi ya kitambulisho chako. Kitambulisho chako kitahakikiwa.",
+  "selectDocumentType": "Chagua aina ya hati",
+  "nidaCard": "Kadi ya NIDA",
+  "drivingLicense": "Leseni ya Udereva",
+  "voterCard": "Kadi ya Mpiga Kura",
+  "gallery": "Nyumba ya Picha",
+  "uploadTip": "Kidokezo: Weka kitambulisho chako kwenye sehemu bapa yenye mwanga mzuri kabla ya kupiga picha.",
+  "createAccountCaps": "FUNGUA AKAUNTI",
+  "featuredServices": "Huduma Zinazopendekezwa",
+  "noFeaturedServicesAvailable": "Hakuna huduma zinazopendekezwa kwa sasa",
+  "yesCancel": "Ndiyo, Ghairi",
+  "checkNow": "Angalia Sasa",
+  "manageSubscription": "Dhibiti Usajili",
+  "subscriptionRequired": "Usajili Unahitajika",
+  "subscribeNow": "Jisajili Sasa",
+  "foodAndBeverages": "Chakula na Vinywaji",
+  "myRequests": "Maombi Yangu",
+  "postServices": "Weka Huduma",
+  "adminLoginAdmin": "Ingia kama Admin",
+  "accessAdminDashboard": "Fikia Dashibodi ya Admin",
+  "cancelAndRetry": "Ghairi na Ujaribu Tena",
+  "cancelPaymentTitle": "Ghairi Malipo",
+  "no": "Hapana",
+  "marketDemands": "Mahitaji ya Soko",
+  "agriculturalServices": "Huduma za Kilimo",
+  "cancelCaps": "GHAIRI",
+  "subscribeNowCaps": "JISAJILI SASA",
+  "phoneNumberNotAvailable": "Namba ya simu haipatikani",
+  "couldNotLaunchDialer": "Imeshindwa kufungua piga simu",
+  "marketplace": "Soko",
+  "noItemsFound": "Hakuna vitu vilivyopatikana",
+  "contacts": "Mawasiliano",
+  "settingsAndAbout": "Mipangilio na Kuhusu",
+  "legal": "Sheria",
+  "appTitleSection": "Programu",
+  "appNameLabel": "Jina la Programu",
+  "versionLabel": "Toleo",
+  "seeStoreListingForLatest": "Tazama orodha ya duka kwa toleo jipya",
+  "accountDeletionRequestSubject": "Ombi la Kufuta Akaunti - maSOKOtips",
+  "accountDeletionRequestBody": "Hujambo Timu ya maSOKOtips,\n\nNingependa kuomba akaunti yangu na data zangu zifutwe.\n\nTafadhali thibitisha pindi itakapokamilika.\n\nAsante.",
+  "noEmailAppFound": "Hakuna programu ya barua pepe iliyopatikana",
+  "helloGuest": "Hujambo Mgeni",
+  "signInToYourAccount": "Ingia kwenye akaunti yako",
+  "homeMenu": "Mwanzo",
+  "productsMenu": "Bidhaa",
+  "transportMenu": "Usafiri",
+  "marketInfoMenu": "Taarifa za Soko",
+  "profileMenu": "Wasifu",
+  "myOrdersMenu": "Oda Zangu",
+  "wishlistMenu": "Orodha ya Matamanio",
+  "settingsMenu": "Mipangilio",
+  "privacyPolicyMenu": "Sera ya Faragha",
+  "helpAndSupportMenu": "Msaada na Usaidizi",
+  "aboutMenu": "Kuhusu",
+  "logoutMenu": "Ondoka",
+  "aboutMasokoTips": "Kuhusu maSOKO tips",
+  "aboutMasokoTipsDescription": "maSOKO tips ni msaidizi wako wa soko la kilimo. Pata bidhaa, huduma, na taarifa za soko sehemu moja.",
+  "closeButton": "Funga",
+  "twofactorAuthenticationEnabled": "Uthibitishaji wa Hatua Mbili umewezeshwa",
+  "viewOrderHistory": "Tazama Historia ya Oda",
+  "emailNotifications": "Arifa za Barua Pepe",
+  "newPasswordsDoNotMatch": "Nywila mpya hazifanani",
+  "thisActionCannotBeUndoneAll": "Hatua hii haiwezi kutenduliwa. Data yako yote itafutwa kabisa.",
+  "pleaseLoginToSendAMessage": "Tafadhali ingia ili kutuma ujumbe.",
+  "pleaseLoginToAddATransport": "Tafadhali ingia ili kuongeza usafiri",
+  "startYourJourney": "Anza Safari Yako",
+  "newsCopiedToClipboard": "Habari imenakiliwa",
+  "addFoodBeverage": "Ongeza Vyakula na Vinywaji",
+  "addNewTransport": "Ongeza Usafiri Mpya",
+  "orderConfirmation": "Uthibitisho wa Oda",
+  "deleteAlt": "FUTA",
+  "noServicesFound": "Hakuna huduma zilizopatikana",
+  "english": "Kiingereza",
+  "noDashboardDataAvailable": "Hakuna data ya dashibodi",
+  "onlyAdministratorsCanEditMarketInformation": "Wasimamizi pekee ndio wanaoweza kuhariri taarifa za soko",
+  "deleteService": "Futa Huduma",
+  "clearWishlist": "Futa Orodha ya Matamanio",
+  "adminLoginSuccessful": "Umeingia kama Msimamizi kikamilifu!",
+  "undoRemove": "Tendua Kufuta",
+  "viewYourAccountActivity": "Tazama shughuli za akaunti yako",
+  "userManagement": "Usimamizi wa Watumiaji",
+  "pleaseSelectACategory": "Tafadhali chagua kategoria",
+  "passwordChangedSuccessfully": "Nywila imebadilishwa kikamilifu",
+  "goBack": "Rudi Nyuma",
+  "pleaseLogInToViewProfile": "Tafadhali ingia ili kutazama wasifu",
+  "suspend": "Sitisha",
+  "sayHello": "Sema hujambo!",
+  "myReviews": "Maoni Yangu",
+  "noFavoritesYet": "Hakuna vipendwa bado",
+  "pleaseLoginAsAdminToAccess": "Tafadhali ingia kama msimamizi ili kufikia bidhaa asilia",
+  "activityLog": "Kumbukumbu ya Shughuli",
+  "pleaseLoginToAddMarketInformation": "Tafadhali ingia ili kuongeza taarifa za soko",
+  "okChangeNumber": "Sawa, Badilisha Namba",
+  "adminAccountCreatedSuccessfully": "Akaunti ya msimamizi imeundwa kikamilifu!",
+  "great": "Sawa!",
+  "cancelPayment": "Ghairi Malipo",
+  "securitySettings": "Mipangilio ya Usalama",
+  "noUsersFound": "Hakuna watumiaji waliopatikana",
+  "youDoNotHavePermissionTo": "Hauna ruhusa ya kufikia kipengele hiki.",
+  "applyFilters": "Weka Vichujio",
+  "bookTransportService": "Weka Huduma ya Usafiri",
+  "pleaseAddAtLeastOneProduct": "Tafadhali ongeza angalau picha moja ya bidhaa",
+  "changeImage": "Badilisha Picha",
+  "twofactorAuthentication": "Uthibitishaji wa Hatua Mbili",
+  "unsuspendUser": "Ondoa Kusitishwa",
+  "onlyAdministratorsCanAddMarketInformation": "Wasimamizi pekee ndio wanaoweza kuongeza taarifa za soko",
+  "marketInformationManagement": "Usimamizi wa Taarifa za Soko",
+  "share": "Shiriki",
+  "organicProductCreatedSuccessfully": "Bidhaa asilia imeundwa kikamilifu!",
+  "vehicleIsInsuredForCargoAnd": "Gari lina bima ya mizigo",
+  "itemUpdatedSuccessfully": "Kipengee kimesasishwa kikamilifu!",
+  "organicProductUpdatedSuccessfully": "Bidhaa asilia imesasishwa kikamilifu!",
+  "unsuspendingUser": "Inaondoa kusitishwa...",
+  "youCannotChatWithYourself": "Huwezi kufanya soga na wewe mwenyewe.",
+  "pickImage": "Chagua Picha",
+  "transportServiceUpdatedSuccessfully": "Huduma ya usafiri imesasishwa kikamilifu!",
+  "failedToCreateAdminAccount": "Imeshindikana kuunda akaunti ya msimamizi",
+  "smsNotifications": "Arifa za SMS",
+  "pleaseLoginToCall": "Tafadhali ingia ili kupiga simu.",
+  "viewAll": "Tazama Zote",
+  "receiveUpdatesAndAlertsViaEmail": "Pokea sasisho na arifa kupitia barua pepe",
+  "noReviewsPendingModeration": "Hakuna maoni yanayosubiri ukaguzi",
+  "postRequest": "Tuma Ombi",
+  "deletedSuccessfully": "Imefutwa kikamilifu",
+  "providerContactInfoIsNotAvailable": "Taarifa za mawasiliano hazipatikani. Tafadhali piga simu.",
+  "cancelAlt": "GHAIRI",
+  "suspended": "Imesitishwa",
+  "areYouSureYouWantTo": "Una uhakika unataka kufuta taarifa hizi za soko?",
+  "price": "Bei ↑",
+  "activityLogFeatureIsUnderDevelopment": "Kipengele hiki kipo kwenye matengenezo",
+  "averageRating": "Wastani wa Ukadiriaji",
+  "suspendingUser": "Inasitisha mtumiaji...",
+  "receiveAVerificationCodeWhenSigning": "Pokea namba ya uthibitisho wakati wa kuingia",
+  "postBuyingRequest": "Tuma Ombi la Kununua",
+  "serviceManagement": "Usimamizi wa Huduma",
+  "date": "Tarehe ↑",
+  "showThisItemInFeaturedSection": "Onyesha kipengee hiki kwenye sehemu maalum",
+  "deleteRequest": "Futa Ombi",
+  "createAdminAccount": "Unda Akaunti ya Msimamizi",
+  "couldNotLaunchPhoneDialer": "Imeshindwa kufungua kipiga simu.",
+  "goBackWithoutCompletingPayment": "Rudi nyuma bila kukamilisha malipo?",
+  "messages": "Ujumbe",
+  "paymentSuccessful": "Malipo Yamefanikiwa",
+  "areYouSureYouWantToAlt": "Una uhakika unataka kufuta bidhaa hii? Hatua hii haiwezi kutenduliwa.",
+  "pleaseLoginToEditYourProfile": "Tafadhali ingia ili kuhariri wasifu wako",
+  "temperatureControlled": "Iliyodhibitiwa Joto",
+  "noMapsAppFoundOnThis": "Hakuna programu ya ramani iliyopatikana.",
+  "organicProductDeletedSuccessfully": "Bidhaa asilia imefutwa kikamilifu",
+  "makeThisItemVisibleToCustomers": "Fanya kipengee hiki kionekane kwa wateja",
+  "enterPaymentNumber": "Ingiza Namba ya Malipo",
+  "myWishlist": "Orodha Yangu ya Matamanio",
+  "logoutAlt": "ONDOKA",
+  "deviceManagementFeatureIsUnderDevelopment": "Kipengele kipo kwenye matengenezo",
+  "makeProductVisibleToCustomers": "Fanya bidhaa ionekane kwa wateja",
+  "approve": "Idhinisha",
+  "goToMarketInformation": "Nenda Kwenye Taarifa za Soko",
+  "editUser": "Hariri Mtumiaji",
+  "resetLinkSentToYourEmail": "Kiungo cha kuweka upya kimetumwa",
+  "addMarketNews": "Ongeza Habari za Soko",
+  "sendResetLink": "TUMA KIUNGO",
+  "adminDashboard": "Dashibodi ya Msimamizi",
+  "requestDeletedSuccessfully": "Ombi limefutwa kikamilifu",
+  "searchServices": "Tafuta Huduma",
+  "areYouSureYouWantToAltAlt": "Una uhakika unataka kufuta orodha yako ya matamanio?",
+  "showThisProductInFeaturedSection": "Onyesha bidhaa hii kwenye sehemu maalum",
+  "accessDenied": "Imekataliwa",
+  "productCategoryNotFoundInCurrent": "Kategoria haijapatikana. Tafadhali chagua.",
+  "adminLogin": "Kuingia kwa Msimamizi",
+  "bookmarkFeatureComingSoon": "Kipengele cha alama kinakuja hivi karibuni!",
+  "serviceAddedToCart": "Huduma imeongezwa kwenye kikapu",
+  "locationPermissionDenied": "Ruhusa ya eneo imekataliwa.",
+  "whatsapp": "WhatsApp",
+  "tryAgain": "Jaribu Tena",
+  "paymentConfirmedSubscriptionIsNowActive": "Malipo yamethibitishwa! Usajili sasa unafanya kazi.",
+  "startShopping": "ANZA KUNUNUA",
+  "makeThisProductVisibleToCustomers": "Fanya bidhaa ionekane kwa wateja",
+  "myFoodBeverages": "Vyakula na Vinywaji Vyangu",
+  "pleaseSelectAPlan": "Tafadhali chagua mpango",
+  "loginAsAdmin": "Ingia kama Msimamizi",
+  "keepOrder": "Weka Oda",
+  "devices": "Vifaa",
+  "cancelOrder": "Ghairi Oda",
+  "productCreatedSuccessfully": "Bidhaa imeundwa kikamilifu",
+  "editOrganicProduct": "Hariri Bidhaa Asilia",
+  "pleaseLoginToEditMarketInformation": "Tafadhali ingia ili kuhariri taarifa za soko",
+  "transportServiceAddedSuccessfully": "Huduma ya usafiri imeongezwa kikamilifu!",
+  "checkStatus": "Angalia Hali",
+  "call": "Piga Simu",
+  "sendEmail": "Tuma Barua Pepe",
+  "changePassword": "Badilisha Nywila",
+  "processingPayment": "Inachakata Malipo",
+  "addTransportService": "Ongeza Huduma ya Usafiri",
+  "noMessagesYet": "Hakuna ujumbe bado.",
+  "signUpNow": "Jisajili Sasa",
+  "noReviewsYet": "Hakuna maoni bado",
+  "selectOrganicCategory": "Chagua Kategoria Asilia",
+  "deleteUser": "Futa Mtumiaji",
+  "browseFirst": "Vinjari Kwanza",
+  "loadMore": "Pakia Zaidi",
+  "agentDashboard": "Dashibodi ya Wakala",
+  "editFoodBeverage": "Hariri Vyakula na Vinywaji",
+  "cancelPaymentAlt": "Ghairi Malipo?",
+  "hasInsurance": "Ina Bima",
+  "reset": "Weka Upya",
+  "areYouSureYouWantToAltAltAlt": "Una uhakika unataka kuondoka?",
+  "accountDeletionFeatureIsUnderDevelopment": "Kipengele hiki kipo kwenye matengenezo",
+  "transportCategories": "Kategoria za Usafiri",
+  "editMarketInformation": "Hariri Taarifa za Soko",
+  "receiveUpdatesAndAlertsViaSms": "Pokea sasisho na arifa kupitia SMS",
+  "organicProductsManagement": "Usimamizi wa Bidhaa Asilia",
+  "showProductInFeaturedSection": "Onyesha bidhaa kwenye sehemu maalum",
+  "orderCancelledSuccessfully": "Oda imeghairiwa kikamilifu",
+  "foodBeverageItemCreatedSuccessfully": "Kipengee kimeundwa kikamilifu!",
+  "addAService": "Ongeza Huduma",
+  "updatingUser": "Inasasisha mtumiaji...",
+  "masokotips": "maSOKOtips",
+  "noRecentSearches": "Hakuna tafiti za hivi karibuni",
+  "vehicleHasTemperatureControlForSensitive": "Gari lina udhibiti wa joto",
+  "loading": "Inapakia...",
+  "stillPendingPleaseApproveOnYour": "Bado inasubiri - tafadhali idhinisha.",
+  "checkAgain": "Angalia Tena",
+  "clear": "Futa",
+  "reviewStatistics": "Takwimu za Maoni",
+  "cardPayment": "Malipo ya Kadi",
+  "deletingUser": "Inafuta mtumiaji...",
+  "areYouSureYouWantToAltAltAltAlt": "Una uhakika unataka kufuta anwani hii?",
+  "editTransport": "Hariri Usafiri",
+  "areYouSureYouWantToAltAltAltAltAlt": "Una uhakika unataka kufuta bidhaa hii?",
+  "suspendUser": "Sitisha Mtumiaji",
+  "viewMap": "Tazama Ramani",
+  "pleaseEnableLocationServices": "Tafadhali wezesha huduma za eneo",
+  "deleteAccount": "Futa Akaunti?",
+  "transportManagement": "Usimamizi wa Usafiri",
+  "servicesManagement": "Usimamizi wa Huduma",
+  "locationServicesAreDisabled": "Huduma za eneo zimezimwa.",
+  "unsuspend": "Ondoa Kusitishwa",
+  "reviewModeration": "Ukaguzi wa Maoni",
+  "thisWillCancelThePendingPayment": "Hii itaghairi malipo yanayosubiri.",
+  "stay": "Baki",
+  "message": "Ujumbe",
+  "signUp": "Jisajili",
+  "keepWaiting": "Endelea Kusubiri",
+  "priceAlt": "Bei ↓",
+  "marketInformationDeletedSuccessfully": "Taarifa za soko zimefutwa kikamilifu",
+  "pleaseEnterYourEmailAddress": "Tafadhali ingiza barua pepe yako",
+  "manageDevicesThatAreLoggedIn": "Dhibiti vifaa vilivyoingia",
+  "postARequest": "Tuma Ombi",
+  "subscribeNowAlt": "JISAJILI SASA",
+  "contact": "Mawasiliano",
+  "thisTruckDoesNotHaveA": "Lori hili halina eneo la GPS.",
+  "ok": "Sawa",
+  "thisAddressWillBeSelectedBy": "Anwani hii itachaguliwa kama chaguo-msingi",
+  "paymentStillPendingPleaseApproveOn": "Malipo bado yanasubiri. Tafadhali idhinisha.",
+  "products": "Bidhaa",
+  "totalReviews": "Jumla ya Maoni",
+  "deleteMarketInformation": "Futa Taarifa za Soko",
+  "retryAlt": "JARIBU TENA",
+  "twofactorAuthenticationDisabled": "Uthibitishaji wa Hatua Mbili umezimwa",
+  "kiswahili": "Kiswahili",
+  "filterReviews": "Chuja Maoni",
+  "cancelPaymentAltAlt": "Ghairi malipo",
+  "name": "Jina ↑",
+  "subscribeToViewContactChat": "Jisajili ili kuona mawasiliano na soga",
+  "productsManagement": "Usimamizi wa Bidhaa",
+  "all": "Zote",
+  "getStarted": "Anza",
+  "submit": "Wasilisha",
+  "adminSettingsComingSoon": "Mipangilio inakuja hivi karibuni!",
+  "refresh": "Onyesha Upya",
+  "requestPostedSuccessfully": "Ombi limetumwa kikamilifu!",
+  "clearAll": "Futa zote",
+  "deleteItem": "Futa Kipengee",
+  "subscription": "Usajili",
+  "resetPassword": "Weka Upya Nywila",
+  "pleaseSelectAtLeastOneSupported": "Tafadhali chagua aina moja ya bidhaa inayoungwa mkono",
+  "referralCodeCopied": "Msimbo wa rufaa umenakiliwa!",
+  "reject": "Kataa",
+  "yourSubscriptionIsNowActive": "Usajili wako sasa unafanya kazi.",
+  "onlyGifPngJpgAndJpeg": "Faili zinazoruhusiwa ni picha pekee",
+  "deleteTransport": "Futa Usafiri",
+  "nameAlt": "Jina ↓",
+  "locationPermissionPermanentlyDeniedEnableIn": "Ruhusa ya eneo imekataliwa kabisa. Wezesha kwenye mipangilio.",
+  "addMarketInformation": "Ongeza Taarifa za Soko",
+  "deleteFoodBeverage": "Futa Vyakula na Vinywaji",
+  "updateMarketInformation": "Sasisha Taarifa za Soko",
+  "analytics": "Uchambuzi",
+  "myBuyingRequests": "Maombi Yangu ya Kununua",
+  "defaultAddress": "Chaguo-msingi",
+  "continueText": "Endelea"
 }

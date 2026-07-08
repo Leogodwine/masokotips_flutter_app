@@ -10,6 +10,7 @@ import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
 import '../../config/api_config.dart';
 import '../../utils/logger.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class AddTransportScreen extends StatefulWidget {
   final Function(Transport) onTransportAdded;
@@ -133,8 +134,8 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
       if (!serviceEnabled) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Please enable location services'),
+            SnackBar(
+                content: Text(AppLocalizations.of(context)!.pleaseEnableLocationServices),
                 backgroundColor: Colors.orange),
           );
         }
@@ -148,9 +149,8 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
       if (permission == LocationPermission.deniedForever) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text(
-                    'Location permission permanently denied. Enable in settings.'),
+            SnackBar(
+                content: Text(AppLocalizations.of(context)!.locationPermissionPermanentlyDeniedEnableIn),
                 backgroundColor: Colors.red),
           );
         }
@@ -267,8 +267,8 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Transport service added successfully!'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.transportServiceAddedSuccessfully),
               backgroundColor: Colors.green,
             ),
           );
@@ -312,7 +312,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Transport Service'),
+        title: Text(AppLocalizations.of(context)!.addTransportService),
         actions: [
           TextButton(
             onPressed: _isLoading ? null : _submitForm,
@@ -700,9 +700,8 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
               const SizedBox(height: 16),
 
               CheckboxListTile(
-                title: const Text('Temperature Controlled'),
-                subtitle: const Text(
-                    'Vehicle has temperature control for sensitive products'),
+                title: Text(AppLocalizations.of(context)!.temperatureControlled),
+                subtitle: Text(AppLocalizations.of(context)!.vehicleHasTemperatureControlForSensitive),
                 value: _isTemperatureControlled,
                 onChanged: (value) {
                   setState(() {
@@ -714,9 +713,9 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
               ),
 
               CheckboxListTile(
-                title: const Text('Has Insurance'),
+                title: Text(AppLocalizations.of(context)!.hasInsurance),
                 subtitle:
-                    const Text('Vehicle is insured for cargo and liability'),
+                    Text(AppLocalizations.of(context)!.vehicleIsInsuredForCargoAnd),
                 value: _hasInsurance,
                 onChanged: (value) {
                   setState(() {

@@ -9,6 +9,7 @@ import './admin_user_management_screen.dart';
 import './review_moderation_screen.dart';
 import './analytics_screen.dart';
 import './create_admin_screen.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 /// A utility class that provides a central way to manage admin functionality
 /// across the application.
@@ -139,13 +140,13 @@ class AdminManager {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Access Denied'),
+        title: Text(AppLocalizations.of(context)!.accessDenied),
         content:
-            const Text('You do not have permission to access this feature.'),
+            Text(AppLocalizations.of(context)!.youDoNotHavePermissionTo),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: Text(AppLocalizations.of(context)!.ok),
           ),
         ],
       ),

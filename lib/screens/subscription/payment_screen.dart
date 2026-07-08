@@ -6,6 +6,7 @@ import '../../models/subscription.dart';
 import '../../providers/subscription_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/logger.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class ZenopayPaymentScreen extends StatefulWidget {
   final Subscription subscription;
@@ -202,8 +203,8 @@ class _ZenopayPaymentScreenState extends State<ZenopayPaymentScreen> {
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        title: const Text('Payment Successful'),
-        content: const Text('Your subscription is now active.'),
+        title: Text(AppLocalizations.of(context)!.paymentSuccessful),
+        content: Text(AppLocalizations.of(context)!.yourSubscriptionIsNowActive),
         actions: [
           TextButton(
             onPressed: () {
@@ -211,7 +212,7 @@ class _ZenopayPaymentScreenState extends State<ZenopayPaymentScreen> {
               Navigator.of(context).pop(); // close dialog
               Navigator.of(context).pop(true); // close payment screen
             },
-            child: const Text('Continue'),
+            child: Text(AppLocalizations.of(context)!.continueText),
           ),
         ],
       ),
@@ -225,7 +226,7 @@ class _ZenopayPaymentScreenState extends State<ZenopayPaymentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Processing Payment'),
+        title: Text(AppLocalizations.of(context)!.processingPayment),
         automaticallyImplyLeading: false,
       ),
       body: Center(

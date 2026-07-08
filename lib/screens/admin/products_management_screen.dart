@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/admin_provider.dart';
 import 'admin_product_form_screen.dart';
 import 'package:masoko_tips/widgets/cached_network_image_with_cors.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class AdminProductsManagementScreen extends StatefulWidget {
   const AdminProductsManagementScreen({Key? key}) : super(key: key);
@@ -46,8 +47,8 @@ class _AdminProductsManagementScreenState
       final success = await adminProvider.deleteProduct(productId);
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Product deleted successfully'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.productDeletedSuccessfully),
             backgroundColor: Colors.green,
           ),
         );
@@ -68,19 +69,19 @@ class _AdminProductsManagementScreenState
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Product'),
-        content: const Text('Are you sure you want to delete this product?'),
+        title: Text(AppLocalizations.of(context)!.deleteProduct),
+        content: Text(AppLocalizations.of(context)!.areYouSureYouWantToAltAltAltAltAlt),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _deleteProduct(productId);
             },
-            child: const Text('Delete'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -96,7 +97,7 @@ class _AdminProductsManagementScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Products Management'),
+        title: Text(AppLocalizations.of(context)!.productsManagement),
         elevation: 0,
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
@@ -118,7 +119,7 @@ class _AdminProductsManagementScreenState
           _loadProducts();
         },
         icon: const Icon(Icons.add),
-        label: const Text('Add Product'),
+        label: Text(AppLocalizations.of(context)!.addProduct),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
         elevation: 4,
@@ -162,7 +163,7 @@ class _AdminProductsManagementScreenState
                                   _loadProducts();
                                 },
                                 icon: const Icon(Icons.add),
-                                label: const Text('Add Product'),
+                                label: Text(AppLocalizations.of(context)!.addProduct),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
                                       Theme.of(context).primaryColor,

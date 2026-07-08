@@ -8,6 +8,7 @@ import 'package:masoko_tips/widgets/cached_network_image_with_cors.dart';
 import '../seller/seller_public_profile_screen.dart' as import_profile;
 import '../../providers/subscription_provider.dart';
 import '../subscription/subscription_screen.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class TransportDetailsScreen extends StatelessWidget {
   final Transport transport;
@@ -235,6 +236,22 @@ class TransportDetailsScreen extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 24),
+
+                  // Description
+                  if (transport.description != null && transport.description!.isNotEmpty) ...[
+                    _buildSection(
+                      context,
+                      title: 'Description',
+                      child: Text(
+                        transport.description!,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          height: 1.5,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
 
                   // Key Features
                   _buildSection(
@@ -533,8 +550,8 @@ class TransportDetailsScreen extends StatelessWidget {
                             _handleProtectedAction(context, () {
                               if (receiverId == 0) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Provider contact info is not available. Please call instead.'),
+                                  SnackBar(
+                                    content: Text(AppLocalizations.of(context)!.providerContactInfoIsNotAvailable),
                                     backgroundColor: Colors.orange,
                                   ),
                                 );
@@ -543,8 +560,8 @@ class TransportDetailsScreen extends StatelessWidget {
                               final currentUserId = authProvider.user!.id;
                               if (currentUserId == receiverId) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('You cannot chat with yourself.'),
+                                  SnackBar(
+                                    content: Text(AppLocalizations.of(context)!.youCannotChatWithYourself),
                                     backgroundColor: Colors.orange,
                                   ),
                                 );
@@ -600,8 +617,8 @@ class TransportDetailsScreen extends StatelessWidget {
                                       await launchUrl(url);
                                     } else {
                                       messenger.showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Could not launch phone dialer.'),
+                                        SnackBar(
+                                          content: Text(AppLocalizations.of(context)!.couldNotLaunchPhoneDialer),
                                           backgroundColor: Colors.red,
                                         ),
                                       );
@@ -736,8 +753,8 @@ class TransportDetailsScreen extends StatelessWidget {
                   await launchUrl(url);
                 } else {
                   messenger.showSnackBar(
-                    const SnackBar(
-                      content: Text('Could not launch phone dialer.'),
+                    SnackBar(
+                      content: Text(AppLocalizations.of(context)!.couldNotLaunchPhoneDialer),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -799,14 +816,14 @@ class TransportDetailsScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Subscription Required'),
+        title: Text(AppLocalizations.of(context)!.subscriptionRequired),
         content: const Text(
           'Chat and Contact features are available for active subscribers only. Subscribe now to connect directly!',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL'),
+            child: Text(AppLocalizations.of(context)!.cancelAlt),
           ),
           ElevatedButton(
             onPressed: () {
@@ -816,7 +833,7 @@ class TransportDetailsScreen extends StatelessWidget {
                 MaterialPageRoute(builder: (_) => const SubscriptionScreen()),
               );
             },
-            child: const Text('SUBSCRIBE NOW'),
+            child: Text(AppLocalizations.of(context)!.subscribeNowAlt),
           ),
         ],
       ),

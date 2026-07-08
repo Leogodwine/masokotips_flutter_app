@@ -5,6 +5,7 @@ import '../../providers/cart_provider.dart';
 import '../products/product_details_screen.dart';
 import '../../widgets/error_handler.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class WishlistScreen extends StatelessWidget {
   const WishlistScreen({super.key});
@@ -15,7 +16,7 @@ class WishlistScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Wishlist'),
+        title: Text(AppLocalizations.of(context)!.myWishlist),
         actions: [
           Consumer<WishlistProvider>(
             builder: (context, wishlistProvider, _) {
@@ -156,9 +157,9 @@ class WishlistScreen extends StatelessWidget {
                                       cartProvider.addToCart(product);
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Added to cart'),
-                                          duration: Duration(seconds: 2),
+                                        SnackBar(
+                                          content: Text(AppLocalizations.of(context)!.addedToCart),
+                                          duration: const Duration(seconds: 2),
                                         ),
                                       );
                                     } else {
@@ -210,19 +211,19 @@ class WishlistScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Clear Wishlist'),
-        content: const Text('Are you sure you want to clear your wishlist?'),
+        title: Text(AppLocalizations.of(context)!.clearWishlist),
+        content: Text(AppLocalizations.of(context)!.areYouSureYouWantToAltAlt),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () {
               provider.clearWishlist();
               Navigator.pop(context);
             },
-            child: const Text('Clear'),
+            child: Text(AppLocalizations.of(context)!.clear),
           ),
         ],
       ),

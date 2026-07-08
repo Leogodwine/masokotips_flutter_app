@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'buying_requests_tab.dart';
 import '../orders/orders_screen.dart';
 import '../profile/profile_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 class BuyerDashboardScreen extends StatefulWidget {
   const BuyerDashboardScreen({Key? key}) : super(key: key);
@@ -54,18 +55,18 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
               });
             }
           },
-          items: const [
+          items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.campaign),
-              label: 'My Requests',
+              icon: const Icon(Icons.campaign),
+              label: AppLocalizations.of(context)!.myRequests,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_bag),
-              label: 'Orders',
+              icon: const Icon(Icons.shopping_bag),
+              label: AppLocalizations.of(context)!.ordersTab,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Profile',
+              icon: const Icon(Icons.person),
+              label: AppLocalizations.of(context)!.profile,
             ),
           ],
         ),

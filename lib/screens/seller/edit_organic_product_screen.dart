@@ -8,6 +8,7 @@ import '../../services/api_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../config/api_config.dart';
 import '../../utils/logger.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class EditOrganicProductScreen extends StatefulWidget {
   final OrganicProduct product;
@@ -207,8 +208,8 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
       if (isSuccess) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Organic product updated successfully!'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.organicProductUpdatedSuccessfully),
               backgroundColor: Colors.green,
             ),
           );
@@ -236,7 +237,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Organic Product'),
+        title: Text(AppLocalizations.of(context)!.editOrganicProduct),
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
         actions: [
@@ -386,8 +387,8 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                             fillColor: Colors.grey[50],
                           ),
                           hint: _isLoadingCategories
-                              ? const Text('Loading categories...')
-                              : const Text('Select Organic Category'),
+                              ? Text(AppLocalizations.of(context)!.loadingCategories)
+                              : Text(AppLocalizations.of(context)!.selectOrganicCategory),
                           items: provider.subcategories.map((category) {
                             return DropdownMenuItem<int?>(
                               value: category.id,
@@ -536,7 +537,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                               TextButton.icon(
                                 onPressed: _pickImages,
                                 icon: const Icon(Icons.add_photo_alternate),
-                                label: const Text('Add Images'),
+                                label: Text(AppLocalizations.of(context)!.addImages),
                               ),
                             ],
                           ),
@@ -583,9 +584,8 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                         child: Column(
                           children: [
                             SwitchListTile(
-                              title: const Text('Active'),
-                              subtitle: const Text(
-                                  'Make this product visible to customers'),
+                              title: Text(AppLocalizations.of(context)!.active),
+                              subtitle: Text(AppLocalizations.of(context)!.makeThisProductVisibleToCustomers),
                               value: _isActive,
                               onChanged: (value) {
                                 setState(() {
@@ -594,9 +594,8 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                               },
                             ),
                             SwitchListTile(
-                              title: const Text('Featured'),
-                              subtitle: const Text(
-                                  'Show this product in featured section'),
+                              title: Text(AppLocalizations.of(context)!.featured),
+                              subtitle: Text(AppLocalizations.of(context)!.showThisProductInFeaturedSection),
                               value: _isFeatured,
                               onChanged: (value) {
                                 setState(() {
@@ -650,13 +649,13 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Organic Product'),
+        title: Text(AppLocalizations.of(context)!.deleteOrganicProduct),
         content: Text(
             'Are you sure you want to delete "${widget.product.name}"? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -664,7 +663,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
               _deleteProduct();
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),

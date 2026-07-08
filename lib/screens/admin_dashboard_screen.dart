@@ -7,6 +7,7 @@ import '../models/admin_dashboard_data.dart';
 import '../models/user.dart';
 import 'profile/profile_screen.dart';
 import 'admin/admin_user_management_screen.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({Key? key}) : super(key: key);
@@ -45,8 +46,8 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, _) {
         if (!authProvider.isAuthenticated || authProvider.user == null) {
-          return const Center(
-            child: Text('Please log in to view profile'),
+          return Center(
+            child: Text(AppLocalizations.of(context)!.pleaseLogInToViewProfile),
           );
         }
 
@@ -160,18 +161,18 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       context: context, // This context is still valid here
                       builder: (dialogContext) => AlertDialog(
                         // Use dialogContext for things inside the dialog
-                        title: const Text('Logout'),
-                        content: const Text('Are you sure you want to logout?'),
+                        title: Text(AppLocalizations.of(context)!.logout),
+                        content: Text(AppLocalizations.of(context)!.areYouSureYouWantToAltAltAlt),
                         actions: [
                           TextButton(
                             onPressed: () =>
                                 Navigator.of(dialogContext).pop(false),
-                            child: const Text('CANCEL'),
+                            child: Text(AppLocalizations.of(context)!.cancelAlt),
                           ),
                           TextButton(
                             onPressed: () =>
                                 Navigator.of(dialogContext).pop(true),
-                            child: const Text('LOGOUT'),
+                            child: Text(AppLocalizations.of(context)!.logoutAlt),
                           ),
                         ],
                       ),
@@ -189,7 +190,7 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     }
                   },
                   icon: const Icon(Icons.logout, size: 20),
-                  label: const Text('LOGOUT'),
+                  label: Text(AppLocalizations.of(context)!.logoutAlt),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red[50],
                     foregroundColor: Colors.red,
@@ -235,13 +236,13 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
               }
             },
             itemBuilder: (BuildContext context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'logout',
                 child: Row(
                   children: [
-                    Icon(Icons.logout, color: Colors.red),
-                    SizedBox(width: 8),
-                    Text('Logout'),
+                    const Icon(Icons.logout, color: Colors.red),
+                    const SizedBox(width: 8),
+                    Text(AppLocalizations.of(context)!.logout),
                   ],
                 ),
               ),
@@ -269,7 +270,7 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
               final dashboardData = adminProvider.dashboardData;
               if (dashboardData == null) {
-                return const Center(child: Text('No dashboard data available'));
+                return Center(child: Text(AppLocalizations.of(context)!.noDashboardDataAvailable));
               }
 
               return RefreshIndicator(
@@ -377,12 +378,12 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
     final confirmed = await showDialog<bool>(
       context: context, // This context is fine
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        title: Text(AppLocalizations.of(context)!.logout),
+        content: Text(AppLocalizations.of(context)!.areYouSureYouWantToAltAltAlt),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
@@ -495,7 +496,7 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ElevatedButton.icon(
               onPressed: adminProvider.loadDashboardData,
               icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
+              label: Text(AppLocalizations.of(context)!.retry),
             ),
           ],
         ),
@@ -578,9 +579,9 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
               onTap: () {
                 // Show coming soon message for settings
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Admin settings coming soon!'),
-                    duration: Duration(seconds: 2),
+                  SnackBar(
+                    content: Text(AppLocalizations.of(context)!.adminSettingsComingSoon),
+                    duration: const Duration(seconds: 2),
                   ),
                 );
               },
@@ -857,16 +858,16 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     _pageController.jumpToPage(1);
                   },
                   icon: const Icon(Icons.arrow_forward, size: 16),
-                  label: const Text('View All'),
+                  label: Text(AppLocalizations.of(context)!.viewAll),
                 ),
               ],
             ),
             const SizedBox(height: 16),
             if (users.isEmpty)
-              const Center(
+              Center(
                 child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text('No users found'),
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(AppLocalizations.of(context)!.noUsersFound),
                 ),
               )
             else

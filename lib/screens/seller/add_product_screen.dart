@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
 import '../../providers/category_provider.dart';
 import '../../utils/extensions.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class AddProductScreen extends StatefulWidget {
   final Function(Product) onProductAdded;
@@ -136,7 +137,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       // Show success message
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Product added successfully')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.productAddedSuccessfully)),
         );
         Navigator.pop(context);
       }
@@ -157,7 +158,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add New Product'),
+        title: Text(AppLocalizations.of(context)!.addNewProduct),
         elevation: 0,
       ),
       body: Form(
@@ -277,8 +278,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     fillColor: Colors.grey[50],
                   ),
                   hint: _isLoadingCategories
-                      ? const Text('Loading categories...')
-                      : const Text('Select Category'),
+                      ? Text(AppLocalizations.of(context)!.loadingCategories)
+                      : Text(AppLocalizations.of(context)!.selectCategory),
                   items: provider.subcategories.map((category) {
                     return DropdownMenuItem<int>(
                       value: category.id,
@@ -320,7 +321,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   ElevatedButton.icon(
                     onPressed: _pickImages,
                     icon: const Icon(Icons.add_photo_alternate),
-                    label: const Text('Add Images'),
+                    label: Text(AppLocalizations.of(context)!.addImages),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24,

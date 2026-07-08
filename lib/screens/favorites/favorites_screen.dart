@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/favorites_provider.dart';
 import '../services/service_detail_screen.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
@@ -10,13 +11,13 @@ class FavoritesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Favorites'),
+        title: Text(AppLocalizations.of(context)!.myFavorites),
       ),
       body: Consumer<FavoritesProvider>(
         builder: (context, favorites, child) {
           if (favorites.items.isEmpty) {
-            return const Center(
-              child: Text('No favorites yet'),
+            return Center(
+              child: Text(AppLocalizations.of(context)!.noFavoritesYet),
             );
           }
 

@@ -7,6 +7,7 @@ import '../../widgets/app_scaffold.dart';
 import '../../services/api_service.dart';
 import '../../utils/logger.dart';
 import '../../config/api_config.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({Key? key}) : super(key: key);
@@ -130,7 +131,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _fetchOrders,
-              child: const Text('RETRY'),
+              child: Text(AppLocalizations.of(context)!.retryAlt),
             ),
           ],
         ),
@@ -168,7 +169,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               onPressed: () {
                 Navigator.of(context).pushReplacementNamed('/home');
               },
-              child: const Text('START SHOPPING'),
+              child: Text(AppLocalizations.of(context)!.startShopping),
             ),
           ],
         ),
@@ -262,7 +263,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           foregroundColor: Colors.red[700],
                           elevation: 0,
                         ),
-                        child: const Text('Cancel Order'),
+                        child: Text(AppLocalizations.of(context)!.cancelOrder),
                       ),
                     ),
                 ],
@@ -304,13 +305,13 @@ class _OrdersScreenState extends State<OrdersScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Cancel Order'),
+          title: Text(AppLocalizations.of(context)!.cancelOrder),
           content: Text(
               'Are you sure you want to cancel order #${order.id}? This action cannot be undone.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Keep Order'),
+              child: Text(AppLocalizations.of(context)!.keepOrder),
             ),
             TextButton(
               onPressed: () {
@@ -318,7 +319,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 _cancelOrder(order);
               },
               style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Cancel Order'),
+              child: Text(AppLocalizations.of(context)!.cancelOrder),
             ),
           ],
         );
@@ -342,8 +343,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
         );
       } else {
         scaffoldMessenger.showSnackBar(
-          const SnackBar(
-            content: Text('Order cancelled successfully'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.orderCancelledSuccessfully),
             backgroundColor: Colors.green,
           ),
         );

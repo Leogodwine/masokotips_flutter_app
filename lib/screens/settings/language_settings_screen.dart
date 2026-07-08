@@ -23,7 +23,7 @@ class LanguageSettingsScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Text(
-              'Select Language / Chagua Lugha',
+              AppLocalizations.of(context)!.language,
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),

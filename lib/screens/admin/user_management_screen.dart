@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/admin_provider.dart';
 import '../../models/user.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class AdminUserManagementScreen extends StatefulWidget {
   const AdminUserManagementScreen({Key? key}) : super(key: key);
@@ -25,7 +26,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('User Management'),
+        title: Text(AppLocalizations.of(context)!.userManagement),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -56,7 +57,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                     onPressed: () {
                       adminProvider.loadUsers();
                     },
-                    child: const Text('Retry'),
+                    child: Text(AppLocalizations.of(context)!.retry),
                   ),
                 ],
               ),
@@ -65,7 +66,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
 
           final users = adminProvider.users;
           if (users.isEmpty) {
-            return const Center(child: Text('No users found'));
+            return Center(child: Text(AppLocalizations.of(context)!.noUsersFound));
           }
 
           return ListView.builder(
@@ -133,36 +134,36 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                       }
                     },
                     itemBuilder: (context) => [
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'edit',
                         child: Row(
                           children: [
-                            Icon(Icons.edit, size: 20),
-                            SizedBox(width: 8),
-                            Text('Edit'),
+                            const Icon(Icons.edit, size: 20),
+                            const SizedBox(width: 8),
+                            Text(AppLocalizations.of(context)!.edit),
                           ],
                         ),
                       ),
                       if (user.isSuspended)
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'unsuspend',
                           child: Row(
                             children: [
-                              Icon(Icons.check_circle,
+                              const Icon(Icons.check_circle,
                                   size: 20, color: Colors.green),
-                              SizedBox(width: 8),
-                              Text('Unsuspend'),
+                              const SizedBox(width: 8),
+                              Text(AppLocalizations.of(context)!.unsuspend),
                             ],
                           ),
                         )
                       else
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'suspend',
                           child: Row(
                             children: [
-                              Icon(Icons.block, size: 20, color: Colors.orange),
-                              SizedBox(width: 8),
-                              Text('Suspend'),
+                              const Icon(Icons.block, size: 20, color: Colors.orange),
+                              const SizedBox(width: 8),
+                              Text(AppLocalizations.of(context)!.suspend),
                             ],
                           ),
                         ),
@@ -192,13 +193,13 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete User'),
+        title: Text(AppLocalizations.of(context)!.deleteUser),
         content: Text(
             'Are you sure you want to delete ${user.name}?\n\nThis action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: Colors.red),
@@ -209,7 +210,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
               final scaffoldMessenger = ScaffoldMessenger.of(context);
 
               scaffoldMessenger.showSnackBar(
-                const SnackBar(content: Text('Deleting user...')),
+                SnackBar(content: Text(AppLocalizations.of(context)!.deletingUser)),
               );
 
               final success = await adminProvider.deleteUser(user.id);
@@ -226,7 +227,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                 ),
               );
             },
-            child: const Text('Delete'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -237,13 +238,13 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Suspend User'),
+        title: Text(AppLocalizations.of(context)!.suspendUser),
         content: Text(
             'Are you sure you want to suspend ${user.name}?\n\nThe user will not be able to access the app until unsuspended.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: Colors.orange),
@@ -254,7 +255,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
               final scaffoldMessenger = ScaffoldMessenger.of(context);
 
               scaffoldMessenger.showSnackBar(
-                const SnackBar(content: Text('Suspending user...')),
+                SnackBar(content: Text(AppLocalizations.of(context)!.suspendingUser)),
               );
 
               final success = await adminProvider.suspendUser(user.id, true);
@@ -271,7 +272,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                 ),
               );
             },
-            child: const Text('Suspend'),
+            child: Text(AppLocalizations.of(context)!.suspend),
           ),
         ],
       ),
@@ -282,13 +283,13 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Unsuspend User'),
+        title: Text(AppLocalizations.of(context)!.unsuspendUser),
         content: Text(
             'Are you sure you want to unsuspend ${user.name}?\n\nThe user will be able to access the app again.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: Colors.green),
@@ -299,7 +300,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
               final scaffoldMessenger = ScaffoldMessenger.of(context);
 
               scaffoldMessenger.showSnackBar(
-                const SnackBar(content: Text('Unsuspending user...')),
+                SnackBar(content: Text(AppLocalizations.of(context)!.unsuspendingUser)),
               );
 
               final success = await adminProvider.suspendUser(user.id, false);
@@ -316,7 +317,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                 ),
               );
             },
-            child: const Text('Unsuspend'),
+            child: Text(AppLocalizations.of(context)!.unsuspend),
           ),
         ],
       ),
@@ -335,7 +336,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (dialogContext, setState) => AlertDialog(
-          title: const Text('Edit User'),
+          title: Text(AppLocalizations.of(context)!.editUser),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -360,13 +361,13 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                 DropdownButtonFormField<String>(
                   initialValue: selectedRole,
                   decoration: const InputDecoration(labelText: 'Role'),
-                  items: const [
-                    DropdownMenuItem(value: 'admin', child: Text('Admin')),
-                    DropdownMenuItem(value: 'buyer', child: Text('Buyer')),
-                    DropdownMenuItem(value: 'seller', child: Text('Seller')),
+                  items: [
+                    DropdownMenuItem(value: 'admin', child: Text(AppLocalizations.of(context)!.admin)),
+                    DropdownMenuItem(value: 'buyer', child: Text(AppLocalizations.of(context)!.buyer)),
+                    DropdownMenuItem(value: 'seller', child: Text(AppLocalizations.of(context)!.seller)),
                     DropdownMenuItem(
                         value: 'service_provider',
-                        child: Text('Service Provider')),
+                        child: Text(AppLocalizations.of(context)!.serviceProvider)),
                   ],
                   onChanged: (value) {
                     if (value != null) {
@@ -378,7 +379,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                 ),
                 const SizedBox(height: 16),
                 SwitchListTile(
-                  title: const Text('Active'),
+                  title: Text(AppLocalizations.of(context)!.active),
                   value: isActive,
                   onChanged: (value) {
                     setState(() {
@@ -387,7 +388,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                   },
                 ),
                 SwitchListTile(
-                  title: const Text('Suspended'),
+                  title: Text(AppLocalizations.of(context)!.suspended),
                   value: isSuspended,
                   onChanged: (value) {
                     setState(() {
@@ -401,7 +402,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -423,7 +424,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
 
                 // Show loading SnackBar
                 scaffoldMessenger.showSnackBar(
-                  const SnackBar(content: Text('Updating user...')),
+                  SnackBar(content: Text(AppLocalizations.of(context)!.updatingUser)),
                 );
 
                 final success =
@@ -448,7 +449,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                   adminProvider.loadUsers();
                 }
               },
-              child: const Text('Save'),
+              child: Text(AppLocalizations.of(context)!.save),
             ),
           ],
         ),

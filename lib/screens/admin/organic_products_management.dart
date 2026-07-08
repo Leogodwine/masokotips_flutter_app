@@ -6,6 +6,7 @@ import 'package:masoko_tips/widgets/loading_indicator.dart';
 import 'package:masoko_tips/widgets/cached_network_image_with_cors.dart';
 import 'package:provider/provider.dart';
 import '../../utils/image_upload_helper.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class OrganicProductsManagement extends StatefulWidget {
   const OrganicProductsManagement({super.key});
@@ -32,8 +33,8 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
       if (!adminProvider.isAdmin) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Please login as admin to access organic products'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.pleaseLoginAsAdminToAccess),
               backgroundColor: Colors.orange,
             ),
           );
@@ -112,7 +113,7 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Organic Product'),
+        title: Text(AppLocalizations.of(context)!.deleteOrganicProduct),
         content: Text('Are you sure you want to delete ${product.name}?'),
         actions: [
           TextButton(
@@ -133,7 +134,7 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                 navigator.pop(context);
                 scaffoldMessenger.showSnackBar(
                   SnackBar(
-                    content: const Text('Organic product deleted successfully'),
+                    content: Text(AppLocalizations.of(context)!.organicProductDeletedSuccessfully),
                     backgroundColor: theme.primaryColor,
                   ),
                 );
@@ -160,7 +161,7 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Organic Products Management'),
+        title: Text(AppLocalizations.of(context)!.organicProductsManagement),
         backgroundColor: theme.primaryColor,
         foregroundColor: theme.colorScheme.onPrimary,
         elevation: 0,
@@ -174,7 +175,7 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _navigateToEditProduct(context),
         icon: const Icon(Icons.add),
-        label: const Text('Add Product'),
+        label: Text(AppLocalizations.of(context)!.addProduct),
         backgroundColor: theme.primaryColor,
         foregroundColor: theme.colorScheme.onPrimary,
         elevation: 4,
@@ -216,7 +217,7 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                         Navigator.pushReplacementNamed(context, '/admin-login');
                       },
                       icon: const Icon(Icons.login),
-                      label: const Text('Login as Admin'),
+                      label: Text(AppLocalizations.of(context)!.loginAsAdmin),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: theme.primaryColor,
                         foregroundColor: theme.colorScheme.onPrimary,
@@ -249,7 +250,7 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                                 backgroundColor: theme.primaryColor,
                                 foregroundColor: theme.colorScheme.onPrimary,
                               ),
-                              child: const Text('Retry'),
+                              child: Text(AppLocalizations.of(context)!.retry),
                             ),
                           ],
                         ))
@@ -276,7 +277,7 @@ class _OrganicProductsManagementState extends State<OrganicProductsManagement> {
                                   onPressed: () =>
                                       _navigateToEditProduct(context),
                                   icon: const Icon(Icons.add),
-                                  label: const Text('Add Product'),
+                                  label: Text(AppLocalizations.of(context)!.addProduct),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: theme.primaryColor,
                                     foregroundColor:

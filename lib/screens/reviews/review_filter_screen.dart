@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 enum ReviewSort {
   newest,
@@ -38,7 +39,7 @@ class _ReviewFilterScreenState extends State<ReviewFilterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Filter Reviews'),
+        title: Text(AppLocalizations.of(context)!.filterReviews),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -91,7 +92,7 @@ class _ReviewFilterScreenState extends State<ReviewFilterScreen> {
                   widget.onApplyFilters(_minRating, _sortBy);
                   Navigator.pop(context);
                 },
-                child: const Text('Apply Filters'),
+                child: Text(AppLocalizations.of(context)!.applyFilters),
               ),
             ),
           ],

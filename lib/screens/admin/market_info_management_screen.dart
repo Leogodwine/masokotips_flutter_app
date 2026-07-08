@@ -9,6 +9,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../../utils/image_upload_helper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class MarketInfoManagementScreen extends StatefulWidget {
   const MarketInfoManagementScreen({super.key});
@@ -64,8 +65,8 @@ class _MarketInfoManagementScreenState
           .deleteMarketInfo(marketInfo.id.toString());
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Market information deleted successfully')),
+          SnackBar(
+              content: Text(AppLocalizations.of(context)!.marketInformationDeletedSuccessfully)),
         );
         _loadMarketInfo(); // Refresh the list
       }
@@ -85,9 +86,9 @@ class _MarketInfoManagementScreenState
     if (!authProvider.isAuthenticated || authProvider.token == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please login to add market information'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.pleaseLoginToAddMarketInformation),
+            duration: const Duration(seconds: 2),
           ),
         );
         // Navigate to admin login screen instead of regular login
@@ -101,9 +102,9 @@ class _MarketInfoManagementScreenState
         !authProvider.user!.roles.contains('admin')) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Only administrators can add market information'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.onlyAdministratorsCanAddMarketInformation),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -134,9 +135,9 @@ class _MarketInfoManagementScreenState
     if (authProvider.token == null || authProvider.token!.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please login to edit market information'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.pleaseLoginToEditMarketInformation),
+            duration: const Duration(seconds: 2),
           ),
         );
         // Navigate to admin login screen instead of regular login
@@ -149,9 +150,9 @@ class _MarketInfoManagementScreenState
     if (!authProvider.user!.roles.contains('admin')) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Only administrators can edit market information'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.onlyAdministratorsCanEditMarketInformation),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -186,7 +187,7 @@ class _MarketInfoManagementScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Market Information Management'),
+        title: Text(AppLocalizations.of(context)!.marketInformationManagement),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
       ),
@@ -232,7 +233,7 @@ class _MarketInfoManagementScreenState
                                       onPressed: _openAddMarketInfoScreen,
                                       icon: const Icon(Icons.add),
                                       label:
-                                          const Text('Add Market Information'),
+                                          Text(AppLocalizations.of(context)!.addMarketInformation),
                                     ),
                                   ],
                                 ),
@@ -431,7 +432,7 @@ class _MarketInfoManagementScreenState
                                                 icon: const Icon(
                                                   Icons.edit_outlined,
                                                 ),
-                                                label: const Text('Edit'),
+                                                label: Text(AppLocalizations.of(context)!.edit),
                                               ),
                                               TextButton.icon(
                                                 onPressed: () {
@@ -439,17 +440,14 @@ class _MarketInfoManagementScreenState
                                                     context: context,
                                                     builder: (context) =>
                                                         AlertDialog(
-                                                      title: const Text(
-                                                          'Delete Market Information'),
-                                                      content: const Text(
-                                                          'Are you sure you want to delete this market information?'),
+                                                      title: Text(AppLocalizations.of(context)!.deleteMarketInformation),
+                                                      content: Text(AppLocalizations.of(context)!.areYouSureYouWantTo),
                                                       actions: [
                                                         TextButton(
                                                           onPressed: () =>
                                                               Navigator.pop(
                                                                   context),
-                                                          child: const Text(
-                                                              'CANCEL'),
+                                                          child: Text(AppLocalizations.of(context)!.cancelAlt),
                                                         ),
                                                         TextButton(
                                                           onPressed: () {
@@ -463,8 +461,7 @@ class _MarketInfoManagementScreenState
                                                             foregroundColor:
                                                                 Colors.red,
                                                           ),
-                                                          child: const Text(
-                                                              'DELETE'),
+                                                          child: Text(AppLocalizations.of(context)!.deleteAlt),
                                                         ),
                                                       ],
                                                     ),
@@ -473,7 +470,7 @@ class _MarketInfoManagementScreenState
                                                 icon: const Icon(
                                                   Icons.delete_outline,
                                                 ),
-                                                label: const Text('Delete'),
+                                                label: Text(AppLocalizations.of(context)!.delete),
                                               ),
                                             ],
                                           ),
@@ -488,17 +485,15 @@ class _MarketInfoManagementScreenState
                                                 context: context,
                                                 builder: (context) =>
                                                     AlertDialog(
-                                                  title: const Text(
-                                                      'Delete Market Information'),
-                                                  content: const Text(
-                                                      'Are you sure you want to delete this market information?'),
+                                                  title: Text(AppLocalizations.of(context)!.deleteMarketInformation),
+                                                  content: Text(AppLocalizations.of(context)!.areYouSureYouWantTo),
                                                   actions: [
                                                     TextButton(
                                                       onPressed: () =>
                                                           Navigator.pop(
                                                               context),
                                                       child:
-                                                          const Text('CANCEL'),
+                                                          Text(AppLocalizations.of(context)!.cancelAlt),
                                                     ),
                                                     TextButton(
                                                       onPressed: () {
@@ -512,7 +507,7 @@ class _MarketInfoManagementScreenState
                                                             Colors.red,
                                                       ),
                                                       child:
-                                                          const Text('DELETE'),
+                                                          Text(AppLocalizations.of(context)!.deleteAlt),
                                                     ),
                                                   ],
                                                 ),
@@ -520,13 +515,13 @@ class _MarketInfoManagementScreenState
                                             }
                                           },
                                           itemBuilder: (context) => [
-                                            const PopupMenuItem<String>(
+                                            PopupMenuItem<String>(
                                               value: 'edit',
                                               child: Row(
                                                 children: [
-                                                  Icon(Icons.edit),
-                                                  SizedBox(width: 8),
-                                                  Text('Edit'),
+                                                  const Icon(Icons.edit),
+                                                  const SizedBox(width: 8),
+                                                  Text(AppLocalizations.of(context)!.edit),
                                                 ],
                                               ),
                                             ),
@@ -672,7 +667,7 @@ class _AddMarketInfoScreenState extends State<AddMarketInfoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Market News'),
+        title: Text(AppLocalizations.of(context)!.addMarketNews),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
       ),
@@ -779,7 +774,7 @@ class _AddMarketInfoScreenState extends State<AddMarketInfoScreen> {
                     ElevatedButton.icon(
                       onPressed: _pickImage,
                       icon: const Icon(Icons.image),
-                      label: const Text('Pick Image'),
+                      label: Text(AppLocalizations.of(context)!.pickImage),
                     ),
                     const SizedBox(height: 16),
                     if (_error != null)
@@ -792,7 +787,7 @@ class _AddMarketInfoScreenState extends State<AddMarketInfoScreen> {
                       ),
                     ElevatedButton(
                       onPressed: _submitForm,
-                      child: const Text('Add Market Information'),
+                      child: Text(AppLocalizations.of(context)!.addMarketInformation),
                     ),
                   ],
                 ),
@@ -912,7 +907,7 @@ class _EditMarketInfoScreenState extends State<EditMarketInfoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Market Information'),
+        title: Text(AppLocalizations.of(context)!.editMarketInformation),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -977,7 +972,7 @@ class _EditMarketInfoScreenState extends State<EditMarketInfoScreen> {
               ElevatedButton.icon(
                 onPressed: _pickImage,
                 icon: const Icon(Icons.image),
-                label: const Text('Change Image'),
+                label: Text(AppLocalizations.of(context)!.changeImage),
               ),
               if (_imageFile != null)
                 Padding(
@@ -1043,7 +1038,7 @@ class _EditMarketInfoScreenState extends State<EditMarketInfoScreen> {
                 onPressed: _isLoading ? null : _submitForm,
                 child: _isLoading
                     ? const CircularProgressIndicator()
-                    : const Text('Update Market Information'),
+                    : Text(AppLocalizations.of(context)!.updateMarketInformation),
               ),
             ],
           ),

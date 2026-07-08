@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../providers/cart_provider.dart';
 import 'package:provider/provider.dart';
 import '../../models/product.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class TransportServiceScreen extends StatelessWidget {
   final String transportType;
@@ -176,7 +177,7 @@ class TransportServiceScreen extends StatelessWidget {
             context.read<CartProvider>().addToCart(product);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: const Text('Service added to cart'),
+                content: Text(AppLocalizations.of(context)!.serviceAddedToCart),
                 action: SnackBarAction(
                   label: 'VIEW CART',
                   onPressed: () {
@@ -186,7 +187,7 @@ class TransportServiceScreen extends StatelessWidget {
               ),
             );
           },
-          child: const Text('Book Transport Service'),
+          child: Text(AppLocalizations.of(context)!.bookTransportService),
         ),
       ),
     );

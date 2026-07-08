@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import '../config/api_config.dart';
@@ -23,7 +25,43 @@ class ImageUploadHelper {
     }
   }
 
-  /// Picks an image from the gallery and returns an XFile object
+  /// Picks an image and allows the user to crop it (useful for IDs and Posts)
+  static Future<XFile?> pickAndCropImage(BuildContext context, {ImageSource source = ImageSource.gallery}) async {
+    final primaryColor = Theme.of(context).primaryColor;
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: source);
+
+    if (pickedFile != null) {
+      // image_cropper web dialog frequently causes RenderFlex overflow on smaller screens.
+      // We bypass cropping on web and just return the selected image.
+      if (kIsWeb) {
+        return pickedFile;
+      }
+
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: pickedFile.path,
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Crop Image',
+            toolbarColor: primaryColor,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false,
+          ),
+          IOSUiSettings(
+            title: 'Crop Image',
+          ),
+        ],
+      );
+
+      if (croppedFile != null) {
+        return XFile(croppedFile.path);
+      }
+    }
+    return null;
+  }
+
+  /// Picks an image from the gallery and returns an XFile object (No cropping)
   static Future<XFile?> pickImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);

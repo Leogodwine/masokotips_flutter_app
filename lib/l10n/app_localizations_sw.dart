@@ -21,10 +21,10 @@ class AppLocalizationsSw extends AppLocalizations {
   String get signInToContinue => 'Ingia ili kuendelea';
 
   @override
-  String get username => 'Jina la mtumiaji';
+  String get username => 'Jina la Mtumiaji';
 
   @override
-  String get enterUsername => 'Ingiza jina lako la mtumiaji';
+  String get enterUsername => 'Ingiza jina la mtumiaji';
 
   @override
   String get usernameRequired => 'Tafadhali ingiza jina lako la mtumiaji';
@@ -339,7 +339,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get enterZipCode => 'Tafadhali ingiza msimbo wa posta';
 
   @override
-  String get enterCountry => 'Tafadhali ingiza nchi';
+  String get enterCountry => 'Ingiza nchi yako';
 
   @override
   String get description => 'Maelezo';
@@ -354,9 +354,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get noRelatedProducts => 'Hakuna bidhaa zinazohusiana zinazopatikana';
 
   @override
-  String addedToCart(String productName) {
-    return '$productName imeongezwa kwenye mkokoteni';
-  }
+  String get addedToCart => 'Imeongezwa kwenye kikapu';
 
   @override
   String failedToAddToCart(String error) {
@@ -381,7 +379,7 @@ class AppLocalizationsSw extends AppLocalizations {
   }
 
   @override
-  String get organicProducts => 'Bidhaa za Kikaboni';
+  String get organicProducts => 'Bidhaa Asilia';
 
   @override
   String get sortAndFilter => 'Panga na Chuja';
@@ -408,15 +406,15 @@ class AppLocalizationsSw extends AppLocalizations {
   String get close => 'Funga';
 
   @override
-  String get searchOrganicProducts => 'Tafuta bidhaa za kikaboni...';
+  String get searchOrganicProducts => 'Tafuta bidhaa asilia...';
 
   @override
   String errorLoadingOrganicProducts(String error) {
-    return 'Kosa katika kupakia bidhaa za kikaboni: $error';
+    return 'Kosa katika kupakia bidhaa asilia: $error';
   }
 
   @override
-  String get noOrganicProductsFound => 'Hakuna bidhaa za kikaboni zilizopatikana';
+  String get noOrganicProductsFound => 'Hakuna bidhaa asilia zilizopatikana';
 
   @override
   String get deleteProduct => 'Futa Bidhaa';
@@ -427,9 +425,7 @@ class AppLocalizationsSw extends AppLocalizations {
   }
 
   @override
-  String productDeletedSuccessfully(String productName) {
-    return '$productName imefutwa kwa mafanikio';
-  }
+  String get productDeletedSuccessfully => 'Bidhaa imefutwa kikamilifu';
 
   @override
   String errorDeletingProduct(String error) {
@@ -662,10 +658,10 @@ class AppLocalizationsSw extends AppLocalizations {
   String get apiServiceNotInitialized => 'Huduma ya API haijaanzishwa';
 
   @override
-  String get failedToFetchOrganicProducts => 'Imeshindikana kupata bidhaa za kikaboni';
+  String get failedToFetchOrganicProducts => 'Imeshindikana kupata bidhaa asilia';
 
   @override
-  String get noOrganicProductsYet => 'Hakuna Bidhaa za Kikaboni Bado';
+  String get noOrganicProductsYet => 'Hakuna Bidhaa Asilia Bado';
 
   @override
   String get startAddingOrganicProduct => 'Anza kwa kuongeza bidhaa yako ya kwanza ya kikaboni';
@@ -745,9 +741,7 @@ class AppLocalizationsSw extends AppLocalizations {
   }
 
   @override
-  String transportDeletedSuccessfully(String title) {
-    return '$title imefutwa kwa mafanikio';
-  }
+  String get transportDeletedSuccessfully => 'Usafiri umefutwa kikamilifu';
 
   @override
   String failedToDeleteTransport(String error) {
@@ -1134,8 +1128,983 @@ class AppLocalizationsSw extends AppLocalizations {
   String get noFeaturedTransportsAvailable => 'Hakuna usafiri uliotangazwa unaopatikana';
 
   @override
-  String get featuredServices => 'Huduma Zilizotangazwa';
+  String get registrationSuccessful => 'Usajili umefanikiwa! Karibu maSOKOtips.';
 
   @override
-  String get noFeaturedServicesAvailable => 'Hakuna huduma zilizotangazwa zinazopatikana';
+  String get selectRoleError => 'Tafadhali chagua jukumu la kujisajili.';
+
+  @override
+  String get emailTaken => 'Barua pepe hii tayari imesajiliwa. Tafadhali jaribu nyingine au ingia.';
+
+  @override
+  String get registrationFailed => 'Usajili umeshindwa. Tafadhali jaribu tena.';
+
+  @override
+  String get createAccount => 'Fungua Akaunti';
+
+  @override
+  String get joinMasokotips => 'Jiunge na maSOKOtips';
+
+  @override
+  String get createAccountToGetStarted => 'Fungua akaunti ili uanze';
+
+  @override
+  String get enterFullName => 'Ingiza jina lako kamili';
+
+  @override
+  String get pleaseEnterName => 'Tafadhali ingiza jina lako';
+
+  @override
+  String get pleaseEnterUsername => 'Tafadhali ingiza jina la mtumiaji';
+
+  @override
+  String get usernameTooShort => 'Jina la mtumiaji lazima liwe na angalau herufi 3';
+
+  @override
+  String get usernameInvalid => 'Jina la mtumiaji linaweza kuwa na herufi, nambari na mistari chini pekee';
+
+  @override
+  String get email => 'Barua Pepe';
+
+  @override
+  String get enterEmail => 'Ingiza barua pepe yako';
+
+  @override
+  String get pleaseEnterEmail => 'Tafadhali ingiza barua pepe yako';
+
+  @override
+  String get invalidEmail => 'Tafadhali ingiza barua pepe halali';
+
+  @override
+  String get enterPhoneNumber => 'Ingiza nambari yako ya simu';
+
+  @override
+  String get pleaseEnterPhoneNumber => 'Tafadhali ingiza nambari yako ya simu';
+
+  @override
+  String get location => 'Eneo';
+
+  @override
+  String get enterLocation => 'Ingiza mji/mkoa wako';
+
+  @override
+  String get pleaseEnterLocation => 'Tafadhali ingiza eneo lako';
+
+  @override
+  String get pleaseEnterCountry => 'Tafadhali ingiza nchi yako';
+
+  @override
+  String get agentCodeOptional => 'Nambari ya Wakala (Si lazima)';
+
+  @override
+  String get agentCodeHint => 'mfano MSK-AB12 — muulize wakala wako';
+
+  @override
+  String get agentCodeHelper => 'Kama wakala alikusaidia kujisajili, ingiza nambari yake hapa';
+
+  @override
+  String get pleaseEnterPassword => 'Tafadhali ingiza nenosiri';
+
+  @override
+  String get passwordTooShort => 'Nenosiri lazima liwe na angalau herufi 8';
+
+  @override
+  String get confirmPassword => 'Thibitisha Nenosiri';
+
+  @override
+  String get confirmYourPassword => 'Thibitisha nenosiri lako';
+
+  @override
+  String get pleaseConfirmPassword => 'Tafadhali thibitisha nenosiri lako';
+
+  @override
+  String get passwordsDoNotMatch => 'Manenosiri hayaendani';
+
+  @override
+  String get registerAs => 'Jisajili kama...';
+
+  @override
+  String get roleBuyer => 'Mnunuzi';
+
+  @override
+  String get roleSeller => 'Muuzaji';
+
+  @override
+  String get roleTransporter => 'Msafirishaji';
+
+  @override
+  String get roleServiceProvider => 'Mtoa Huduma';
+
+  @override
+  String get proofOfIdentity => 'Uthibitisho wa Utambulisho';
+
+  @override
+  String get optionalText => 'Si lazima';
+
+  @override
+  String get uploadDocumentHint => 'Pakia picha ya wazi ya kitambulisho chako. Kitambulisho chako kitahakikiwa.';
+
+  @override
+  String get selectDocumentType => 'Chagua aina ya hati';
+
+  @override
+  String get nidaCard => 'Kadi ya NIDA';
+
+  @override
+  String get drivingLicense => 'Leseni ya Udereva';
+
+  @override
+  String get voterCard => 'Kadi ya Mpiga Kura';
+
+  @override
+  String get gallery => 'Nyumba ya Picha';
+
+  @override
+  String get uploadTip => 'Kidokezo: Weka kitambulisho chako kwenye sehemu bapa yenye mwanga mzuri kabla ya kupiga picha.';
+
+  @override
+  String get createAccountCaps => 'FUNGUA AKAUNTI';
+
+  @override
+  String get featuredServices => 'Huduma Zinazopendekezwa';
+
+  @override
+  String get noFeaturedServicesAvailable => 'Hakuna huduma zinazopendekezwa kwa sasa';
+
+  @override
+  String get yesCancel => 'Ndiyo, Ghairi';
+
+  @override
+  String get checkNow => 'Angalia Sasa';
+
+  @override
+  String get manageSubscription => 'Dhibiti Usajili';
+
+  @override
+  String get subscriptionRequired => 'Usajili Unahitajika';
+
+  @override
+  String get subscribeNow => 'Jisajili Sasa';
+
+  @override
+  String get foodAndBeverages => 'Chakula na Vinywaji';
+
+  @override
+  String get myRequests => 'Maombi Yangu';
+
+  @override
+  String get postServices => 'Weka Huduma';
+
+  @override
+  String get adminLoginAdmin => 'Ingia kama Admin';
+
+  @override
+  String get accessAdminDashboard => 'Fikia Dashibodi ya Admin';
+
+  @override
+  String get cancelAndRetry => 'Ghairi na Ujaribu Tena';
+
+  @override
+  String get cancelPaymentTitle => 'Ghairi Malipo';
+
+  @override
+  String get no => 'Hapana';
+
+  @override
+  String get marketDemands => 'Mahitaji ya Soko';
+
+  @override
+  String get agriculturalServices => 'Huduma za Kilimo';
+
+  @override
+  String get cancelCaps => 'GHAIRI';
+
+  @override
+  String get subscribeNowCaps => 'JISAJILI SASA';
+
+  @override
+  String get phoneNumberNotAvailable => 'Namba ya simu haipatikani';
+
+  @override
+  String get couldNotLaunchDialer => 'Imeshindwa kufungua piga simu';
+
+  @override
+  String get marketplace => 'Soko';
+
+  @override
+  String get noItemsFound => 'Hakuna vitu vilivyopatikana';
+
+  @override
+  String get contacts => 'Mawasiliano';
+
+  @override
+  String get settingsAndAbout => 'Mipangilio na Kuhusu';
+
+  @override
+  String get legal => 'Sheria';
+
+  @override
+  String get appTitleSection => 'Programu';
+
+  @override
+  String get appNameLabel => 'Jina la Programu';
+
+  @override
+  String get versionLabel => 'Toleo';
+
+  @override
+  String get seeStoreListingForLatest => 'Tazama orodha ya duka kwa toleo jipya';
+
+  @override
+  String get accountDeletionRequestSubject => 'Ombi la Kufuta Akaunti - maSOKOtips';
+
+  @override
+  String get accountDeletionRequestBody => 'Hujambo Timu ya maSOKOtips,\n\nNingependa kuomba akaunti yangu na data zangu zifutwe.\n\nTafadhali thibitisha pindi itakapokamilika.\n\nAsante.';
+
+  @override
+  String get noEmailAppFound => 'Hakuna programu ya barua pepe iliyopatikana';
+
+  @override
+  String get helloGuest => 'Hujambo Mgeni';
+
+  @override
+  String get signInToYourAccount => 'Ingia kwenye akaunti yako';
+
+  @override
+  String get homeMenu => 'Mwanzo';
+
+  @override
+  String get productsMenu => 'Bidhaa';
+
+  @override
+  String get transportMenu => 'Usafiri';
+
+  @override
+  String get marketInfoMenu => 'Taarifa za Soko';
+
+  @override
+  String get profileMenu => 'Wasifu';
+
+  @override
+  String get myOrdersMenu => 'Oda Zangu';
+
+  @override
+  String get wishlistMenu => 'Orodha ya Matamanio';
+
+  @override
+  String get settingsMenu => 'Mipangilio';
+
+  @override
+  String get privacyPolicyMenu => 'Sera ya Faragha';
+
+  @override
+  String get helpAndSupportMenu => 'Msaada na Usaidizi';
+
+  @override
+  String get aboutMenu => 'Kuhusu';
+
+  @override
+  String get logoutMenu => 'Ondoka';
+
+  @override
+  String get aboutMasokoTips => 'Kuhusu maSOKO tips';
+
+  @override
+  String get aboutMasokoTipsDescription => 'maSOKO tips ni msaidizi wako wa soko la kilimo. Pata bidhaa, huduma, na taarifa za soko sehemu moja.';
+
+  @override
+  String get closeButton => 'Funga';
+
+  @override
+  String get twofactorAuthenticationEnabled => 'Uthibitishaji wa Hatua Mbili umewezeshwa';
+
+  @override
+  String get viewOrderHistory => 'Tazama Historia ya Oda';
+
+  @override
+  String get emailNotifications => 'Arifa za Barua Pepe';
+
+  @override
+  String get newPasswordsDoNotMatch => 'Nywila mpya hazifanani';
+
+  @override
+  String get thisActionCannotBeUndoneAll => 'Hatua hii haiwezi kutenduliwa. Data yako yote itafutwa kabisa.';
+
+  @override
+  String get pleaseLoginToSendAMessage => 'Tafadhali ingia ili kutuma ujumbe.';
+
+  @override
+  String get pleaseLoginToAddATransport => 'Tafadhali ingia ili kuongeza usafiri';
+
+  @override
+  String get startYourJourney => 'Anza Safari Yako';
+
+  @override
+  String get newsCopiedToClipboard => 'Habari imenakiliwa';
+
+  @override
+  String get addFoodBeverage => 'Ongeza Vyakula na Vinywaji';
+
+  @override
+  String get addNewTransport => 'Ongeza Usafiri Mpya';
+
+  @override
+  String get orderConfirmation => 'Uthibitisho wa Oda';
+
+  @override
+  String get deleteAlt => 'FUTA';
+
+  @override
+  String get noServicesFound => 'Hakuna huduma zilizopatikana';
+
+  @override
+  String get english => 'Kiingereza';
+
+  @override
+  String get noDashboardDataAvailable => 'Hakuna data ya dashibodi';
+
+  @override
+  String get onlyAdministratorsCanEditMarketInformation => 'Wasimamizi pekee ndio wanaoweza kuhariri taarifa za soko';
+
+  @override
+  String get deleteService => 'Futa Huduma';
+
+  @override
+  String get clearWishlist => 'Futa Orodha ya Matamanio';
+
+  @override
+  String get adminLoginSuccessful => 'Umeingia kama Msimamizi kikamilifu!';
+
+  @override
+  String get undoRemove => 'Tendua Kufuta';
+
+  @override
+  String get viewYourAccountActivity => 'Tazama shughuli za akaunti yako';
+
+  @override
+  String get userManagement => 'Usimamizi wa Watumiaji';
+
+  @override
+  String get pleaseSelectACategory => 'Tafadhali chagua kategoria';
+
+  @override
+  String get passwordChangedSuccessfully => 'Nywila imebadilishwa kikamilifu';
+
+  @override
+  String get goBack => 'Rudi Nyuma';
+
+  @override
+  String get pleaseLogInToViewProfile => 'Tafadhali ingia ili kutazama wasifu';
+
+  @override
+  String get suspend => 'Sitisha';
+
+  @override
+  String get sayHello => 'Sema hujambo!';
+
+  @override
+  String get myReviews => 'Maoni Yangu';
+
+  @override
+  String get noFavoritesYet => 'Hakuna vipendwa bado';
+
+  @override
+  String get pleaseLoginAsAdminToAccess => 'Tafadhali ingia kama msimamizi ili kufikia bidhaa asilia';
+
+  @override
+  String get activityLog => 'Kumbukumbu ya Shughuli';
+
+  @override
+  String get pleaseLoginToAddMarketInformation => 'Tafadhali ingia ili kuongeza taarifa za soko';
+
+  @override
+  String get okChangeNumber => 'Sawa, Badilisha Namba';
+
+  @override
+  String get adminAccountCreatedSuccessfully => 'Akaunti ya msimamizi imeundwa kikamilifu!';
+
+  @override
+  String get great => 'Sawa!';
+
+  @override
+  String get cancelPayment => 'Ghairi Malipo';
+
+  @override
+  String get securitySettings => 'Mipangilio ya Usalama';
+
+  @override
+  String get noUsersFound => 'Hakuna watumiaji waliopatikana';
+
+  @override
+  String get youDoNotHavePermissionTo => 'Hauna ruhusa ya kufikia kipengele hiki.';
+
+  @override
+  String get applyFilters => 'Weka Vichujio';
+
+  @override
+  String get bookTransportService => 'Weka Huduma ya Usafiri';
+
+  @override
+  String get pleaseAddAtLeastOneProduct => 'Tafadhali ongeza angalau picha moja ya bidhaa';
+
+  @override
+  String get changeImage => 'Badilisha Picha';
+
+  @override
+  String get twofactorAuthentication => 'Uthibitishaji wa Hatua Mbili';
+
+  @override
+  String get unsuspendUser => 'Ondoa Kusitishwa';
+
+  @override
+  String get onlyAdministratorsCanAddMarketInformation => 'Wasimamizi pekee ndio wanaoweza kuongeza taarifa za soko';
+
+  @override
+  String get marketInformationManagement => 'Usimamizi wa Taarifa za Soko';
+
+  @override
+  String get share => 'Shiriki';
+
+  @override
+  String get organicProductCreatedSuccessfully => 'Bidhaa asilia imeundwa kikamilifu!';
+
+  @override
+  String get vehicleIsInsuredForCargoAnd => 'Gari lina bima ya mizigo';
+
+  @override
+  String get itemUpdatedSuccessfully => 'Kipengee kimesasishwa kikamilifu!';
+
+  @override
+  String get organicProductUpdatedSuccessfully => 'Bidhaa asilia imesasishwa kikamilifu!';
+
+  @override
+  String get unsuspendingUser => 'Inaondoa kusitishwa...';
+
+  @override
+  String get youCannotChatWithYourself => 'Huwezi kufanya soga na wewe mwenyewe.';
+
+  @override
+  String get pickImage => 'Chagua Picha';
+
+  @override
+  String get transportServiceUpdatedSuccessfully => 'Huduma ya usafiri imesasishwa kikamilifu!';
+
+  @override
+  String get failedToCreateAdminAccount => 'Imeshindikana kuunda akaunti ya msimamizi';
+
+  @override
+  String get smsNotifications => 'Arifa za SMS';
+
+  @override
+  String get pleaseLoginToCall => 'Tafadhali ingia ili kupiga simu.';
+
+  @override
+  String get viewAll => 'Tazama Zote';
+
+  @override
+  String get receiveUpdatesAndAlertsViaEmail => 'Pokea sasisho na arifa kupitia barua pepe';
+
+  @override
+  String get noReviewsPendingModeration => 'Hakuna maoni yanayosubiri ukaguzi';
+
+  @override
+  String get postRequest => 'Tuma Ombi';
+
+  @override
+  String get deletedSuccessfully => 'Imefutwa kikamilifu';
+
+  @override
+  String get providerContactInfoIsNotAvailable => 'Taarifa za mawasiliano hazipatikani. Tafadhali piga simu.';
+
+  @override
+  String get cancelAlt => 'GHAIRI';
+
+  @override
+  String get suspended => 'Imesitishwa';
+
+  @override
+  String get areYouSureYouWantTo => 'Una uhakika unataka kufuta taarifa hizi za soko?';
+
+  @override
+  String get price => 'Bei ↑';
+
+  @override
+  String get activityLogFeatureIsUnderDevelopment => 'Kipengele hiki kipo kwenye matengenezo';
+
+  @override
+  String get averageRating => 'Wastani wa Ukadiriaji';
+
+  @override
+  String get suspendingUser => 'Inasitisha mtumiaji...';
+
+  @override
+  String get receiveAVerificationCodeWhenSigning => 'Pokea namba ya uthibitisho wakati wa kuingia';
+
+  @override
+  String get postBuyingRequest => 'Tuma Ombi la Kununua';
+
+  @override
+  String get serviceManagement => 'Usimamizi wa Huduma';
+
+  @override
+  String get date => 'Tarehe ↑';
+
+  @override
+  String get showThisItemInFeaturedSection => 'Onyesha kipengee hiki kwenye sehemu maalum';
+
+  @override
+  String get deleteRequest => 'Futa Ombi';
+
+  @override
+  String get createAdminAccount => 'Unda Akaunti ya Msimamizi';
+
+  @override
+  String get couldNotLaunchPhoneDialer => 'Imeshindwa kufungua kipiga simu.';
+
+  @override
+  String get goBackWithoutCompletingPayment => 'Rudi nyuma bila kukamilisha malipo?';
+
+  @override
+  String get messages => 'Ujumbe';
+
+  @override
+  String get paymentSuccessful => 'Malipo Yamefanikiwa';
+
+  @override
+  String get areYouSureYouWantToAlt => 'Una uhakika unataka kufuta bidhaa hii? Hatua hii haiwezi kutenduliwa.';
+
+  @override
+  String get pleaseLoginToEditYourProfile => 'Tafadhali ingia ili kuhariri wasifu wako';
+
+  @override
+  String get temperatureControlled => 'Iliyodhibitiwa Joto';
+
+  @override
+  String get noMapsAppFoundOnThis => 'Hakuna programu ya ramani iliyopatikana.';
+
+  @override
+  String get organicProductDeletedSuccessfully => 'Bidhaa asilia imefutwa kikamilifu';
+
+  @override
+  String get makeThisItemVisibleToCustomers => 'Fanya kipengee hiki kionekane kwa wateja';
+
+  @override
+  String get enterPaymentNumber => 'Ingiza Namba ya Malipo';
+
+  @override
+  String get myWishlist => 'Orodha Yangu ya Matamanio';
+
+  @override
+  String get logoutAlt => 'ONDOKA';
+
+  @override
+  String get deviceManagementFeatureIsUnderDevelopment => 'Kipengele kipo kwenye matengenezo';
+
+  @override
+  String get makeProductVisibleToCustomers => 'Fanya bidhaa ionekane kwa wateja';
+
+  @override
+  String get approve => 'Idhinisha';
+
+  @override
+  String get goToMarketInformation => 'Nenda Kwenye Taarifa za Soko';
+
+  @override
+  String get editUser => 'Hariri Mtumiaji';
+
+  @override
+  String get resetLinkSentToYourEmail => 'Kiungo cha kuweka upya kimetumwa';
+
+  @override
+  String get addMarketNews => 'Ongeza Habari za Soko';
+
+  @override
+  String get sendResetLink => 'TUMA KIUNGO';
+
+  @override
+  String get adminDashboard => 'Dashibodi ya Msimamizi';
+
+  @override
+  String get requestDeletedSuccessfully => 'Ombi limefutwa kikamilifu';
+
+  @override
+  String get searchServices => 'Tafuta Huduma';
+
+  @override
+  String get areYouSureYouWantToAltAlt => 'Una uhakika unataka kufuta orodha yako ya matamanio?';
+
+  @override
+  String get showThisProductInFeaturedSection => 'Onyesha bidhaa hii kwenye sehemu maalum';
+
+  @override
+  String get accessDenied => 'Imekataliwa';
+
+  @override
+  String get productCategoryNotFoundInCurrent => 'Kategoria haijapatikana. Tafadhali chagua.';
+
+  @override
+  String get adminLogin => 'Kuingia kwa Msimamizi';
+
+  @override
+  String get bookmarkFeatureComingSoon => 'Kipengele cha alama kinakuja hivi karibuni!';
+
+  @override
+  String get serviceAddedToCart => 'Huduma imeongezwa kwenye kikapu';
+
+  @override
+  String get locationPermissionDenied => 'Ruhusa ya eneo imekataliwa.';
+
+  @override
+  String get whatsapp => 'WhatsApp';
+
+  @override
+  String get tryAgain => 'Jaribu Tena';
+
+  @override
+  String get paymentConfirmedSubscriptionIsNowActive => 'Malipo yamethibitishwa! Usajili sasa unafanya kazi.';
+
+  @override
+  String get startShopping => 'ANZA KUNUNUA';
+
+  @override
+  String get makeThisProductVisibleToCustomers => 'Fanya bidhaa ionekane kwa wateja';
+
+  @override
+  String get myFoodBeverages => 'Vyakula na Vinywaji Vyangu';
+
+  @override
+  String get pleaseSelectAPlan => 'Tafadhali chagua mpango';
+
+  @override
+  String get loginAsAdmin => 'Ingia kama Msimamizi';
+
+  @override
+  String get keepOrder => 'Weka Oda';
+
+  @override
+  String get devices => 'Vifaa';
+
+  @override
+  String get cancelOrder => 'Ghairi Oda';
+
+  @override
+  String get productCreatedSuccessfully => 'Bidhaa imeundwa kikamilifu';
+
+  @override
+  String get editOrganicProduct => 'Hariri Bidhaa Asilia';
+
+  @override
+  String get pleaseLoginToEditMarketInformation => 'Tafadhali ingia ili kuhariri taarifa za soko';
+
+  @override
+  String get transportServiceAddedSuccessfully => 'Huduma ya usafiri imeongezwa kikamilifu!';
+
+  @override
+  String get checkStatus => 'Angalia Hali';
+
+  @override
+  String get call => 'Piga Simu';
+
+  @override
+  String get sendEmail => 'Tuma Barua Pepe';
+
+  @override
+  String get changePassword => 'Badilisha Nywila';
+
+  @override
+  String get processingPayment => 'Inachakata Malipo';
+
+  @override
+  String get addTransportService => 'Ongeza Huduma ya Usafiri';
+
+  @override
+  String get noMessagesYet => 'Hakuna ujumbe bado.';
+
+  @override
+  String get signUpNow => 'Jisajili Sasa';
+
+  @override
+  String get noReviewsYet => 'Hakuna maoni bado';
+
+  @override
+  String get selectOrganicCategory => 'Chagua Kategoria Asilia';
+
+  @override
+  String get deleteUser => 'Futa Mtumiaji';
+
+  @override
+  String get browseFirst => 'Vinjari Kwanza';
+
+  @override
+  String get loadMore => 'Pakia Zaidi';
+
+  @override
+  String get agentDashboard => 'Dashibodi ya Wakala';
+
+  @override
+  String get editFoodBeverage => 'Hariri Vyakula na Vinywaji';
+
+  @override
+  String get cancelPaymentAlt => 'Ghairi Malipo?';
+
+  @override
+  String get hasInsurance => 'Ina Bima';
+
+  @override
+  String get reset => 'Weka Upya';
+
+  @override
+  String get areYouSureYouWantToAltAltAlt => 'Una uhakika unataka kuondoka?';
+
+  @override
+  String get accountDeletionFeatureIsUnderDevelopment => 'Kipengele hiki kipo kwenye matengenezo';
+
+  @override
+  String get transportCategories => 'Kategoria za Usafiri';
+
+  @override
+  String get editMarketInformation => 'Hariri Taarifa za Soko';
+
+  @override
+  String get receiveUpdatesAndAlertsViaSms => 'Pokea sasisho na arifa kupitia SMS';
+
+  @override
+  String get organicProductsManagement => 'Usimamizi wa Bidhaa Asilia';
+
+  @override
+  String get showProductInFeaturedSection => 'Onyesha bidhaa kwenye sehemu maalum';
+
+  @override
+  String get orderCancelledSuccessfully => 'Oda imeghairiwa kikamilifu';
+
+  @override
+  String get foodBeverageItemCreatedSuccessfully => 'Kipengee kimeundwa kikamilifu!';
+
+  @override
+  String get addAService => 'Ongeza Huduma';
+
+  @override
+  String get updatingUser => 'Inasasisha mtumiaji...';
+
+  @override
+  String get masokotips => 'maSOKOtips';
+
+  @override
+  String get noRecentSearches => 'Hakuna tafiti za hivi karibuni';
+
+  @override
+  String get vehicleHasTemperatureControlForSensitive => 'Gari lina udhibiti wa joto';
+
+  @override
+  String get loading => 'Inapakia...';
+
+  @override
+  String get stillPendingPleaseApproveOnYour => 'Bado inasubiri - tafadhali idhinisha.';
+
+  @override
+  String get checkAgain => 'Angalia Tena';
+
+  @override
+  String get clear => 'Futa';
+
+  @override
+  String get reviewStatistics => 'Takwimu za Maoni';
+
+  @override
+  String get cardPayment => 'Malipo ya Kadi';
+
+  @override
+  String get deletingUser => 'Inafuta mtumiaji...';
+
+  @override
+  String get areYouSureYouWantToAltAltAltAlt => 'Una uhakika unataka kufuta anwani hii?';
+
+  @override
+  String get editTransport => 'Hariri Usafiri';
+
+  @override
+  String get areYouSureYouWantToAltAltAltAltAlt => 'Una uhakika unataka kufuta bidhaa hii?';
+
+  @override
+  String get suspendUser => 'Sitisha Mtumiaji';
+
+  @override
+  String get viewMap => 'Tazama Ramani';
+
+  @override
+  String get pleaseEnableLocationServices => 'Tafadhali wezesha huduma za eneo';
+
+  @override
+  String get deleteAccount => 'Futa Akaunti?';
+
+  @override
+  String get transportManagement => 'Usimamizi wa Usafiri';
+
+  @override
+  String get servicesManagement => 'Usimamizi wa Huduma';
+
+  @override
+  String get locationServicesAreDisabled => 'Huduma za eneo zimezimwa.';
+
+  @override
+  String get unsuspend => 'Ondoa Kusitishwa';
+
+  @override
+  String get reviewModeration => 'Ukaguzi wa Maoni';
+
+  @override
+  String get thisWillCancelThePendingPayment => 'Hii itaghairi malipo yanayosubiri.';
+
+  @override
+  String get stay => 'Baki';
+
+  @override
+  String get message => 'Ujumbe';
+
+  @override
+  String get signUp => 'Jisajili';
+
+  @override
+  String get keepWaiting => 'Endelea Kusubiri';
+
+  @override
+  String get priceAlt => 'Bei ↓';
+
+  @override
+  String get marketInformationDeletedSuccessfully => 'Taarifa za soko zimefutwa kikamilifu';
+
+  @override
+  String get pleaseEnterYourEmailAddress => 'Tafadhali ingiza barua pepe yako';
+
+  @override
+  String get manageDevicesThatAreLoggedIn => 'Dhibiti vifaa vilivyoingia';
+
+  @override
+  String get postARequest => 'Tuma Ombi';
+
+  @override
+  String get subscribeNowAlt => 'JISAJILI SASA';
+
+  @override
+  String get contact => 'Mawasiliano';
+
+  @override
+  String get thisTruckDoesNotHaveA => 'Lori hili halina eneo la GPS.';
+
+  @override
+  String get ok => 'Sawa';
+
+  @override
+  String get thisAddressWillBeSelectedBy => 'Anwani hii itachaguliwa kama chaguo-msingi';
+
+  @override
+  String get paymentStillPendingPleaseApproveOn => 'Malipo bado yanasubiri. Tafadhali idhinisha.';
+
+  @override
+  String get products => 'Bidhaa';
+
+  @override
+  String get totalReviews => 'Jumla ya Maoni';
+
+  @override
+  String get deleteMarketInformation => 'Futa Taarifa za Soko';
+
+  @override
+  String get retryAlt => 'JARIBU TENA';
+
+  @override
+  String get twofactorAuthenticationDisabled => 'Uthibitishaji wa Hatua Mbili umezimwa';
+
+  @override
+  String get kiswahili => 'Kiswahili';
+
+  @override
+  String get filterReviews => 'Chuja Maoni';
+
+  @override
+  String get cancelPaymentAltAlt => 'Ghairi malipo';
+
+  @override
+  String get name => 'Jina ↑';
+
+  @override
+  String get subscribeToViewContactChat => 'Jisajili ili kuona mawasiliano na soga';
+
+  @override
+  String get productsManagement => 'Usimamizi wa Bidhaa';
+
+  @override
+  String get all => 'Zote';
+
+  @override
+  String get getStarted => 'Anza';
+
+  @override
+  String get submit => 'Wasilisha';
+
+  @override
+  String get adminSettingsComingSoon => 'Mipangilio inakuja hivi karibuni!';
+
+  @override
+  String get refresh => 'Onyesha Upya';
+
+  @override
+  String get requestPostedSuccessfully => 'Ombi limetumwa kikamilifu!';
+
+  @override
+  String get clearAll => 'Futa zote';
+
+  @override
+  String get deleteItem => 'Futa Kipengee';
+
+  @override
+  String get subscription => 'Usajili';
+
+  @override
+  String get resetPassword => 'Weka Upya Nywila';
+
+  @override
+  String get pleaseSelectAtLeastOneSupported => 'Tafadhali chagua aina moja ya bidhaa inayoungwa mkono';
+
+  @override
+  String get referralCodeCopied => 'Msimbo wa rufaa umenakiliwa!';
+
+  @override
+  String get reject => 'Kataa';
+
+  @override
+  String get yourSubscriptionIsNowActive => 'Usajili wako sasa unafanya kazi.';
+
+  @override
+  String get onlyGifPngJpgAndJpeg => 'Faili zinazoruhusiwa ni picha pekee';
+
+  @override
+  String get deleteTransport => 'Futa Usafiri';
+
+  @override
+  String get nameAlt => 'Jina ↓';
+
+  @override
+  String get locationPermissionPermanentlyDeniedEnableIn => 'Ruhusa ya eneo imekataliwa kabisa. Wezesha kwenye mipangilio.';
+
+  @override
+  String get addMarketInformation => 'Ongeza Taarifa za Soko';
+
+  @override
+  String get deleteFoodBeverage => 'Futa Vyakula na Vinywaji';
+
+  @override
+  String get updateMarketInformation => 'Sasisha Taarifa za Soko';
+
+  @override
+  String get analytics => 'Uchambuzi';
+
+  @override
+  String get myBuyingRequests => 'Maombi Yangu ya Kununua';
+
+  @override
+  String get defaultAddress => 'Chaguo-msingi';
+
+  @override
+  String get continueText => 'Endelea';
 }

@@ -20,6 +20,7 @@ import '../organic/organic_product_detail_screen.dart';
 import '../services/service_detail_screen.dart';
 import '../transport/transport_details_screen.dart';
 import '../../widgets/rating_stars.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class SellerPublicProfileScreen extends StatefulWidget {
   final String sellerId;
@@ -72,14 +73,14 @@ class _SellerPublicProfileScreenState extends State<SellerPublicProfileScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Subscription Required'),
+        title: Text(AppLocalizations.of(context)!.subscriptionRequired),
         content: const Text(
           'Chat and Contact features are available for active subscribers only. Subscribe now to connect directly with sellers!',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL'),
+            child: Text(AppLocalizations.of(context)!.cancelAlt),
           ),
           ElevatedButton(
             onPressed: () {
@@ -89,7 +90,7 @@ class _SellerPublicProfileScreenState extends State<SellerPublicProfileScreen> {
                 MaterialPageRoute(builder: (_) => const SubscriptionScreen()),
               );
             },
-            child: const Text('SUBSCRIBE NOW'),
+            child: Text(AppLocalizations.of(context)!.subscribeNowAlt),
           ),
         ],
       ),
@@ -124,7 +125,7 @@ class _SellerPublicProfileScreenState extends State<SellerPublicProfileScreen> {
     if (_profile == null || _profile!.phone == null || _profile!.phone!.isEmpty) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Phone number not available')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.phoneNumberNotAvailable)),
       );
       return;
     }
@@ -134,7 +135,7 @@ class _SellerPublicProfileScreenState extends State<SellerPublicProfileScreen> {
     } else {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not launch dialer')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.couldNotLaunchDialer)),
       );
     }
   }
@@ -155,7 +156,7 @@ class _SellerPublicProfileScreenState extends State<SellerPublicProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: Text(AppLocalizations.of(context)!.profile),
         backgroundColor: theme.primaryColor,
         foregroundColor: Colors.white,
       ),
@@ -171,7 +172,7 @@ class _SellerPublicProfileScreenState extends State<SellerPublicProfileScreen> {
                       const SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: _loadProfile,
-                        child: const Text('Retry'),
+                        child: Text(AppLocalizations.of(context)!.retry),
                       )
                     ],
                   ),
@@ -332,7 +333,7 @@ class _SellerPublicProfileScreenState extends State<SellerPublicProfileScreen> {
               child: OutlinedButton.icon(
                 onPressed: () => _handleProtectedAction(_initiateCall),
                 icon: const Icon(Icons.phone),
-                label: const Text('Contacts'),
+                label: Text(AppLocalizations.of(context)!.contacts),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   side: BorderSide(color: theme.primaryColor),
@@ -345,7 +346,7 @@ class _SellerPublicProfileScreenState extends State<SellerPublicProfileScreen> {
               child: ElevatedButton.icon(
                 onPressed: () => _handleProtectedAction(_initiateChat),
                 icon: const Icon(Icons.chat),
-                label: const Text('Message'),
+                label: Text(AppLocalizations.of(context)!.message),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   backgroundColor: theme.primaryColor,
@@ -599,7 +600,7 @@ class _SellerPublicProfileScreenState extends State<SellerPublicProfileScreen> {
                             valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
-                      : const Text('Submit'),
+                      : Text(AppLocalizations.of(context)!.submit),
                 ),
               ],
             );

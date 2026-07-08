@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/reviews_provider.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class ReviewModerationScreen extends StatelessWidget {
   const ReviewModerationScreen({super.key});
@@ -9,7 +10,7 @@ class ReviewModerationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Review Moderation'),
+        title: Text(AppLocalizations.of(context)!.reviewModeration),
       ),
       body: Consumer<ReviewsProvider>(
         builder: (context, reviewsProvider, child) {
@@ -19,8 +20,8 @@ class ReviewModerationScreen extends StatelessWidget {
               .toList();
 
           if (pendingReviews.isEmpty) {
-            return const Center(
-              child: Text('No reviews pending moderation'),
+            return Center(
+              child: Text(AppLocalizations.of(context)!.noReviewsPendingModeration),
             );
           }
 
@@ -99,7 +100,7 @@ class ReviewModerationScreen extends StatelessWidget {
                             style: TextButton.styleFrom(
                               foregroundColor: Colors.red,
                             ),
-                            child: const Text('Reject'),
+                            child: Text(AppLocalizations.of(context)!.reject),
                           ),
                           const SizedBox(width: 8),
                           ElevatedButton(
@@ -109,7 +110,7 @@ class ReviewModerationScreen extends StatelessWidget {
                                 ReviewStatus.approved,
                               );
                             },
-                            child: const Text('Approve'),
+                            child: Text(AppLocalizations.of(context)!.approve),
                           ),
                         ],
                       ),

@@ -50,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             ListTile(
               leading: const Text('🇬🇧', style: TextStyle(fontSize: 24)),
-              title: const Text('English'),
+              title: Text(AppLocalizations.of(context)!.english),
               trailing: localeProvider.isEnglish()
                   ? const Icon(Icons.check, color: Colors.green)
                   : null,
@@ -61,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ListTile(
               leading: const Text('🇹🇿', style: TextStyle(fontSize: 24)),
-              title: const Text('Kiswahili'),
+              title: Text(AppLocalizations.of(context)!.kiswahili),
               trailing: localeProvider.isSwahili()
                   ? const Icon(Icons.check, color: Colors.green)
                   : null,
@@ -75,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
         ],
       ),
@@ -163,7 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
-              child: const Text('Register'),
+              child: Text(AppLocalizations.of(context)!.register),
             ),
           ),
           const SizedBox(width: 8),
@@ -184,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
-              child: const Text('Login'),
+              child: Text(AppLocalizations.of(context)!.login),
             ),
           ),
         ] else ...[

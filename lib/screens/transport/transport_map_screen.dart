@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:masoko_tips/models/transport.dart';
 import 'package:masoko_tips/providers/transport_provider.dart';
 import 'package:masoko_tips/screens/transport/transport_details_screen.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class TransportMapScreen extends StatefulWidget {
   final String category;
@@ -125,8 +126,8 @@ class _TransportMapScreenState extends State<TransportMapScreen> {
     if (item.latitude == null || item.longitude == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('This truck does not have a GPS location set.'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.thisTruckDoesNotHaveA),
             backgroundColor: Colors.orange,
           ),
         );
@@ -138,8 +139,8 @@ class _TransportMapScreenState extends State<TransportMapScreen> {
     if (availableMaps.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No maps app found on this device.'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.noMapsAppFoundOnThis),
             backgroundColor: Colors.red,
           ),
         );

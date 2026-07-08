@@ -118,7 +118,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
         scaffoldMessenger.showSnackBar(
           SnackBar(
               content: Text(AppLocalizations.of(context)!
-                  .productDeletedSuccessfully(product.name))),
+                  .productDeletedSuccessfully)),
         );
       }
     } catch (e) {
@@ -138,17 +138,17 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Product'),
+        title: Text(AppLocalizations.of(context)!.deleteProduct),
         content: Text('Are you sure you want to delete "${product.name}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -224,9 +224,9 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
               icon: const Icon(Icons.eco),
               label: AppLocalizations.of(context)!.organicTab,
             ),
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.restaurant_menu),
-              label: 'Food & Beverages',
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.restaurant_menu),
+              label: AppLocalizations.of(context)!.foodAndBeverages,
             ),
           ],
         ),
@@ -253,7 +253,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                 );
               },
               icon: const Icon(Icons.add),
-              label: const Text('Add Product'),
+              label: Text(AppLocalizations.of(context)!.addProduct),
               backgroundColor: Theme.of(context).primaryColor,
               foregroundColor: Colors.white,
               elevation: 4,
@@ -345,7 +345,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                 );
               },
               icon: const Icon(Icons.add),
-              label: const Text('Add Product'),
+              label: Text(AppLocalizations.of(context)!.addProduct),
             ),
           ],
         ),
@@ -527,13 +527,13 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                         }
                       },
                       itemBuilder: (context) => [
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'edit',
                           child: Row(
                             children: [
-                              Icon(Icons.edit, color: Colors.blue),
-                              SizedBox(width: 8),
-                              Text('Edit'),
+                              const Icon(Icons.edit, color: Colors.blue),
+                              const SizedBox(width: 8),
+                              Text(AppLocalizations.of(context)!.edit),
                             ],
                           ),
                         ),

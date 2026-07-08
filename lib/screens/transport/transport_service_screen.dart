@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class TransportServiceScreen extends StatelessWidget {
   final String transportType;
@@ -184,7 +185,7 @@ class TransportServiceScreen extends StatelessWidget {
                                     transportDetails['providerPhone'] as String,
                                   ),
                                   icon: const Icon(Icons.phone),
-                                  label: const Text('Call'),
+                                  label: Text(AppLocalizations.of(context)!.call),
                                 ),
                               ),
                               const SizedBox(width: 8),
@@ -194,7 +195,7 @@ class TransportServiceScreen extends StatelessWidget {
                                     transportDetails['providerPhone'] as String,
                                   ),
                                   icon: const FaIcon(FontAwesomeIcons.whatsapp),
-                                  label: const Text('WhatsApp'),
+                                  label: Text(AppLocalizations.of(context)!.whatsapp),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF25D366),
                                   ),
@@ -208,7 +209,7 @@ class TransportServiceScreen extends StatelessWidget {
                               transportDetails['providerEmail'] as String,
                             ),
                             icon: const Icon(Icons.email),
-                            label: const Text('Send Email'),
+                            label: Text(AppLocalizations.of(context)!.sendEmail),
                             style: ElevatedButton.styleFrom(
                               minimumSize: const Size(double.infinity, 40),
                             ),

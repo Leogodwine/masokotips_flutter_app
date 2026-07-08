@@ -758,7 +758,7 @@ abstract class AppLocalizations {
   /// Description for enterCountry
   ///
   /// In en, this message translates to:
-  /// **'Please enter a country'**
+  /// **'Enter your country'**
   String get enterCountry;
 
   /// Description for description
@@ -785,11 +785,11 @@ abstract class AppLocalizations {
   /// **'No related products available'**
   String get noRelatedProducts;
 
-  /// Description for addedToCart
+  /// No description provided for @addedToCart.
   ///
   /// In en, this message translates to:
-  /// **'{productName} added to cart'**
-  String addedToCart(String productName);
+  /// **'Added to cart'**
+  String get addedToCart;
 
   /// Description for failedToAddToCart
   ///
@@ -911,11 +911,11 @@ abstract class AppLocalizations {
   /// **'Are you sure you want to delete {productName}?'**
   String confirmDeleteProduct(String productName);
 
-  /// Description for productDeletedSuccessfully
+  /// No description provided for @productDeletedSuccessfully.
   ///
   /// In en, this message translates to:
-  /// **'{productName} deleted successfully'**
-  String productDeletedSuccessfully(String productName);
+  /// **'Product deleted successfully'**
+  String get productDeletedSuccessfully;
 
   /// Description for errorDeletingProduct
   ///
@@ -1487,11 +1487,11 @@ abstract class AppLocalizations {
   /// **'Are you sure you want to delete \"{title}\"? This action cannot be undone.'**
   String confirmDeleteTransport(String title);
 
-  /// Description for transportDeletedSuccessfully
+  /// No description provided for @transportDeletedSuccessfully.
   ///
   /// In en, this message translates to:
-  /// **'{title} deleted successfully'**
-  String transportDeletedSuccessfully(String title);
+  /// **'Transport deleted successfully'**
+  String get transportDeletedSuccessfully;
 
   /// Description for failedToDeleteTransport
   ///
@@ -2189,17 +2189,1967 @@ abstract class AppLocalizations {
   /// **'No featured transports available'**
   String get noFeaturedTransportsAvailable;
 
-  /// Description for featuredServices
+  /// No description provided for @registrationSuccessful.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration successful! Welcome to maSOKOtips.'**
+  String get registrationSuccessful;
+
+  /// No description provided for @selectRoleError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a role to register.'**
+  String get selectRoleError;
+
+  /// No description provided for @emailTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'This email is already registered. Please try another email or login.'**
+  String get emailTaken;
+
+  /// No description provided for @registrationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration failed. Please try again.'**
+  String get registrationFailed;
+
+  /// No description provided for @createAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Account'**
+  String get createAccount;
+
+  /// No description provided for @joinMasokotips.
+  ///
+  /// In en, this message translates to:
+  /// **'Join maSOKOtips'**
+  String get joinMasokotips;
+
+  /// No description provided for @createAccountToGetStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an account to get started'**
+  String get createAccountToGetStarted;
+
+  /// No description provided for @enterFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your full name'**
+  String get enterFullName;
+
+  /// No description provided for @pleaseEnterName.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your name'**
+  String get pleaseEnterName;
+
+  /// No description provided for @pleaseEnterUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your username'**
+  String get pleaseEnterUsername;
+
+  /// No description provided for @usernameTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Username must be at least 3 characters'**
+  String get usernameTooShort;
+
+  /// No description provided for @usernameInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Username can only contain letters, numbers, and underscores'**
+  String get usernameInvalid;
+
+  /// No description provided for @email.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get email;
+
+  /// No description provided for @enterEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email'**
+  String get enterEmail;
+
+  /// No description provided for @pleaseEnterEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your email'**
+  String get pleaseEnterEmail;
+
+  /// No description provided for @invalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address'**
+  String get invalidEmail;
+
+  /// No description provided for @enterPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your phone number'**
+  String get enterPhoneNumber;
+
+  /// No description provided for @pleaseEnterPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your phone number'**
+  String get pleaseEnterPhoneNumber;
+
+  /// No description provided for @location.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get location;
+
+  /// No description provided for @enterLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your city/region'**
+  String get enterLocation;
+
+  /// No description provided for @pleaseEnterLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your location'**
+  String get pleaseEnterLocation;
+
+  /// No description provided for @pleaseEnterCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your country'**
+  String get pleaseEnterCountry;
+
+  /// No description provided for @agentCodeOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Agent / Referral Code (Optional)'**
+  String get agentCodeOptional;
+
+  /// No description provided for @agentCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. MSK-AB12 — ask your agent'**
+  String get agentCodeHint;
+
+  /// No description provided for @agentCodeHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'If an agent helped you sign up, enter their code here'**
+  String get agentCodeHelper;
+
+  /// No description provided for @pleaseEnterPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a password'**
+  String get pleaseEnterPassword;
+
+  /// No description provided for @passwordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 8 characters'**
+  String get passwordTooShort;
+
+  /// No description provided for @confirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Password'**
+  String get confirmPassword;
+
+  /// No description provided for @confirmYourPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your password'**
+  String get confirmYourPassword;
+
+  /// No description provided for @pleaseConfirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Please confirm your password'**
+  String get pleaseConfirmPassword;
+
+  /// No description provided for @passwordsDoNotMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get passwordsDoNotMatch;
+
+  /// No description provided for @registerAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Register as...'**
+  String get registerAs;
+
+  /// No description provided for @roleBuyer.
+  ///
+  /// In en, this message translates to:
+  /// **'Buyer'**
+  String get roleBuyer;
+
+  /// No description provided for @roleSeller.
+  ///
+  /// In en, this message translates to:
+  /// **'Seller'**
+  String get roleSeller;
+
+  /// No description provided for @roleTransporter.
+  ///
+  /// In en, this message translates to:
+  /// **'Transporter'**
+  String get roleTransporter;
+
+  /// No description provided for @roleServiceProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Provider'**
+  String get roleServiceProvider;
+
+  /// No description provided for @proofOfIdentity.
+  ///
+  /// In en, this message translates to:
+  /// **'Proof of Identity'**
+  String get proofOfIdentity;
+
+  /// No description provided for @optionalText.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get optionalText;
+
+  /// No description provided for @uploadDocumentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload a clear photo of your NIDA, Driving License, or Voter Card. Your document will be reviewed by our team for account verification. Blurry or incorrect images will delay approval.'**
+  String get uploadDocumentHint;
+
+  /// No description provided for @selectDocumentType.
+  ///
+  /// In en, this message translates to:
+  /// **'Select document type'**
+  String get selectDocumentType;
+
+  /// No description provided for @nidaCard.
+  ///
+  /// In en, this message translates to:
+  /// **'NIDA Card'**
+  String get nidaCard;
+
+  /// No description provided for @drivingLicense.
+  ///
+  /// In en, this message translates to:
+  /// **'Driving License'**
+  String get drivingLicense;
+
+  /// No description provided for @voterCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Voter Card'**
+  String get voterCard;
+
+  /// No description provided for @gallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get gallery;
+
+  /// No description provided for @uploadTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: Place your ID on a flat surface with good lighting before taking a photo.'**
+  String get uploadTip;
+
+  /// No description provided for @createAccountCaps.
+  ///
+  /// In en, this message translates to:
+  /// **'CREATE ACCOUNT'**
+  String get createAccountCaps;
+
+  /// No description provided for @featuredServices.
   ///
   /// In en, this message translates to:
   /// **'Featured Services'**
   String get featuredServices;
 
-  /// Description for noFeaturedServicesAvailable
+  /// No description provided for @noFeaturedServicesAvailable.
   ///
   /// In en, this message translates to:
   /// **'No featured services available'**
   String get noFeaturedServicesAvailable;
+
+  /// No description provided for @yesCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, Cancel'**
+  String get yesCancel;
+
+  /// No description provided for @checkNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Check Now'**
+  String get checkNow;
+
+  /// No description provided for @manageSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Subscription'**
+  String get manageSubscription;
+
+  /// No description provided for @subscriptionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription Required'**
+  String get subscriptionRequired;
+
+  /// No description provided for @subscribeNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe Now'**
+  String get subscribeNow;
+
+  /// No description provided for @foodAndBeverages.
+  ///
+  /// In en, this message translates to:
+  /// **'Food & Beverages'**
+  String get foodAndBeverages;
+
+  /// No description provided for @myRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'My Requests'**
+  String get myRequests;
+
+  /// No description provided for @postServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Post Services'**
+  String get postServices;
+
+  /// No description provided for @adminLoginAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Login'**
+  String get adminLoginAdmin;
+
+  /// No description provided for @accessAdminDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Access Admin Dashboard'**
+  String get accessAdminDashboard;
+
+  /// No description provided for @cancelAndRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel and Retry'**
+  String get cancelAndRetry;
+
+  /// No description provided for @cancelPaymentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Payment'**
+  String get cancelPaymentTitle;
+
+  /// No description provided for @no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// No description provided for @marketDemands.
+  ///
+  /// In en, this message translates to:
+  /// **'Market Demands'**
+  String get marketDemands;
+
+  /// No description provided for @agriculturalServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Agricultural Services'**
+  String get agriculturalServices;
+
+  /// No description provided for @cancelCaps.
+  ///
+  /// In en, this message translates to:
+  /// **'CANCEL'**
+  String get cancelCaps;
+
+  /// No description provided for @subscribeNowCaps.
+  ///
+  /// In en, this message translates to:
+  /// **'SUBSCRIBE NOW'**
+  String get subscribeNowCaps;
+
+  /// No description provided for @phoneNumberNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number not available'**
+  String get phoneNumberNotAvailable;
+
+  /// No description provided for @couldNotLaunchDialer.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not launch dialer'**
+  String get couldNotLaunchDialer;
+
+  /// No description provided for @marketplace.
+  ///
+  /// In en, this message translates to:
+  /// **'Marketplace'**
+  String get marketplace;
+
+  /// No description provided for @noItemsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No items found'**
+  String get noItemsFound;
+
+  /// No description provided for @contacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Contacts'**
+  String get contacts;
+
+  /// No description provided for @settingsAndAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings & About'**
+  String get settingsAndAbout;
+
+  /// No description provided for @legal.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal'**
+  String get legal;
+
+  /// No description provided for @appTitleSection.
+  ///
+  /// In en, this message translates to:
+  /// **'App'**
+  String get appTitleSection;
+
+  /// No description provided for @appNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'App Name'**
+  String get appNameLabel;
+
+  /// No description provided for @versionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get versionLabel;
+
+  /// No description provided for @seeStoreListingForLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'See store listing for latest'**
+  String get seeStoreListingForLatest;
+
+  /// No description provided for @accountDeletionRequestSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Deletion Request - maSOKOtips'**
+  String get accountDeletionRequestSubject;
+
+  /// No description provided for @accountDeletionRequestBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello maSOKOtips Team,\n\nI would like to request deletion of my account and associated data.\n\nPlease confirm once completed.\n\nThanks.'**
+  String get accountDeletionRequestBody;
+
+  /// No description provided for @noEmailAppFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No email app found to send request'**
+  String get noEmailAppFound;
+
+  /// No description provided for @helloGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello Guest'**
+  String get helloGuest;
+
+  /// No description provided for @signInToYourAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to your account'**
+  String get signInToYourAccount;
+
+  /// No description provided for @homeMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get homeMenu;
+
+  /// No description provided for @productsMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Products'**
+  String get productsMenu;
+
+  /// No description provided for @transportMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Transport'**
+  String get transportMenu;
+
+  /// No description provided for @marketInfoMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Market Info'**
+  String get marketInfoMenu;
+
+  /// No description provided for @profileMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileMenu;
+
+  /// No description provided for @myOrdersMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'My Orders'**
+  String get myOrdersMenu;
+
+  /// No description provided for @wishlistMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Wishlist'**
+  String get wishlistMenu;
+
+  /// No description provided for @settingsMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsMenu;
+
+  /// No description provided for @privacyPolicyMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicyMenu;
+
+  /// No description provided for @helpAndSupportMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Help & Support'**
+  String get helpAndSupportMenu;
+
+  /// No description provided for @aboutMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get aboutMenu;
+
+  /// No description provided for @logoutMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get logoutMenu;
+
+  /// No description provided for @aboutMasokoTips.
+  ///
+  /// In en, this message translates to:
+  /// **'About maSOKO tips'**
+  String get aboutMasokoTips;
+
+  /// No description provided for @aboutMasokoTipsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'maSOKO tips is your agricultural marketplace companion. Find products, services, and market information all in one place.'**
+  String get aboutMasokoTipsDescription;
+
+  /// No description provided for @closeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get closeButton;
+
+  /// No description provided for @twofactorAuthenticationEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Two-Factor Authentication enabled'**
+  String get twofactorAuthenticationEnabled;
+
+  /// No description provided for @viewOrderHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'View Order History'**
+  String get viewOrderHistory;
+
+  /// No description provided for @emailNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Notifications'**
+  String get emailNotifications;
+
+  /// No description provided for @newPasswordsDoNotMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'New passwords do not match'**
+  String get newPasswordsDoNotMatch;
+
+  /// No description provided for @thisActionCannotBeUndoneAll.
+  ///
+  /// In en, this message translates to:
+  /// **'This action cannot be undone. All your data will be permanently deleted.'**
+  String get thisActionCannotBeUndoneAll;
+
+  /// No description provided for @pleaseLoginToSendAMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Please login to send a message.'**
+  String get pleaseLoginToSendAMessage;
+
+  /// No description provided for @pleaseLoginToAddATransport.
+  ///
+  /// In en, this message translates to:
+  /// **'Please login to add a transport'**
+  String get pleaseLoginToAddATransport;
+
+  /// No description provided for @startYourJourney.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Your Journey'**
+  String get startYourJourney;
+
+  /// No description provided for @newsCopiedToClipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'News copied to clipboard'**
+  String get newsCopiedToClipboard;
+
+  /// No description provided for @addFoodBeverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Food & Beverage'**
+  String get addFoodBeverage;
+
+  /// No description provided for @addNewTransport.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New Transport'**
+  String get addNewTransport;
+
+  /// No description provided for @orderConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Confirmation'**
+  String get orderConfirmation;
+
+  /// No description provided for @deleteAlt.
+  ///
+  /// In en, this message translates to:
+  /// **'DELETE'**
+  String get deleteAlt;
+
+  /// No description provided for @noServicesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No services found'**
+  String get noServicesFound;
+
+  /// No description provided for @english.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get english;
+
+  /// No description provided for @noDashboardDataAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No dashboard data available'**
+  String get noDashboardDataAvailable;
+
+  /// No description provided for @onlyAdministratorsCanEditMarketInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Only administrators can edit market information'**
+  String get onlyAdministratorsCanEditMarketInformation;
+
+  /// No description provided for @deleteService.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Service'**
+  String get deleteService;
+
+  /// No description provided for @clearWishlist.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Wishlist'**
+  String get clearWishlist;
+
+  /// No description provided for @adminLoginSuccessful.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin login successful!'**
+  String get adminLoginSuccessful;
+
+  /// No description provided for @undoRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo Remove'**
+  String get undoRemove;
+
+  /// No description provided for @viewYourAccountActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'View your account activity'**
+  String get viewYourAccountActivity;
+
+  /// No description provided for @userManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'User Management'**
+  String get userManagement;
+
+  /// No description provided for @pleaseSelectACategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a category'**
+  String get pleaseSelectACategory;
+
+  /// No description provided for @passwordChangedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed successfully'**
+  String get passwordChangedSuccessfully;
+
+  /// No description provided for @goBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Go Back'**
+  String get goBack;
+
+  /// No description provided for @pleaseLogInToViewProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Please log in to view profile'**
+  String get pleaseLogInToViewProfile;
+
+  /// No description provided for @suspend.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspend'**
+  String get suspend;
+
+  /// No description provided for @sayHello.
+  ///
+  /// In en, this message translates to:
+  /// **'Say hello!'**
+  String get sayHello;
+
+  /// No description provided for @myReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'My Reviews'**
+  String get myReviews;
+
+  /// No description provided for @noFavoritesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No favorites yet'**
+  String get noFavoritesYet;
+
+  /// No description provided for @pleaseLoginAsAdminToAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Please login as admin to access organic products'**
+  String get pleaseLoginAsAdminToAccess;
+
+  /// No description provided for @activityLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity Log'**
+  String get activityLog;
+
+  /// No description provided for @pleaseLoginToAddMarketInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please login to add market information'**
+  String get pleaseLoginToAddMarketInformation;
+
+  /// No description provided for @okChangeNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'OK, Change Number'**
+  String get okChangeNumber;
+
+  /// No description provided for @adminAccountCreatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin account created successfully!'**
+  String get adminAccountCreatedSuccessfully;
+
+  /// No description provided for @great.
+  ///
+  /// In en, this message translates to:
+  /// **'Great!'**
+  String get great;
+
+  /// No description provided for @cancelPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Payment'**
+  String get cancelPayment;
+
+  /// No description provided for @securitySettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Security Settings'**
+  String get securitySettings;
+
+  /// No description provided for @noUsersFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No users found'**
+  String get noUsersFound;
+
+  /// No description provided for @youDoNotHavePermissionTo.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have permission to access this feature.'**
+  String get youDoNotHavePermissionTo;
+
+  /// No description provided for @applyFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply Filters'**
+  String get applyFilters;
+
+  /// No description provided for @bookTransportService.
+  ///
+  /// In en, this message translates to:
+  /// **'Book Transport Service'**
+  String get bookTransportService;
+
+  /// No description provided for @pleaseAddAtLeastOneProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Please add at least one product image'**
+  String get pleaseAddAtLeastOneProduct;
+
+  /// No description provided for @changeImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Image'**
+  String get changeImage;
+
+  /// No description provided for @twofactorAuthentication.
+  ///
+  /// In en, this message translates to:
+  /// **'Two-Factor Authentication'**
+  String get twofactorAuthentication;
+
+  /// No description provided for @unsuspendUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsuspend User'**
+  String get unsuspendUser;
+
+  /// No description provided for @onlyAdministratorsCanAddMarketInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Only administrators can add market information'**
+  String get onlyAdministratorsCanAddMarketInformation;
+
+  /// No description provided for @marketInformationManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Market Information Management'**
+  String get marketInformationManagement;
+
+  /// No description provided for @share.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get share;
+
+  /// No description provided for @organicProductCreatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Organic product created successfully!'**
+  String get organicProductCreatedSuccessfully;
+
+  /// No description provided for @vehicleIsInsuredForCargoAnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle is insured for cargo and liability'**
+  String get vehicleIsInsuredForCargoAnd;
+
+  /// No description provided for @itemUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Item updated successfully!'**
+  String get itemUpdatedSuccessfully;
+
+  /// No description provided for @organicProductUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Organic product updated successfully!'**
+  String get organicProductUpdatedSuccessfully;
+
+  /// No description provided for @unsuspendingUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsuspending user...'**
+  String get unsuspendingUser;
+
+  /// No description provided for @youCannotChatWithYourself.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot chat with yourself.'**
+  String get youCannotChatWithYourself;
+
+  /// No description provided for @pickImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick Image'**
+  String get pickImage;
+
+  /// No description provided for @transportServiceUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Transport service updated successfully!'**
+  String get transportServiceUpdatedSuccessfully;
+
+  /// No description provided for @failedToCreateAdminAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to create admin account'**
+  String get failedToCreateAdminAccount;
+
+  /// No description provided for @smsNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'SMS Notifications'**
+  String get smsNotifications;
+
+  /// No description provided for @pleaseLoginToCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Please login to call.'**
+  String get pleaseLoginToCall;
+
+  /// No description provided for @viewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View All'**
+  String get viewAll;
+
+  /// No description provided for @receiveUpdatesAndAlertsViaEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive updates and alerts via email'**
+  String get receiveUpdatesAndAlertsViaEmail;
+
+  /// No description provided for @noReviewsPendingModeration.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviews pending moderation'**
+  String get noReviewsPendingModeration;
+
+  /// No description provided for @postRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Post Request'**
+  String get postRequest;
+
+  /// No description provided for @deletedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted successfully'**
+  String get deletedSuccessfully;
+
+  /// No description provided for @providerContactInfoIsNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider contact info is not available. Please call instead.'**
+  String get providerContactInfoIsNotAvailable;
+
+  /// No description provided for @cancelAlt.
+  ///
+  /// In en, this message translates to:
+  /// **'CANCEL'**
+  String get cancelAlt;
+
+  /// No description provided for @suspended.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspended'**
+  String get suspended;
+
+  /// No description provided for @areYouSureYouWantTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this market information?'**
+  String get areYouSureYouWantTo;
+
+  /// No description provided for @price.
+  ///
+  /// In en, this message translates to:
+  /// **'Price ↑'**
+  String get price;
+
+  /// No description provided for @activityLogFeatureIsUnderDevelopment.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity log feature is under development'**
+  String get activityLogFeatureIsUnderDevelopment;
+
+  /// No description provided for @averageRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Average Rating'**
+  String get averageRating;
+
+  /// No description provided for @suspendingUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspending user...'**
+  String get suspendingUser;
+
+  /// No description provided for @receiveAVerificationCodeWhenSigning.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive a verification code when signing in'**
+  String get receiveAVerificationCodeWhenSigning;
+
+  /// No description provided for @postBuyingRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Post Buying Request'**
+  String get postBuyingRequest;
+
+  /// No description provided for @serviceManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Management'**
+  String get serviceManagement;
+
+  /// No description provided for @date.
+  ///
+  /// In en, this message translates to:
+  /// **'Date ↑'**
+  String get date;
+
+  /// No description provided for @showThisItemInFeaturedSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Show this item in featured section'**
+  String get showThisItemInFeaturedSection;
+
+  /// No description provided for @deleteRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Request'**
+  String get deleteRequest;
+
+  /// No description provided for @createAdminAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Admin Account'**
+  String get createAdminAccount;
+
+  /// No description provided for @couldNotLaunchPhoneDialer.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not launch phone dialer.'**
+  String get couldNotLaunchPhoneDialer;
+
+  /// No description provided for @goBackWithoutCompletingPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Go back without completing payment?'**
+  String get goBackWithoutCompletingPayment;
+
+  /// No description provided for @messages.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get messages;
+
+  /// No description provided for @paymentSuccessful.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Successful'**
+  String get paymentSuccessful;
+
+  /// No description provided for @areYouSureYouWantToAlt.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this product? This action cannot be undone.'**
+  String get areYouSureYouWantToAlt;
+
+  /// No description provided for @pleaseLoginToEditYourProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Please login to edit your profile'**
+  String get pleaseLoginToEditYourProfile;
+
+  /// No description provided for @temperatureControlled.
+  ///
+  /// In en, this message translates to:
+  /// **'Temperature Controlled'**
+  String get temperatureControlled;
+
+  /// No description provided for @noMapsAppFoundOnThis.
+  ///
+  /// In en, this message translates to:
+  /// **'No maps app found on this device.'**
+  String get noMapsAppFoundOnThis;
+
+  /// No description provided for @organicProductDeletedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Organic product deleted successfully'**
+  String get organicProductDeletedSuccessfully;
+
+  /// No description provided for @makeThisItemVisibleToCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Make this item visible to customers'**
+  String get makeThisItemVisibleToCustomers;
+
+  /// No description provided for @enterPaymentNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Payment Number'**
+  String get enterPaymentNumber;
+
+  /// No description provided for @myWishlist.
+  ///
+  /// In en, this message translates to:
+  /// **'My Wishlist'**
+  String get myWishlist;
+
+  /// No description provided for @logoutAlt.
+  ///
+  /// In en, this message translates to:
+  /// **'LOGOUT'**
+  String get logoutAlt;
+
+  /// No description provided for @deviceManagementFeatureIsUnderDevelopment.
+  ///
+  /// In en, this message translates to:
+  /// **'Device management feature is under development'**
+  String get deviceManagementFeatureIsUnderDevelopment;
+
+  /// No description provided for @makeProductVisibleToCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Make product visible to customers'**
+  String get makeProductVisibleToCustomers;
+
+  /// No description provided for @approve.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get approve;
+
+  /// No description provided for @goToMarketInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Market Information'**
+  String get goToMarketInformation;
+
+  /// No description provided for @editUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit User'**
+  String get editUser;
+
+  /// No description provided for @resetLinkSentToYourEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset link sent to your email'**
+  String get resetLinkSentToYourEmail;
+
+  /// No description provided for @addMarketNews.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Market News'**
+  String get addMarketNews;
+
+  /// No description provided for @sendResetLink.
+  ///
+  /// In en, this message translates to:
+  /// **'SEND RESET LINK'**
+  String get sendResetLink;
+
+  /// No description provided for @adminDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Dashboard'**
+  String get adminDashboard;
+
+  /// No description provided for @requestDeletedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Request deleted successfully'**
+  String get requestDeletedSuccessfully;
+
+  /// No description provided for @searchServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Search Services'**
+  String get searchServices;
+
+  /// No description provided for @areYouSureYouWantToAltAlt.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to clear your wishlist?'**
+  String get areYouSureYouWantToAltAlt;
+
+  /// No description provided for @showThisProductInFeaturedSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Show this product in featured section'**
+  String get showThisProductInFeaturedSection;
+
+  /// No description provided for @accessDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Access Denied'**
+  String get accessDenied;
+
+  /// No description provided for @productCategoryNotFoundInCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Product category not found in current categories. Please select a category.'**
+  String get productCategoryNotFoundInCurrent;
+
+  /// No description provided for @adminLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Login'**
+  String get adminLogin;
+
+  /// No description provided for @bookmarkFeatureComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark feature coming soon!'**
+  String get bookmarkFeatureComingSoon;
+
+  /// No description provided for @serviceAddedToCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Service added to cart'**
+  String get serviceAddedToCart;
+
+  /// No description provided for @locationPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission denied.'**
+  String get locationPermissionDenied;
+
+  /// No description provided for @whatsapp.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp'**
+  String get whatsapp;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Again'**
+  String get tryAgain;
+
+  /// No description provided for @paymentConfirmedSubscriptionIsNowActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment confirmed! Subscription is now active.'**
+  String get paymentConfirmedSubscriptionIsNowActive;
+
+  /// No description provided for @startShopping.
+  ///
+  /// In en, this message translates to:
+  /// **'START SHOPPING'**
+  String get startShopping;
+
+  /// No description provided for @makeThisProductVisibleToCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Make this product visible to customers'**
+  String get makeThisProductVisibleToCustomers;
+
+  /// No description provided for @myFoodBeverages.
+  ///
+  /// In en, this message translates to:
+  /// **'My Food & Beverages'**
+  String get myFoodBeverages;
+
+  /// No description provided for @pleaseSelectAPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a plan'**
+  String get pleaseSelectAPlan;
+
+  /// No description provided for @loginAsAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Login as Admin'**
+  String get loginAsAdmin;
+
+  /// No description provided for @keepOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Order'**
+  String get keepOrder;
+
+  /// No description provided for @devices.
+  ///
+  /// In en, this message translates to:
+  /// **'Devices'**
+  String get devices;
+
+  /// No description provided for @cancelOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Order'**
+  String get cancelOrder;
+
+  /// No description provided for @productCreatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Product created successfully'**
+  String get productCreatedSuccessfully;
+
+  /// No description provided for @editOrganicProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Organic Product'**
+  String get editOrganicProduct;
+
+  /// No description provided for @pleaseLoginToEditMarketInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please login to edit market information'**
+  String get pleaseLoginToEditMarketInformation;
+
+  /// No description provided for @transportServiceAddedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Transport service added successfully!'**
+  String get transportServiceAddedSuccessfully;
+
+  /// No description provided for @checkStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Check Status'**
+  String get checkStatus;
+
+  /// No description provided for @call.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get call;
+
+  /// No description provided for @sendEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Email'**
+  String get sendEmail;
+
+  /// No description provided for @changePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Password'**
+  String get changePassword;
+
+  /// No description provided for @processingPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing Payment'**
+  String get processingPayment;
+
+  /// No description provided for @addTransportService.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Transport Service'**
+  String get addTransportService;
+
+  /// No description provided for @noMessagesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet.'**
+  String get noMessagesYet;
+
+  /// No description provided for @signUpNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up Now'**
+  String get signUpNow;
+
+  /// No description provided for @noReviewsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviews yet'**
+  String get noReviewsYet;
+
+  /// No description provided for @selectOrganicCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Organic Category'**
+  String get selectOrganicCategory;
+
+  /// No description provided for @deleteUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete User'**
+  String get deleteUser;
+
+  /// No description provided for @browseFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse First'**
+  String get browseFirst;
+
+  /// No description provided for @loadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load More'**
+  String get loadMore;
+
+  /// No description provided for @agentDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Agent Dashboard'**
+  String get agentDashboard;
+
+  /// No description provided for @editFoodBeverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Food & Beverage'**
+  String get editFoodBeverage;
+
+  /// No description provided for @cancelPaymentAlt.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Payment?'**
+  String get cancelPaymentAlt;
+
+  /// No description provided for @hasInsurance.
+  ///
+  /// In en, this message translates to:
+  /// **'Has Insurance'**
+  String get hasInsurance;
+
+  /// No description provided for @reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get reset;
+
+  /// No description provided for @areYouSureYouWantToAltAltAlt.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to logout?'**
+  String get areYouSureYouWantToAltAltAlt;
+
+  /// No description provided for @accountDeletionFeatureIsUnderDevelopment.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deletion feature is under development'**
+  String get accountDeletionFeatureIsUnderDevelopment;
+
+  /// No description provided for @transportCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Transport Categories'**
+  String get transportCategories;
+
+  /// No description provided for @editMarketInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Market Information'**
+  String get editMarketInformation;
+
+  /// No description provided for @receiveUpdatesAndAlertsViaSms.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive updates and alerts via SMS'**
+  String get receiveUpdatesAndAlertsViaSms;
+
+  /// No description provided for @organicProductsManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Organic Products Management'**
+  String get organicProductsManagement;
+
+  /// No description provided for @showProductInFeaturedSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Show product in featured section'**
+  String get showProductInFeaturedSection;
+
+  /// No description provided for @orderCancelledSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Order cancelled successfully'**
+  String get orderCancelledSuccessfully;
+
+  /// No description provided for @foodBeverageItemCreatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Food & Beverage item created successfully!'**
+  String get foodBeverageItemCreatedSuccessfully;
+
+  /// No description provided for @addAService.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a Service'**
+  String get addAService;
+
+  /// No description provided for @updatingUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating user...'**
+  String get updatingUser;
+
+  /// No description provided for @masokotips.
+  ///
+  /// In en, this message translates to:
+  /// **'maSOKOtips'**
+  String get masokotips;
+
+  /// No description provided for @noRecentSearches.
+  ///
+  /// In en, this message translates to:
+  /// **'No recent searches'**
+  String get noRecentSearches;
+
+  /// No description provided for @vehicleHasTemperatureControlForSensitive.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle has temperature control for sensitive products'**
+  String get vehicleHasTemperatureControlForSensitive;
+
+  /// No description provided for @loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get loading;
+
+  /// No description provided for @stillPendingPleaseApproveOnYour.
+  ///
+  /// In en, this message translates to:
+  /// **'Still pending — please approve on your phone.'**
+  String get stillPendingPleaseApproveOnYour;
+
+  /// No description provided for @checkAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Check Again'**
+  String get checkAgain;
+
+  /// No description provided for @clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clear;
+
+  /// No description provided for @reviewStatistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Review Statistics'**
+  String get reviewStatistics;
+
+  /// No description provided for @cardPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Card Payment'**
+  String get cardPayment;
+
+  /// No description provided for @deletingUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting user...'**
+  String get deletingUser;
+
+  /// No description provided for @areYouSureYouWantToAltAltAltAlt.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this address?'**
+  String get areYouSureYouWantToAltAltAltAlt;
+
+  /// No description provided for @editTransport.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Transport'**
+  String get editTransport;
+
+  /// No description provided for @areYouSureYouWantToAltAltAltAltAlt.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this product?'**
+  String get areYouSureYouWantToAltAltAltAltAlt;
+
+  /// No description provided for @suspendUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspend User'**
+  String get suspendUser;
+
+  /// No description provided for @viewMap.
+  ///
+  /// In en, this message translates to:
+  /// **'View Map'**
+  String get viewMap;
+
+  /// No description provided for @pleaseEnableLocationServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enable location services'**
+  String get pleaseEnableLocationServices;
+
+  /// No description provided for @deleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account?'**
+  String get deleteAccount;
+
+  /// No description provided for @transportManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Transport Management'**
+  String get transportManagement;
+
+  /// No description provided for @servicesManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Services Management'**
+  String get servicesManagement;
+
+  /// No description provided for @locationServicesAreDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Location services are disabled.'**
+  String get locationServicesAreDisabled;
+
+  /// No description provided for @unsuspend.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsuspend'**
+  String get unsuspend;
+
+  /// No description provided for @reviewModeration.
+  ///
+  /// In en, this message translates to:
+  /// **'Review Moderation'**
+  String get reviewModeration;
+
+  /// No description provided for @thisWillCancelThePendingPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'This will cancel the pending payment so you can try again with a new payment request.'**
+  String get thisWillCancelThePendingPayment;
+
+  /// No description provided for @stay.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay'**
+  String get stay;
+
+  /// No description provided for @message.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get message;
+
+  /// No description provided for @signUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up'**
+  String get signUp;
+
+  /// No description provided for @keepWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Waiting'**
+  String get keepWaiting;
+
+  /// No description provided for @priceAlt.
+  ///
+  /// In en, this message translates to:
+  /// **'Price ↓'**
+  String get priceAlt;
+
+  /// No description provided for @marketInformationDeletedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Market information deleted successfully'**
+  String get marketInformationDeletedSuccessfully;
+
+  /// No description provided for @pleaseEnterYourEmailAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your email address'**
+  String get pleaseEnterYourEmailAddress;
+
+  /// No description provided for @manageDevicesThatAreLoggedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage devices that are logged in'**
+  String get manageDevicesThatAreLoggedIn;
+
+  /// No description provided for @postARequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Post a Request'**
+  String get postARequest;
+
+  /// No description provided for @subscribeNowAlt.
+  ///
+  /// In en, this message translates to:
+  /// **'SUBSCRIBE NOW'**
+  String get subscribeNowAlt;
+
+  /// No description provided for @contact.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact'**
+  String get contact;
+
+  /// No description provided for @thisTruckDoesNotHaveA.
+  ///
+  /// In en, this message translates to:
+  /// **'This truck does not have a GPS location set.'**
+  String get thisTruckDoesNotHaveA;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
+
+  /// No description provided for @thisAddressWillBeSelectedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'This address will be selected by default during checkout'**
+  String get thisAddressWillBeSelectedBy;
+
+  /// No description provided for @paymentStillPendingPleaseApproveOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment still pending. Please approve on your phone or cancel to retry.'**
+  String get paymentStillPendingPleaseApproveOn;
+
+  /// No description provided for @products.
+  ///
+  /// In en, this message translates to:
+  /// **'Products'**
+  String get products;
+
+  /// No description provided for @totalReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Reviews'**
+  String get totalReviews;
+
+  /// No description provided for @deleteMarketInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Market Information'**
+  String get deleteMarketInformation;
+
+  /// No description provided for @retryAlt.
+  ///
+  /// In en, this message translates to:
+  /// **'RETRY'**
+  String get retryAlt;
+
+  /// No description provided for @twofactorAuthenticationDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Two-Factor Authentication disabled'**
+  String get twofactorAuthenticationDisabled;
+
+  /// No description provided for @kiswahili.
+  ///
+  /// In en, this message translates to:
+  /// **'Kiswahili'**
+  String get kiswahili;
+
+  /// No description provided for @filterReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter Reviews'**
+  String get filterReviews;
+
+  /// No description provided for @cancelPaymentAltAlt.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel payment'**
+  String get cancelPaymentAltAlt;
+
+  /// No description provided for @name.
+  ///
+  /// In en, this message translates to:
+  /// **'Name ↑'**
+  String get name;
+
+  /// No description provided for @subscribeToViewContactChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe to view contact & chat'**
+  String get subscribeToViewContactChat;
+
+  /// No description provided for @productsManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Products Management'**
+  String get productsManagement;
+
+  /// No description provided for @all.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get all;
+
+  /// No description provided for @getStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started'**
+  String get getStarted;
+
+  /// No description provided for @submit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get submit;
+
+  /// No description provided for @adminSettingsComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin settings coming soon!'**
+  String get adminSettingsComingSoon;
+
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
+
+  /// No description provided for @requestPostedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Request posted successfully!'**
+  String get requestPostedSuccessfully;
+
+  /// No description provided for @clearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get clearAll;
+
+  /// No description provided for @deleteItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Item'**
+  String get deleteItem;
+
+  /// No description provided for @subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription'**
+  String get subscription;
+
+  /// No description provided for @resetPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Password'**
+  String get resetPassword;
+
+  /// No description provided for @pleaseSelectAtLeastOneSupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select at least one supported product type'**
+  String get pleaseSelectAtLeastOneSupported;
+
+  /// No description provided for @referralCodeCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Referral code copied!'**
+  String get referralCodeCopied;
+
+  /// No description provided for @reject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get reject;
+
+  /// No description provided for @yourSubscriptionIsNowActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Your subscription is now active.'**
+  String get yourSubscriptionIsNowActive;
+
+  /// No description provided for @onlyGifPngJpgAndJpeg.
+  ///
+  /// In en, this message translates to:
+  /// **'Only .gif, .png, .jpg, and .jpeg files are allowed'**
+  String get onlyGifPngJpgAndJpeg;
+
+  /// No description provided for @deleteTransport.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Transport'**
+  String get deleteTransport;
+
+  /// No description provided for @nameAlt.
+  ///
+  /// In en, this message translates to:
+  /// **'Name ↓'**
+  String get nameAlt;
+
+  /// No description provided for @locationPermissionPermanentlyDeniedEnableIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission permanently denied. Enable in settings.'**
+  String get locationPermissionPermanentlyDeniedEnableIn;
+
+  /// No description provided for @addMarketInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Market Information'**
+  String get addMarketInformation;
+
+  /// No description provided for @deleteFoodBeverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Food & Beverage'**
+  String get deleteFoodBeverage;
+
+  /// No description provided for @updateMarketInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Market Information'**
+  String get updateMarketInformation;
+
+  /// No description provided for @analytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytics'**
+  String get analytics;
+
+  /// No description provided for @myBuyingRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'My Buying Requests'**
+  String get myBuyingRequests;
+
+  /// No description provided for @defaultAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get defaultAddress;
+
+  /// No description provided for @continueText.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueText;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/service.dart';
 import '../../services/service_service.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class ServiceManagementScreen extends StatefulWidget {
   const ServiceManagementScreen({super.key});
@@ -23,7 +24,7 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Service Management'),
+        title: Text(AppLocalizations.of(context)!.serviceManagement),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -179,7 +180,7 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
               _clearForm();
               Navigator.pop(context);
             },
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -253,12 +254,12 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete Service'),
+        title: Text(AppLocalizations.of(context)!.deleteService),
         content: Text('Are you sure you want to delete "${service.title}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () async {

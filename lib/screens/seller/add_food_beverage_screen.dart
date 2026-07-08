@@ -7,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import '../../config/api_config.dart';
 import '../../utils/logger.dart';
 import '../../providers/category_provider.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class AddFoodBeverageScreen extends StatefulWidget {
   const AddFoodBeverageScreen({Key? key}) : super(key: key);
@@ -190,8 +191,8 @@ class _AddFoodBeverageScreenState extends State<AddFoodBeverageScreen> {
       if (isSuccess) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Food & Beverage item created successfully!'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.foodBeverageItemCreatedSuccessfully),
               backgroundColor: Colors.green,
             ),
           );
@@ -218,7 +219,7 @@ class _AddFoodBeverageScreenState extends State<AddFoodBeverageScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Food & Beverage'),
+        title: Text(AppLocalizations.of(context)!.addFoodBeverage),
         backgroundColor: Colors.orange,
         foregroundColor: Colors.white,
       ),
@@ -361,7 +362,7 @@ class _AddFoodBeverageScreenState extends State<AddFoodBeverageScreen> {
                             filled: true,
                             fillColor: Colors.grey[50],
                           ),
-                          hint: const Text('Select Category'),
+                          hint: Text(AppLocalizations.of(context)!.selectCategory),
                           items: provider.subcategories.map((category) {
                             return DropdownMenuItem<int?>(
                               value: category.id,
@@ -534,7 +535,7 @@ class _AddFoodBeverageScreenState extends State<AddFoodBeverageScreen> {
                               TextButton.icon(
                                 onPressed: _pickImages,
                                 icon: const Icon(Icons.add_photo_alternate),
-                                label: const Text('Add Images'),
+                                label: Text(AppLocalizations.of(context)!.addImages),
                               ),
                             ],
                           ),
@@ -574,8 +575,8 @@ class _AddFoodBeverageScreenState extends State<AddFoodBeverageScreen> {
                         child: Column(
                           children: [
                             SwitchListTile(
-                              title: const Text('Active'),
-                              subtitle: const Text('Make this item visible to customers'),
+                              title: Text(AppLocalizations.of(context)!.active),
+                              subtitle: Text(AppLocalizations.of(context)!.makeThisItemVisibleToCustomers),
                               value: _isActive,
                               activeThumbColor: Colors.orange,
                               onChanged: (value) {
@@ -585,8 +586,8 @@ class _AddFoodBeverageScreenState extends State<AddFoodBeverageScreen> {
                               },
                             ),
                             SwitchListTile(
-                              title: const Text('Featured'),
-                              subtitle: const Text('Show this item in featured section'),
+                              title: Text(AppLocalizations.of(context)!.featured),
+                              subtitle: Text(AppLocalizations.of(context)!.showThisItemInFeaturedSection),
                               value: _isFeatured,
                               activeThumbColor: Colors.orange,
                               onChanged: (value) {

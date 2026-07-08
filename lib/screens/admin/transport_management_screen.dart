@@ -5,6 +5,7 @@ import '../../providers/admin_provider.dart';
 import 'transport_form_screen.dart';
 import 'package:masoko_tips/widgets/cached_network_image_with_cors.dart';
 import 'package:lottie/lottie.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class AdminTransportManagementScreen extends StatefulWidget {
   const AdminTransportManagementScreen({super.key});
@@ -129,12 +130,12 @@ class _AdminTransportManagementScreenState
               const SizedBox(width: 8),
               DropdownButton<String>(
                 value: _sortBy,
-                items: const [
-                  DropdownMenuItem(value: 'nameAsc', child: Text('Name ↑')),
-                  DropdownMenuItem(value: 'nameDesc', child: Text('Name ↓')),
-                  DropdownMenuItem(value: 'priceAsc', child: Text('Price ↑')),
-                  DropdownMenuItem(value: 'priceDesc', child: Text('Price ↓')),
-                  DropdownMenuItem(value: 'dateAsc', child: Text('Date ↑')),
+                items: [
+                  DropdownMenuItem(value: 'nameAsc', child: Text(AppLocalizations.of(context)!.name)),
+                  DropdownMenuItem(value: 'nameDesc', child: Text(AppLocalizations.of(context)!.nameAlt)),
+                  DropdownMenuItem(value: 'priceAsc', child: Text(AppLocalizations.of(context)!.price)),
+                  DropdownMenuItem(value: 'priceDesc', child: Text(AppLocalizations.of(context)!.priceAlt)),
+                  DropdownMenuItem(value: 'dateAsc', child: Text(AppLocalizations.of(context)!.date)),
                 ],
                 onChanged: (value) {
                   setState(() {
@@ -151,17 +152,17 @@ class _AdminTransportManagementScreenState
             children: [
               ElevatedButton(
                 onPressed: () => setState(() => _selectedStatus = null),
-                child: const Text('All'),
+                child: Text(AppLocalizations.of(context)!.all),
               ),
               const SizedBox(width: 8),
               ElevatedButton(
                 onPressed: () => setState(() => _selectedStatus = 'active'),
-                child: const Text('Active'),
+                child: Text(AppLocalizations.of(context)!.active),
               ),
               const SizedBox(width: 8),
               ElevatedButton(
                 onPressed: () => setState(() => _selectedStatus = 'inactive'),
-                child: const Text('Inactive'),
+                child: Text(AppLocalizations.of(context)!.inactive),
               ),
             ],
           )
@@ -183,7 +184,7 @@ class _AdminTransportManagementScreenState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Transport'),
+        title: Text(AppLocalizations.of(context)!.deleteTransport),
         content: Text('Are you sure you want to delete ${transport.title}?'),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -191,7 +192,7 @@ class _AdminTransportManagementScreenState
         actions: [
           TextButton(
             onPressed: Navigator.of(context).pop,
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
@@ -210,8 +211,8 @@ class _AdminTransportManagementScreenState
         _loadTransports();
         if (mounted) {
           scaffoldMessenger.showSnackBar(
-            const SnackBar(
-              content: Text('Transport deleted successfully'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.transportDeletedSuccessfully),
               backgroundColor: Colors.green,
             ),
           );
@@ -382,7 +383,7 @@ class _AdminTransportManagementScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Transport Management'),
+        title: Text(AppLocalizations.of(context)!.transportManagement),
         backgroundColor: theme.primaryColor,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -404,7 +405,7 @@ class _AdminTransportManagementScreenState
           ).then((_) => _loadTransports());
         },
         icon: const Icon(Icons.add),
-        label: const Text('Add Transport'),
+        label: Text(AppLocalizations.of(context)!.addTransport),
         backgroundColor: theme.primaryColor,
         foregroundColor: Colors.white,
         elevation: 4,
@@ -444,7 +445,7 @@ class _AdminTransportManagementScreenState
                         ElevatedButton.icon(
                           onPressed: _loadTransports,
                           icon: const Icon(Icons.refresh),
-                          label: const Text('Retry'),
+                          label: Text(AppLocalizations.of(context)!.retry),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: theme.primaryColor,
                             foregroundColor: Colors.white,
@@ -484,7 +485,7 @@ class _AdminTransportManagementScreenState
                                 ).then((_) => _loadTransports());
                               },
                               icon: const Icon(Icons.add),
-                              label: const Text('Add Transport'),
+                              label: Text(AppLocalizations.of(context)!.addTransport),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: theme.primaryColor,
                                 foregroundColor: Colors.white,
@@ -542,7 +543,7 @@ class _AdminTransportManagementScreenState
                                       ? const CircularProgressIndicator()
                                       : TextButton(
                                           onPressed: _loadMoreTransports,
-                                          child: const Text('Load More'),
+                                          child: Text(AppLocalizations.of(context)!.loadMore),
                                         ),
                                 ),
                               ),

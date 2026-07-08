@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/reviews_provider.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class UserReviewsScreen extends StatelessWidget {
   const UserReviewsScreen({super.key});
@@ -9,7 +10,7 @@ class UserReviewsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Reviews'),
+        title: Text(AppLocalizations.of(context)!.myReviews),
       ),
       body: Consumer<ReviewsProvider>(
         builder: (context, reviewsProvider, child) {
@@ -17,8 +18,8 @@ class UserReviewsScreen extends StatelessWidget {
               .getUserReviews('user123'); // Replace with actual user ID
 
           if (reviews.isEmpty) {
-            return const Center(
-              child: Text('No reviews yet'),
+            return Center(
+              child: Text(AppLocalizations.of(context)!.noReviewsYet),
             );
           }
 

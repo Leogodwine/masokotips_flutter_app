@@ -6,6 +6,7 @@ import '../../models/subscription.dart';
 import '../../providers/subscription_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/logger.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 // Payment screen states
 enum _PayState { starting, waiting, checking, success, failed, timedOut }
@@ -302,7 +303,7 @@ class _ZenopayPaymentScreenState extends State<ZenopayPaymentScreen>
                 Navigator.of(context).pop(); // close dialog
                 Navigator.of(context).pop(true); // return success to caller
               },
-              child: const Text('Continue'),
+              child: Text(AppLocalizations.of(context)!.continueText),
             ),
           ),
         ],
@@ -320,7 +321,7 @@ class _ZenopayPaymentScreenState extends State<ZenopayPaymentScreen>
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Processing Payment'),
+        title: Text(AppLocalizations.of(context)!.processingPayment),
         backgroundColor: theme.primaryColor,
         foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
@@ -484,9 +485,9 @@ class _ZenopayPaymentScreenState extends State<ZenopayPaymentScreen>
                     if (!mounted) return;
                     if (!done && _state == _PayState.waiting) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Still pending — please approve on your phone.'),
-                          duration: Duration(seconds: 3),
+                        SnackBar(
+                          content: Text(AppLocalizations.of(context)!.stillPendingPleaseApproveOnYour),
+                          duration: const Duration(seconds: 3),
                         ),
                       );
                     }
@@ -518,7 +519,7 @@ class _ZenopayPaymentScreenState extends State<ZenopayPaymentScreen>
           child: OutlinedButton.icon(
             onPressed: () => _confirmCancel(),
             icon: const Icon(Icons.close, size: 18),
-            label: const Text('Cancel payment'),
+            label: Text(AppLocalizations.of(context)!.cancelPaymentAltAlt),
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.red,
               side: const BorderSide(color: Colors.red),
@@ -596,7 +597,7 @@ class _ZenopayPaymentScreenState extends State<ZenopayPaymentScreen>
           child: ElevatedButton.icon(
             onPressed: () => _startCheckout(),
             icon: const Icon(Icons.refresh),
-            label: const Text('Try Again'),
+            label: Text(AppLocalizations.of(context)!.tryAgain),
             style: ElevatedButton.styleFrom(
               backgroundColor: theme.primaryColor,
               foregroundColor: Colors.white,
@@ -619,7 +620,7 @@ class _ZenopayPaymentScreenState extends State<ZenopayPaymentScreen>
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('Go Back'),
+            child: Text(AppLocalizations.of(context)!.goBack),
           ),
         ),
       ],
@@ -670,7 +671,7 @@ class _ZenopayPaymentScreenState extends State<ZenopayPaymentScreen>
               await _checkSubscriptionStatus();
             },
             icon: const Icon(Icons.search),
-            label: const Text('Check Status'),
+            label: Text(AppLocalizations.of(context)!.checkStatus),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.orange,
               foregroundColor: Colors.white,
@@ -688,7 +689,7 @@ class _ZenopayPaymentScreenState extends State<ZenopayPaymentScreen>
           child: ElevatedButton.icon(
             onPressed: () => _startCheckout(),
             icon: const Icon(Icons.refresh),
-            label: const Text('Try Again'),
+            label: Text(AppLocalizations.of(context)!.tryAgain),
             style: ElevatedButton.styleFrom(
               backgroundColor: theme.primaryColor,
               foregroundColor: Colors.white,
@@ -710,7 +711,7 @@ class _ZenopayPaymentScreenState extends State<ZenopayPaymentScreen>
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('Go Back'),
+            child: Text(AppLocalizations.of(context)!.goBack),
           ),
         ),
       ],
@@ -722,18 +723,18 @@ class _ZenopayPaymentScreenState extends State<ZenopayPaymentScreen>
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Cancel Payment?'),
+        title: Text(AppLocalizations.of(context)!.cancelPaymentAlt),
         content: const Text(
             'This will cancel the current payment request. '
             'You can try again later.'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Keep Waiting')),
+              child: Text(AppLocalizations.of(context)!.keepWaiting)),
           TextButton(
               style: TextButton.styleFrom(foregroundColor: Colors.red),
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Cancel Payment')),
+              child: Text(AppLocalizations.of(context)!.cancelPayment)),
         ],
       ),
     );

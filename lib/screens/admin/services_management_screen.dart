@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/admin_provider.dart';
 import '../../models/service.dart';
 import 'service_management_screen.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class AdminServicesManagementScreen extends StatefulWidget {
   const AdminServicesManagementScreen({Key? key}) : super(key: key);
@@ -27,7 +28,7 @@ class _AdminServicesManagementScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Services Management'),
+        title: Text(AppLocalizations.of(context)!.servicesManagement),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -68,7 +69,7 @@ class _AdminServicesManagementScreenState
                     onPressed: () {
                       adminProvider.loadServices();
                     },
-                    child: const Text('Retry'),
+                    child: Text(AppLocalizations.of(context)!.retry),
                   ),
                 ],
               ),
@@ -77,7 +78,7 @@ class _AdminServicesManagementScreenState
 
           final services = adminProvider.services;
           if (services.isEmpty) {
-            return const Center(child: Text('No services found'));
+            return Center(child: Text(AppLocalizations.of(context)!.noServicesFound));
           }
 
           return ListView.builder(
@@ -124,13 +125,13 @@ class _AdminServicesManagementScreenState
                       }
                     },
                     itemBuilder: (context) => [
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'edit',
-                        child: Text('Edit'),
+                        child: Text(AppLocalizations.of(context)!.edit),
                       ),
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'delete',
-                        child: Text('Delete'),
+                        child: Text(AppLocalizations.of(context)!.delete),
                       ),
                     ],
                   ),
@@ -147,12 +148,12 @@ class _AdminServicesManagementScreenState
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Service'),
+        title: Text(AppLocalizations.of(context)!.deleteService),
         content: Text('Are you sure you want to delete ${service.title}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () async {
@@ -161,14 +162,14 @@ class _AdminServicesManagementScreenState
               if (success && context.mounted) {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Service deleted successfully'),
+                  SnackBar(
+                    content: Text(AppLocalizations.of(context)!.serviceDeletedSuccessfully),
                     backgroundColor: Colors.green,
                   ),
                 );
               }
             },
-            child: const Text('Delete'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),

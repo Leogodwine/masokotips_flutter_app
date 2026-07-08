@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../providers/admin_provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:masoko_tips/utils/log.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class AdminProductFormScreen extends StatefulWidget {
   final Product? product;
@@ -178,7 +179,7 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedCategoryId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a category')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseSelectACategory)),
       );
       return;
     }
@@ -213,7 +214,7 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
         await adminProvider.createProduct(productData);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Product created successfully')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.productCreatedSuccessfully)),
           );
         }
       } else {
@@ -223,7 +224,7 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
         );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Product updated successfully')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.productUpdatedSuccessfully)),
           );
         }
       }
@@ -523,7 +524,7 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
                             ElevatedButton.icon(
                               onPressed: _pickImages,
                               icon: const Icon(Icons.add_photo_alternate),
-                              label: const Text('Add Images'),
+                              label: Text(AppLocalizations.of(context)!.addImages),
                               style: ElevatedButton.styleFrom(
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 12),

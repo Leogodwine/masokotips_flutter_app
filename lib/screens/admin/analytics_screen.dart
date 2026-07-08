@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/reviews_provider.dart';
 import '../../providers/orders_provider.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class AnalyticsScreen extends StatelessWidget {
   const AnalyticsScreen({super.key});
@@ -12,7 +13,7 @@ class AnalyticsScreen extends StatelessWidget {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Analytics'),
+          title: Text(AppLocalizations.of(context)!.analytics),
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Overview'),
@@ -176,7 +177,7 @@ class AnalyticsScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Text('70%'), // Replace with actual data
+                    Text('70%'), // Replace with actual data
                   ],
                 ),
               );

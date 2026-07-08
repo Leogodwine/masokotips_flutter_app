@@ -9,6 +9,7 @@ import '../providers/auth_provider.dart';
 import '../services/category_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class EditOrganicProductScreen extends StatefulWidget {
   final OrganicProduct? product;
@@ -108,9 +109,8 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                   'Category $productCategoryId not found in loaded categories, setting selectedCategoryId to null');
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                        'Product category not found in current categories. Please select a category.'),
+                  SnackBar(
+                    content: Text(AppLocalizations.of(context)!.productCategoryNotFoundInCurrent),
                     backgroundColor: Colors.orange,
                   ),
                 );
@@ -333,7 +333,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
             ElevatedButton.icon(
               onPressed: _pickImage,
               icon: const Icon(Icons.add_photo_alternate),
-              label: const Text('Add Images'),
+              label: Text(AppLocalizations.of(context)!.addImages),
             ),
             if (_images.isNotEmpty)
               Padding(
@@ -393,11 +393,11 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
             'Invalid images found: ${invalidImages.map((img) => img.path).toList()}'); // Debug print
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content:
-                  Text('Only .gif, .png, .jpg, and .jpeg files are allowed'),
+                  Text(AppLocalizations.of(context)!.onlyGifPngJpgAndJpeg),
               backgroundColor: Colors.red,
-              duration: Duration(seconds: 5),
+              duration: const Duration(seconds: 5),
             ),
           );
         }
@@ -447,7 +447,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedCategoryId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a category')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseSelectACategory)),
       );
       return;
     }
@@ -458,8 +458,8 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
     // Validate that we have at least one valid image
     if (_images.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please add at least one product image'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.pleaseAddAtLeastOneProduct),
           backgroundColor: Colors.red,
         ),
       );
@@ -517,8 +517,8 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
         await provider.createProduct(product);
         if (mounted) {
           scaffoldMessenger.showSnackBar(
-            const SnackBar(
-              content: Text('Product created successfully'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.productCreatedSuccessfully),
               backgroundColor: Colors.green,
             ),
           );
@@ -527,8 +527,8 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
         await provider.updateProduct(product);
         if (mounted) {
           scaffoldMessenger.showSnackBar(
-            const SnackBar(
-              content: Text('Product updated successfully'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.productUpdatedSuccessfully),
               backgroundColor: Colors.green,
             ),
           );
@@ -562,21 +562,21 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Product'),
+        title: Text(AppLocalizations.of(context)!.deleteProduct),
         content: const Text(
           'Are you sure you want to delete this product? This action cannot be undone.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
-            child: const Text('Delete'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -590,8 +590,8 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Product deleted successfully'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.productDeletedSuccessfully),
               backgroundColor: Colors.green,
             ),
           );
@@ -927,15 +927,15 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                     ),
                     const SizedBox(height: 8),
                     SwitchListTile(
-                      title: const Text('Active'),
-                      subtitle: const Text('Make product visible to customers'),
+                      title: Text(AppLocalizations.of(context)!.active),
+                      subtitle: Text(AppLocalizations.of(context)!.makeProductVisibleToCustomers),
                       value: _isActive,
                       onChanged: (value) => setState(() => _isActive = value),
                       activeThumbColor: theme.primaryColor,
                     ),
                     SwitchListTile(
-                      title: const Text('Featured'),
-                      subtitle: const Text('Show product in featured section'),
+                      title: Text(AppLocalizations.of(context)!.featured),
+                      subtitle: Text(AppLocalizations.of(context)!.showProductInFeaturedSection),
                       value: _isFeatured,
                       onChanged: (value) => setState(() => _isFeatured = value),
                       activeThumbColor: theme.primaryColor,

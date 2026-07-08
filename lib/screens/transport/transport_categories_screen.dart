@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'transport_list_screen.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class TransportCategoriesScreen extends StatelessWidget {
   const TransportCategoriesScreen({super.key});
@@ -48,7 +49,7 @@ class TransportCategoriesScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Transport Categories'),
+        title: Text(AppLocalizations.of(context)!.transportCategories),
         elevation: 0,
       ),
       body: ListView.builder(

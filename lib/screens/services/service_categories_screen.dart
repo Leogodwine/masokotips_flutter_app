@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/category.dart';
 import '../../services/category_service.dart';
 import '../../widgets/error_handler.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class ServiceCategoriesScreen extends StatefulWidget {
   const ServiceCategoriesScreen({super.key});
@@ -74,7 +75,7 @@ class _ServiceCategoriesScreenState extends State<ServiceCategoriesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Service Categories'),
+        title: Text(AppLocalizations.of(context)!.serviceCategories),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
       ),

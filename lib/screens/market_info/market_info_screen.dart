@@ -6,6 +6,7 @@ import 'package:masoko_tips/widgets/loading_indicator.dart';
 import 'package:masoko_tips/widgets/error_message.dart';
 import 'package:masoko_tips/widgets/empty_state.dart';
 import 'package:masoko_tips/widgets/market_info_card.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class MarketInfoScreen extends StatefulWidget {
   final bool showAppBar;
@@ -37,7 +38,7 @@ class _MarketInfoScreenState extends State<MarketInfoScreen> {
     return Scaffold(
       appBar: widget.showAppBar
           ? AppBar(
-              title: const Text('Market News'),
+              title: Text(AppLocalizations.of(context)!.marketNews),
             )
           : null,
       body: Consumer<MarketInfoProvider>(

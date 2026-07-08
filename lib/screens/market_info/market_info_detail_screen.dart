@@ -6,6 +6,7 @@ import 'package:masoko_tips/utils/date_utils.dart';
 import 'package:masoko_tips/widgets/cached_network_image_with_cors.dart';
 
 import 'package:masoko_tips/utils/image_upload_helper.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class MarketInfoDetailScreen extends StatefulWidget {
   final MarketInfo marketInfo;
@@ -430,7 +431,7 @@ class _MarketInfoDetailScreenState extends State<MarketInfoDetailScreen> {
           child: ElevatedButton.icon(
             onPressed: _shareNews,
             icon: const Icon(Icons.share, size: 18),
-            label: const Text('Share'),
+            label: Text(AppLocalizations.of(context)!.share),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF1C592B), // Dark green
               foregroundColor: Colors.white,
@@ -447,7 +448,7 @@ class _MarketInfoDetailScreenState extends State<MarketInfoDetailScreen> {
             onPressed:
                 widget.marketInfo.contact.isNotEmpty ? _contactProvider : null,
             icon: const Icon(Icons.phone, size: 18),
-            label: const Text('Contact'),
+            label: Text(AppLocalizations.of(context)!.contact),
             style: OutlinedButton.styleFrom(
               foregroundColor: const Color(0xFF1C592B), // Dark green
               side: const BorderSide(color: Color(0xFF1C592B), width: 1.5),
@@ -467,18 +468,18 @@ class _MarketInfoDetailScreenState extends State<MarketInfoDetailScreen> {
         '${widget.marketInfo.title}\n\n${widget.marketInfo.description}';
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('News copied to clipboard'),
-        duration: Duration(seconds: 2),
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.newsCopiedToClipboard),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
 
   void _bookmarkNews() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Bookmark feature coming soon!'),
-        duration: Duration(seconds: 2),
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.bookmarkFeatureComingSoon),
+        duration: const Duration(seconds: 2),
       ),
     );
   }

@@ -6,6 +6,7 @@ import '../../models/order.dart';
 import '../../widgets/app_scaffold.dart';
 import '../../utils/logger.dart';
 import '../../config/api_config.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class SellerOrdersScreen extends StatefulWidget {
   const SellerOrdersScreen({Key? key}) : super(key: key);
@@ -189,7 +190,7 @@ class _SellerOrdersScreenState extends State<SellerOrdersScreen> {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _fetchOrders,
-              child: const Text('RETRY'),
+              child: Text(AppLocalizations.of(context)!.retryAlt),
             ),
           ],
         ),
@@ -225,7 +226,7 @@ class _SellerOrdersScreenState extends State<SellerOrdersScreen> {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _fetchOrders,
-              child: const Text('Refresh Orders'),
+              child: Text(AppLocalizations.of(context)!.refreshOrders),
             ),
           ],
         ),

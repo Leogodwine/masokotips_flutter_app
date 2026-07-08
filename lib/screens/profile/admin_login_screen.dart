@@ -4,6 +4,7 @@ import '../../providers/auth_provider.dart';
 import '../../services/admin_auth_service.dart';
 import '../../config/api_config.dart';
 import '../../utils/logger.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class AdminLoginScreen extends StatefulWidget {
   const AdminLoginScreen({Key? key}) : super(key: key);
@@ -70,8 +71,8 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
           Log.d('AuthProvider updated. Navigating to admin dashboard.');
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Admin login successful!'),
+              SnackBar(
+                content: Text(AppLocalizations.of(context)!.adminLoginSuccessful),
                 backgroundColor: Colors.green,
               ),
             );
@@ -102,7 +103,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Login'),
+        title: Text(AppLocalizations.of(context)!.adminLogin),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -209,7 +210,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                           color: Colors.white,
                         ),
                       )
-                    : const Text('Login'),
+                    : Text(AppLocalizations.of(context)!.login),
               ),
             ],
           ),

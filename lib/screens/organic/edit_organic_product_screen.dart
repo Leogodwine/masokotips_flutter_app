@@ -11,6 +11,7 @@ import 'package:masoko_tips/widgets/custom_app_bar.dart';
 import 'package:masoko_tips/models/category.dart' as models;
 import 'package:masoko_tips/providers/category_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class EditOrganicProductScreen extends StatefulWidget {
   final OrganicProduct? product;
@@ -392,7 +393,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                         ElevatedButton.icon(
                           onPressed: _pickImage,
                           icon: const Icon(Icons.upload),
-                          label: const Text('Choose Image'),
+                          label: Text(AppLocalizations.of(context)!.chooseImage),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.primaryColor,
                             foregroundColor: Colors.white,
@@ -416,7 +417,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                               });
                             },
                             icon: const Icon(Icons.undo),
-                            label: const Text('Undo Remove'),
+                            label: Text(AppLocalizations.of(context)!.undoRemove),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.orange,
                               foregroundColor: Colors.white,
@@ -559,13 +560,13 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
               ],
               const SizedBox(height: 16),
               SwitchListTile(
-                title: const Text('Active'),
+                title: Text(AppLocalizations.of(context)!.active),
                 value: _isActive,
                 onChanged: (value) => setState(() => _isActive = value),
                 activeThumbColor: AppTheme.primaryColor,
               ),
               SwitchListTile(
-                title: const Text('Featured'),
+                title: Text(AppLocalizations.of(context)!.featured),
                 value: _isFeatured,
                 onChanged: (value) => setState(() => _isFeatured = value),
                 activeThumbColor: AppTheme.primaryColor,
@@ -671,8 +672,8 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
             imageFiles: _selectedImage != null ? [_selectedImage!] : null);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Product added successfully'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.productAddedSuccessfully),
               backgroundColor: Colors.green,
             ),
           );
@@ -682,8 +683,8 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
             imageFiles: _selectedImage != null ? [_selectedImage!] : null);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Product updated successfully'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.productUpdatedSuccessfully),
               backgroundColor: Colors.green,
             ),
           );

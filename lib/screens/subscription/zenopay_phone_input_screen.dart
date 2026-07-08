@@ -5,6 +5,7 @@ import '../../models/subscription.dart';
 import '../../providers/subscription_provider.dart';
 import '../../utils/logger.dart';
 import 'zenopay_payment_screen.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 // ── Tanzanian network detection ──────────────────────────────────────────────
 enum _TzNetwork { mpesa, airtel, tigo, halotel, yas, unknown }
@@ -283,7 +284,7 @@ class _ZenopayPhoneInputScreenState extends State<ZenopayPhoneInputScreen> {
         actions: [
           ElevatedButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK, Change Number'),
+            child: Text(AppLocalizations.of(context)!.okChangeNumber),
           ),
         ],
       ),
@@ -311,7 +312,7 @@ class _ZenopayPhoneInputScreenState extends State<ZenopayPhoneInputScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Enter Payment Number'),
+        title: Text(AppLocalizations.of(context)!.enterPaymentNumber),
         backgroundColor: theme.primaryColor,
         foregroundColor: Colors.white,
       ),

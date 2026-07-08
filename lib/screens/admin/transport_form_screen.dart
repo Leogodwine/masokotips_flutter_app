@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/transport.dart';
 import '../../providers/admin_provider.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class TransportFormScreen extends StatefulWidget {
   final Transport? transport;
@@ -183,7 +184,7 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
             ),
             const SizedBox(height: 16),
             SwitchListTile(
-              title: const Text('Temperature Controlled'),
+              title: Text(AppLocalizations.of(context)!.temperatureControlled),
               value: _isTemperatureControlled,
               onChanged: (value) {
                 setState(() {
@@ -276,7 +277,7 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
             ),
             const SizedBox(height: 16),
             SwitchListTile(
-              title: const Text('Has Insurance'),
+              title: Text(AppLocalizations.of(context)!.hasInsurance),
               value: _hasInsurance,
               onChanged: (value) {
                 setState(() {
@@ -301,14 +302,14 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
                 labelText: 'Status',
                 border: OutlineInputBorder(),
               ),
-              items: const [
+              items: [
                 DropdownMenuItem(
                   value: 'active',
-                  child: Text('Active'),
+                  child: Text(AppLocalizations.of(context)!.active),
                 ),
                 DropdownMenuItem(
                   value: 'inactive',
-                  child: Text('Inactive'),
+                  child: Text(AppLocalizations.of(context)!.inactive),
                 ),
               ],
               onChanged: (value) {

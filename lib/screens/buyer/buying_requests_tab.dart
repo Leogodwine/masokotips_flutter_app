@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../providers/buyer_provider.dart';
 import '../../models/buying_request.dart';
 import 'add_buying_request_screen.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class BuyingRequestsTab extends StatefulWidget {
   const BuyingRequestsTab({Key? key}) : super(key: key);
@@ -25,17 +26,17 @@ class _BuyingRequestsTabState extends State<BuyingRequestsTab> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Request'),
+        title: Text(AppLocalizations.of(context)!.deleteRequest),
         content: Text('Are you sure you want to delete "${request.title}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -46,7 +47,7 @@ class _BuyingRequestsTabState extends State<BuyingRequestsTab> {
         await context.read<BuyerProvider>().deleteRequest(request.id);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Request deleted successfully')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.requestDeletedSuccessfully)),
           );
         }
       } catch (e) {
@@ -63,7 +64,7 @@ class _BuyingRequestsTabState extends State<BuyingRequestsTab> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Buying Requests'),
+        title: Text(AppLocalizations.of(context)!.myBuyingRequests),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -88,7 +89,7 @@ class _BuyingRequestsTabState extends State<BuyingRequestsTab> {
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: provider.fetchMyRequests,
-                    child: const Text('Retry'),
+                    child: Text(AppLocalizations.of(context)!.retry),
                   ),
                 ],
               ),
@@ -117,7 +118,7 @@ class _BuyingRequestsTabState extends State<BuyingRequestsTab> {
                       );
                     },
                     icon: const Icon(Icons.add),
-                    label: const Text('Post a Request'),
+                    label: Text(AppLocalizations.of(context)!.postARequest),
                   ),
                 ],
               ),
@@ -254,7 +255,7 @@ class _BuyingRequestsTabState extends State<BuyingRequestsTab> {
           );
         },
         icon: const Icon(Icons.add),
-        label: const Text('Post Request'),
+        label: Text(AppLocalizations.of(context)!.postRequest),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
       ),

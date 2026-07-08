@@ -6,6 +6,7 @@ import '../../models/buying_request.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/image_upload_helper.dart';
 import '../chat/chat_screen.dart';
+import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class MarketDemandDetailScreen extends StatefulWidget {
   final BuyingRequest demand;
@@ -68,7 +69,7 @@ class _MarketDemandDetailScreenState extends State<MarketDemandDetailScreen> {
     }
     if (currentUserId == buyerId) {
       ScaffoldMessenger.of(ctx).showSnackBar(
-        const SnackBar(content: Text('You cannot chat with yourself.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.youCannotChatWithYourself)),
       );
       return;
     }
@@ -430,7 +431,7 @@ class _MarketDemandDetailScreenState extends State<MarketDemandDetailScreen> {
                       onPressed: () =>
                           Navigator.pushNamed(ctx, '/subscription'),
                       icon: const Icon(Icons.lock_outline, size: 18),
-                      label: const Text('Subscribe to view contact & chat'),
+                      label: Text(AppLocalizations.of(context)!.subscribeToViewContactChat),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFF1A8C4E),
                         side: const BorderSide(color: Color(0xFF1A8C4E)),

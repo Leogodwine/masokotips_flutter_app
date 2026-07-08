@@ -339,7 +339,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterZipCode => 'Please enter a ZIP code';
 
   @override
-  String get enterCountry => 'Please enter a country';
+  String get enterCountry => 'Enter your country';
 
   @override
   String get description => 'Description';
@@ -354,9 +354,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noRelatedProducts => 'No related products available';
 
   @override
-  String addedToCart(String productName) {
-    return '$productName added to cart';
-  }
+  String get addedToCart => 'Added to cart';
 
   @override
   String failedToAddToCart(String error) {
@@ -427,9 +425,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String productDeletedSuccessfully(String productName) {
-    return '$productName deleted successfully';
-  }
+  String get productDeletedSuccessfully => 'Product deleted successfully';
 
   @override
   String errorDeletingProduct(String error) {
@@ -745,9 +741,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String transportDeletedSuccessfully(String title) {
-    return '$title deleted successfully';
-  }
+  String get transportDeletedSuccessfully => 'Transport deleted successfully';
 
   @override
   String failedToDeleteTransport(String error) {
@@ -1134,8 +1128,983 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noFeaturedTransportsAvailable => 'No featured transports available';
 
   @override
+  String get registrationSuccessful => 'Registration successful! Welcome to maSOKOtips.';
+
+  @override
+  String get selectRoleError => 'Please select a role to register.';
+
+  @override
+  String get emailTaken => 'This email is already registered. Please try another email or login.';
+
+  @override
+  String get registrationFailed => 'Registration failed. Please try again.';
+
+  @override
+  String get createAccount => 'Create Account';
+
+  @override
+  String get joinMasokotips => 'Join maSOKOtips';
+
+  @override
+  String get createAccountToGetStarted => 'Create an account to get started';
+
+  @override
+  String get enterFullName => 'Enter your full name';
+
+  @override
+  String get pleaseEnterName => 'Please enter your name';
+
+  @override
+  String get pleaseEnterUsername => 'Please enter your username';
+
+  @override
+  String get usernameTooShort => 'Username must be at least 3 characters';
+
+  @override
+  String get usernameInvalid => 'Username can only contain letters, numbers, and underscores';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get enterEmail => 'Enter your email';
+
+  @override
+  String get pleaseEnterEmail => 'Please enter your email';
+
+  @override
+  String get invalidEmail => 'Please enter a valid email address';
+
+  @override
+  String get enterPhoneNumber => 'Enter your phone number';
+
+  @override
+  String get pleaseEnterPhoneNumber => 'Please enter your phone number';
+
+  @override
+  String get location => 'Location';
+
+  @override
+  String get enterLocation => 'Enter your city/region';
+
+  @override
+  String get pleaseEnterLocation => 'Please enter your location';
+
+  @override
+  String get pleaseEnterCountry => 'Please enter your country';
+
+  @override
+  String get agentCodeOptional => 'Agent / Referral Code (Optional)';
+
+  @override
+  String get agentCodeHint => 'e.g. MSK-AB12 — ask your agent';
+
+  @override
+  String get agentCodeHelper => 'If an agent helped you sign up, enter their code here';
+
+  @override
+  String get pleaseEnterPassword => 'Please enter a password';
+
+  @override
+  String get passwordTooShort => 'Password must be at least 8 characters';
+
+  @override
+  String get confirmPassword => 'Confirm Password';
+
+  @override
+  String get confirmYourPassword => 'Confirm your password';
+
+  @override
+  String get pleaseConfirmPassword => 'Please confirm your password';
+
+  @override
+  String get passwordsDoNotMatch => 'Passwords do not match';
+
+  @override
+  String get registerAs => 'Register as...';
+
+  @override
+  String get roleBuyer => 'Buyer';
+
+  @override
+  String get roleSeller => 'Seller';
+
+  @override
+  String get roleTransporter => 'Transporter';
+
+  @override
+  String get roleServiceProvider => 'Service Provider';
+
+  @override
+  String get proofOfIdentity => 'Proof of Identity';
+
+  @override
+  String get optionalText => 'Optional';
+
+  @override
+  String get uploadDocumentHint => 'Upload a clear photo of your NIDA, Driving License, or Voter Card. Your document will be reviewed by our team for account verification. Blurry or incorrect images will delay approval.';
+
+  @override
+  String get selectDocumentType => 'Select document type';
+
+  @override
+  String get nidaCard => 'NIDA Card';
+
+  @override
+  String get drivingLicense => 'Driving License';
+
+  @override
+  String get voterCard => 'Voter Card';
+
+  @override
+  String get gallery => 'Gallery';
+
+  @override
+  String get uploadTip => 'Tip: Place your ID on a flat surface with good lighting before taking a photo.';
+
+  @override
+  String get createAccountCaps => 'CREATE ACCOUNT';
+
+  @override
   String get featuredServices => 'Featured Services';
 
   @override
   String get noFeaturedServicesAvailable => 'No featured services available';
+
+  @override
+  String get yesCancel => 'Yes, Cancel';
+
+  @override
+  String get checkNow => 'Check Now';
+
+  @override
+  String get manageSubscription => 'Manage Subscription';
+
+  @override
+  String get subscriptionRequired => 'Subscription Required';
+
+  @override
+  String get subscribeNow => 'Subscribe Now';
+
+  @override
+  String get foodAndBeverages => 'Food & Beverages';
+
+  @override
+  String get myRequests => 'My Requests';
+
+  @override
+  String get postServices => 'Post Services';
+
+  @override
+  String get adminLoginAdmin => 'Admin Login';
+
+  @override
+  String get accessAdminDashboard => 'Access Admin Dashboard';
+
+  @override
+  String get cancelAndRetry => 'Cancel and Retry';
+
+  @override
+  String get cancelPaymentTitle => 'Cancel Payment';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get marketDemands => 'Market Demands';
+
+  @override
+  String get agriculturalServices => 'Agricultural Services';
+
+  @override
+  String get cancelCaps => 'CANCEL';
+
+  @override
+  String get subscribeNowCaps => 'SUBSCRIBE NOW';
+
+  @override
+  String get phoneNumberNotAvailable => 'Phone number not available';
+
+  @override
+  String get couldNotLaunchDialer => 'Could not launch dialer';
+
+  @override
+  String get marketplace => 'Marketplace';
+
+  @override
+  String get noItemsFound => 'No items found';
+
+  @override
+  String get contacts => 'Contacts';
+
+  @override
+  String get settingsAndAbout => 'Settings & About';
+
+  @override
+  String get legal => 'Legal';
+
+  @override
+  String get appTitleSection => 'App';
+
+  @override
+  String get appNameLabel => 'App Name';
+
+  @override
+  String get versionLabel => 'Version';
+
+  @override
+  String get seeStoreListingForLatest => 'See store listing for latest';
+
+  @override
+  String get accountDeletionRequestSubject => 'Account Deletion Request - maSOKOtips';
+
+  @override
+  String get accountDeletionRequestBody => 'Hello maSOKOtips Team,\n\nI would like to request deletion of my account and associated data.\n\nPlease confirm once completed.\n\nThanks.';
+
+  @override
+  String get noEmailAppFound => 'No email app found to send request';
+
+  @override
+  String get helloGuest => 'Hello Guest';
+
+  @override
+  String get signInToYourAccount => 'Sign in to your account';
+
+  @override
+  String get homeMenu => 'Home';
+
+  @override
+  String get productsMenu => 'Products';
+
+  @override
+  String get transportMenu => 'Transport';
+
+  @override
+  String get marketInfoMenu => 'Market Info';
+
+  @override
+  String get profileMenu => 'Profile';
+
+  @override
+  String get myOrdersMenu => 'My Orders';
+
+  @override
+  String get wishlistMenu => 'Wishlist';
+
+  @override
+  String get settingsMenu => 'Settings';
+
+  @override
+  String get privacyPolicyMenu => 'Privacy Policy';
+
+  @override
+  String get helpAndSupportMenu => 'Help & Support';
+
+  @override
+  String get aboutMenu => 'About';
+
+  @override
+  String get logoutMenu => 'Logout';
+
+  @override
+  String get aboutMasokoTips => 'About maSOKO tips';
+
+  @override
+  String get aboutMasokoTipsDescription => 'maSOKO tips is your agricultural marketplace companion. Find products, services, and market information all in one place.';
+
+  @override
+  String get closeButton => 'Close';
+
+  @override
+  String get twofactorAuthenticationEnabled => 'Two-Factor Authentication enabled';
+
+  @override
+  String get viewOrderHistory => 'View Order History';
+
+  @override
+  String get emailNotifications => 'Email Notifications';
+
+  @override
+  String get newPasswordsDoNotMatch => 'New passwords do not match';
+
+  @override
+  String get thisActionCannotBeUndoneAll => 'This action cannot be undone. All your data will be permanently deleted.';
+
+  @override
+  String get pleaseLoginToSendAMessage => 'Please login to send a message.';
+
+  @override
+  String get pleaseLoginToAddATransport => 'Please login to add a transport';
+
+  @override
+  String get startYourJourney => 'Start Your Journey';
+
+  @override
+  String get newsCopiedToClipboard => 'News copied to clipboard';
+
+  @override
+  String get addFoodBeverage => 'Add Food & Beverage';
+
+  @override
+  String get addNewTransport => 'Add New Transport';
+
+  @override
+  String get orderConfirmation => 'Order Confirmation';
+
+  @override
+  String get deleteAlt => 'DELETE';
+
+  @override
+  String get noServicesFound => 'No services found';
+
+  @override
+  String get english => 'English';
+
+  @override
+  String get noDashboardDataAvailable => 'No dashboard data available';
+
+  @override
+  String get onlyAdministratorsCanEditMarketInformation => 'Only administrators can edit market information';
+
+  @override
+  String get deleteService => 'Delete Service';
+
+  @override
+  String get clearWishlist => 'Clear Wishlist';
+
+  @override
+  String get adminLoginSuccessful => 'Admin login successful!';
+
+  @override
+  String get undoRemove => 'Undo Remove';
+
+  @override
+  String get viewYourAccountActivity => 'View your account activity';
+
+  @override
+  String get userManagement => 'User Management';
+
+  @override
+  String get pleaseSelectACategory => 'Please select a category';
+
+  @override
+  String get passwordChangedSuccessfully => 'Password changed successfully';
+
+  @override
+  String get goBack => 'Go Back';
+
+  @override
+  String get pleaseLogInToViewProfile => 'Please log in to view profile';
+
+  @override
+  String get suspend => 'Suspend';
+
+  @override
+  String get sayHello => 'Say hello!';
+
+  @override
+  String get myReviews => 'My Reviews';
+
+  @override
+  String get noFavoritesYet => 'No favorites yet';
+
+  @override
+  String get pleaseLoginAsAdminToAccess => 'Please login as admin to access organic products';
+
+  @override
+  String get activityLog => 'Activity Log';
+
+  @override
+  String get pleaseLoginToAddMarketInformation => 'Please login to add market information';
+
+  @override
+  String get okChangeNumber => 'OK, Change Number';
+
+  @override
+  String get adminAccountCreatedSuccessfully => 'Admin account created successfully!';
+
+  @override
+  String get great => 'Great!';
+
+  @override
+  String get cancelPayment => 'Cancel Payment';
+
+  @override
+  String get securitySettings => 'Security Settings';
+
+  @override
+  String get noUsersFound => 'No users found';
+
+  @override
+  String get youDoNotHavePermissionTo => 'You do not have permission to access this feature.';
+
+  @override
+  String get applyFilters => 'Apply Filters';
+
+  @override
+  String get bookTransportService => 'Book Transport Service';
+
+  @override
+  String get pleaseAddAtLeastOneProduct => 'Please add at least one product image';
+
+  @override
+  String get changeImage => 'Change Image';
+
+  @override
+  String get twofactorAuthentication => 'Two-Factor Authentication';
+
+  @override
+  String get unsuspendUser => 'Unsuspend User';
+
+  @override
+  String get onlyAdministratorsCanAddMarketInformation => 'Only administrators can add market information';
+
+  @override
+  String get marketInformationManagement => 'Market Information Management';
+
+  @override
+  String get share => 'Share';
+
+  @override
+  String get organicProductCreatedSuccessfully => 'Organic product created successfully!';
+
+  @override
+  String get vehicleIsInsuredForCargoAnd => 'Vehicle is insured for cargo and liability';
+
+  @override
+  String get itemUpdatedSuccessfully => 'Item updated successfully!';
+
+  @override
+  String get organicProductUpdatedSuccessfully => 'Organic product updated successfully!';
+
+  @override
+  String get unsuspendingUser => 'Unsuspending user...';
+
+  @override
+  String get youCannotChatWithYourself => 'You cannot chat with yourself.';
+
+  @override
+  String get pickImage => 'Pick Image';
+
+  @override
+  String get transportServiceUpdatedSuccessfully => 'Transport service updated successfully!';
+
+  @override
+  String get failedToCreateAdminAccount => 'Failed to create admin account';
+
+  @override
+  String get smsNotifications => 'SMS Notifications';
+
+  @override
+  String get pleaseLoginToCall => 'Please login to call.';
+
+  @override
+  String get viewAll => 'View All';
+
+  @override
+  String get receiveUpdatesAndAlertsViaEmail => 'Receive updates and alerts via email';
+
+  @override
+  String get noReviewsPendingModeration => 'No reviews pending moderation';
+
+  @override
+  String get postRequest => 'Post Request';
+
+  @override
+  String get deletedSuccessfully => 'Deleted successfully';
+
+  @override
+  String get providerContactInfoIsNotAvailable => 'Provider contact info is not available. Please call instead.';
+
+  @override
+  String get cancelAlt => 'CANCEL';
+
+  @override
+  String get suspended => 'Suspended';
+
+  @override
+  String get areYouSureYouWantTo => 'Are you sure you want to delete this market information?';
+
+  @override
+  String get price => 'Price ↑';
+
+  @override
+  String get activityLogFeatureIsUnderDevelopment => 'Activity log feature is under development';
+
+  @override
+  String get averageRating => 'Average Rating';
+
+  @override
+  String get suspendingUser => 'Suspending user...';
+
+  @override
+  String get receiveAVerificationCodeWhenSigning => 'Receive a verification code when signing in';
+
+  @override
+  String get postBuyingRequest => 'Post Buying Request';
+
+  @override
+  String get serviceManagement => 'Service Management';
+
+  @override
+  String get date => 'Date ↑';
+
+  @override
+  String get showThisItemInFeaturedSection => 'Show this item in featured section';
+
+  @override
+  String get deleteRequest => 'Delete Request';
+
+  @override
+  String get createAdminAccount => 'Create Admin Account';
+
+  @override
+  String get couldNotLaunchPhoneDialer => 'Could not launch phone dialer.';
+
+  @override
+  String get goBackWithoutCompletingPayment => 'Go back without completing payment?';
+
+  @override
+  String get messages => 'Messages';
+
+  @override
+  String get paymentSuccessful => 'Payment Successful';
+
+  @override
+  String get areYouSureYouWantToAlt => 'Are you sure you want to delete this product? This action cannot be undone.';
+
+  @override
+  String get pleaseLoginToEditYourProfile => 'Please login to edit your profile';
+
+  @override
+  String get temperatureControlled => 'Temperature Controlled';
+
+  @override
+  String get noMapsAppFoundOnThis => 'No maps app found on this device.';
+
+  @override
+  String get organicProductDeletedSuccessfully => 'Organic product deleted successfully';
+
+  @override
+  String get makeThisItemVisibleToCustomers => 'Make this item visible to customers';
+
+  @override
+  String get enterPaymentNumber => 'Enter Payment Number';
+
+  @override
+  String get myWishlist => 'My Wishlist';
+
+  @override
+  String get logoutAlt => 'LOGOUT';
+
+  @override
+  String get deviceManagementFeatureIsUnderDevelopment => 'Device management feature is under development';
+
+  @override
+  String get makeProductVisibleToCustomers => 'Make product visible to customers';
+
+  @override
+  String get approve => 'Approve';
+
+  @override
+  String get goToMarketInformation => 'Go to Market Information';
+
+  @override
+  String get editUser => 'Edit User';
+
+  @override
+  String get resetLinkSentToYourEmail => 'Reset link sent to your email';
+
+  @override
+  String get addMarketNews => 'Add Market News';
+
+  @override
+  String get sendResetLink => 'SEND RESET LINK';
+
+  @override
+  String get adminDashboard => 'Admin Dashboard';
+
+  @override
+  String get requestDeletedSuccessfully => 'Request deleted successfully';
+
+  @override
+  String get searchServices => 'Search Services';
+
+  @override
+  String get areYouSureYouWantToAltAlt => 'Are you sure you want to clear your wishlist?';
+
+  @override
+  String get showThisProductInFeaturedSection => 'Show this product in featured section';
+
+  @override
+  String get accessDenied => 'Access Denied';
+
+  @override
+  String get productCategoryNotFoundInCurrent => 'Product category not found in current categories. Please select a category.';
+
+  @override
+  String get adminLogin => 'Admin Login';
+
+  @override
+  String get bookmarkFeatureComingSoon => 'Bookmark feature coming soon!';
+
+  @override
+  String get serviceAddedToCart => 'Service added to cart';
+
+  @override
+  String get locationPermissionDenied => 'Location permission denied.';
+
+  @override
+  String get whatsapp => 'WhatsApp';
+
+  @override
+  String get tryAgain => 'Try Again';
+
+  @override
+  String get paymentConfirmedSubscriptionIsNowActive => 'Payment confirmed! Subscription is now active.';
+
+  @override
+  String get startShopping => 'START SHOPPING';
+
+  @override
+  String get makeThisProductVisibleToCustomers => 'Make this product visible to customers';
+
+  @override
+  String get myFoodBeverages => 'My Food & Beverages';
+
+  @override
+  String get pleaseSelectAPlan => 'Please select a plan';
+
+  @override
+  String get loginAsAdmin => 'Login as Admin';
+
+  @override
+  String get keepOrder => 'Keep Order';
+
+  @override
+  String get devices => 'Devices';
+
+  @override
+  String get cancelOrder => 'Cancel Order';
+
+  @override
+  String get productCreatedSuccessfully => 'Product created successfully';
+
+  @override
+  String get editOrganicProduct => 'Edit Organic Product';
+
+  @override
+  String get pleaseLoginToEditMarketInformation => 'Please login to edit market information';
+
+  @override
+  String get transportServiceAddedSuccessfully => 'Transport service added successfully!';
+
+  @override
+  String get checkStatus => 'Check Status';
+
+  @override
+  String get call => 'Call';
+
+  @override
+  String get sendEmail => 'Send Email';
+
+  @override
+  String get changePassword => 'Change Password';
+
+  @override
+  String get processingPayment => 'Processing Payment';
+
+  @override
+  String get addTransportService => 'Add Transport Service';
+
+  @override
+  String get noMessagesYet => 'No messages yet.';
+
+  @override
+  String get signUpNow => 'Sign Up Now';
+
+  @override
+  String get noReviewsYet => 'No reviews yet';
+
+  @override
+  String get selectOrganicCategory => 'Select Organic Category';
+
+  @override
+  String get deleteUser => 'Delete User';
+
+  @override
+  String get browseFirst => 'Browse First';
+
+  @override
+  String get loadMore => 'Load More';
+
+  @override
+  String get agentDashboard => 'Agent Dashboard';
+
+  @override
+  String get editFoodBeverage => 'Edit Food & Beverage';
+
+  @override
+  String get cancelPaymentAlt => 'Cancel Payment?';
+
+  @override
+  String get hasInsurance => 'Has Insurance';
+
+  @override
+  String get reset => 'Reset';
+
+  @override
+  String get areYouSureYouWantToAltAltAlt => 'Are you sure you want to logout?';
+
+  @override
+  String get accountDeletionFeatureIsUnderDevelopment => 'Account deletion feature is under development';
+
+  @override
+  String get transportCategories => 'Transport Categories';
+
+  @override
+  String get editMarketInformation => 'Edit Market Information';
+
+  @override
+  String get receiveUpdatesAndAlertsViaSms => 'Receive updates and alerts via SMS';
+
+  @override
+  String get organicProductsManagement => 'Organic Products Management';
+
+  @override
+  String get showProductInFeaturedSection => 'Show product in featured section';
+
+  @override
+  String get orderCancelledSuccessfully => 'Order cancelled successfully';
+
+  @override
+  String get foodBeverageItemCreatedSuccessfully => 'Food & Beverage item created successfully!';
+
+  @override
+  String get addAService => 'Add a Service';
+
+  @override
+  String get updatingUser => 'Updating user...';
+
+  @override
+  String get masokotips => 'maSOKOtips';
+
+  @override
+  String get noRecentSearches => 'No recent searches';
+
+  @override
+  String get vehicleHasTemperatureControlForSensitive => 'Vehicle has temperature control for sensitive products';
+
+  @override
+  String get loading => 'Loading...';
+
+  @override
+  String get stillPendingPleaseApproveOnYour => 'Still pending — please approve on your phone.';
+
+  @override
+  String get checkAgain => 'Check Again';
+
+  @override
+  String get clear => 'Clear';
+
+  @override
+  String get reviewStatistics => 'Review Statistics';
+
+  @override
+  String get cardPayment => 'Card Payment';
+
+  @override
+  String get deletingUser => 'Deleting user...';
+
+  @override
+  String get areYouSureYouWantToAltAltAltAlt => 'Are you sure you want to delete this address?';
+
+  @override
+  String get editTransport => 'Edit Transport';
+
+  @override
+  String get areYouSureYouWantToAltAltAltAltAlt => 'Are you sure you want to delete this product?';
+
+  @override
+  String get suspendUser => 'Suspend User';
+
+  @override
+  String get viewMap => 'View Map';
+
+  @override
+  String get pleaseEnableLocationServices => 'Please enable location services';
+
+  @override
+  String get deleteAccount => 'Delete Account?';
+
+  @override
+  String get transportManagement => 'Transport Management';
+
+  @override
+  String get servicesManagement => 'Services Management';
+
+  @override
+  String get locationServicesAreDisabled => 'Location services are disabled.';
+
+  @override
+  String get unsuspend => 'Unsuspend';
+
+  @override
+  String get reviewModeration => 'Review Moderation';
+
+  @override
+  String get thisWillCancelThePendingPayment => 'This will cancel the pending payment so you can try again with a new payment request.';
+
+  @override
+  String get stay => 'Stay';
+
+  @override
+  String get message => 'Message';
+
+  @override
+  String get signUp => 'Sign Up';
+
+  @override
+  String get keepWaiting => 'Keep Waiting';
+
+  @override
+  String get priceAlt => 'Price ↓';
+
+  @override
+  String get marketInformationDeletedSuccessfully => 'Market information deleted successfully';
+
+  @override
+  String get pleaseEnterYourEmailAddress => 'Please enter your email address';
+
+  @override
+  String get manageDevicesThatAreLoggedIn => 'Manage devices that are logged in';
+
+  @override
+  String get postARequest => 'Post a Request';
+
+  @override
+  String get subscribeNowAlt => 'SUBSCRIBE NOW';
+
+  @override
+  String get contact => 'Contact';
+
+  @override
+  String get thisTruckDoesNotHaveA => 'This truck does not have a GPS location set.';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get thisAddressWillBeSelectedBy => 'This address will be selected by default during checkout';
+
+  @override
+  String get paymentStillPendingPleaseApproveOn => 'Payment still pending. Please approve on your phone or cancel to retry.';
+
+  @override
+  String get products => 'Products';
+
+  @override
+  String get totalReviews => 'Total Reviews';
+
+  @override
+  String get deleteMarketInformation => 'Delete Market Information';
+
+  @override
+  String get retryAlt => 'RETRY';
+
+  @override
+  String get twofactorAuthenticationDisabled => 'Two-Factor Authentication disabled';
+
+  @override
+  String get kiswahili => 'Kiswahili';
+
+  @override
+  String get filterReviews => 'Filter Reviews';
+
+  @override
+  String get cancelPaymentAltAlt => 'Cancel payment';
+
+  @override
+  String get name => 'Name ↑';
+
+  @override
+  String get subscribeToViewContactChat => 'Subscribe to view contact & chat';
+
+  @override
+  String get productsManagement => 'Products Management';
+
+  @override
+  String get all => 'All';
+
+  @override
+  String get getStarted => 'Get Started';
+
+  @override
+  String get submit => 'Submit';
+
+  @override
+  String get adminSettingsComingSoon => 'Admin settings coming soon!';
+
+  @override
+  String get refresh => 'Refresh';
+
+  @override
+  String get requestPostedSuccessfully => 'Request posted successfully!';
+
+  @override
+  String get clearAll => 'Clear all';
+
+  @override
+  String get deleteItem => 'Delete Item';
+
+  @override
+  String get subscription => 'Subscription';
+
+  @override
+  String get resetPassword => 'Reset Password';
+
+  @override
+  String get pleaseSelectAtLeastOneSupported => 'Please select at least one supported product type';
+
+  @override
+  String get referralCodeCopied => 'Referral code copied!';
+
+  @override
+  String get reject => 'Reject';
+
+  @override
+  String get yourSubscriptionIsNowActive => 'Your subscription is now active.';
+
+  @override
+  String get onlyGifPngJpgAndJpeg => 'Only .gif, .png, .jpg, and .jpeg files are allowed';
+
+  @override
+  String get deleteTransport => 'Delete Transport';
+
+  @override
+  String get nameAlt => 'Name ↓';
+
+  @override
+  String get locationPermissionPermanentlyDeniedEnableIn => 'Location permission permanently denied. Enable in settings.';
+
+  @override
+  String get addMarketInformation => 'Add Market Information';
+
+  @override
+  String get deleteFoodBeverage => 'Delete Food & Beverage';
+
+  @override
+  String get updateMarketInformation => 'Update Market Information';
+
+  @override
+  String get analytics => 'Analytics';
+
+  @override
+  String get myBuyingRequests => 'My Buying Requests';
+
+  @override
+  String get defaultAddress => 'Default';
+
+  @override
+  String get continueText => 'Continue';
 }
