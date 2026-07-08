@@ -53,7 +53,7 @@ class ReviewModerationScreen extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  'Product ID: ${review.productId}',
+                                  'Item ID: ${review.reviewableId} (${review.reviewableType.toString().split('.').last})',
                                   style: Theme.of(context).textTheme.bodySmall,
                                 ),
                               ],
