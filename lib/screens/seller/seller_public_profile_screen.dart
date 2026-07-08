@@ -9,6 +9,7 @@ import '../../models/organic_product.dart';
 import '../../models/service.dart';
 import '../../models/transport.dart';
 import '../../providers/subscription_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../utils/image_upload_helper.dart';
 import '../../widgets/cached_network_image_with_cors.dart';
 import '../chat/chat_screen.dart';
@@ -476,6 +477,19 @@ class _SellerPublicProfileScreenState extends State<SellerPublicProfileScreen> {
   }
 
   void _showRatingDialog(double initialRating) {
+    final authProvider = context.read<AuthProvider>();
+    if (!authProvider.isAuthenticated) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please log in to rate this provider.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      // Optional: Navigate to login screen
+      // Navigator.pushNamed(context, '/login');
+      return;
+    }
+
     double selectedRating = initialRating;
     final commentController = TextEditingController();
     bool isSubmitting = false;
