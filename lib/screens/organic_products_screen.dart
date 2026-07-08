@@ -373,6 +373,7 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
       BuildContext context, OrganicProduct product) async {
     final provider = context.read<OrganicProductProvider>();
     final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final successMessage = AppLocalizations.of(context)!.productDeletedSuccessfully;
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -395,8 +396,6 @@ class _OrganicProductsScreenState extends State<OrganicProductsScreen> {
         ],
       ),
     );
-
-    final successMessage = AppLocalizations.of(context)!.productDeletedSuccessfully;
     
     if (confirmed == true && mounted) {
       try {
