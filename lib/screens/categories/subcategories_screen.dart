@@ -8,6 +8,7 @@ import '../../providers/category_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../models/category.dart';
 import '../products/category_products_screen.dart';
+import '../services/service_list_screen.dart';
 
 class SubcategoriesScreen extends StatefulWidget {
   final Category category;
@@ -242,6 +243,15 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
                 builder: (context) => TransportListScreen(
                   category: subcategory.name,
                   categoryId: subcategory.id,
+                ),
+              ),
+            );
+          } else if (widget.category.name.toLowerCase().contains('agricultural services') || widget.category.name.toLowerCase().contains('huduma za kilimo')) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ServiceListScreen(
+                  category: subcategory.name,
                 ),
               ),
             );

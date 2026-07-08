@@ -1,0 +1,1166 @@
+{
+  "twofactorAuthenticationEnabled": {
+    "en": "Two-Factor Authentication enabled",
+    "sw": ""
+  },
+  "viewOrderHistory": {
+    "en": "View Order History",
+    "sw": ""
+  },
+  "addressDeleted": {
+    "en": "Address deleted",
+    "sw": ""
+  },
+  "emailNotifications": {
+    "en": "Email Notifications",
+    "sw": ""
+  },
+  "newPasswordsDoNotMatch": {
+    "en": "New passwords do not match",
+    "sw": ""
+  },
+  "thisActionCannotBeUndoneAll": {
+    "en": "This action cannot be undone. All your data will be permanently deleted.",
+    "sw": ""
+  },
+  "addToCart": {
+    "en": "Add to Cart",
+    "sw": ""
+  },
+  "pleaseLoginToSendAMessage": {
+    "en": "Please login to send a message.",
+    "sw": ""
+  },
+  "pleaseLoginToAddATransport": {
+    "en": "Please login to add a transport",
+    "sw": ""
+  },
+  "gpsSetStyleTextstyleColorColorsgreen": {
+    "en": "GPS Set\",\n                              style: TextStyle(\n                                  color: Colors.green,\n                                  fontSize: 12,\n                                  fontWeight: FontWeight.w600)),\n                        ],\n                      ),\n                    ),\n                ],\n              ),\n              const SizedBox(height: 16),\n              // Action buttons \u2014 always full width so nothing is cut off\n              Row(\n                children: [\n                  if (item.latitude != null && item.longitude != null) ...[\n                    Expanded(\n                      child: OutlinedButton.icon(\n                        onPressed: () {\n                          Navigator.pop(ctx);\n                          _navigateToTransport(item);\n                        },\n                        icon: const Icon(Icons.directions, size: 18),\n                        label: const Text(\"Navigate",
+    "sw": ""
+  },
+  "startYourJourney": {
+    "en": "Start Your Journey",
+    "sw": ""
+  },
+  "addYourFirstTransport": {
+    "en": "Add Your First Transport",
+    "sw": ""
+  },
+  "newsCopiedToClipboard": {
+    "en": "News copied to clipboard",
+    "sw": ""
+  },
+  "addFoodBeverage": {
+    "en": "Add Food & Beverage",
+    "sw": ""
+  },
+  "changeServiceImage": {
+    "en": "Change Service Image",
+    "sw": ""
+  },
+  "chat": {
+    "en": "Chat",
+    "sw": ""
+  },
+  "addNewTransport": {
+    "en": "Add New Transport",
+    "sw": ""
+  },
+  "productDeletedSuccessfully": {
+    "en": "Product deleted successfully",
+    "sw": ""
+  },
+  "orderConfirmation": {
+    "en": "Order Confirmation",
+    "sw": ""
+  },
+  "delete": {
+    "en": "DELETE",
+    "sw": ""
+  },
+  "noServicesFound": {
+    "en": "No services found",
+    "sw": ""
+  },
+  "english": {
+    "en": "English",
+    "sw": ""
+  },
+  "noDashboardDataAvailable": {
+    "en": "No dashboard data available",
+    "sw": ""
+  },
+  "onlyAdministratorsCanEditMarketInformation": {
+    "en": "Only administrators can edit market information",
+    "sw": ""
+  },
+  "updateService": {
+    "en": "Update Service",
+    "sw": ""
+  },
+  "deleteService": {
+    "en": "Delete Service",
+    "sw": ""
+  },
+  "clearWishlist": {
+    "en": "Clear Wishlist",
+    "sw": ""
+  },
+  "adminLoginSuccessful": {
+    "en": "Admin login successful!",
+    "sw": ""
+  },
+  "undoRemove": {
+    "en": "Undo Remove",
+    "sw": ""
+  },
+  "serviceProvider": {
+    "en": "Service Provider",
+    "sw": ""
+  },
+  "myTransportServices": {
+    "en": "My Transport Services",
+    "sw": ""
+  },
+  "viewYourAccountActivity": {
+    "en": "View your account activity",
+    "sw": ""
+  },
+  "userManagement": {
+    "en": "User Management",
+    "sw": ""
+  },
+  "pleaseSelectACategory": {
+    "en": "Please select a category",
+    "sw": ""
+  },
+  "chooseImage": {
+    "en": "Choose Image",
+    "sw": ""
+  },
+  "login": {
+    "en": "Login",
+    "sw": ""
+  },
+  "passwordChangedSuccessfully": {
+    "en": "Password changed successfully",
+    "sw": ""
+  },
+  "profile": {
+    "en": "Profile",
+    "sw": ""
+  },
+  "goBack": {
+    "en": "Go Back",
+    "sw": ""
+  },
+  "subscriptionRequired": {
+    "en": "Subscription Required",
+    "sw": ""
+  },
+  "pleaseLogInToViewProfile": {
+    "en": "Please log in to view profile",
+    "sw": ""
+  },
+  "suspend": {
+    "en": "Suspend",
+    "sw": ""
+  },
+  "sayHello": {
+    "en": "Say hello!",
+    "sw": ""
+  },
+  "myReviews": {
+    "en": "My Reviews",
+    "sw": ""
+  },
+  "noFavoritesYet": {
+    "en": "No favorites yet",
+    "sw": ""
+  },
+  "pleaseLoginAsAdminToAccess": {
+    "en": "Please login as admin to access organic products",
+    "sw": ""
+  },
+  "deleteTransportService": {
+    "en": "Delete Transport Service",
+    "sw": ""
+  },
+  "activityLog": {
+    "en": "Activity Log",
+    "sw": ""
+  },
+  "pleaseLoginToAddMarketInformation": {
+    "en": "Please login to add market information",
+    "sw": ""
+  },
+  "okChangeNumber": {
+    "en": "OK, Change Number",
+    "sw": ""
+  },
+  "adminAccountCreatedSuccessfully": {
+    "en": "Admin account created successfully!",
+    "sw": ""
+  },
+  "great": {
+    "en": "Great!",
+    "sw": ""
+  },
+  "cancelPayment": {
+    "en": "Cancel payment",
+    "sw": ""
+  },
+  "profileUpdatedSuccessfully": {
+    "en": "Profile updated successfully",
+    "sw": ""
+  },
+  "securitySettings": {
+    "en": "Security Settings",
+    "sw": ""
+  },
+  "noUsersFound": {
+    "en": "No users found",
+    "sw": ""
+  },
+  "addProduct": {
+    "en": "Add Product",
+    "sw": ""
+  },
+  "selectCategory": {
+    "en": "Select Category",
+    "sw": ""
+  },
+  "youDoNotHavePermissionTo": {
+    "en": "You do not have permission to access this feature.",
+    "sw": ""
+  },
+  "applyFilters": {
+    "en": "Apply Filters",
+    "sw": ""
+  },
+  "productUpdatedSuccessfully": {
+    "en": "Product updated successfully",
+    "sw": ""
+  },
+  "deleteProduct": {
+    "en": "Delete Product",
+    "sw": ""
+  },
+  "bookTransportService": {
+    "en": "Book Transport Service",
+    "sw": ""
+  },
+  "pleaseAddAtLeastOneProduct": {
+    "en": "Please add at least one product image",
+    "sw": ""
+  },
+  "changeImage": {
+    "en": "Change Image",
+    "sw": ""
+  },
+  "twofactorAuthentication": {
+    "en": "Two-Factor Authentication",
+    "sw": ""
+  },
+  "setAsDefaultAddress": {
+    "en": "Set as default address",
+    "sw": ""
+  },
+  "cancel": {
+    "en": "CANCEL",
+    "sw": ""
+  },
+  "unsuspendUser": {
+    "en": "Unsuspend User",
+    "sw": ""
+  },
+  "onlyAdministratorsCanAddMarketInformation": {
+    "en": "Only administrators can add market information",
+    "sw": ""
+  },
+  "deleteAddress": {
+    "en": "Delete Address",
+    "sw": ""
+  },
+  "refreshOrders": {
+    "en": "Refresh Orders",
+    "sw": ""
+  },
+  "productAddedSuccessfully": {
+    "en": "Product added successfully",
+    "sw": ""
+  },
+  "marketInformationManagement": {
+    "en": "Market Information Management",
+    "sw": ""
+  },
+  "active": {
+    "en": "Active",
+    "sw": ""
+  },
+  "share": {
+    "en": "Share",
+    "sw": ""
+  },
+  "organicProductCreatedSuccessfully": {
+    "en": "Organic product created successfully!",
+    "sw": ""
+  },
+  "vehicleIsInsuredForCargoAnd": {
+    "en": "Vehicle is insured for cargo and liability",
+    "sw": ""
+  },
+  "itemUpdatedSuccessfully": {
+    "en": "Item updated successfully!",
+    "sw": ""
+  },
+  "organicProductUpdatedSuccessfully": {
+    "en": "Organic product updated successfully!",
+    "sw": ""
+  },
+  "contacts": {
+    "en": "Contacts",
+    "sw": ""
+  },
+  "unsuspendingUser": {
+    "en": "Unsuspending user...",
+    "sw": ""
+  },
+  "youCannotChatWithYourself": {
+    "en": "You cannot chat with yourself.",
+    "sw": ""
+  },
+  "pickImage": {
+    "en": "Pick Image",
+    "sw": ""
+  },
+  "transportServiceUpdatedSuccessfully": {
+    "en": "Transport service updated successfully!",
+    "sw": ""
+  },
+  "failedToCreateAdminAccount": {
+    "en": "Failed to create admin account",
+    "sw": ""
+  },
+  "smsNotifications": {
+    "en": "SMS Notifications",
+    "sw": ""
+  },
+  "pleaseLoginToCall": {
+    "en": "Please login to call.",
+    "sw": ""
+  },
+  "default": {
+    "en": "Default",
+    "sw": ""
+  },
+  "edit": {
+    "en": "Edit",
+    "sw": ""
+  },
+  "viewAll": {
+    "en": "View All",
+    "sw": ""
+  },
+  "receiveUpdatesAndAlertsViaEmail": {
+    "en": "Receive updates and alerts via email",
+    "sw": ""
+  },
+  "noReviewsPendingModeration": {
+    "en": "No reviews pending moderation",
+    "sw": ""
+  },
+  "postRequest": {
+    "en": "Post Request",
+    "sw": ""
+  },
+  "deletedSuccessfully": {
+    "en": "Deleted successfully",
+    "sw": ""
+  },
+  "providerContactInfoIsNotAvailable": {
+    "en": "Provider contact info is not available. Please call instead.",
+    "sw": ""
+  },
+  "suspended": {
+    "en": "Suspended",
+    "sw": ""
+  },
+  "areYouSureYouWantTo": {
+    "en": "Are you sure you want to delete this product?",
+    "sw": ""
+  },
+  "logout": {
+    "en": "LOGOUT",
+    "sw": ""
+  },
+  "saveChanges": {
+    "en": "Save Changes",
+    "sw": ""
+  },
+  "price": {
+    "en": "Price \u2193",
+    "sw": ""
+  },
+  "activityLogFeatureIsUnderDevelopment": {
+    "en": "Activity log feature is under development",
+    "sw": ""
+  },
+  "averageRating": {
+    "en": "Average Rating",
+    "sw": ""
+  },
+  "suspendingUser": {
+    "en": "Suspending user...",
+    "sw": ""
+  },
+  "receiveAVerificationCodeWhenSigning": {
+    "en": "Receive a verification code when signing in",
+    "sw": ""
+  },
+  "continueShopping": {
+    "en": "Continue Shopping",
+    "sw": ""
+  },
+  "postBuyingRequest": {
+    "en": "Post Buying Request",
+    "sw": ""
+  },
+  "serviceManagement": {
+    "en": "Service Management",
+    "sw": ""
+  },
+  "date": {
+    "en": "Date \u2191",
+    "sw": ""
+  },
+  "showThisItemInFeaturedSection": {
+    "en": "Show this item in featured section",
+    "sw": ""
+  },
+  "addOrganicProduct": {
+    "en": "Add Organic Product",
+    "sw": ""
+  },
+  "addImages": {
+    "en": "Add Images",
+    "sw": ""
+  },
+  "deleteRequest": {
+    "en": "Delete Request",
+    "sw": ""
+  },
+  "createAdminAccount": {
+    "en": "Create Admin Account",
+    "sw": ""
+  },
+  "couldNotLaunchPhoneDialer": {
+    "en": "Could not launch phone dialer.",
+    "sw": ""
+  },
+  "goBackWithoutCompletingPayment": {
+    "en": "Go back without completing payment?",
+    "sw": ""
+  },
+  "messages": {
+    "en": "Messages",
+    "sw": ""
+  },
+  "editTransportService": {
+    "en": "Edit Transport Service",
+    "sw": ""
+  },
+  "paymentSuccessful": {
+    "en": "Payment Successful",
+    "sw": ""
+  },
+  "transportDeletedSuccessfully": {
+    "en": "Transport deleted successfully",
+    "sw": ""
+  },
+  "pleaseLoginToEditYourProfile": {
+    "en": "Please login to edit your profile",
+    "sw": ""
+  },
+  "temperatureControlled": {
+    "en": "Temperature Controlled",
+    "sw": ""
+  },
+  "noMapsAppFoundOnThis": {
+    "en": "No maps app found on this device.",
+    "sw": ""
+  },
+  "organicProductDeletedSuccessfully": {
+    "en": "Organic product deleted successfully",
+    "sw": ""
+  },
+  "makeThisItemVisibleToCustomers": {
+    "en": "Make this item visible to customers",
+    "sw": ""
+  },
+  "enterPaymentNumber": {
+    "en": "Enter Payment Number",
+    "sw": ""
+  },
+  "myWishlist": {
+    "en": "My Wishlist",
+    "sw": ""
+  },
+  "deviceManagementFeatureIsUnderDevelopment": {
+    "en": "Device management feature is under development",
+    "sw": ""
+  },
+  "makeProductVisibleToCustomers": {
+    "en": "Make product visible to customers",
+    "sw": ""
+  },
+  "approve": {
+    "en": "Approve",
+    "sw": ""
+  },
+  "goToMarketInformation": {
+    "en": "Go to Market Information",
+    "sw": ""
+  },
+  "editUser": {
+    "en": "Edit User",
+    "sw": ""
+  },
+  "seller": {
+    "en": "Seller",
+    "sw": ""
+  },
+  "subscribeNow": {
+    "en": "SUBSCRIBE NOW",
+    "sw": ""
+  },
+  "myFavorites": {
+    "en": "My Favorites",
+    "sw": ""
+  },
+  "editService": {
+    "en": "Edit Service",
+    "sw": ""
+  },
+  "resetLinkSentToYourEmail": {
+    "en": "Reset link sent to your email",
+    "sw": ""
+  },
+  "addMarketNews": {
+    "en": "Add Market News",
+    "sw": ""
+  },
+  "sendResetLink": {
+    "en": "SEND RESET LINK",
+    "sw": ""
+  },
+  "adminDashboard": {
+    "en": "Admin Dashboard",
+    "sw": ""
+  },
+  "requestDeletedSuccessfully": {
+    "en": "Request deleted successfully",
+    "sw": ""
+  },
+  "addedToWishlist": {
+    "en": "Added to wishlist",
+    "sw": ""
+  },
+  "noItemsFound": {
+    "en": "No items found",
+    "sw": ""
+  },
+  "searchServices": {
+    "en": "Search Services",
+    "sw": ""
+  },
+  "showThisProductInFeaturedSection": {
+    "en": "Show this product in featured section",
+    "sw": ""
+  },
+  "accessDenied": {
+    "en": "Access Denied",
+    "sw": ""
+  },
+  "productCategoryNotFoundInCurrent": {
+    "en": "Product category not found in current categories. Please select a category.",
+    "sw": ""
+  },
+  "retry": {
+    "en": "RETRY",
+    "sw": ""
+  },
+  "adminLogin": {
+    "en": "Admin Login",
+    "sw": ""
+  },
+  "serviceDeletedSuccessfully": {
+    "en": "Service deleted successfully",
+    "sw": ""
+  },
+  "bookmarkFeatureComingSoon": {
+    "en": "Bookmark feature coming soon!",
+    "sw": ""
+  },
+  "serviceAddedToCart": {
+    "en": "Service added to cart",
+    "sw": ""
+  },
+  "locationPermissionDenied": {
+    "en": "Location permission denied.",
+    "sw": ""
+  },
+  "whatsapp": {
+    "en": "WhatsApp",
+    "sw": ""
+  },
+  "tryAgain": {
+    "en": "Try Again",
+    "sw": ""
+  },
+  "paymentConfirmedSubscriptionIsNowActive": {
+    "en": "Payment confirmed! Subscription is now active.",
+    "sw": ""
+  },
+  "startShopping": {
+    "en": "START SHOPPING",
+    "sw": ""
+  },
+  "makeThisProductVisibleToCustomers": {
+    "en": "Make this product visible to customers",
+    "sw": ""
+  },
+  "myFoodBeverages": {
+    "en": "My Food & Beverages",
+    "sw": ""
+  },
+  "pleaseSelectAPlan": {
+    "en": "Please select a plan",
+    "sw": ""
+  },
+  "addNewAddress": {
+    "en": "Add New Address",
+    "sw": ""
+  },
+  "loginAsAdmin": {
+    "en": "Login as Admin",
+    "sw": ""
+  },
+  "keepOrder": {
+    "en": "Keep Order",
+    "sw": ""
+  },
+  "gallery": {
+    "en": "Gallery",
+    "sw": ""
+  },
+  "devices": {
+    "en": "Devices",
+    "sw": ""
+  },
+  "cancelOrder": {
+    "en": "Cancel Order",
+    "sw": ""
+  },
+  "productCreatedSuccessfully": {
+    "en": "Product created successfully",
+    "sw": ""
+  },
+  "editOrganicProduct": {
+    "en": "Edit Organic Product",
+    "sw": ""
+  },
+  "pleaseLoginToEditMarketInformation": {
+    "en": "Please login to edit market information",
+    "sw": ""
+  },
+  "transportServiceAddedSuccessfully": {
+    "en": "Transport service added successfully!",
+    "sw": ""
+  },
+  "checkStatus": {
+    "en": "Check Status",
+    "sw": ""
+  },
+  "call": {
+    "en": "Call",
+    "sw": ""
+  },
+  "transportUpdatedSuccessfully": {
+    "en": "Transport updated successfully",
+    "sw": ""
+  },
+  "sendEmail": {
+    "en": "Send Email",
+    "sw": ""
+  },
+  "changePassword": {
+    "en": "Change Password",
+    "sw": ""
+  },
+  "processingPayment": {
+    "en": "Processing Payment",
+    "sw": ""
+  },
+  "addTransportService": {
+    "en": "Add Transport Service",
+    "sw": ""
+  },
+  "camera": {
+    "en": "Camera",
+    "sw": ""
+  },
+  "noMessagesYet": {
+    "en": "No messages yet.",
+    "sw": ""
+  },
+  "loadingCategories": {
+    "en": "Loading categories...",
+    "sw": ""
+  },
+  "signUpNow": {
+    "en": "Sign Up Now",
+    "sw": ""
+  },
+  "noReviewsYet": {
+    "en": "No reviews yet",
+    "sw": ""
+  },
+  "selectOrganicCategory": {
+    "en": "Select Organic Category",
+    "sw": ""
+  },
+  "continue": {
+    "en": "Continue",
+    "sw": ""
+  },
+  "featured": {
+    "en": "Featured",
+    "sw": ""
+  },
+  "close": {
+    "en": "Close",
+    "sw": ""
+  },
+  "deleteUser": {
+    "en": "Delete User",
+    "sw": ""
+  },
+  "browseFirst": {
+    "en": "Browse First",
+    "sw": ""
+  },
+  "loadMore": {
+    "en": "Load More",
+    "sw": ""
+  },
+  "agentDashboard": {
+    "en": "Agent Dashboard",
+    "sw": ""
+  },
+  "editFoodBeverage": {
+    "en": "Edit Food & Beverage",
+    "sw": ""
+  },
+  "hasInsurance": {
+    "en": "Has Insurance",
+    "sw": ""
+  },
+  "reset": {
+    "en": "Reset",
+    "sw": ""
+  },
+  "accountDeletionFeatureIsUnderDevelopment": {
+    "en": "Account deletion feature is under development",
+    "sw": ""
+  },
+  "updateProduct": {
+    "en": "Update Product",
+    "sw": ""
+  },
+  "myAgriculturalServices": {
+    "en": "My Agricultural Services",
+    "sw": ""
+  },
+  "transportCategories": {
+    "en": "Transport Categories",
+    "sw": ""
+  },
+  "editMarketInformation": {
+    "en": "Edit Market Information",
+    "sw": ""
+  },
+  "receiveUpdatesAndAlertsViaSms": {
+    "en": "Receive updates and alerts via SMS",
+    "sw": ""
+  },
+  "manageAddresses": {
+    "en": "Manage Addresses",
+    "sw": ""
+  },
+  "organicProductsManagement": {
+    "en": "Organic Products Management",
+    "sw": ""
+  },
+  "showProductInFeaturedSection": {
+    "en": "Show product in featured section",
+    "sw": ""
+  },
+  "orderCancelledSuccessfully": {
+    "en": "Order cancelled successfully",
+    "sw": ""
+  },
+  "foodBeverageItemCreatedSuccessfully": {
+    "en": "Food & Beverage item created successfully!",
+    "sw": ""
+  },
+  "couldNotLaunchDialer": {
+    "en": "Could not launch dialer",
+    "sw": ""
+  },
+  "addAService": {
+    "en": "Add a Service",
+    "sw": ""
+  },
+  "updatingUser": {
+    "en": "Updating user...",
+    "sw": ""
+  },
+  "masokotips": {
+    "en": "maSOKOtips",
+    "sw": ""
+  },
+  "noRecentSearches": {
+    "en": "No recent searches",
+    "sw": ""
+  },
+  "vehicleHasTemperatureControlForSensitive": {
+    "en": "Vehicle has temperature control for sensitive products",
+    "sw": ""
+  },
+  "loading": {
+    "en": "Loading...",
+    "sw": ""
+  },
+  "stillPendingPleaseApproveOnYour": {
+    "en": "Still pending \u2014 please approve on your phone.",
+    "sw": ""
+  },
+  "70": {
+    "en": "70%",
+    "sw": ""
+  },
+  "checkAgain": {
+    "en": "Check Again",
+    "sw": ""
+  },
+  "clear": {
+    "en": "Clear",
+    "sw": ""
+  },
+  "addedToCart": {
+    "en": "Added to cart",
+    "sw": ""
+  },
+  "reviewStatistics": {
+    "en": "Review Statistics",
+    "sw": ""
+  },
+  "admin": {
+    "en": "Admin",
+    "sw": ""
+  },
+  "marketNews": {
+    "en": "Market News",
+    "sw": ""
+  },
+  "cardPayment": {
+    "en": "Card Payment",
+    "sw": ""
+  },
+  "deletingUser": {
+    "en": "Deleting user...",
+    "sw": ""
+  },
+  "editTransport": {
+    "en": "Edit Transport",
+    "sw": ""
+  },
+  "buyer": {
+    "en": "Buyer",
+    "sw": ""
+  },
+  "save": {
+    "en": "Save",
+    "sw": ""
+  },
+  "suspendUser": {
+    "en": "Suspend User",
+    "sw": ""
+  },
+  "viewMap": {
+    "en": "View Map",
+    "sw": ""
+  },
+  "pleaseEnableLocationServices": {
+    "en": "Please enable location services",
+    "sw": ""
+  },
+  "myOrganicProducts": {
+    "en": "My Organic Products",
+    "sw": ""
+  },
+  "deleteAccount": {
+    "en": "Delete Account?",
+    "sw": ""
+  },
+  "addNewProduct": {
+    "en": "Add New Product",
+    "sw": ""
+  },
+  "transportManagement": {
+    "en": "Transport Management",
+    "sw": ""
+  },
+  "servicesManagement": {
+    "en": "Services Management",
+    "sw": ""
+  },
+  "locationServicesAreDisabled": {
+    "en": "Location services are disabled.",
+    "sw": ""
+  },
+  "unsuspend": {
+    "en": "Unsuspend",
+    "sw": ""
+  },
+  "completePaymentBackgroundcolorThemeprimarycolorForegroundcolorColorswhite": {
+    "en": "Complete Payment\"),\n        backgroundColor: theme.primaryColor,\n        foregroundColor: Colors.white,\n      ),\n      body: Column(\n        children: [\n          if (_isLoading) const LinearProgressIndicator(minHeight: 3),\n          Expanded(\n            child: InAppWebView(\n              initialUrlRequest: URLRequest(\n                url: WebUri(widget.checkoutUrl),\n              ),\n              onLoadStop: (controller, url) async {\n                setState(() => _isLoading = false);\n\n                // Detect payment completion automatically\n                if (url.toString().contains(\"payment-status",
+    "sw": ""
+  },
+  "reviewModeration": {
+    "en": "Review Moderation",
+    "sw": ""
+  },
+  "thisWillCancelThePendingPayment": {
+    "en": "This will cancel the pending payment so you can try again with a new payment request.",
+    "sw": ""
+  },
+  "stay": {
+    "en": "Stay",
+    "sw": ""
+  },
+  "message": {
+    "en": "Message",
+    "sw": ""
+  },
+  "signUp": {
+    "en": "Sign Up",
+    "sw": ""
+  },
+  "keepWaiting": {
+    "en": "Keep Waiting",
+    "sw": ""
+  },
+  "marketInformationDeletedSuccessfully": {
+    "en": "Market information deleted successfully",
+    "sw": ""
+  },
+  "pleaseEnterYourEmailAddress": {
+    "en": "Please enter your email address",
+    "sw": ""
+  },
+  "manageDevicesThatAreLoggedIn": {
+    "en": "Manage devices that are logged in",
+    "sw": ""
+  },
+  "postARequest": {
+    "en": "Post a Request",
+    "sw": ""
+  },
+  "photoLibrary": {
+    "en": "Photo Library",
+    "sw": ""
+  },
+  "contact": {
+    "en": "Contact",
+    "sw": ""
+  },
+  "thisTruckDoesNotHaveA": {
+    "en": "This truck does not have a GPS location set.",
+    "sw": ""
+  },
+  "ok": {
+    "en": "OK",
+    "sw": ""
+  },
+  "thisAddressWillBeSelectedBy": {
+    "en": "This address will be selected by default during checkout",
+    "sw": ""
+  },
+  "paymentStillPendingPleaseApproveOn": {
+    "en": "Payment still pending. Please approve on your phone or cancel to retry.",
+    "sw": ""
+  },
+  "products": {
+    "en": "Products",
+    "sw": ""
+  },
+  "totalReviews": {
+    "en": "Total Reviews",
+    "sw": ""
+  },
+  "deleteMarketInformation": {
+    "en": "Delete Market Information",
+    "sw": ""
+  },
+  "twofactorAuthenticationDisabled": {
+    "en": "Two-Factor Authentication disabled",
+    "sw": ""
+  },
+  "kiswahili": {
+    "en": "Kiswahili",
+    "sw": ""
+  },
+  "filterReviews": {
+    "en": "Filter Reviews",
+    "sw": ""
+  },
+  "editProduct": {
+    "en": "Edit Product",
+    "sw": ""
+  },
+  "deleteOrganicProduct": {
+    "en": "Delete Organic Product",
+    "sw": ""
+  },
+  "name": {
+    "en": "Name \u2193",
+    "sw": ""
+  },
+  "subscribeToViewContactChat": {
+    "en": "Subscribe to view contact & chat",
+    "sw": ""
+  },
+  "productsManagement": {
+    "en": "Products Management",
+    "sw": ""
+  },
+  "all": {
+    "en": "All",
+    "sw": ""
+  },
+  "getStarted": {
+    "en": "Get Started",
+    "sw": ""
+  },
+  "submit": {
+    "en": "Submit",
+    "sw": ""
+  },
+  "addYourFirstService": {
+    "en": "Add Your First Service",
+    "sw": ""
+  },
+  "adminSettingsComingSoon": {
+    "en": "Admin settings coming soon!",
+    "sw": ""
+  },
+  "refresh": {
+    "en": "Refresh",
+    "sw": ""
+  },
+  "inactive": {
+    "en": "Inactive",
+    "sw": ""
+  },
+  "requestPostedSuccessfully": {
+    "en": "Request posted successfully!",
+    "sw": ""
+  },
+  "clearAll": {
+    "en": "Clear all",
+    "sw": ""
+  },
+  "deleteItem": {
+    "en": "Delete Item",
+    "sw": ""
+  },
+  "subscription": {
+    "en": "Subscription",
+    "sw": ""
+  },
+  "resetPassword": {
+    "en": "Reset Password",
+    "sw": ""
+  },
+  "pleaseSelectAtLeastOneSupported": {
+    "en": "Please select at least one supported product type",
+    "sw": ""
+  },
+  "referralCodeCopied": {
+    "en": "Referral code copied!",
+    "sw": ""
+  },
+  "defaultAddressUpdated": {
+    "en": "Default address updated",
+    "sw": ""
+  },
+  "reject": {
+    "en": "Reject",
+    "sw": ""
+  },
+  "yourSubscriptionIsNowActive": {
+    "en": "Your subscription is now active.",
+    "sw": ""
+  },
+  "addTransport": {
+    "en": "Add Transport",
+    "sw": ""
+  },
+  "onlyGifPngJpgAndJpeg": {
+    "en": "Only .gif, .png, .jpg, and .jpeg files are allowed",
+    "sw": ""
+  },
+  "phoneNumberNotAvailable": {
+    "en": "Phone number not available",
+    "sw": ""
+  },
+  "deleteTransport": {
+    "en": "Delete Transport",
+    "sw": ""
+  },
+  "locationPermissionPermanentlyDeniedEnableIn": {
+    "en": "Location permission permanently denied. Enable in settings.",
+    "sw": ""
+  },
+  "addMarketInformation": {
+    "en": "Add Market Information",
+    "sw": ""
+  },
+  "deleteFoodBeverage": {
+    "en": "Delete Food & Beverage",
+    "sw": ""
+  },
+  "serviceCategories": {
+    "en": "Service Categories",
+    "sw": ""
+  },
+  "setAsDefault": {
+    "en": "Set as Default",
+    "sw": ""
+  },
+  "updateMarketInformation": {
+    "en": "Update Market Information",
+    "sw": ""
+  },
+  "analytics": {
+    "en": "Analytics",
+    "sw": ""
+  },
+  "myBuyingRequests": {
+    "en": "My Buying Requests",
+    "sw": ""
+  }
+}

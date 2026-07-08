@@ -1380,7 +1380,9 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
-                                              'TZS ${transport.price.toStringAsFixed(0)}',
+                                          transport.price == 0 
+                                            ? 'Negotiable' 
+                                            : 'TZS ${transport.price.toStringAsFixed(0)}',
                                               style: TextStyle(
                                                 fontSize: 15,
                                                 color: Theme.of(context)

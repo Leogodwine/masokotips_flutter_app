@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
+import 'package:masoko_tips/services/api_service.dart';
 
 enum ReviewStatus { pending, approved, rejected }
 
 class Review {
   final int id;
-  final int productId;
+  final int reviewableId;
+  final String reviewableType;
   final int userId;
   final String userName;
   final int rating;
@@ -17,7 +19,8 @@ class Review {
 
   Review({
     required this.id,
-    required this.productId,
+    required this.reviewableId,
+    required this.reviewableType,
     required this.userId,
     required this.userName,
     required this.rating,
@@ -32,11 +35,12 @@ class Review {
   factory Review.fromJson(Map<String, dynamic> json) {
     return Review(
       id: json['id'],
-      productId: json['product_id'],
+      reviewableId: json['reviewable_id'] ?? json['product_id'] ?? 0,
+      reviewableType: json['reviewable_type'] ?? 'App\\Models\\Product',
       userId: json['user_id'],
-      userName: json['user_name'],
+      userName: json['user']['name'] ?? json['user_name'] ?? 'User',
       rating: json['rating'],
-      comment: json['comment'],
+      comment: json['comment'] ?? '',
       images: List<String>.from(json['images'] ?? []),
       isVerifiedPurchase: json['is_verified_purchase'] ?? false,
       createdAt: DateTime.parse(json['created_at']),
@@ -51,32 +55,32 @@ class Review {
 }
 
 class ReviewsProvider with ChangeNotifier {
-  // ignore: prefer_final_fields
+  final ApiService _apiService;
   List<Review> _reviews = [];
-  // ignore: prefer_final_fields
   List<Review> _allReviews = []; // For admin purposes
   bool _isLoading = false;
   String? _error;
 
-  // Constructor
-  ReviewsProvider();
+  ReviewsProvider(this._apiService);
 
   List<Review> get reviews => _reviews;
   List<Review> get allReviews => _allReviews;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  Future<void> loadReviews(int productId,
-      {int page = 1, int perPage = 10}) async {
+  Future<void> loadReviews(int reviewableId, String reviewableType, {int page = 1, int perPage = 10}) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      // Real API call would go here
-      // final reviews = await _apiService!.getProductReviews(productId, page: page, perPage: perPage);
-      // _reviews = reviews;
-      _error = null;
+      final response = await _apiService.get('reviews?reviewable_type=$reviewableType&reviewable_id=$reviewableId&page=$page&per_page=$perPage');
+      if (response['success'] == true) {
+        final List<dynamic> data = response['data'];
+        _reviews = data.map((json) => Review.fromJson(json)).toList();
+      } else {
+        _error = 'Failed to load reviews';
+      }
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -91,9 +95,13 @@ class ReviewsProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      // Real API call would go here
-      // _allReviews = await _apiService!.getAllReviews();
-      _error = null;
+      final response = await _apiService.get('reviews');
+      if (response['success'] == true) {
+        final List<dynamic> data = response['data'];
+        _allReviews = data.map((json) => Review.fromJson(json)).toList();
+      } else {
+        _error = 'Failed to load reviews';
+      }
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -105,17 +113,11 @@ class ReviewsProvider with ChangeNotifier {
   List<Review> getUserReviews(String filter) {
     switch (filter.toLowerCase()) {
       case 'pending':
-        return _allReviews
-            .where((r) => r.status == ReviewStatus.pending)
-            .toList();
+        return _allReviews.where((r) => r.status == ReviewStatus.pending).toList();
       case 'approved':
-        return _allReviews
-            .where((r) => r.status == ReviewStatus.approved)
-            .toList();
+        return _allReviews.where((r) => r.status == ReviewStatus.approved).toList();
       case 'rejected':
-        return _allReviews
-            .where((r) => r.status == ReviewStatus.rejected)
-            .toList();
+        return _allReviews.where((r) => r.status == ReviewStatus.rejected).toList();
       case 'all':
       default:
         return _allReviews;
@@ -124,23 +126,26 @@ class ReviewsProvider with ChangeNotifier {
 
   Future<void> updateReviewStatus(int reviewId, ReviewStatus status) async {
     try {
-      // Real API call would go here
-      // await _apiService!.updateReviewStatus(reviewId, status);
+      await _apiService.put('reviews/$reviewId', body: {
+        'is_approved': status == ReviewStatus.approved ? true : (status == ReviewStatus.rejected ? false : null)
+      });
       await loadAllReviews();
     } catch (e) {
       throw Exception('Failed to update review status: $e');
     }
-    notifyListeners();
   }
 
-  Future<void> addReview(int productId, double rating, String comment) async {
+  Future<void> addReview(int reviewableId, String reviewableType, double rating, String comment) async {
     try {
-      // Real API call would go here
-      // await _apiService!.addProductReview(productId, rating, comment);
-      await loadReviews(productId);
+      await _apiService.post('reviews', body: {
+        'reviewable_id': reviewableId,
+        'reviewable_type': reviewableType,
+        'rating': rating.toInt(),
+        'comment': comment,
+      });
+      await loadReviews(reviewableId, reviewableType);
     } catch (e) {
       throw Exception('Failed to add review: $e');
     }
-    notifyListeners();
   }
 }

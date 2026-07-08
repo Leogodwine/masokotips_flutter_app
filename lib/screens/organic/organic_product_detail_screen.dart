@@ -6,6 +6,7 @@ import '../../providers/cart_provider.dart';
 import '../../screens/auth/login_screen.dart';
 import '../seller/seller_public_profile_screen.dart' as import_profile;
 import 'package:masoko_tips/l10n/app_localizations.dart';
+import 'package:masoko_tips/screens/reviews/reviews_widget.dart';
 
 class OrganicProductDetailScreen extends StatefulWidget {
   final dynamic product;
@@ -245,9 +246,15 @@ class _OrganicProductDetailScreenState extends State<OrganicProductDetailScreen>
               ),
             ),
 
-            const SizedBox(height: 24),
-
             const Divider(),
+            const SizedBox(height: 16),
+            ReviewsWidget(
+              reviewableId: widget.product.id,
+              reviewableType: 'App\\Models\\OrganicProduct',
+            ),
+            const SizedBox(height: 16),
+            const Divider(),
+
             const SizedBox(height: 16),
             Text(
               'Related Products',

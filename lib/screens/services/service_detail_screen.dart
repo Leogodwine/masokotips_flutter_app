@@ -8,7 +8,8 @@ import '../chat/chat_screen.dart';
 import '../../widgets/cached_network_image_with_cors.dart';
 import '../seller/seller_public_profile_screen.dart' as import_profile;
 import '../../providers/subscription_provider.dart';
-import '../subscription/subscription_screen.dart';
+import 'package:masoko_tips/screens/subscription/subscription_screen.dart';
+import 'package:masoko_tips/screens/reviews/reviews_widget.dart';
 import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class ServiceDetailScreen extends StatefulWidget {
@@ -426,6 +427,11 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                         ],
                       ),
                     ),
+                  ),
+                  const SizedBox(height: 24),
+                  ReviewsWidget(
+                    reviewableId: widget.service.id,
+                    reviewableType: 'App\\Models\\Service',
                   ),
                   const SizedBox(height: 80), // extra padding for bottom bar
                 ],

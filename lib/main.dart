@@ -63,6 +63,7 @@ import 'screens/agent/agent_dashboard_screen.dart';
 import 'services/service_service.dart';
 import 'models/transport.dart';
 import 'models/organic_product.dart';
+import 'providers/reviews_provider.dart';
 
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -164,6 +165,11 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => BuyerProvider()),
         ChangeNotifierProvider(create: (_) => MarketDemandProvider()),
         ChangeNotifierProvider(create: (_) => AgentProvider()),
+        ChangeNotifierProxyProvider<ApiService, ReviewsProvider>(
+          create: (context) => ReviewsProvider(context.read<ApiService>()),
+          update: (context, apiService, previous) =>
+              ReviewsProvider(apiService),
+        ),
       ],
       child: Consumer<LocaleProvider>(
         builder: (context, localeProvider, child) {
