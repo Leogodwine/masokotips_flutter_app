@@ -44,6 +44,10 @@ class Product {
 
   // Flag to indicate this is a transport converted to product
   bool isTransport = false;
+  // Flag to indicate this is an organic product converted to product
+  bool isOrganic = false;
+  // Flag to indicate this is a food/beverage converted to product
+  bool isFoodBeverage = false;
 
   // Category name from category map or fallback
   String get categoryName {

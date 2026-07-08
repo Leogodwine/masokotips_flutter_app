@@ -114,7 +114,11 @@ class ProductProvider with ChangeNotifier {
 
         // Convert organic products data to Product objects for display
         _products =
-            organicProductsData.map((data) => Product.fromJson(data)).toList();
+            organicProductsData.map((data) {
+          final product = Product.fromJson(data);
+          product.isOrganic = true;
+          return product;
+        }).toList();
       } else if (categoryName?.toLowerCase() == 'food and beverages') {
         // Load food and beverages for food categories
         final foodBeverageData = await _apiService
@@ -123,7 +127,11 @@ class ProductProvider with ChangeNotifier {
 
         // Convert food & beverage data to Product objects for display
         _products =
-            foodBeverageData.map((data) => Product.fromJson(data)).toList();
+            foodBeverageData.map((data) {
+          final product = Product.fromJson(data);
+          product.isFoodBeverage = true;
+          return product;
+        }).toList();
       } else if (categoryName?.toLowerCase() == 'transport') {
         // Load transports for transport categories
         Log.e('Loading transports for Transport category');
@@ -424,3 +432,4 @@ class ProductProvider with ChangeNotifier {
     notifyListeners();
   }
 }
+

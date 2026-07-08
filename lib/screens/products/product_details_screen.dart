@@ -33,11 +33,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     super.initState();
     Future.microtask(() {
       if (!mounted) return;
-      // Skip loading related products for transports
-      // Transports are converted to products and don't exist in products table
-      if (!widget.product.isTransport) {
-        _loadRelatedProducts();
-      }
+      // Skip loading related products for transports, organic, and food/beverages
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!widget.product.isTransport &&
+            !widget.product.isOrganic &&
+            !widget.product.isFoodBeverage) {
+          _loadRelatedProducts();
+        }
+      });
     });
   }
 
@@ -452,3 +455,4 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 }
+
