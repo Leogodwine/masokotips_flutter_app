@@ -134,6 +134,16 @@ class AppScaffold extends StatelessWidget {
                   // User profile dropdown and admin login for authenticated users
                   return Row(
                     children: [
+                      // Inbox / Messages button
+                      IconButton(
+                        icon: const Icon(Icons.chat_bubble_outline),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const InboxScreen()),
+                          );
+                        },
+                      ),
                       // Admin login button
                       IconButton(
                         icon: const Icon(Icons.admin_panel_settings),

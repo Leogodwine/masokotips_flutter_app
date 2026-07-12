@@ -7,6 +7,7 @@ import '../../providers/agent_provider.dart';
 import 'dart:io';
 import '../seller/seller_dashboard_screen.dart';
 import '../service_provider/provider_dashboard_screen.dart';
+import '../chat/inbox_screen.dart';
 import './admin_login_screen.dart';
 import '../subscription/subscription_screen.dart';
 import '../../models/subscription.dart';
@@ -496,6 +497,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onTap: () {
                         if (isLoggedIn) {
                           Navigator.pushNamed(context, '/orders');
+                        } else {
+                          _showLoginDialog(context);
+                        }
+                      },
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.chat),
+                      title: Text(AppLocalizations.of(context)!.messages),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        if (isLoggedIn) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const InboxScreen()),
+                          );
                         } else {
                           _showLoginDialog(context);
                         }
