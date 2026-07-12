@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../screens/reviews/reviews_widget.dart';
 import 'package:masoko_tips/models/market_info.dart';
 import 'package:masoko_tips/utils/date_utils.dart';
 import 'package:masoko_tips/widgets/cached_network_image_with_cors.dart';
@@ -112,6 +113,15 @@ class _MarketInfoDetailScreenState extends State<MarketInfoDetailScreen> {
 
                     // Action Buttons
                     _buildActionButtons(),
+
+                    const SizedBox(height: 24),
+                    const Divider(),
+                    const SizedBox(height: 16),
+                    ReviewsWidget(
+                      reviewableId: widget.marketInfo.id,
+                      reviewableType: 'App\\Models\\MarketDemand',
+                    ),
+                    const SizedBox(height: 24),
                   ],
                 ),
               ),

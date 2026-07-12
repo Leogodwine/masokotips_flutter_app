@@ -4,6 +4,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../models/transport.dart';
 import '../../providers/auth_provider.dart';
 import '../chat/chat_screen.dart';
+import '../../screens/auth/login_screen.dart';
+import '../../screens/reviews/reviews_widget.dart';
 import 'package:masoko_tips/widgets/cached_network_image_with_cors.dart';
 import '../seller/seller_public_profile_screen.dart' as import_profile;
 import '../../providers/subscription_provider.dart';
@@ -647,6 +649,14 @@ class TransportDetailsScreen extends StatelessWidget {
                     ],
                   ),
 
+                  const SizedBox(height: 24),
+
+                  const Divider(),
+                  const SizedBox(height: 16),
+                  ReviewsWidget(
+                    reviewableId: transport.id,
+                    reviewableType: 'App\\Models\\Transport',
+                  ),
                   const SizedBox(height: 24),
                 ],
               ),

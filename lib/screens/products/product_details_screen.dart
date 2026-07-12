@@ -12,6 +12,7 @@ import '../../utils/logger.dart';
 import '../../screens/subscription/subscription_screen.dart';
 import '../../l10n/app_localizations.dart';
 import '../seller/seller_public_profile_screen.dart' as import_profile;
+import '../../screens/reviews/reviews_widget.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final Product product;
@@ -311,6 +312,17 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 backgroundColor: theme.primaryColor,
               ),
             ),
+
+            const SizedBox(height: 24),
+
+            const Divider(),
+            const SizedBox(height: 16),
+            ReviewsWidget(
+              reviewableId: widget.product.id,
+              reviewableType: 'App\\Models\\Product',
+            ),
+            const SizedBox(height: 16),
+            const Divider(),
 
             const SizedBox(height: 24),
 

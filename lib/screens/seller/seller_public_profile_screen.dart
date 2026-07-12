@@ -20,6 +20,7 @@ import '../products/product_details_screen.dart';
 import '../organic/organic_product_detail_screen.dart';
 import '../services/service_detail_screen.dart';
 import '../transport/transport_details_screen.dart';
+import '../../screens/reviews/reviews_widget.dart';
 import '../../widgets/rating_stars.dart';
 import 'package:masoko_tips/l10n/app_localizations.dart';
 
@@ -229,6 +230,23 @@ class _SellerPublicProfileScreenState extends State<SellerPublicProfileScreen> {
               ),
             ),
           ),
+        SliverToBoxAdapter(
+          child: Column(
+            children: [
+              const SizedBox(height: 24),
+              const Divider(),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: ReviewsWidget(
+                  reviewableId: int.parse(widget.sellerId),
+                  reviewableType: 'App\\Models\\User',
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
+        ),
       ],
     );
   }
