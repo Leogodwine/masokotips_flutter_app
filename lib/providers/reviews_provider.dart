@@ -74,7 +74,8 @@ class ReviewsProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await _apiService.get('reviews?reviewable_type=$reviewableType&reviewable_id=$reviewableId&page=$page&per_page=$perPage');
+      final encodedType = Uri.encodeComponent(reviewableType);
+      final response = await _apiService.get('reviews?reviewable_type=$encodedType&reviewable_id=$reviewableId&page=$page&per_page=$perPage');
       if (response['success'] == true) {
         final List<dynamic> data = response['data'];
         _reviews = data.map((json) => Review.fromJson(json)).toList();
