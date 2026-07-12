@@ -6,6 +6,7 @@ import '../../models/organic_product.dart';
 import '../../providers/category_provider.dart';
 import '../../services/api_service.dart';
 import '../../providers/auth_provider.dart';
+import '../../utils/extensions.dart';
 import '../../config/api_config.dart';
 import '../../utils/logger.dart';
 import 'package:masoko_tips/l10n/app_localizations.dart';
@@ -224,7 +225,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
     } catch (e) {
       Log.e('Error updating organic product: $e');
       setState(() {
-        _errorMessage = e.toString();
+        _errorMessage = e.toFriendlyError;
       });
     } finally {
       setState(() {

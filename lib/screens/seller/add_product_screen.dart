@@ -29,6 +29,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _descriptionController = TextEditingController();
   final _priceController = TextEditingController();
   final _stockController = TextEditingController();
+  final _unitController = TextEditingController();
   int? _selectedCategoryId;
   final List<File> _selectedImages = [];
   bool _isLoading = false;
@@ -155,6 +156,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         description: _descriptionController.text,
         price: double.parse(_priceController.text),
         stock: int.parse(_stockController.text),
+        unit: _unitController.text.isNotEmpty ? _unitController.text : null,
         isActive: true,
         isFeatured: false,
         categoryId: _selectedCategoryId ?? 0,
@@ -303,6 +305,20 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _unitController,
+              decoration: InputDecoration(
+                labelText: 'Unit of Measure (e.g. kg, pieces)',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                prefixIcon: const Icon(Icons.scale_outlined),
+                filled: true,
+                fillColor: Colors.grey[50],
+              ),
+              textInputAction: TextInputAction.next,
             ),
             const SizedBox(height: 16),
             Consumer<CategoryProvider>(

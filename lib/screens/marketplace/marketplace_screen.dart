@@ -18,6 +18,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../providers/subscription_provider.dart';
 import '../chat/chat_screen.dart';
 import '../subscription/subscription_screen.dart';
+import '../../providers/auth_provider.dart';
 import '../../utils/image_upload_helper.dart';
 import '../../services/api_service.dart';
 import '../../widgets/rating_stars.dart';
@@ -63,7 +64,10 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
 
   void _handleProtectedAction(VoidCallback action) {
     final subProvider = context.read<SubscriptionProvider>();
-    if (subProvider.hasActiveSubscription) {
+    final authProvider = context.read<AuthProvider>();
+    
+    // Buyers don't need a subscription to contact
+    if (authProvider.user?.role == 'buyer' || subProvider.hasActiveSubscription) {
       action();
     } else {
       _showSubscriptionDialog();

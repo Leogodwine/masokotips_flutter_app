@@ -30,6 +30,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   late TextEditingController _descriptionController;
   late TextEditingController _priceController;
   late TextEditingController _stockController;
+  late TextEditingController _unitController;
   List<String> _selectedImages = [];
   bool _isLoading = false;
   String? _errorMessage;
@@ -46,6 +47,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
         TextEditingController(text: widget.product.price.toStringAsFixed(2));
     _stockController =
         TextEditingController(text: widget.product.stock.toString());
+    _unitController = TextEditingController(text: widget.product.unit ?? '');
     _selectedImages = widget.product.images ?? [];
     _selectedCategoryId = widget.product.categoryId;
 
@@ -76,6 +78,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     _descriptionController.dispose();
     _priceController.dispose();
     _stockController.dispose();
+    _unitController.dispose();
     super.dispose();
   }
 
@@ -119,6 +122,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
           description: _descriptionController.text,
           price: double.parse(_priceController.text),
           stock: int.parse(_stockController.text),
+          unit: _unitController.text.isNotEmpty ? _unitController.text : null,
           images: _selectedImages,
           categoryId: _selectedCategoryId ?? widget.product.categoryId,
         );
@@ -243,8 +247,21 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   if (int.tryParse(value) == null) {
                     return 'Invalid stock quantity';
                   }
+                  }
                   return null;
                 },
+              ),
+              const SizedBox(height: 16),
+
+              // Unit
+              TextFormField(
+                controller: _unitController,
+                decoration: const InputDecoration(
+                  labelText: 'Unit of Measure (e.g. kg, pieces)',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.scale_outlined),
+                ),
+                textInputAction: TextInputAction.next,
               ),
               const SizedBox(height: 16),
 

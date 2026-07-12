@@ -4,6 +4,7 @@ import 'dart:io';
 import '../../utils/image_upload_helper.dart';
 import '../../services/api_service.dart';
 import '../../providers/auth_provider.dart';
+import '../../utils/extensions.dart';
 import '../../config/api_config.dart';
 import '../../utils/logger.dart';
 import '../../providers/category_provider.dart';
@@ -236,7 +237,7 @@ class _AddFoodBeverageScreenState extends State<AddFoodBeverageScreen> {
     } catch (e) {
       Log.e('Error creating food beverage: $e');
       setState(() {
-        _errorMessage = e.toString();
+        _errorMessage = e.toFriendlyError;
       });
     } finally {
       setState(() {
