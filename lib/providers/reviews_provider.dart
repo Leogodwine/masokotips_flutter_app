@@ -42,7 +42,7 @@ class Review {
       rating: json['rating'],
       comment: json['comment'] ?? '',
       images: List<String>.from(json['images'] ?? []),
-      isVerifiedPurchase: json['is_verified_purchase'] ?? false,
+      isVerifiedPurchase: (json['is_verified_purchase'] == true || json['is_verified_purchase'] == 1),
       createdAt: DateTime.parse(json['created_at']),
       status: (json['is_approved'] == true || json['is_approved'] == 1)
           ? ReviewStatus.approved
