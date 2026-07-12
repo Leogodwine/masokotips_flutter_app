@@ -207,7 +207,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               _buildQuickActionButton(
                                 context,
                                 icon: Icons.add_circle,
-                                label: 'Post',
+                                label: 'POST',
+                                isCTA: true,
                                 onPressed: () {
                                   // Smart routing: prefer dashboard where user HAS an active subscription
                                   if (hasSellerSubscription ||
@@ -780,7 +781,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildQuickActionButton(BuildContext context,
       {required IconData icon,
       required String label,
-      required VoidCallback onPressed}) {
+      required VoidCallback onPressed,
+      bool isCTA = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: InkWell(
@@ -792,22 +794,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(isCTA ? 16 : 12),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withAlpha(26),
+                  color: isCTA
+                      ? Theme.of(context).primaryColor
+                      : Theme.of(context).primaryColor.withAlpha(26),
                   shape: BoxShape.circle,
+                  boxShadow: isCTA
+                      ? [
+                          BoxShadow(
+                            color: Theme.of(context).primaryColor.withOpacity(0.4),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          )
+                        ]
+                      : null,
                 ),
                 child: Icon(
                   icon,
-                  color: Theme.of(context).primaryColor,
-                  size: 24,
+                  color: isCTA ? Colors.white : Theme.of(context).primaryColor,
+                  size: isCTA ? 28 : 24,
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: isCTA ? 8 : 4),
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: isCTA ? 14 : 12,
+                  fontWeight: isCTA ? FontWeight.bold : FontWeight.normal,
                   color: Theme.of(context).primaryColor,
                 ),
               ),

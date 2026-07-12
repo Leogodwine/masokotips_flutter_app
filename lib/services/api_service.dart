@@ -1998,7 +1998,7 @@ class ApiService {
       Log.e('Seller transports response status: ${response.statusCode}');
       Log.e('Seller transports response body: ${response.body}');
 
-      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
+      if (response.statusCode == 200 || response.statusCode == 400 || response.statusCode == 422) {
         return _decodeJson(response.body);
       } else if (response.statusCode == 403) {
         // User doesn't have required role - return empty data instead of throwing

@@ -408,10 +408,11 @@ class _SellerOrganicProductsScreenState
                         },
                       ),
                     ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: _navigateToAddProduct,
         backgroundColor: Colors.green,
-        child: const Icon(Icons.add, color: Colors.white),
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('POST', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
       ),
     );
   }

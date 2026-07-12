@@ -118,7 +118,7 @@ class _BuyingRequestsTabState extends State<BuyingRequestsTab> {
                       );
                     },
                     icon: const Icon(Icons.add),
-                    label: Text(AppLocalizations.of(context)!.postARequest),
+                    label: const Text('POST', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   ),
                 ],
               ),
@@ -255,7 +255,7 @@ class _BuyingRequestsTabState extends State<BuyingRequestsTab> {
           );
         },
         icon: const Icon(Icons.add),
-        label: Text(AppLocalizations.of(context)!.postRequest),
+        label: const Text('POST', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
       ),

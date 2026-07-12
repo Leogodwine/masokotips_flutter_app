@@ -217,7 +217,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
           );
         },
         icon: const Icon(Icons.add),
-        label: Text(AppLocalizations.of(context)!.addService),
+        label: const Text('POST', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
         elevation: 4,

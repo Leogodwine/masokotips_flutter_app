@@ -160,7 +160,7 @@ class _SellerTransportScreenState extends State<SellerTransportScreen> {
           );
         },
         icon: const Icon(Icons.add),
-        label: Text(AppLocalizations.of(context)!.addTransport),
+        label: const Text('POST', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
       ),
