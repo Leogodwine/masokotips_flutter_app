@@ -95,30 +95,60 @@ class _AddOrganicProductScreenState extends State<AddOrganicProductScreen> {
   }
 
   Future<void> _pickImages() async {
-    try {
-      final ImagePicker picker = ImagePicker();
-      final List<XFile> images = await picker.pickMultiImage(
-        maxWidth: 1024,
-        maxHeight: 1024,
-        imageQuality: 80,
-      );
-
-      if (images.isNotEmpty) {
-        setState(() {
-          _selectedImages.addAll(images.map((image) => File(image.path)));
-        });
-      }
-    } catch (e) {
-      debugPrint('Error picking images: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error picking images: $e'),
-            backgroundColor: Colors.red,
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext bc) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                  leading: const Icon(Icons.photo_library),
+                  title: const Text('Photo Library'),
+                  onTap: () async {
+                    Navigator.of(context).pop();
+                    try {
+                      final images = await ImageUploadHelper.pickMultiAndCropImages(context);
+                      if (images.isNotEmpty) {
+                        setState(() {
+                          _selectedImages.addAll(images.map((image) => File(image.path)));
+                        });
+                      }
+                    } catch (e) {
+                      debugPrint('Error picking images: $e');
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error picking images: $e'), backgroundColor: Colors.red),
+                        );
+                      }
+                    }
+                  }),
+              ListTile(
+                leading: const Icon(Icons.photo_camera),
+                title: const Text('Camera'),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  try {
+                    final image = await ImageUploadHelper.pickCameraAndCropImage(context);
+                    if (image != null) {
+                      setState(() {
+                        _selectedImages.add(File(image.path));
+                      });
+                    }
+                  } catch (e) {
+                    debugPrint('Error capturing image: $e');
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error capturing image: $e'), backgroundColor: Colors.red),
+                      );
+                    }
+                  }
+                },
+              ),
+            ],
           ),
         );
-      }
-    }
+      },
+    );
   }
 
   Future<void> _submitForm() async {
