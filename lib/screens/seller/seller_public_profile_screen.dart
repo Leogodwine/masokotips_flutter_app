@@ -104,7 +104,7 @@ class _SellerPublicProfileScreenState extends State<SellerPublicProfileScreen> {
     final authProvider = context.read<AuthProvider>();
     
     // Buyers don't need a subscription to contact
-    if (authProvider.user?.role == 'buyer' || subProvider.hasActiveSubscription) {
+    if (authProvider.user?.roles.contains('buyer') == true || subProvider.hasActiveSubscription) {
       action();
     } else {
       _showSubscriptionDialog();

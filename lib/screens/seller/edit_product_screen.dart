@@ -247,7 +247,6 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   if (int.tryParse(value) == null) {
                     return 'Invalid stock quantity';
                   }
-                  }
                   return null;
                 },
               ),
