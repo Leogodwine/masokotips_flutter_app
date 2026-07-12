@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import '../../utils/image_upload_helper.dart';
 import '../../models/product.dart';
 import '../../services/product_service.dart';
 import 'dart:io';
@@ -83,18 +83,60 @@ class _AddProductScreenState extends State<AddProductScreen> {
   }
 
   Future<void> _pickImages() async {
-    final ImagePicker picker = ImagePicker();
-    final List<XFile> images = await picker.pickMultiImage(
-      maxWidth: 1024,
-      maxHeight: 1024,
-      imageQuality: 80,
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext bc) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                  leading: const Icon(Icons.photo_library),
+                  title: const Text('Photo Library'),
+                  onTap: () async {
+                    Navigator.of(context).pop();
+                    try {
+                      final images = await ImageUploadHelper.pickMultiAndCropImages(context);
+                      if (images.isNotEmpty) {
+                        setState(() {
+                          _selectedImages.addAll(images.map((image) => File(image.path)));
+                        });
+                      }
+                    } catch (e) {
+                      debugPrint('Error picking images: $e');
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error picking images: $e'), backgroundColor: Colors.red),
+                        );
+                      }
+                    }
+                  }),
+              ListTile(
+                leading: const Icon(Icons.photo_camera),
+                title: const Text('Camera'),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  try {
+                    final image = await ImageUploadHelper.pickCameraAndCropImage(context);
+                    if (image != null) {
+                      setState(() {
+                        _selectedImages.add(File(image.path));
+                      });
+                    }
+                  } catch (e) {
+                    debugPrint('Error capturing image: $e');
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error capturing image: $e'), backgroundColor: Colors.red),
+                      );
+                    }
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
-
-    if (images.isNotEmpty) {
-      setState(() {
-        _selectedImages.addAll(images.map((image) => File(image.path)));
-      });
-    }
   }
 
   Future<void> _submitForm() async {

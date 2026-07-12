@@ -180,7 +180,7 @@ class OrganicProductService {
     _checkAuthToken();
     try {
       // Create a multipart request for creating the product (admin endpoint)
-      final url = '$baseUrl/admin/organic-products';
+      final url = '$baseUrl/seller/organic-products';
       final request = http.MultipartRequest('POST', Uri.parse(url));
 
       // Add enhanced headers to bypass bot detection
@@ -264,7 +264,7 @@ class OrganicProductService {
     _checkAuthToken();
     try {
       // Create a multipart request for updating the product (admin endpoint)
-      final url = '$baseUrl/admin/organic-products/${product.id}';
+      final url = '$baseUrl/seller/organic-products/${product.id}';
       final request = http.MultipartRequest('POST', Uri.parse(url));
 
       // Add the _method field to simulate PUT request
@@ -388,7 +388,7 @@ class OrganicProductService {
   Future<String> uploadOrganicProductImage(String imagePath) async {
     _checkAuthToken();
     try {
-      final url = '$baseUrl/admin/organic-products/upload-image';
+      final url = '$baseUrl/seller/organic-products/upload-image';
       final request = http.MultipartRequest('POST', Uri.parse(url));
 
       // Add enhanced headers to bypass bot detection

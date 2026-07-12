@@ -61,6 +61,86 @@ class ImageUploadHelper {
     return null;
   }
 
+  /// Picks multiple images from gallery and crops them one by one
+  static Future<List<XFile>> pickMultiAndCropImages(BuildContext context) async {
+    final primaryColor = Theme.of(context).primaryColor;
+    final picker = ImagePicker();
+    final List<XFile> pickedFiles = await picker.pickMultiImage(
+      maxWidth: 1024,
+      maxHeight: 1024,
+      imageQuality: 80,
+    );
+
+    if (pickedFiles.isEmpty) return [];
+
+    if (kIsWeb) {
+      return pickedFiles;
+    }
+
+    List<XFile> croppedFiles = [];
+    for (var pickedFile in pickedFiles) {
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: pickedFile.path,
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Crop Image',
+            toolbarColor: primaryColor,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false,
+          ),
+          IOSUiSettings(
+            title: 'Crop Image',
+          ),
+        ],
+      );
+
+      if (croppedFile != null) {
+        croppedFiles.add(XFile(croppedFile.path));
+      }
+    }
+    return croppedFiles;
+  }
+
+  /// Picks a single image from the camera and allows the user to crop it
+  static Future<XFile?> pickCameraAndCropImage(BuildContext context) async {
+    final primaryColor = Theme.of(context).primaryColor;
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.camera,
+      maxWidth: 1024,
+      maxHeight: 1024,
+      imageQuality: 80,
+    );
+
+    if (pickedFile != null) {
+      if (kIsWeb) {
+        return pickedFile;
+      }
+
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: pickedFile.path,
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Crop Image',
+            toolbarColor: primaryColor,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false,
+          ),
+          IOSUiSettings(
+            title: 'Crop Image',
+          ),
+        ],
+      );
+
+      if (croppedFile != null) {
+        return XFile(croppedFile.path);
+      }
+    }
+    return null;
+  }
+
   /// Picks an image from the gallery and returns an XFile object (No cropping)
   static Future<XFile?> pickImage() async {
     final picker = ImagePicker();

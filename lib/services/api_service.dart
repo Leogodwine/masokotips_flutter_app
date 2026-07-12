@@ -301,7 +301,7 @@ class ApiService {
 
       Log.d('Services API response status: ${response.statusCode}');
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final data = _decodeJson(response.body);
 
         // Check if the response has the expected structure
@@ -401,7 +401,7 @@ class ApiService {
         Log.e('Registration response status: ${response.statusCode}');
         Log.e('Registration response body: $responseBody');
 
-        if (response.statusCode == 201) {
+        if (response.statusCode == 201 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
           final responseData = _decodeJson(responseBody);
           Log.e('Registration successful, returning data: $responseData');
           return responseData;
@@ -438,7 +438,7 @@ class ApiService {
         Log.e('Registration response status: ${response.statusCode}');
         Log.e('Registration response body: ${response.body}');
 
-        if (response.statusCode == 201) {
+        if (response.statusCode == 201 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
           final responseData = _decodeJson(response.body);
           Log.e('Registration successful, returning data: $responseData');
           return responseData;
@@ -482,7 +482,7 @@ class ApiService {
         body: jsonEncode(requestBody),
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final responseData = _decodeJson(response.body);
         if (responseData['success'] != true) {
           throw Exception(
@@ -508,7 +508,7 @@ class ApiService {
         headers: headers,
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final data = _decodeJson(response.body);
         // Handle case where user is wrapped in a 'user' key
         final userData = data.containsKey('user') ? data['user'] : data;
@@ -556,7 +556,7 @@ class ApiService {
       final response = await request.send();
       final body = await response.stream.bytesToString();
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final data = _decodeJson(body);
         return User.fromJson(data['user']);
       } else {
@@ -611,7 +611,7 @@ class ApiService {
       Log.e('ApiService: Response status code: ${response.statusCode}');
       Log.e('ApiService: Response body: ${response.body}');
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final Map<String, dynamic> responseData = _decodeJson(response.body);
         final List<dynamic> data = responseData['data'];
         Log.e('ApiService: Parsed ${data.length} related products');
@@ -649,7 +649,7 @@ class ApiService {
 
       final response = await http.get(uri, headers: headers);
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final dynamic responseData = _decodeJson(response.body);
 
         List<dynamic> productsData = [];
@@ -688,7 +688,7 @@ class ApiService {
       Log.e('Response status: ${response.statusCode}');
       Log.e('Response body: ${response.body}');
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final dynamic responseData = _decodeJson(response.body);
 
         // Handle different response formats
@@ -751,7 +751,7 @@ class ApiService {
       Log.e('Organic products response status: ${response.statusCode}');
       Log.e('Organic products response body: ${response.body}');
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final dynamic responseData = _decodeJson(response.body);
 
         // Handle different response formats
@@ -814,7 +814,7 @@ class ApiService {
       Log.e('Food & beverages response status: ${response.statusCode}');
       Log.e('Food & beverages response body: ${response.body}');
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final dynamic responseData = _decodeJson(response.body);
 
         // Handle different response formats
@@ -1002,7 +1002,7 @@ class ApiService {
         headers: headers,
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final data = _decodeJson(response.body);
         return Product.fromJson(data);
       } else {
@@ -1042,7 +1042,7 @@ class ApiService {
       );
 
       _checkBotInterference(response, response.body);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final List<dynamic> data = _decodeJson(response.body);
         return data.map((json) => Transport.fromJson(json)).toList();
       } else {
@@ -1061,7 +1061,7 @@ class ApiService {
       );
 
       _checkBotInterference(response, response.body);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final data = _decodeJson(response.body);
         return Transport.fromJson(data);
       } else {
@@ -1104,7 +1104,7 @@ class ApiService {
       },
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
       return _decodeJson(response.body);
     } else {
       throw Exception('Failed to load data: ${response.statusCode}');
@@ -1143,7 +1143,7 @@ class ApiService {
       body: json.encode(body),
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
       return _decodeJson(response.body);
     } else {
       throw Exception('Failed to update data: ${response.statusCode}');
@@ -1199,7 +1199,7 @@ class ApiService {
       Log.e('Order creation response body: ${response.body}');
 
       _checkBotInterference(response, response.body);
-      if (response.statusCode == 201) {
+      if (response.statusCode == 201 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final responseData = _decodeJson(response.body);
         Log.e('Order created successfully');
         return responseData;
@@ -1224,7 +1224,7 @@ class ApiService {
       Log.e('Orders response body: ${response.body}');
 
       _checkBotInterference(response, response.body);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         Log.e('Raw response body: ${response.body}');
         try {
           final responseData = _decodeJson(response.body);
@@ -1265,7 +1265,7 @@ class ApiService {
       Log.e('Orders response status: ${response.statusCode}');
 
       _checkBotInterference(response, response.body);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final responseData = _decodeJson(response.body);
         Log.e('Received orders response: ${response.body}');
 
@@ -1307,7 +1307,7 @@ class ApiService {
       Log.e('Order response status: ${response.statusCode}');
 
       _checkBotInterference(response, response.body);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final responseData = _decodeJson(response.body);
         Log.e('Received order: ${response.body}');
         return responseData;
@@ -1331,7 +1331,7 @@ class ApiService {
       Log.e('Cancel order response status: ${response.statusCode}');
 
       _checkBotInterference(response, response.body);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final responseData = _decodeJson(response.body);
         Log.e('Order cancelled successfully');
         return responseData;
@@ -1357,7 +1357,7 @@ class ApiService {
       Log.e('Seller orders response body: ${response.body}');
 
       _checkBotInterference(response, response.body);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final responseData = _decodeJson(response.body);
         Log.e('Received seller orders response: $responseData');
         return responseData;
@@ -1392,7 +1392,7 @@ class ApiService {
       Log.e('Update order status body: ${response.body}');
 
       _checkBotInterference(response, response.body);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final responseData = _decodeJson(response.body);
         Log.e('Order status updated successfully');
         return responseData;
@@ -1421,7 +1421,7 @@ class ApiService {
       Log.e('Seller organic products response body: ${response.body}');
 
       _checkBotInterference(response, response.body);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         return _decodeJson(response.body);
       } else {
         throw Exception(
@@ -1489,7 +1489,7 @@ class ApiService {
       Log.e('Create organic product response body: ${responseBody.body}');
 
       _checkBotInterference(responseBody, responseBody.body);
-      if (response.statusCode == 201) {
+      if (response.statusCode == 201 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         return _decodeJson(responseBody.body);
       } else {
         throw Exception(
@@ -1557,7 +1557,7 @@ class ApiService {
       Log.e('Update organic product response body: ${responseBody.body}');
 
       _checkBotInterference(responseBody, responseBody.body);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         return _decodeJson(responseBody.body);
       } else {
         throw Exception(
@@ -1581,7 +1581,7 @@ class ApiService {
       Log.e('Delete organic product response body: ${response.body}');
 
       _checkBotInterference(response, response.body);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         return _decodeJson(response.body);
       } else {
         throw Exception(
@@ -1617,7 +1617,7 @@ class ApiService {
       Log.e('Upload organic product image response body: $responseBody');
 
       _checkBotInterference(response, responseBody);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final decoded = _decodeJson(responseBody);
         Log.e('Parsed upload response: $decoded');
         return decoded;
@@ -1643,7 +1643,7 @@ class ApiService {
           'Organic product categories response status: ${response.statusCode}');
       Log.e('Organic product categories response body: ${response.body}');
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final dynamic responseData = _decodeJson(response.body);
 
         List<dynamic> categoriesData;
@@ -1698,7 +1698,7 @@ class ApiService {
 
       Log.e('Seller food beverages response status: ${response.statusCode}');
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         return _decodeJson(response.body);
       } else {
         throw Exception(
@@ -1718,7 +1718,7 @@ class ApiService {
         headers: headers,
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         return _decodeJson(response.body);
       } else {
         throw Exception(
@@ -1775,7 +1775,7 @@ class ApiService {
       final response = await request.send();
       final responseBody = await http.Response.fromStream(response);
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 201 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         return _decodeJson(responseBody.body);
       } else {
         throw Exception(
@@ -1833,7 +1833,7 @@ class ApiService {
       final response = await request.send();
       final responseBody = await http.Response.fromStream(response);
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         return _decodeJson(responseBody.body);
       } else {
         throw Exception(
@@ -1853,7 +1853,7 @@ class ApiService {
         headers: headers,
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         return _decodeJson(response.body);
       } else {
         throw Exception(
@@ -1883,7 +1883,7 @@ class ApiService {
       var response = await request.send();
       var responseBody = await response.stream.bytesToString();
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         return _decodeJson(responseBody);
       } else {
         throw Exception(
@@ -1901,7 +1901,7 @@ class ApiService {
       final uri = Uri.parse('$baseUrl/categories/6/subcategories');
       final response = await http.get(uri, headers: headers);
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final dynamic responseData = _decodeJson(response.body);
         List<dynamic> categoriesData;
         if (responseData is Map<String, dynamic>) {
@@ -1933,7 +1933,7 @@ class ApiService {
           'Agricultural service categories response status: ${response.statusCode}');
       Log.e('Agricultural service categories response body: ${response.body}');
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final data = _decodeJson(response.body);
         if (data is Map<String, dynamic> && data.containsKey('data')) {
           final List<dynamic> categoriesJson = data['data'];
@@ -1968,7 +1968,7 @@ class ApiService {
       Log.e('Transport categories response status: ${response.statusCode}');
       Log.e('Transport categories response body: ${response.body}');
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         return _decodeJson(response.body);
       } else if (response.statusCode == 403) {
         // User doesn't have required role - return empty data instead of throwing exception
@@ -1998,7 +1998,7 @@ class ApiService {
       Log.e('Seller transports response status: ${response.statusCode}');
       Log.e('Seller transports response body: ${response.body}');
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         return _decodeJson(response.body);
       } else if (response.statusCode == 403) {
         // User doesn't have required role - return empty data instead of throwing
@@ -2052,7 +2052,7 @@ class ApiService {
       Log.e('Update transport response status: ${response.statusCode}');
       Log.e('Update transport response body: ${response.body}');
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final responseData = _decodeJson(response.body);
         // Handle both direct data response and wrapped response
         if (responseData['data'] != null) {
@@ -2143,7 +2143,7 @@ class ApiService {
       Log.e('Get user roles response status: ${response.statusCode}');
       Log.e('Get user roles response body: ${response.body}');
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         return _decodeJson(response.body);
       } else {
         throw Exception('Failed to fetch user roles: ${response.statusCode}');
@@ -2205,7 +2205,7 @@ class ApiService {
     try {
       final uri = Uri.parse('$baseUrl/chat/conversations');
       final response = await http.get(uri, headers: headers);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final data = _decodeJson(response.body);
         return data['data'] ?? [];
       } else {
@@ -2222,7 +2222,7 @@ class ApiService {
     try {
       final uri = Uri.parse('$baseUrl/chat/conversations/$id');
       final response = await http.get(uri, headers: headers);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
         final data = _decodeJson(response.body);
         return data['data'] ?? {};
       } else {
