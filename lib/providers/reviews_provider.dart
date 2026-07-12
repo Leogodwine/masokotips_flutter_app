@@ -44,9 +44,9 @@ class Review {
       images: List<String>.from(json['images'] ?? []),
       isVerifiedPurchase: json['is_verified_purchase'] ?? false,
       createdAt: DateTime.parse(json['created_at']),
-      status: json['is_approved'] == true
+      status: (json['is_approved'] == true || json['is_approved'] == 1)
           ? ReviewStatus.approved
-          : json['is_approved'] == false
+          : (json['is_approved'] == false || json['is_approved'] == 0)
               ? ReviewStatus.rejected
               : ReviewStatus.pending,
       adminComment: json['admin_comment'],
