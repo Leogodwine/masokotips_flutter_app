@@ -203,7 +203,12 @@ class _AddReviewDialogState extends State<AddReviewDialog> {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Review submitted! It will appear after approval.')),
+              content: Text('Review submitted successfully!')),
+        );
+        // Reload reviews to show the newly submitted one immediately
+        context.read<ReviewsProvider>().loadReviews(
+          widget.reviewableId,
+          widget.reviewableType,
         );
       }
     } catch (e) {
