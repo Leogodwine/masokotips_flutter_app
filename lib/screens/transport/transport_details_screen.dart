@@ -4,7 +4,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../models/transport.dart';
 import '../../providers/auth_provider.dart';
 import '../chat/chat_screen.dart';
-import '../../screens/auth/login_screen.dart';
 import '../../screens/reviews/reviews_widget.dart';
 import 'package:masoko_tips/widgets/cached_network_image_with_cors.dart';
 import '../seller/seller_public_profile_screen.dart' as import_profile;
@@ -25,7 +24,9 @@ class TransportDetailsScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final statusLower = transport.status.toLowerCase();
     final isActive = statusLower == 'active' || statusLower == 'available';
-    final receiverId = int.tryParse(transport.user?['id']?.toString() ?? '') ?? transport.userId ?? 0;
+    final receiverId = int.tryParse(transport.user?['id']?.toString() ?? '') ??
+        transport.userId ??
+        0;
 
     return Scaffold(
       body: CustomScrollView(
@@ -214,7 +215,9 @@ class TransportDetailsScreen extends StatelessWidget {
                         child: Column(
                           children: [
                             Text(
-                              transport.price == 0 ? 'Negotiable' : 'TZS ${transport.price.toStringAsFixed(2)}',
+                              transport.price == 0
+                                  ? 'Negotiable'
+                                  : 'TZS ${transport.price.toStringAsFixed(2)}',
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
@@ -240,7 +243,8 @@ class TransportDetailsScreen extends StatelessWidget {
                   const SizedBox(height: 24),
 
                   // Description
-                  if (transport.description != null && transport.description!.isNotEmpty) ...[
+                  if (transport.description != null &&
+                      transport.description!.isNotEmpty) ...[
                     _buildSection(
                       context,
                       title: 'Description',
@@ -295,7 +299,8 @@ class TransportDetailsScreen extends StatelessWidget {
                           label: transport.vehicleLocation,
                           fullWidth: true,
                         ),
-                        if (transport.latitude != null && transport.longitude != null) ...[
+                        if (transport.latitude != null &&
+                            transport.longitude != null) ...[
                           const SizedBox(height: 8),
                           _buildFeatureChip(
                             context,
@@ -321,8 +326,9 @@ class TransportDetailsScreen extends StatelessWidget {
                         if (transport.user != null || transport.userId != null)
                           InkWell(
                             onTap: () {
-                              final String? sellerId = transport.user?['id']?.toString() ??
-                                  transport.userId?.toString();
+                              final String? sellerId =
+                                  transport.user?['id']?.toString() ??
+                                      transport.userId?.toString();
                               if (sellerId != null) {
                                 Navigator.push(
                                   context,
@@ -344,11 +350,10 @@ class TransportDetailsScreen extends StatelessWidget {
                                 children: [
                                   CircleAvatar(
                                     radius: 24,
-                                    backgroundImage:
-                                        transport.sellerAvatar != null
-                                            ? NetworkImage(
-                                                transport.sellerAvatar!)
-                                            : null,
+                                    backgroundImage: transport.sellerAvatar !=
+                                            null
+                                        ? NetworkImage(transport.sellerAvatar!)
+                                        : null,
                                     child: transport.sellerAvatar == null
                                         ? const Icon(Icons.person)
                                         : null,
@@ -498,7 +503,8 @@ class TransportDetailsScreen extends StatelessWidget {
                         children: transport.certifications!
                             .map((cert) => Chip(
                                   label: Text(cert),
-                                  backgroundColor: Colors.green.withValues(alpha: 0.1),
+                                  backgroundColor:
+                                      Colors.green.withValues(alpha: 0.1),
                                   labelStyle:
                                       const TextStyle(color: Colors.green),
                                   padding:
@@ -523,7 +529,8 @@ class TransportDetailsScreen extends StatelessWidget {
                         children: transport.supportedProductTypes!
                             .map((type) => Chip(
                                   label: Text(type),
-                                  backgroundColor: Colors.blue.withValues(alpha: 0.1),
+                                  backgroundColor:
+                                      Colors.blue.withValues(alpha: 0.1),
                                   labelStyle:
                                       const TextStyle(color: Colors.blue),
                                   padding:
@@ -553,7 +560,8 @@ class TransportDetailsScreen extends StatelessWidget {
                               if (receiverId == 0) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text(AppLocalizations.of(context)!.providerContactInfoIsNotAvailable),
+                                    content: Text(AppLocalizations.of(context)!
+                                        .providerContactInfoIsNotAvailable),
                                     backgroundColor: Colors.orange,
                                   ),
                                 );
@@ -563,7 +571,8 @@ class TransportDetailsScreen extends StatelessWidget {
                               if (currentUserId == receiverId) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text(AppLocalizations.of(context)!.youCannotChatWithYourself),
+                                    content: Text(AppLocalizations.of(context)!
+                                        .youCannotChatWithYourself),
                                     backgroundColor: Colors.orange,
                                   ),
                                 );
@@ -604,7 +613,8 @@ class TransportDetailsScreen extends StatelessWidget {
                         child: ElevatedButton(
                           onPressed: isActive
                               ? () {
-                                  final authProvider = context.read<AuthProvider>();
+                                  final authProvider =
+                                      context.read<AuthProvider>();
                                   if (authProvider.user == null) {
                                     Navigator.pushNamed(context, '/login');
                                     return;
@@ -613,8 +623,11 @@ class TransportDetailsScreen extends StatelessWidget {
                                     final phone = transport.driverPhone ??
                                         transport.sellerPhone ??
                                         '0799711705';
-                                    final messenger = ScaffoldMessenger.of(context);
-                                    final errorMsg = AppLocalizations.of(context)!.couldNotLaunchPhoneDialer;
+                                    final messenger =
+                                        ScaffoldMessenger.of(context);
+                                    final errorMsg =
+                                        AppLocalizations.of(context)!
+                                            .couldNotLaunchPhoneDialer;
                                     final Uri url = Uri.parse('tel:$phone');
                                     if (await canLaunchUrl(url)) {
                                       await launchUrl(url);
@@ -654,7 +667,7 @@ class TransportDetailsScreen extends StatelessWidget {
                   const Divider(),
                   const SizedBox(height: 16),
                   ReviewsWidget(
-                    reviewableId: transport.id,
+                    reviewableId: transport.id ?? 0,
                     reviewableType: 'App\\Models\\Transport',
                   ),
                   const SizedBox(height: 24),
@@ -760,7 +773,8 @@ class TransportDetailsScreen extends StatelessWidget {
               onPressed: () async {
                 final Uri url = Uri.parse('tel:$value');
                 final messenger = ScaffoldMessenger.of(context);
-                final errorMsg = AppLocalizations.of(context)!.couldNotLaunchPhoneDialer;
+                final errorMsg =
+                    AppLocalizations.of(context)!.couldNotLaunchPhoneDialer;
                 if (await canLaunchUrl(url)) {
                   await launchUrl(url);
                 } else {
@@ -796,7 +810,8 @@ class TransportDetailsScreen extends StatelessWidget {
         color: color != null ? color.withValues(alpha: 0.08) : Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color != null ? color.withValues(alpha: 0.3) : Colors.grey[200]!,
+          color:
+              color != null ? color.withValues(alpha: 0.3) : Colors.grey[200]!,
           width: 1,
         ),
       ),
