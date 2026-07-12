@@ -289,8 +289,8 @@ class AppScaffold extends StatelessWidget {
                   label: AppLocalizations.of(context)!.myFavorites,
                 ),
                 BottomNavigationBarItem(
-                  icon: const Icon(Icons.shopping_bag),
-                  label: AppLocalizations.of(context)!.orders,
+                  icon: const Icon(Icons.chat),
+                  label: AppLocalizations.of(context)!.messages,
                 ),
                 BottomNavigationBarItem(
                   icon: const Icon(Icons.person),

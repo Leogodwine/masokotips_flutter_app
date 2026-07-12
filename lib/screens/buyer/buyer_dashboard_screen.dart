@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'buying_requests_tab.dart';
-import '../orders/orders_screen.dart';
+import '../chat/inbox_screen.dart';
 import '../profile/profile_screen.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -38,7 +38,7 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
             if (index == 1) {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const OrdersScreen()),
+                MaterialPageRoute(builder: (context) => const InboxScreen()),
               ).then((_) {
                 setState(() {
                   _selectedIndex = 0;
@@ -61,8 +61,8 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
               label: AppLocalizations.of(context)!.myRequests,
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.shopping_bag),
-              label: AppLocalizations.of(context)!.ordersTab,
+              icon: const Icon(Icons.chat),
+              label: AppLocalizations.of(context)!.messages,
             ),
             BottomNavigationBarItem(
               icon: const Icon(Icons.person),

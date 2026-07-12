@@ -7,6 +7,7 @@ import '../../providers/locale_provider.dart';
 import '../../providers/subscription_provider.dart';
 import '../../screens/auth/register_screen.dart'; // Add register screen import
 import '../../screens/auth/login_screen.dart'; // Add login screen import
+import '../../screens/chat/inbox_screen.dart'; // Add inbox screen import
 import '../../l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -94,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Navigator.pushNamed(context, '/wishlist');
         break;
       case 2:
-        Navigator.pushNamed(context, '/orders');
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const InboxScreen()));
         break;
       case 3:
         Navigator.pushNamed(context, '/profile');
