@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../utils/image_upload_helper.dart';
 import '../../models/product.dart';
 import '../../services/product_service.dart';
 import 'dart:io';
@@ -83,13 +84,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
   }
 
   Future<void> _pickImages() async {
-    final ImagePicker picker = ImagePicker();
     try {
-      final List<XFile> images = await picker.pickMultiImage(
-        maxWidth: 1024,
-        maxHeight: 1024,
-        imageQuality: 80,
-      );
+      final List<XFile> images = await ImageUploadHelper.pickMultiAndCropImages(context);
       if (images.isNotEmpty) {
         setState(() {
           _selectedImages.addAll(images.map((image) => image.path));

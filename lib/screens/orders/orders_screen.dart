@@ -91,14 +91,18 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final user = authProvider.user;
+    final isSeller = user?.roles.contains('seller') ?? false;
+
     return AppScaffold(
-      title: 'My Orders',
+      title: AppLocalizations.of(context)?.myOrders ?? 'My Orders',
       showBackButton: true,
-      body: _buildBody(),
+      body: _buildBody(isSeller),
     );
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(bool isSeller) {
     if (_isLoading) {
       return const Center(
         child: CircularProgressIndicator(),
@@ -251,7 +255,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   ),
                   const SizedBox(height: 12),
                   // Cancel button for eligible orders (only for buyers)
-                  if (!_isSeller() &&
+                  if (!isSeller &&
                       (order.status == OrderStatus.pending ||
                           order.status == OrderStatus.processing))
                     SizedBox(
@@ -273,12 +277,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
         },
       ),
     );
-  }
-
-  bool _isSeller() {
-    final authProvider = context.read<AuthProvider>();
-    final user = authProvider.user;
-    return user?.roles.contains('seller') ?? false;
   }
 
   Color _getStatusColor(OrderStatus status) {

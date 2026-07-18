@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/loading_button.dart';
 import 'dart:io';
+import '../../utils/image_upload_helper.dart';
 import '../../l10n/app_localizations.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -21,7 +22,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _bioController = TextEditingController();
   bool _isLoading = false;
   File? _profileImage;
-  final ImagePicker _picker = ImagePicker();
   String? _errorMessage;
 
   @override
@@ -67,11 +67,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     try {
-      final XFile? pickedFile = await _picker.pickImage(
+      final XFile? pickedFile = await ImageUploadHelper.pickAndCropImage(
+        context,
         source: source,
-        maxWidth: 800,
-        maxHeight: 800,
-        imageQuality: 85,
       );
 
       if (pickedFile != null) {

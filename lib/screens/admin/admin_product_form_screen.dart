@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/product.dart';
 import '../../models/category.dart' as models;
 import 'package:image_picker/image_picker.dart';
+import '../../utils/image_upload_helper.dart';
 import 'dart:io';
 import 'package:provider/provider.dart';
 import '../../providers/admin_provider.dart';
@@ -159,8 +160,7 @@ class AdminProductFormScreenState extends State<AdminProductFormScreen> {
 
   Future<void> _pickImages() async {
     try {
-      final ImagePicker picker = ImagePicker();
-      final List<XFile> images = await picker.pickMultiImage();
+      final List<XFile> images = await ImageUploadHelper.pickMultiAndCropImages(context);
       if (images.isNotEmpty) {
         setState(() {
           _selectedImages.addAll(images);

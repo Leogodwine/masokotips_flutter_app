@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import '../../utils/image_upload_helper.dart';
 import 'dart:io';
 import '../../l10n/app_localizations.dart';
+import '../subscription/subscription_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -96,8 +97,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           );
 
-          // Navigate to profile screen
-          Navigator.pushReplacementNamed(context, '/profile');
+          // Navigate to subscription screen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const SubscriptionScreen(),
+            ),
+          );
         }
       } catch (e) {
         String errorMsg = e.toString();

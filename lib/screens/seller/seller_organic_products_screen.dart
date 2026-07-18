@@ -10,6 +10,7 @@ import 'add_organic_product_screen.dart';
 import 'edit_organic_product_screen.dart';
 import '../../utils/extensions.dart';
 import 'package:masoko_tips/l10n/app_localizations.dart';
+import '../../providers/subscription_provider.dart';
 
 class SellerOrganicProductsScreen extends StatefulWidget {
   const SellerOrganicProductsScreen({Key? key}) : super(key: key);
@@ -418,6 +419,17 @@ class _SellerOrganicProductsScreenState
   }
 
   void _navigateToAddProduct() async {
+    final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+    if (subscriptionProvider.needsSubscription('seller')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Your seller subscription has expired or is not active. Please subscribe to continue using this feature.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     Log.e('_navigateToAddProduct: Opening AddOrganicProductScreen');
     final result = await Navigator.push<bool>(
       context,
@@ -434,6 +446,17 @@ class _SellerOrganicProductsScreenState
   }
 
   void _navigateToEditProduct(OrganicProduct product) async {
+    final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+    if (subscriptionProvider.needsSubscription('seller')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Your seller subscription has expired or is not active. Please subscribe to continue using this feature.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     Log.e('Navigating to edit product: ${product.name}');
     final result = await Navigator.push<bool>(
       context,
@@ -449,6 +472,17 @@ class _SellerOrganicProductsScreenState
   }
 
   void _showDeleteDialog(OrganicProduct product) {
+    final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+    if (subscriptionProvider.needsSubscription('seller')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Your seller subscription has expired or is not active. Please subscribe to continue using this feature.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

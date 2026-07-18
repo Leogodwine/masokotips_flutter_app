@@ -11,7 +11,7 @@ import 'seller_organic_products_screen.dart';
 import 'seller_transport_screen.dart';
 import 'seller_food_beverages_screen.dart';
 import '../../utils/extensions.dart';
-import '../../widgets/subscription_guard.dart';
+import '../../providers/subscription_provider.dart';
 
 class SellerDashboardScreen extends StatefulWidget {
   final int initialIndex;
@@ -77,6 +77,17 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
   }
 
   Future<void> _navigateToEditProduct(Product product) async {
+    final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+    if (subscriptionProvider.needsSubscription('seller')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Your seller subscription has expired or is not active. Please subscribe to continue using this feature.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -135,6 +146,17 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
   }
 
   Future<void> _showDeleteDialog(Product product) async {
+    final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+    if (subscriptionProvider.needsSubscription('seller')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Your seller subscription has expired or is not active. Please subscribe to continue using this feature.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -234,6 +256,17 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
       floatingActionButton: _selectedIndex == 0
           ? FloatingActionButton.extended(
               onPressed: () {
+                final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+                if (subscriptionProvider.needsSubscription('seller')) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Your seller subscription has expired or is not active. Please subscribe to continue using this feature.'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+                
                 Navigator.push(
                   context,
                   MaterialPageRoute(

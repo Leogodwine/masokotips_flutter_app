@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../utils/image_upload_helper.dart';
 import 'package:masoko_tips/widgets/cached_network_image_with_cors.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -147,12 +148,9 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
 
   Future<void> _pickImage() async {
     try {
-      final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(
+      final XFile? image = await ImageUploadHelper.pickAndCropImage(
+        context,
         source: ImageSource.gallery,
-        imageQuality: 80,
-        maxWidth: 1200,
-        maxHeight: 1200,
       );
 
       if (image != null) {

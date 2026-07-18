@@ -103,7 +103,9 @@ class ApiService {
     }
 
     if (response.statusCode == 401) {
-      throw Exception('Your session has expired. Please log in again.');
+      if (!url.contains('/auth/login')) {
+        throw Exception('Your session has expired. Please log in again.');
+      }
     }
 
     if (response.statusCode == 404) {

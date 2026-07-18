@@ -405,7 +405,7 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
         if (mounted) {
           // Check mounted again before using navigator
           navigator.pushNamedAndRemoveUntil(
-            '/admin/login',
+            '/home',
             (route) => false,
           );
         }

@@ -11,7 +11,6 @@ import '../chat/inbox_screen.dart';
 import './admin_login_screen.dart';
 import '../subscription/subscription_screen.dart';
 import '../../models/subscription.dart';
-import '../buyer/add_buying_request_screen.dart';
 import '../../l10n/app_localizations.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -114,7 +113,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 final navigator = Navigator.of(context);
                 await authProvider.logout();
                 if (mounted) {
-                  navigator.pushReplacementNamed('/');
+                  navigator.pushNamedAndRemoveUntil('/home', (route) => false);
                 }
               },
             ),
@@ -211,17 +210,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 label: 'POST',
                                 isCTA: true,
                                 onPressed: () {
-                                  // Smart routing: prefer dashboard where user HAS an active subscription
-                                  if (hasSellerSubscription ||
-                                      hasTransporterSubscription) {
-                                    // If user is ONLY a transporter or has transporter sub but no seller sub,
-                                    // go to transport tab (index 1)
+                                  // Navigate to dashboard based on role or subscription
+                                  bool goSeller = hasSellerSubscription || hasTransporterSubscription || user.isSeller || user.isTransporter;
+                                  bool goProvider = hasServiceProviderSubscription || user.isServiceProvider;
+                                  bool goBuyer = hasBuyerSubscription || user.isBuyer;
+
+                                  if (goSeller) {
                                     int initialIndex = 0;
-                                    if (hasTransporterSubscription &&
-                                        !hasSellerSubscription) {
-                                      initialIndex = 1;
-                                    } else if (user.isTransporter &&
-                                        !user.isSeller) {
+                                    if ((hasTransporterSubscription && !hasSellerSubscription) ||
+                                        (!hasSellerSubscription && user.isTransporter && !user.isSeller)) {
                                       initialIndex = 1;
                                     }
 
@@ -233,7 +230,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 initialIndex: initialIndex),
                                       ),
                                     );
-                                  } else if (hasServiceProviderSubscription) {
+                                  } else if (goProvider) {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -241,16 +238,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             const ProviderDashboardScreen(),
                                       ),
                                     );
-                                  } else if (hasBuyerSubscription) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const AddBuyingRequestScreen(),
-                                      ),
-                                    );
+                                  } else if (goBuyer) {
+                                    Navigator.pushNamed(context, '/buyer/dashboard');
                                   } else {
-                                    // Fallback if they have the role but no active sub yet
                                     _showSubscriptionRequiredDialog(context);
                                   }
                                 },
@@ -421,11 +411,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         title: Text(localizations.myRequests),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
-                          if (subscriptionProvider.hasActiveSubscription) {
-                            Navigator.pushNamed(context, '/buyer/dashboard');
-                          } else {
-                            _showSubscriptionRequiredDialog(context);
-                          }
+                          Navigator.pushNamed(context, '/buyer/dashboard');
                         },
                       ),
                       const Divider(height: 1),
@@ -442,26 +428,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             : 'Post Products / Transport'),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
-                          if (hasSellerSubscription ||
-                              hasTransporterSubscription) {
-                            int initialIndex = 0;
-                            if (hasTransporterSubscription &&
-                                !hasSellerSubscription) {
-                              initialIndex = 1;
-                            } else if (user.isTransporter && !user.isSeller) {
-                              initialIndex = 1;
-                            }
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SellerDashboardScreen(
-                                    initialIndex: initialIndex),
-                              ),
-                            );
-                          } else {
-                            _showSubscriptionRequiredDialog(context);
+                          int initialIndex = 0;
+                          if (user.isTransporter && !user.isSeller) {
+                            initialIndex = 1;
                           }
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SellerDashboardScreen(
+                                  initialIndex: initialIndex),
+                            ),
+                          );
                         },
                       ),
                       const Divider(height: 1),
@@ -475,17 +453,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         title: Text(localizations.postServices),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
-                          if (hasServiceProviderSubscription) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    const ProviderDashboardScreen(),
-                              ),
-                            );
-                          } else {
-                            _showSubscriptionRequiredDialog(context);
-                          }
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const ProviderDashboardScreen(),
+                            ),
+                          );
                         },
                       ),
                       const Divider(height: 1),
@@ -693,10 +667,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             );
                           }
 
-                          // Navigate to home screen
                           if (mounted) {
                             navigator.pushNamedAndRemoveUntil(
-                              '/',
+                              '/home',
                               (route) => false,
                             );
                           }
@@ -820,7 +793,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   boxShadow: isCTA
                       ? [
                           BoxShadow(
-                            color: Theme.of(context).primaryColor.withOpacity(0.4),
+                            color: Theme.of(context).primaryColor.withAlpha(102),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           )

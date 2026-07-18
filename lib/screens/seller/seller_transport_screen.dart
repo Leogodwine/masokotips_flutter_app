@@ -10,6 +10,7 @@ import 'add_transport_screen.dart';
 import 'edit_transport_screen.dart';
 import '../../utils/extensions.dart';
 import 'package:masoko_tips/l10n/app_localizations.dart';
+import '../../providers/subscription_provider.dart';
 
 class SellerTransportScreen extends StatefulWidget {
   const SellerTransportScreen({Key? key}) : super(key: key);
@@ -146,6 +147,17 @@ class _SellerTransportScreenState extends State<SellerTransportScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
+          final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+          if (subscriptionProvider.needsSubscription('seller') && subscriptionProvider.needsSubscription('transporter')) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Your subscription has expired or is not active. Please subscribe to continue using this feature.'),
+                backgroundColor: Colors.red,
+              ),
+            );
+            return;
+          }
+
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -539,6 +551,17 @@ class _SellerTransportScreenState extends State<SellerTransportScreen> {
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: () {
+                          final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+                          if (subscriptionProvider.needsSubscription('seller') && subscriptionProvider.needsSubscription('transporter')) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Your subscription has expired or is not active. Please subscribe to continue using this feature.'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
+
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -588,6 +611,17 @@ class _SellerTransportScreenState extends State<SellerTransportScreen> {
   }
 
   void _showDeleteDialog(Transport transport) {
+    final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+    if (subscriptionProvider.needsSubscription('seller') && subscriptionProvider.needsSubscription('transporter')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Your subscription has expired or is not active. Please subscribe to continue using this feature.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     showDialog(
       context: context,
       builder: (BuildContext context) {

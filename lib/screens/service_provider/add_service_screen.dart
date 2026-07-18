@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../utils/image_upload_helper.dart';
 import '../../models/service.dart';
 import '../../models/category.dart';
 import '../../services/service_service.dart';
@@ -77,11 +78,9 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   }
 
   Future<void> _pickImage(ImageSource source) async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(
+    final pickedFile = await ImageUploadHelper.pickAndCropImage(
+      context,
       source: source,
-      imageQuality: 80,
-      maxWidth: 1024,
     );
 
     if (pickedFile != null) {

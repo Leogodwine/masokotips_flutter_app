@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../utils/image_upload_helper.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:io';
 import 'dart:typed_data';
@@ -110,12 +111,9 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
   }
 
   Future<void> _pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(
+    final XFile? image = await ImageUploadHelper.pickAndCropImage(
+      context,
       source: ImageSource.gallery,
-      maxWidth: 1024,
-      maxHeight: 1024,
-      imageQuality: 80,
     );
 
     if (image != null) {

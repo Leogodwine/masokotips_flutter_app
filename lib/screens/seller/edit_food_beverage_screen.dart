@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../utils/image_upload_helper.dart';
 import 'dart:io';
 import '../../models/food_beverage.dart';
 import '../../providers/category_provider.dart';
@@ -107,12 +108,7 @@ class _EditFoodBeverageScreenState extends State<EditFoodBeverageScreen> {
 
   Future<void> _pickImages() async {
     try {
-      final ImagePicker picker = ImagePicker();
-      final List<XFile> images = await picker.pickMultiImage(
-        maxWidth: 1024,
-        maxHeight: 1024,
-        imageQuality: 80,
-      );
+      final List<XFile> images = await ImageUploadHelper.pickMultiAndCropImages(context);
 
       if (images.isNotEmpty) {
         setState(() {
