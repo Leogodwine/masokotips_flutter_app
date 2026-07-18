@@ -268,30 +268,15 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
   Widget _buildBody() {
     switch (_selectedIndex) {
       case 0:
-        return SubscriptionRequired(
-          requiredRole: 'seller',
-          child: _buildProductsSection(),
-        );
+        return _buildProductsSection();
       case 1:
-        return const SubscriptionRequired(
-          requiredRole: 'transporter',
-          child: SellerTransportScreen(),
-        );
+        return const SellerTransportScreen();
       case 2:
-        return const SubscriptionRequired(
-          requiredRole: 'seller',
-          child: SellerOrganicProductsScreen(),
-        );
+        return const SellerOrganicProductsScreen();
       case 3:
-        return const SubscriptionRequired(
-          requiredRole: 'seller',
-          child: SellerFoodBeveragesScreen(),
-        );
+        return const SellerFoodBeveragesScreen();
       default:
-        return SubscriptionRequired(
-          requiredRole: 'seller',
-          child: _buildProductsSection(),
-        );
+        return _buildProductsSection();
     }
   }
 
