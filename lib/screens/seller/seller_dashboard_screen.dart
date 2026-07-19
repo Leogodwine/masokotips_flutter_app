@@ -198,15 +198,121 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
         .toList();
   }
 
+  Widget _buildSellerFab(BuildContext context) {
+    return FloatingActionButton.extended(
+      onPressed: () {
+        final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+        if (subscriptionProvider.needsSubscription('seller')) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Your seller subscription has expired or is not active. Please subscribe to continue using this feature.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+        
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AddProductScreen(
+              onProductAdded: (product) {
+                debugPrint('Product added callback received: ${product.name}');
+                setState(() {
+                  _sellerProducts.add(product);
+                });
+              },
+              productService: _productService,
+            ),
+          ),
+        );
+      },
+      icon: const Icon(Icons.add),
+      label: const Text('POST', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+      backgroundColor: Theme.of(context).primaryColor,
+      foregroundColor: Colors.white,
+      elevation: 4,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = authProvider.user;
+
+    final isSeller = user?.roles.contains('seller') ?? false;
+    final isTransporter = user?.roles.contains('transporter') ?? false;
+
+    final List<Map<String, dynamic>> tabs = [];
+
+    if (isSeller) {
+      tabs.add({
+        'item': BottomNavigationBarItem(
+          icon: const Icon(Icons.inventory),
+          label: AppLocalizations.of(context)?.productsTab ?? 'Products',
+        ),
+        'body': _buildProductsSection(),
+        'fab': _buildSellerFab(context),
+      });
+    }
+
+    if (isTransporter) {
+      tabs.add({
+        'item': BottomNavigationBarItem(
+          icon: const Icon(Icons.directions_car),
+          label: AppLocalizations.of(context)?.transportsTab ?? 'Transports',
+        ),
+        'body': const SellerTransportScreen(),
+        'fab': null,
+      });
+    }
+
+    if (isSeller) {
+      tabs.add({
+        'item': BottomNavigationBarItem(
+          icon: const Icon(Icons.eco),
+          label: AppLocalizations.of(context)?.organicTab ?? 'Organic',
+        ),
+        'body': const SellerOrganicProductsScreen(),
+        'fab': null,
+      });
+      tabs.add({
+        'item': BottomNavigationBarItem(
+          icon: const Icon(Icons.restaurant_menu),
+          label: AppLocalizations.of(context)?.foodAndBeverages ?? 'Food & Beverages',
+        ),
+        'body': const SellerFoodBeveragesScreen(),
+        'fab': null,
+      });
+    }
+
+    // fallback
+    if (tabs.isEmpty) {
+      tabs.add({
+        'item': BottomNavigationBarItem(
+          icon: const Icon(Icons.inventory),
+          label: AppLocalizations.of(context)?.productsTab ?? 'Products',
+        ),
+        'body': _buildProductsSection(),
+        'fab': _buildSellerFab(context),
+      });
+    }
+
+    if (_selectedIndex >= tabs.length) {
+      _selectedIndex = 0;
+    }
+
+    final currentTab = tabs[_selectedIndex];
+
     // Hide dashboard AppBar if we are on a tab that provides its own Scaffold/AppBar
-    bool showDashboardAppBar = _selectedIndex == 0;
+    bool showDashboardAppBar = (currentTab['body'] is! SellerTransportScreen &&
+        currentTab['body'] is! SellerOrganicProductsScreen &&
+        currentTab['body'] is! SellerFoodBeveragesScreen);
 
     return Scaffold(
       appBar: showDashboardAppBar
           ? AppBar(
-              title: Text(AppLocalizations.of(context)!.sellerDashboardTitle),
+              title: Text(AppLocalizations.of(context)?.sellerDashboardTitle ?? 'Dashboard'),
               actions: [
                 IconButton(
                   icon: const Icon(Icons.refresh),
@@ -215,7 +321,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
               ],
             )
           : null,
-      bottomNavigationBar: Container(
+      bottomNavigationBar: tabs.length > 1 ? Container(
         decoration: BoxDecoration(
           border: Border(
             top: BorderSide(color: Colors.grey[300]!, width: 1),
@@ -233,84 +339,13 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
               _selectedIndex = index;
             });
           },
-          items: [
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.inventory),
-              label: AppLocalizations.of(context)!.productsTab,
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.directions_car),
-              label: AppLocalizations.of(context)!.transportsTab,
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.eco),
-              label: AppLocalizations.of(context)!.organicTab,
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.restaurant_menu),
-              label: AppLocalizations.of(context)!.foodAndBeverages,
-            ),
-          ],
+          items: tabs.map((t) => t['item'] as BottomNavigationBarItem).toList(),
         ),
-      ),
-      floatingActionButton: _selectedIndex == 0
-          ? FloatingActionButton.extended(
-              onPressed: () {
-                final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
-                if (subscriptionProvider.needsSubscription('seller')) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Your seller subscription has expired or is not active. Please subscribe to continue using this feature.'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                  return;
-                }
-                
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AddProductScreen(
-                      onProductAdded: (product) {
-                        debugPrint(
-                            'Product added callback received: ${product.name}');
-                        setState(() {
-                          _sellerProducts.add(product);
-                          debugPrint(
-                              'Product added to list. Total products: ${_sellerProducts.length}');
-                        });
-                      },
-                      productService: _productService,
-                    ),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.add),
-              label: const Text('POST', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              backgroundColor: Theme.of(context).primaryColor,
-              foregroundColor: Colors.white,
-              elevation: 4,
-            )
-          : null,
+      ) : null,
+      floatingActionButton: currentTab['fab'],
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      body: _buildBody(),
+      body: currentTab['body'] as Widget,
     );
-  }
-
-
-  Widget _buildBody() {
-    switch (_selectedIndex) {
-      case 0:
-        return _buildProductsSection();
-      case 1:
-        return const SellerTransportScreen();
-      case 2:
-        return const SellerOrganicProductsScreen();
-      case 3:
-        return const SellerFoodBeveragesScreen();
-      default:
-        return _buildProductsSection();
-    }
   }
 
   Widget _buildProductsSection() {
