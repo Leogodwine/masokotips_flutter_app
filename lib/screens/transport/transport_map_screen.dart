@@ -13,11 +13,13 @@ import 'package:masoko_tips/l10n/app_localizations.dart';
 class TransportMapScreen extends StatefulWidget {
   final String category;
   final int? categoryId;
+  final Transport? singleTransport;
 
   const TransportMapScreen({
     super.key,
     this.categoryId,
     required this.category,
+    this.singleTransport,
   });
 
   @override
@@ -107,6 +109,14 @@ class _TransportMapScreenState extends State<TransportMapScreen> {
   }
 
   Future<void> _loadTransports() async {
+    if (widget.singleTransport != null) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+      return;
+    }
     try {
       await context.read<TransportProvider>().loadTransports(
             categoryId: _categoryId?.toString(),
@@ -383,12 +393,17 @@ class _TransportMapScreenState extends State<TransportMapScreen> {
   Widget build(BuildContext context) {
     if (_isLoading || _currentPosition == null) {
       return Scaffold(
-        appBar: AppBar(title: Text("${widget.category} Map")),
+        appBar: AppBar(
+            title: Text(widget.singleTransport != null
+                ? widget.singleTransport!.title
+                : "${widget.category} Map")),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
-    final transports = context.watch<TransportProvider>().transports;
+    final transports = widget.singleTransport != null
+        ? [widget.singleTransport!]
+        : context.watch<TransportProvider>().transports;
 
     // Build map markers
     final markers = <Marker>[];
@@ -444,7 +459,9 @@ class _TransportMapScreenState extends State<TransportMapScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("${widget.category} Map"),
+        title: Text(widget.singleTransport != null
+            ? widget.singleTransport!.title
+            : "${widget.category} Map"),
         centerTitle: true,
       ),
       body: FlutterMap(

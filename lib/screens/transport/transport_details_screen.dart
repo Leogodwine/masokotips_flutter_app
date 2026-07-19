@@ -10,6 +10,7 @@ import '../seller/seller_public_profile_screen.dart' as import_profile;
 import '../../providers/subscription_provider.dart';
 import '../subscription/subscription_screen.dart';
 import 'package:masoko_tips/l10n/app_localizations.dart';
+import 'transport_map_screen.dart';
 
 class TransportDetailsScreen extends StatelessWidget {
   final Transport transport;
@@ -133,6 +134,31 @@ class TransportDetailsScreen extends StatelessWidget {
               ),
             ),
             actions: [
+              // Map Button
+              if (transport.latitude != null && transport.longitude != null)
+                Container(
+                  margin: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.map_outlined, color: Colors.white),
+                    tooltip: 'View on Map',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => TransportMapScreen(
+                            category: transport.category?.name ?? 'all',
+                            categoryId: transport.categoryId,
+                            singleTransport: transport,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
               // Subscribe Button
               Container(
                 margin: const EdgeInsets.all(8),
