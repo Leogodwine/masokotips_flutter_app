@@ -7,6 +7,7 @@ import '../../models/category.dart';
 import 'add_service_screen.dart';
 import 'edit_service_screen.dart';
 import 'package:masoko_tips/l10n/app_localizations.dart';
+import '../../providers/subscription_provider.dart';
 
 class ProviderServicesScreen extends StatefulWidget {
   const ProviderServicesScreen({Key? key}) : super(key: key);
@@ -230,6 +231,17 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
                             const SizedBox(height: 32),
                             ElevatedButton.icon(
                               onPressed: () {
+                                final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+                                if (subscriptionProvider.needsSubscription('service_provider')) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Your service provider subscription has expired or is not active. Please subscribe to continue using this feature.'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                  return;
+                                }
+
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -451,6 +463,17 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
                                               ),
                                             ],
                                             onSelected: (value) {
+                                              final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+                                              if (subscriptionProvider.needsSubscription('service_provider')) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text('Your service provider subscription has expired or is not active. Please subscribe to continue using this feature.'),
+                                                    backgroundColor: Colors.red,
+                                                  ),
+                                                );
+                                                return;
+                                              }
+
                                               if (value == 'edit') {
                                                 Navigator.push(
                                                   context,
@@ -686,6 +709,17 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
         ),
         child: FloatingActionButton.extended(
           onPressed: () {
+            final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+            if (subscriptionProvider.needsSubscription('service_provider')) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Your service provider subscription has expired or is not active. Please subscribe to continue using this feature.'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+              return;
+            }
+
             Navigator.push(
               context,
               MaterialPageRoute(

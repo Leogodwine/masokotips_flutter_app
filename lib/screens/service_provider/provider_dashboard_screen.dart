@@ -7,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'add_service_screen.dart';
 import 'edit_service_screen.dart';
+import '../../providers/subscription_provider.dart';
 
 class ProviderDashboardScreen extends StatefulWidget {
   const ProviderDashboardScreen({Key? key}) : super(key: key);
@@ -95,6 +96,17 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
   }
 
   Future<void> _navigateToEditService(Service service) async {
+    final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+    if (subscriptionProvider.needsSubscription('service_provider')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Your service provider subscription has expired or is not active. Please subscribe to continue using this feature.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -122,6 +134,17 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
 
   Future<void> _deleteService(Service service) async {
     if (_serviceService == null) return;
+
+    final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+    if (subscriptionProvider.needsSubscription('service_provider')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Your service provider subscription has expired or is not active. Please subscribe to continue using this feature.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
     // Capture context-dependent objects before async operation
     final scaffoldMessenger = ScaffoldMessenger.of(context);
@@ -198,6 +221,17 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
+          final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+          if (subscriptionProvider.needsSubscription('service_provider')) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Your service provider subscription has expired or is not active. Please subscribe to continue using this feature.'),
+                backgroundColor: Colors.red,
+              ),
+            );
+            return;
+          }
+
           Navigator.push(
             context,
             MaterialPageRoute(
