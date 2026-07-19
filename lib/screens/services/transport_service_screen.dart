@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../providers/cart_provider.dart';
 import 'package:provider/provider.dart';
 import '../../models/product.dart';
+import '../../providers/auth_provider.dart';
 import 'package:masoko_tips/l10n/app_localizations.dart';
 
 class TransportServiceScreen extends StatelessWidget {

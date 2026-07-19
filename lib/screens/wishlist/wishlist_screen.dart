@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/wishlist_provider.dart';
 import '../../providers/cart_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../products/product_details_screen.dart';
 import '../../widgets/error_handler.dart';
 import 'package:cached_network_image/cached_network_image.dart';

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/orders_provider.dart';
 import '../../providers/auth_provider.dart';
-import '../../models/address.dart';
+
 import '../../models/cart_item.dart' as models;
 import '../../widgets/loading_button.dart';
 import '../orders/order_success_screen.dart';
