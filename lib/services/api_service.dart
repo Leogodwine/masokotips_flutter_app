@@ -1201,13 +1201,16 @@ class ApiService {
       Log.e('Order creation response body: ${response.body}');
 
       _checkBotInterference(response, response.body);
-      if (response.statusCode == 201 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
-        final responseData = _decodeJson(response.body);
+      
+      final responseData = _decodeJson(response.body);
+      
+      if (response.statusCode == 201 || response.statusCode == 200) {
         Log.e('Order created successfully');
         return responseData;
       } else {
         Log.e('Order creation failed: ${response.body}');
-        throw Exception('Failed to create order: ${response.statusCode}');
+        final errorMessage = responseData['message'] ?? 'Validation Error';
+        throw Exception(errorMessage);
       }
     } catch (e, stackTrace) {
       Log.e('Error creating order: $e');
