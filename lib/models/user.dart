@@ -17,6 +17,8 @@ class User {
   @JsonKey(name: 'phone')
   final String? phoneNumber;
 
+  final String? address;
+
   final String? avatar;
 
   /// Normalized roles list
@@ -51,6 +53,7 @@ class User {
     required this.name,
     required this.email,
     this.phoneNumber,
+    this.address,
     this.avatar,
     required this.roles,
     this.emailVerifiedAt,

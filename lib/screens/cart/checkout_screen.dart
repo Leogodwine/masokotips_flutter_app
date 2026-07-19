@@ -35,88 +35,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   void _loadInitialData() {
-    // Use sample phone number for demo purposes
-    _phoneController.text = '+255 123 456 789';
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authProvider = context.read<AuthProvider>();
+      final user = authProvider.user;
 
-    _loadSavedAddresses();
-  }
-
-  Future<void> _loadSavedAddresses() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    setState(() {
-      _addresses = [
-        Address(
-          id: '1',
-          name: 'Home',
-          street: 'Shanty town',
-          city: 'Moshi',
-          state: 'Kilimanjaro',
-          zipCode: '25100',
-          country: 'Tanzania',
-          isDefault: true,
-        ),
-      ];
-
-      _selectedAddress = _addresses.firstWhere(
-        (address) => address.isDefault,
-        orElse: () => _addresses.first,
-      );
-
-      _addressController.text =
-          '${_selectedAddress?.street}, ${_selectedAddress?.city}, ${_selectedAddress?.state} ${_selectedAddress?.zipCode}, ${_selectedAddress?.country}';
+      if (user != null) {
+        if (user.phoneNumber != null && user.phoneNumber!.isNotEmpty) {
+          _phoneController.text = user.phoneNumber!;
+        }
+        if (user.address != null && user.address!.isNotEmpty) {
+          _addressController.text = user.address!;
+        }
+      }
     });
-  }
-
-  void _selectAddress() async {
-    if (_addresses.isEmpty) {
-      await Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const AddressManagementScreen()),
-      );
-      _loadSavedAddresses();
-      return;
-    }
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.addAddress),
-        content: SizedBox(
-          height: 300,
-          width: double.maxFinite,
-          child: RadioGroup<String>(
-            groupValue: _selectedAddress?.id,
-            onChanged: (value) {
-              final address = _addresses.firstWhere((a) => a.id == value);
-              setState(() {
-                _selectedAddress = address;
-                _addressController.text =
-                    '${address.street}, ${address.city}, ${address.state} ${address.zipCode}, ${address.country}';
-              });
-              Navigator.pop(context);
-            },
-            child: ListView.builder(
-              itemCount: _addresses.length,
-              itemBuilder: (context, index) {
-                final address = _addresses[index];
-                return RadioListTile<String>(
-                  value: address.id,
-                  title: Text(address.name),
-                  subtitle: Text('${address.street}, ${address.city}'),
-                );
-              },
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(AppLocalizations.of(context)!.cancel),
-          ),
-        ],
-      ),
-    );
   }
 
   void _placeOrder() async {
@@ -465,14 +396,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             // Address Selection
             TextFormField(
               controller: _addressController,
-              readOnly: true,
               decoration: InputDecoration(
                 labelText: AppLocalizations.of(context)!.deliveryAddress,
+                hintText: 'e.g. Shanty town, Moshi, Kilimanjaro 25100, Tanzania',
                 prefixIcon: const Icon(Icons.location_on),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.edit_location_alt),
-                  onPressed: _selectAddress,
-                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),

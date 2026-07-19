@@ -11,6 +11,7 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
       name: json['name'] as String,
       email: json['email'] as String,
       phoneNumber: json['phone'] as String?,
+      address: json['address'] as String?,
       avatar: json['avatar'] as String?,
       roles: (json['roles'] as List<dynamic>).map((e) => e as String).toList(),
       emailVerifiedAt: json['email_verified_at'] == null
@@ -28,6 +29,7 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'name': instance.name,
       'email': instance.email,
       'phone': instance.phoneNumber,
+      'address': instance.address,
       'avatar': instance.avatar,
       'roles': instance.roles,
       'email_verified_at': instance.emailVerifiedAt?.toIso8601String(),
