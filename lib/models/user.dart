@@ -79,6 +79,14 @@ class User {
               parsedRoles.add(item.toString());
             }
           }
+        } else if (decoded is Map) {
+          for (var value in decoded.values) {
+            if (value is Map) {
+              parsedRoles.add((value['name'] ?? value['slug'] ?? value.toString()).toString());
+            } else {
+              parsedRoles.add(value.toString());
+            }
+          }
         } else {
           parsedRoles = [rolesRaw];
         }
@@ -92,6 +100,14 @@ class User {
           parsedRoles.add((item['name'] ?? item['slug'] ?? item.toString()).toString());
         } else {
           parsedRoles.add(item.toString());
+        }
+      }
+    } else if (rolesRaw is Map) {
+      for (var value in rolesRaw.values) {
+        if (value is Map) {
+          parsedRoles.add((value['name'] ?? value['slug'] ?? value.toString()).toString());
+        } else {
+          parsedRoles.add(value.toString());
         }
       }
     } else if (rolesRaw != null) {
