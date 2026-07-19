@@ -578,12 +578,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
-                                  Icons.attach_money,
-                                  color: Theme.of(context).primaryColor,
-                                  size: 18,
-                                ),
-                                const SizedBox(width: 4),
+
                                 Text(
                                   'TZS ${service.price.toStringAsFixed(0)}',
                                   style: TextStyle(
