@@ -303,15 +303,17 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             const SizedBox(height: 16),
 
             // ADD TO CART BUTTON
-            ElevatedButton.icon(
-              onPressed: _handleAddToCart,
-              icon: const Icon(Icons.add_shopping_cart),
-              label: Text(AppLocalizations.of(context)!.addToCart),
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
-                backgroundColor: theme.primaryColor,
+            if (!context.watch<AuthProvider>().isAuthenticated ||
+                (context.watch<AuthProvider>().user?.isBuyer ?? false))
+              ElevatedButton.icon(
+                onPressed: _handleAddToCart,
+                icon: const Icon(Icons.add_shopping_cart),
+                label: Text(AppLocalizations.of(context)!.addToCart),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                  backgroundColor: theme.primaryColor,
+                ),
               ),
-            ),
 
             const SizedBox(height: 24),
 

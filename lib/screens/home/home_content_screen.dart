@@ -833,50 +833,52 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                                     ),
                                   ),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      right: 8.0, bottom: 8.0),
-                                  child: Align(
-                                    alignment: Alignment.bottomRight,
-                                    child: FloatingActionButton.small(
-                                      heroTag: 'add-to-cart-${product.id}',
-                                      onPressed: () {
-                                        final cartProvider =
-                                            context.read<CartProvider>();
-                                        cartProvider.addToCart(product);
+                                if (!context.watch<AuthProvider>().isAuthenticated ||
+                                    (context.watch<AuthProvider>().user?.isBuyer ?? false))
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        right: 8.0, bottom: 8.0),
+                                    child: Align(
+                                      alignment: Alignment.bottomRight,
+                                      child: FloatingActionButton.small(
+                                        heroTag: 'add-to-cart-${product.id}',
+                                        onPressed: () {
+                                          final cartProvider =
+                                              context.read<CartProvider>();
+                                          cartProvider.addToCart(product);
 
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              localizations.productAddedToCart(
-                                                  product.name),
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                localizations.productAddedToCart(
+                                                    product.name),
+                                              ),
+                                              duration:
+                                                  const Duration(seconds: 2),
+                                              action: SnackBarAction(
+                                                label: localizations.viewCart,
+                                                onPressed: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (_) =>
+                                                            const CartScreen()),
+                                                  );
+                                                },
+                                              ),
                                             ),
-                                            duration:
-                                                const Duration(seconds: 2),
-                                            action: SnackBarAction(
-                                              label: localizations.viewCart,
-                                              onPressed: () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: (_) =>
-                                                          const CartScreen()),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      backgroundColor:
-                                          Theme.of(context).primaryColor,
-                                      foregroundColor: Colors.white,
-                                      elevation: 2,
-                                      child: const Icon(Icons.add_shopping_cart,
-                                          size: 20),
+                                          );
+                                        },
+                                        backgroundColor:
+                                            Theme.of(context).primaryColor,
+                                        foregroundColor: Colors.white,
+                                        elevation: 2,
+                                        child: const Icon(Icons.add_shopping_cart,
+                                            size: 20),
+                                      ),
                                     ),
                                   ),
-                                ),
                               ],
                             ),
                           ),

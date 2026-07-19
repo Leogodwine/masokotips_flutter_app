@@ -138,31 +138,33 @@ class WishlistScreen extends StatelessWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Consumer<CartProvider>(
-                              builder: (context, cartProvider, _) {
-                                final isInCart =
-                                    cartProvider.isInCart(product.id);
-                                return IconButton(
-                                  icon: Icon(
-                                    isInCart
-                                        ? Icons.shopping_cart
-                                        : Icons.add_shopping_cart,
-                                    color: isInCart
-                                        ? Colors.green
-                                        : Colors.black54,
-                                  ),
-                                  tooltip: isInCart ? 'In Cart' : 'Add to Cart',
-                                  onPressed: () {
-                                    if (!isInCart) {
-                                      cartProvider.addToCart(product);
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content: Text(AppLocalizations.of(context)!.addedToCart),
-                                          duration: const Duration(seconds: 2),
-                                        ),
-                                      );
-                                    } else {
+                            if (!context.watch<AuthProvider>().isAuthenticated ||
+                                (context.watch<AuthProvider>().user?.isBuyer ?? false))
+                              Consumer<CartProvider>(
+                                builder: (context, cartProvider, _) {
+                                  final isInCart =
+                                      cartProvider.isInCart(product.id);
+                                  return IconButton(
+                                    icon: Icon(
+                                      isInCart
+                                          ? Icons.shopping_cart
+                                          : Icons.add_shopping_cart,
+                                      color: isInCart
+                                          ? Colors.green
+                                          : Colors.black54,
+                                    ),
+                                    tooltip: isInCart ? 'In Cart' : 'Add to Cart',
+                                    onPressed: () {
+                                      if (!isInCart) {
+                                        cartProvider.addToCart(product);
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(AppLocalizations.of(context)!.addedToCart),
+                                            duration: const Duration(seconds: 2),
+                                          ),
+                                        );
+                                      } else {
                                       Navigator.pushNamed(context, '/cart');
                                     }
                                   },

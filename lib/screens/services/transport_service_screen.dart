@@ -133,8 +133,11 @@ class TransportServiceScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
+      bottomNavigationBar: (context.watch<AuthProvider>().isAuthenticated &&
+              !(context.watch<AuthProvider>().user?.isBuyer ?? false))
+          ? null
+          : Container(
+              padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [

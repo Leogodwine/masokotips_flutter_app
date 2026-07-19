@@ -85,43 +85,52 @@ class AppScaffold extends StatelessWidget {
               )
             : null,
         actions: [
-          // Cart icon with badge
-          Consumer<CartProvider>(
-            builder: (context, cartProvider, child) {
-              return Stack(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.shopping_cart),
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/cart');
-                    },
-                  ),
-                  if (cartProvider.itemCount > 0)
-                    Positioned(
-                      right: 8,
-                      top: 8,
-                      child: Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        constraints: const BoxConstraints(
-                          minWidth: 16,
-                          minHeight: 16,
-                        ),
-                        child: Text(
-                          '${cartProvider.itemCount}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
+          // Cart icon with badge (only for guests or buyers)
+          Consumer<AuthProvider>(
+            builder: (context, authProvider, child) {
+              final showCart = !authProvider.isAuthenticated ||
+                  (authProvider.user?.isBuyer ?? false);
+              
+              if (!showCart) return const SizedBox.shrink();
+
+              return Consumer<CartProvider>(
+                builder: (context, cartProvider, child) {
+                  return Stack(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.shopping_cart),
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/cart');
+                        },
                       ),
-                    ),
-                ],
+                      if (cartProvider.itemCount > 0)
+                        Positioned(
+                          right: 8,
+                          top: 8,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            child: Text(
+                              '${cartProvider.itemCount}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
               );
             },
           ),

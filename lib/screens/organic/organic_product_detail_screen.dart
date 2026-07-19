@@ -236,15 +236,17 @@ class _OrganicProductDetailScreenState extends State<OrganicProductDetailScreen>
 
             const SizedBox(height: 24),
 
-            ElevatedButton.icon(
-              onPressed: _handleAddToCart,
-              icon: const Icon(Icons.add_shopping_cart),
-              label: Text(AppLocalizations.of(context)!.addToCart),
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
-                backgroundColor: theme.primaryColor,
+            if (!context.watch<AuthProvider>().isAuthenticated ||
+                (context.watch<AuthProvider>().user?.isBuyer ?? false))
+              ElevatedButton.icon(
+                onPressed: _handleAddToCart,
+                icon: const Icon(Icons.add_shopping_cart),
+                label: Text(AppLocalizations.of(context)!.addToCart),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                  backgroundColor: theme.primaryColor,
+                ),
               ),
-            ),
 
             const Divider(),
             const SizedBox(height: 16),
