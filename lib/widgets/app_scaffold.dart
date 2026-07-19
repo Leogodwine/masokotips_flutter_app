@@ -62,7 +62,24 @@ class AppScaffold extends StatelessWidget {
       );
       return;
     }
-    onBottomNavItemTapped?.call(index);
+    if (onBottomNavItemTapped != null) {
+      onBottomNavItemTapped!.call(index);
+    } else {
+      switch (index) {
+        case 0:
+          Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+          break;
+        case 1:
+          Navigator.pushNamed(context, '/wishlist');
+          break;
+        case 2:
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const InboxScreen()));
+          break;
+        case 3:
+          Navigator.pushNamed(context, '/profile');
+          break;
+      }
+    }
   }
 
   @override
