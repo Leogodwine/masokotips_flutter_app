@@ -19,6 +19,7 @@ import 'package:masoko_tips/screens/seller/seller_public_profile_screen.dart' as
 
 import '../../models/buying_request.dart';
 import '../../models/category.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/category_provider.dart';
 import '../../providers/market_info_provider.dart';

@@ -5,7 +5,6 @@ import '../../providers/orders_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/address.dart';
 import '../../models/cart_item.dart' as models;
-import '../profile/address_management_screen.dart';
 import '../../widgets/loading_button.dart';
 import '../orders/order_success_screen.dart';
 import '../../l10n/app_localizations.dart';
@@ -22,11 +21,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
   final _notesController = TextEditingController();
-  String _paymentMethod = 'Cash';
+  final String _paymentMethod = 'Cash';
   String _deliveryMethod = 'Standard';
   bool _isLoading = false;
-  Address? _selectedAddress;
-  List<Address> _addresses = [];
 
   @override
   void initState() {
