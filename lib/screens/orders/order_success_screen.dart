@@ -86,7 +86,7 @@ class OrderSuccessScreen extends StatelessWidget {
                           '${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}'),
                       _buildDetailRow(
                           'Estimated Delivery', '3-5 business days'),
-                      _buildDetailRow('Payment Method', 'Cash on Delivery'),
+                      _buildDetailRow('Payment Method', 'Direct with Seller'),
                     ],
                   ),
                 ),

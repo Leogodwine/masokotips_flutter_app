@@ -268,8 +268,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               _buildDeliveryInfoCard(),
               const SizedBox(height: 20),
 
-              // Payment Method Card
-              _buildPaymentMethodCard(),
+              // Payment Info Card (Replaces Payment Method)
+              _buildPaymentInfoCard(),
               const SizedBox(height: 20),
 
               // Order Notes Card
@@ -509,10 +509,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  Widget _buildPaymentMethodCard() {
+  Widget _buildPaymentInfoCard() {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: Theme.of(context).primaryColor.withValues(alpha: 0.05),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -520,81 +521,25 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           children: [
             Row(
               children: [
-                Icon(Icons.payment, color: Theme.of(context).primaryColor),
+                Icon(Icons.info_outline, color: Theme.of(context).primaryColor),
                 const SizedBox(width: 8),
-                Text(
-                  AppLocalizations.of(context)!.paymentMethod,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                Expanded(
+                  child: Text(
+                    'Direct Seller Payment',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-
-            // Cash on Delivery
-            RadioGroup<String>(
-              groupValue: _paymentMethod,
-              onChanged: (value) {
-                setState(() => _paymentMethod = value.toString());
-              },
-              child: Column(
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: _paymentMethod == 'Cash'
-                            ? Theme.of(context).primaryColor
-                            : Colors.grey[300]!,
-                        width: 2,
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                      color: _paymentMethod == 'Cash'
-                          ? Theme.of(context)
-                              .primaryColor
-                              .withValues(alpha: 0.1)
-                          : Colors.white,
-                    ),
-                    child: RadioListTile(
-                      title: Text(AppLocalizations.of(context)!.cashOnDelivery),
-                      subtitle: Text(AppLocalizations.of(context)!
-                          .cashOnDeliveryDescription),
-                      value: 'Cash',
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 16),
-                      activeColor: Theme.of(context).primaryColor,
-                    ),
-                  ),
-
-                  // Credit Card
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: _paymentMethod == 'Card'
-                            ? Theme.of(context).primaryColor
-                            : Colors.grey[300]!,
-                        width: 2,
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                      color: _paymentMethod == 'Card'
-                          ? Theme.of(context)
-                              .primaryColor
-                              .withValues(alpha: 0.1)
-                          : Colors.white,
-                    ),
-                    child: RadioListTile(
-                      title:
-                          Text(AppLocalizations.of(context)!.creditDebitCard),
-                      subtitle: Text(AppLocalizations.of(context)!
-                          .creditDebitCardDescription),
-                      value: 'Card',
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 16),
-                      activeColor: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                ],
+            Text(
+              'This system does not collect money on behalf of sellers. Once you place this order, the seller will receive your details and message. You will communicate directly to arrange payment and delivery.',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[700],
+                height: 1.5,
               ),
             ),
           ],
@@ -614,10 +559,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           children: [
             Row(
               children: [
-                Icon(Icons.note_add, color: Theme.of(context).primaryColor),
+                Icon(Icons.message, color: Theme.of(context).primaryColor),
                 const SizedBox(width: 8),
                 Text(
-                  AppLocalizations.of(context)!.orderNotesOptional,
+                  'Message to Seller (Optional)',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -629,7 +574,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               controller: _notesController,
               maxLines: 3,
               decoration: InputDecoration(
-                hintText: AppLocalizations.of(context)!.orderNotesHint,
+                hintText: 'Add any specific instructions or questions for the seller...',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
