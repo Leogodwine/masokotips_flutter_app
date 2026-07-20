@@ -66,9 +66,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
         // 1. Register the user
         await authProvider.register(
-          _nameController.text,
-          _usernameController.text,
-          _emailController.text,
+          _nameController.text.trim(),
+          _usernameController.text.trim(),
+          _emailController.text.trim(),
           _passwordController.text,
           role: _selectedRole,
           phone: _phoneController.text,
@@ -84,7 +84,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
         // 2. Automatically log the user in so that subscription APIs have a token
         await authProvider.login(
-          _usernameController.text,
+          _usernameController.text.trim(),
           _passwordController.text,
         );
 
@@ -256,13 +256,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
+                      final trimmedValue = value?.trim();
+                      if (trimmedValue == null || trimmedValue.isEmpty) {
                         return AppLocalizations.of(context)!.pleaseEnterUsername;
                       }
-                      if (value.length < 3) {
+                      if (trimmedValue.length < 3) {
                         return AppLocalizations.of(context)!.usernameTooShort;
                       }
-                      if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(value)) {
+                      if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(trimmedValue)) {
                         return AppLocalizations.of(context)!.usernameInvalid;
                       }
                       return null;
@@ -285,11 +286,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
+                      final trimmedEmail = value?.trim();
+                      if (trimmedEmail == null || trimmedEmail.isEmpty) {
                         return AppLocalizations.of(context)!.pleaseEnterEmail;
                       }
                       if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                          .hasMatch(value)) {
+                          .hasMatch(trimmedEmail)) {
                         return AppLocalizations.of(context)!.invalidEmail;
                       }
                       return null;
