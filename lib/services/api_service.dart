@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import '../models/user.dart';
 import '../models/product.dart'; // Ensure this file contains the Product class definition
 import '../models/category.dart'; // Ensure this file contains the Category class definition
@@ -354,7 +355,7 @@ class ApiService {
       String? location,
       String? country,
       String? proofOfAddressType,
-      File? proofOfAddress,
+      XFile? proofOfAddress,
       String? referralCode}) async {
     try {
       final url = Uri.parse('$baseUrl/auth/register');
@@ -382,8 +383,7 @@ class ApiService {
 
         // Add file — use fromBytes to avoid dart:io MultipartFile.fromPath issues
         final proofBytes = await proofOfAddress.readAsBytes();
-        final proofFilename =
-            proofOfAddress.path.split('/').last.split('\\').last;
+        final proofFilename = proofOfAddress.name;
         request.files.add(http.MultipartFile.fromBytes(
           'proof_of_address',
           proofBytes,

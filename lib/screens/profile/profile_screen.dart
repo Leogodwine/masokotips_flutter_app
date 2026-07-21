@@ -300,14 +300,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       context, '/admin/market-info');
                                 },
                               ),
-                            _buildQuickActionButton(
-                              context,
-                              icon: Icons.shopping_bag,
-                              label: AppLocalizations.of(context)!.myOrders,
-                              onPressed: () {
-                                Navigator.pushNamed(context, '/orders');
-                              },
-                            ),
+                            if (user.roles.contains('buyer'))
+                              _buildQuickActionButton(
+                                context,
+                                icon: Icons.shopping_bag,
+                                label: AppLocalizations.of(context)!.myOrders,
+                                onPressed: () {
+                                  Navigator.pushNamed(context, '/orders');
+                                },
+                              ),
                             _buildQuickActionButton(
                               context,
                               icon: Icons.settings,
@@ -464,19 +465,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const Divider(height: 1),
                     ],
-                    ListTile(
-                      leading: const Icon(Icons.shopping_bag),
-                      title: Text(AppLocalizations.of(context)!.myOrders),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () {
-                        if (isLoggedIn) {
-                          Navigator.pushNamed(context, '/orders');
-                        } else {
-                          _showLoginDialog(context);
-                        }
-                      },
-                    ),
-                    const Divider(height: 1),
+                    if (!isLoggedIn || (user != null && user.roles.contains('buyer'))) ...[
+                      ListTile(
+                        leading: const Icon(Icons.shopping_bag),
+                        title: Text(AppLocalizations.of(context)!.myOrders),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () {
+                          if (isLoggedIn) {
+                            Navigator.pushNamed(context, '/orders');
+                          } else {
+                            _showLoginDialog(context);
+                          }
+                        },
+                      ),
+                      const Divider(height: 1),
+                    ],
                     ListTile(
                       leading: const Icon(Icons.chat),
                       title: Text(AppLocalizations.of(context)!.messages),

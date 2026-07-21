@@ -14,11 +14,11 @@ class BuyerService {
       throw Exception('Authentication token not found');
     }
 
-    return {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $token',
-      if (!isMultipart) 'Content-Type': 'application/json',
-    };
+    final headers = ApiConfig.getHeaders(token);
+    if (isMultipart) {
+      headers.remove('Content-Type');
+    }
+    return headers;
   }
 
   Future<List<BuyingRequest>> getMyRequests() async {
@@ -40,6 +40,9 @@ class BuyerService {
         throw Exception('Failed to load requests: ${response.statusCode}');
       }
     } catch (e) {
+      if (e is FormatException) {
+        throw Exception('Server returned invalid data. Please try again.');
+      }
       throw Exception('Network error: $e');
     }
   }
@@ -82,12 +85,13 @@ class BuyerService {
         final data = json.decode(response.body);
         return BuyingRequest.fromJson(data['data']);
       } else if (response.statusCode == 403) {
-        throw Exception('Subscription required to post buying requests');
+        throw 'Oops! You need an active subscription to post buying requests. Please subscribe to continue 😊';
       } else {
         final errorData = json.decode(response.body);
-        throw Exception(errorData['message'] ?? 'Failed to create request');
+        throw errorData['message'] ?? 'Failed to create request';
       }
     } catch (e) {
+      if (e is String) throw e;
       throw Exception('Network error: $e');
     }
   }

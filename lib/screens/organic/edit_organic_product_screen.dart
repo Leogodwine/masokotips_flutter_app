@@ -42,6 +42,8 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
   File? _selectedImage;
   String? _existingImageUrl;
   bool _isRemovingExistingImage = false;
+  String _selectedUnit = 'kg';
+  final List<String> _units = ['tons', 'kg', 'liters', 'bags', 'pieces'];
 
   @override
   void initState() {
@@ -62,6 +64,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
         TextEditingController(text: widget.product?.shelfLife);
     _isActive = widget.product?.isActive ?? true;
     _isFeatured = widget.product?.isFeatured ?? false;
+    _selectedUnit = widget.product?.unit ?? 'kg';
     _selectedCategoryId = widget.product?.categoryId ?? 1;
     _existingImageUrl = widget.product?.imageUrl;
   }
@@ -252,6 +255,30 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
                       label: 'Stock',
                       icon: Icons.inventory,
                       keyboardType: TextInputType.number,
+                      suffixIcon: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: _selectedUnit,
+                          icon: const Icon(Icons.arrow_drop_down),
+                          isDense: true,
+                          alignment: Alignment.centerRight,
+                          items: _units.map((String unit) {
+                            return DropdownMenuItem<String>(
+                              value: unit,
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: Text(unit, style: const TextStyle(fontSize: 14)),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (String? newValue) {
+                            if (newValue != null) {
+                              setState(() {
+                                _selectedUnit = newValue;
+                              });
+                            }
+                          },
+                        ),
+                      ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter stock quantity';
@@ -595,12 +622,14 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
     int maxLines = 1,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
+    Widget? suffixIcon,
   }) {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon),
+        suffixIcon: suffixIcon,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -651,6 +680,7 @@ class _EditOrganicProductScreenState extends State<EditOrganicProductScreen> {
       description: _descriptionController.text,
       price: double.parse(_priceController.text),
       stock: int.parse(_stockController.text),
+      unit: _selectedUnit,
       imageUrl: _isRemovingExistingImage ? null : _existingImageUrl,
       isActive: _isActive,
       isFeatured: _isFeatured,

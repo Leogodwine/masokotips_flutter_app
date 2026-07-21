@@ -241,9 +241,15 @@ class ProductProvider with ChangeNotifier {
         _products = products;
         Log.e('Loaded ${products.length} regular products');
       }
-    } catch (e) {
-      Log.e('Error loading products: $e');
-      _setErrorState(e.toString());
+    } catch (e, stackTrace) {
+      Log.e('Error loading products: $e\n$stackTrace');
+      final errorStr = e.toString().toLowerCase();
+      if (errorStr.contains('not found') || errorStr.contains('404')) {
+        _products = [];
+        _error = null;
+      } else {
+        _setErrorState(e.toString());
+      }
     } finally {
       _setLoadingState(false);
     }
@@ -432,4 +438,5 @@ class ProductProvider with ChangeNotifier {
     notifyListeners();
   }
 }
+
 

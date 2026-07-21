@@ -90,20 +90,22 @@ class SubscriptionGuard extends StatelessWidget {
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.lock,
-                  size: 64,
-                  color: Theme.of(context).primaryColor,
+                const Icon(
+                  Icons.stars_rounded,
+                  size: 48,
+                  color: Colors.amber,
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Complete Your Subscription',
-                  style: Theme.of(context).textTheme.titleLarge,
+                  'Unlock Premium Features ✨',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'To access all features of the app, you need to complete your subscription. Choose a membership type that best fits your needs.',
+                  'Join our premium community to enjoy all the amazing features! Choose a plan that works best for you to get the most out of your experience.',
                   style: Theme.of(context).textTheme.bodyMedium,
                   textAlign: TextAlign.center,
                 ),
@@ -227,14 +229,14 @@ class SubscriptionRequired extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.lock,
+          const Icon(
+            Icons.stars_rounded,
             size: 64,
-            color: Theme.of(context).primaryColor,
+            color: Colors.amber,
           ),
           const SizedBox(height: 16),
           Text(
-            'Subscription Required',
+            'Unlock Premium Features ✨',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: Theme.of(context).primaryColor,
                   fontWeight: FontWeight.bold,
@@ -243,7 +245,7 @@ class SubscriptionRequired extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Complete your subscription to access this feature.',
+            'Join our premium community to enjoy all the amazing features! Choose a plan that works best for you to get the most out of your experience.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Colors.grey.shade600,
                 ),

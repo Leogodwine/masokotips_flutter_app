@@ -37,7 +37,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   // Proof of address fields
   String _selectedProofType = '';
-  File? _proofOfAddressFile;
+  XFile? _proofOfAddressFile;
 
   @override
   void dispose() {
@@ -141,7 +141,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (pickedFile != null) {
       setState(() {
-        _proofOfAddressFile = File(pickedFile.path);
+        _proofOfAddressFile = pickedFile;
       });
     }
   }
@@ -154,7 +154,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (pickedFile != null) {
       setState(() {
-        _proofOfAddressFile = File(pickedFile.path);
+        _proofOfAddressFile = pickedFile;
       });
     }
   }
@@ -249,7 +249,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.username,
-                      hintText: AppLocalizations.of(context)!.enterUsername,
+                      hintText: '${AppLocalizations.of(context)!.enterUsername} (min 3 chars, spaces allowed)',
                       prefixIcon: const Icon(Icons.person_outline),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -262,9 +262,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       }
                       if (trimmedValue.length < 3) {
                         return AppLocalizations.of(context)!.usernameTooShort;
-                      }
-                      if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(trimmedValue)) {
-                        return AppLocalizations.of(context)!.usernameInvalid;
                       }
                       return null;
                     },
@@ -664,7 +661,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             fit: BoxFit.cover,
                                           )
                                         : Image.file(
-                                            _proofOfAddressFile!,
+                                            File(_proofOfAddressFile!.path),
                                             height: 200,
                                             width: double.infinity,
                                             fit: BoxFit.cover,

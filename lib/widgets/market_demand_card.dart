@@ -16,7 +16,13 @@ class MarketDemandCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final buyerName = demand.user?['name'] ?? 'Anonymous Buyer';
+    final String buyerName = () {
+      final username = demand.user?['username'];
+      if (username != null && username.toString().trim().isNotEmpty) {
+        return '@${username.toString().trim()}';
+      }
+      return demand.user?['name'] ?? 'Anonymous Buyer';
+    }();
     final buyerAvatar = demand.user?['avatar'];
     final hasImage = demand.imageUrl != null && demand.imageUrl!.isNotEmpty;
 

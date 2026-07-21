@@ -550,7 +550,6 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         prefixText: 'TZS ',
-                        prefixIcon: const Icon(Icons.monetization_on),
                         filled: true,
                         fillColor: Colors.grey[50],
                       ),
