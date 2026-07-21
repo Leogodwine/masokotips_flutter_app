@@ -206,7 +206,11 @@ class AuthProvider with ChangeNotifier {
     try {
       await _apiService.resetPassword(email);
     } catch (e) {
-      throw Exception('Reset password failed: $e');
+      if (e.toString().startsWith('Exception: ')) {
+        throw Exception(e.toString().replaceFirst('Exception: ', ''));
+      } else {
+        rethrow;
+      }
     }
   }
 

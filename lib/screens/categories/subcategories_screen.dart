@@ -184,13 +184,13 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
         return 'assets/images/fertilizer.webp';
 
       case 'machinery':
-        return 'assets/images/tractor.png';
+        return 'assets/images/machinery_rental.webp';
 
       case 'beehive and aquatic':
         return 'assets/images/beehive.webp';
 
       case 'food and beverage':
-        return 'assets/images/food_and_beverage.webp';
+        return 'assets/images/food_and_beverages.webp';
 
       case 'cold rooms services':
         return 'assets/images/cold_rooms.webp';
