@@ -36,8 +36,6 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
   final _ownerNameController = TextEditingController();
   final _driverNameController = TextEditingController();
   final _driverPhoneController = TextEditingController();
-
-  String _selectedVehicleType = 'Truck';
   String _selectedStatus = 'Active';
   File? _selectedImage;
   Uint8List? _selectedImageBytes;
@@ -55,16 +53,6 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
   // Required boolean fields
   bool _isTemperatureControlled = false;
   bool _hasInsurance = false;
-
-  final List<String> _vehicleTypes = [
-    'Truck',
-    'Van',
-    'Pickup',
-    'Motorcycle',
-    'Bicycle',
-    'Cargo',
-    'Other'
-  ];
 
   final List<String> _statusOptions = ['Active', 'Inactive'];
 
@@ -236,7 +224,6 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
       final transportData = {
         'title': _titleController.text.trim(),
         'description': _descriptionController.text.trim(),
-        'vehicle_type': _selectedVehicleType,
         'vehicle_location': _vehicleLocationController.text.trim(),
         'price':
             double.parse(_pricePerKmController.text), // Backend expects 'price'
@@ -390,34 +377,6 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
 
               // Vehicle Details
               _buildSectionTitle('Vehicle Details'),
-              const SizedBox(height: 16),
-
-              DropdownButtonFormField<String>(
-                isExpanded: true,
-                initialValue: _selectedVehicleType,
-                decoration: InputDecoration(
-                  labelText: 'Vehicle Type',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  prefixIcon: const Icon(Icons.category),
-                  filled: true,
-                  fillColor: Colors.grey[50],
-                ),
-                items: _vehicleTypes.map((type) {
-                  return DropdownMenuItem(
-                    value: type,
-                    child: Text(type),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedVehicleType = value!;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-
               // Transport Category Dropdown
               DropdownButtonFormField<Category>(
                 isExpanded: true,

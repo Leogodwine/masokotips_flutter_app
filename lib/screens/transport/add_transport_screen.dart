@@ -27,24 +27,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
     'Dairy',
     'Other'
   ];
-  final List<String> _vehicleTypes = [
-    'Tandem',
-    'Kirikuu',
-    'FlatbedTrucks',
-    'Tanker',
-    'Refrigerator Truck',
-    'Box Truck',
-    'Liftgate Truck',
-    'Van',
-    'Container Hauler',
-    'Pickups Trucks',
-    'Fuso',
-    'Semi Trailers',
-    'Tracker Trailers',
-    'Cargo'
-  ];
   final List<String> _selectedProductTypes = [];
-  String? _selectedVehicleType;
   final String _status = 'active';
 
   final _titleController = TextEditingController();
@@ -248,7 +231,7 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
         title: _titleController.text,
         description: _descriptionController.text.trim(),
         vehicleLocation: _vehicleLocationController.text,
-        vehicleType: _selectedVehicleType ?? '',
+        vehicleType: '',
         price: _priceController.text.isNotEmpty ? double.parse(_priceController.text) : 0.0,
         capacity: double.parse(_capacityController.text),
         isTemperatureControlled: _isTemperatureControlled,
@@ -442,35 +425,6 @@ class _AddTransportScreenState extends State<AddTransportScreen> {
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      initialValue: _selectedVehicleType,
-                      decoration: InputDecoration(
-                        labelText: 'Vehicle Type',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        prefixIcon: Icon(Icons.directions_car,
-                            color: Theme.of(context).primaryColor),
-                      ),
-                      items: _vehicleTypes.map((type) {
-                        return DropdownMenuItem(
-                          value: type,
-                          child: Text(type),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedVehicleType = value;
-                        });
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Please select a vehicle type';
-                        }
-                        return null;
-                      },
                     ),
                     const SizedBox(height: 16),
                     TextFormField(

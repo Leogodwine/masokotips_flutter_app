@@ -25,7 +25,6 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
   late TextEditingController _capacityController;
   late TextEditingController _priceController;
   late TextEditingController _vehicleLocationController;
-  late TextEditingController _vehicleTypeController;
   late TextEditingController _ownerNameController;
   late TextEditingController _driverNameController;
   late TextEditingController _driverPhoneController;
@@ -83,8 +82,6 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
         TextEditingController(text: widget.transport.price.toString());
     _vehicleLocationController =
         TextEditingController(text: widget.transport.vehicleLocation);
-    _vehicleTypeController =
-        TextEditingController(text: widget.transport.vehicleType);
     _ownerNameController =
         TextEditingController(text: widget.transport.ownerName);
     _driverNameController =
@@ -123,7 +120,6 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
     _capacityController.dispose();
     _priceController.dispose();
     _vehicleLocationController.dispose();
-    _vehicleTypeController.dispose();
     _ownerNameController.dispose();
     _driverNameController.dispose();
     _driverPhoneController.dispose();
@@ -205,7 +201,7 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
         title: _titleController.text,
         description: _descriptionController.text,
         vehicleLocation: _vehicleLocationController.text,
-        vehicleType: _vehicleTypeController.text,
+        vehicleType: '',
         price: _priceController.text.isNotEmpty ? double.parse(_priceController.text) : 0.0,
         capacity: double.parse(_capacityController.text),
         isTemperatureControlled: widget.transport.isTemperatureControlled,
@@ -382,20 +378,6 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _vehicleTypeController,
-                decoration: const InputDecoration(
-                  labelText: 'Vehicle Type',
-                  prefixIcon: Icon(Icons.directions_car),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the vehicle type';
-                  }
-                  return null;
-                },
               ),
               const SizedBox(height: 16),
               TextFormField(

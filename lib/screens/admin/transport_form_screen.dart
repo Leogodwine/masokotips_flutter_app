@@ -18,7 +18,6 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
   late TextEditingController _locationController;
-  late TextEditingController _typeController;
   late TextEditingController _priceController;
   late TextEditingController _capacityController;
   late TextEditingController _temperatureController;
@@ -50,8 +49,6 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
         TextEditingController(text: widget.transport?.description ?? '');
     _locationController =
         TextEditingController(text: widget.transport?.vehicleLocation ?? '');
-    _typeController =
-        TextEditingController(text: widget.transport?.vehicleType ?? '');
     _priceController =
         TextEditingController(text: widget.transport?.price.toString() ?? '');
     _capacityController = TextEditingController(
@@ -79,7 +76,6 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
     _titleController.dispose();
     _descriptionController.dispose();
     _locationController.dispose();
-    _typeController.dispose();
     _priceController.dispose();
     _capacityController.dispose();
     _temperatureController.dispose();
@@ -134,20 +130,6 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter a location';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _typeController,
-              decoration: const InputDecoration(
-                labelText: 'Vehicle Type',
-                border: OutlineInputBorder(),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a vehicle type';
                 }
                 return null;
               },
@@ -350,7 +332,7 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
         title: _titleController.text,
         description: _descriptionController.text,
         vehicleLocation: _locationController.text,
-        vehicleType: _typeController.text,
+        vehicleType: '',
         price: double.tryParse(_priceController.text) ?? 0.0,
         capacity: double.tryParse(_capacityController.text) ?? 0.0,
         isTemperatureControlled: _isTemperatureControlled,

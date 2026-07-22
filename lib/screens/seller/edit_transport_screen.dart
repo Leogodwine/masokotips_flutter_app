@@ -40,7 +40,6 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
   Category? _selectedCategory;
   bool _isLoadingCategories = false;
 
-  String _selectedVehicleType = 'Truck';
   String _selectedStatus = 'Available';
   File? _selectedImage;
   bool _isLoading = false;
@@ -48,16 +47,6 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
   double? _latitude;
   double? _longitude;
   bool _isCapturingGps = false;
-
-  final List<String> _vehicleTypes = [
-    'Truck',
-    'Van',
-    'Pickup',
-    'Motorcycle',
-    'Bicycle',
-    'Cargo',
-    'Other'
-  ];
 
   final List<String> _statusOptions = ['Available', 'Busy', 'Maintenance'];
 
@@ -92,12 +81,6 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
         .toString(); // Fixed: use 'price' instead of 'pricePerKg'
     _capacityController.text = widget.transport.capacity.toString();
     _contactPhoneController.text = widget.transport.driverPhone ?? '';
-
-    // Handle vehicle type - add to list if not present
-    if (!_vehicleTypes.contains(widget.transport.vehicleType)) {
-      _vehicleTypes.add(widget.transport.vehicleType);
-    }
-    _selectedVehicleType = widget.transport.vehicleType;
 
     // Handle status - add to list if not present
     if (!_statusOptions.contains(widget.transport.status)) {
@@ -243,7 +226,6 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
       final transportData = {
         'title': _titleController.text.trim(),
         'description': _descriptionController.text.trim(),
-        'vehicle_type': _selectedVehicleType,
         'vehicle_location': _vehicleLocationController.text.trim(),
         'price': double.parse(_pricePerKmController.text),
         'capacity': int.parse(_capacityController.text),
@@ -388,31 +370,6 @@ class _EditTransportScreenState extends State<EditTransportScreen> {
 
               // Vehicle Details
               _buildSectionTitle('Vehicle Details'),
-              const SizedBox(height: 16),
-
-              DropdownButtonFormField<String>(
-                initialValue: _selectedVehicleType,
-                decoration: InputDecoration(
-                  labelText: 'Vehicle Type',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  prefixIcon: const Icon(Icons.category),
-                  filled: true,
-                  fillColor: Colors.grey[50],
-                ),
-                items: _vehicleTypes.map((type) {
-                  return DropdownMenuItem(
-                    value: type,
-                    child: Text(type),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedVehicleType = value!;
-                  });
-                },
-              ),
               const SizedBox(height: 16),
 
               // Transport Category Dropdown

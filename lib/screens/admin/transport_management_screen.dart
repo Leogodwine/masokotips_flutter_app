@@ -326,23 +326,7 @@ class _AdminTransportManagementScreenState
                   ],
                 ),
                 const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Icon(Icons.directions_car,
-                        size: 14, color: theme.primaryColor),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        transport.vehicleType,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style:
-                            const TextStyle(fontSize: 13, color: Colors.grey),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
+
                 Row(
                   children: [
                     Icon(Icons.scale, size: 14, color: theme.primaryColor),

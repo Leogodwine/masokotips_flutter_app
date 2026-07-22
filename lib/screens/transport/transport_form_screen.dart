@@ -23,7 +23,6 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
   late TextEditingController _descriptionController;
   late TextEditingController _vehicleLocationController;
   late TextEditingController _priceController;
-  late TextEditingController _vehicleTypeController;
   late TextEditingController _amenitiesController;
   late TextEditingController _capacityController;
   late TextEditingController _insuranceDetailsController;
@@ -59,8 +58,6 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
         TextEditingController(text: widget.transport?.vehicleLocation ?? '');
     _priceController =
         TextEditingController(text: widget.transport?.price.toString() ?? '');
-    _vehicleTypeController =
-        TextEditingController(text: widget.transport?.vehicleType ?? '');
     _amenitiesController = TextEditingController(
       text: widget.transport?.amenities?.join(', ') ?? '',
     );
@@ -91,7 +88,6 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
     _descriptionController.dispose();
     _vehicleLocationController.dispose();
     _priceController.dispose();
-    _vehicleTypeController.dispose();
     _amenitiesController.dispose();
     _capacityController.dispose();
     _insuranceDetailsController.dispose();
@@ -184,7 +180,7 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
               title: _titleController.text,
               description: _descriptionController.text,
               vehicleLocation: _vehicleLocationController.text,
-              vehicleType: _vehicleTypeController.text,
+              vehicleType: '',
               price: _priceController.text.isNotEmpty ? double.parse(_priceController.text) : 0.0,
               capacity: double.parse(_capacityController.text),
               isTemperatureControlled: _isTemperatureControlled,
@@ -203,7 +199,7 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
         final updatedTransport = widget.transport!.copyWith(
           title: _titleController.text,
           vehicleLocation: _vehicleLocationController.text,
-          vehicleType: _vehicleTypeController.text,
+          vehicleType: '',
           price: _priceController.text.isNotEmpty ? double.parse(_priceController.text) : 0.0,
           capacity: double.parse(_capacityController.text),
           isTemperatureControlled: _isTemperatureControlled,
@@ -413,20 +409,6 @@ class _TransportFormScreenState extends State<TransportFormScreen> {
                   if (double.tryParse(value) == null) {
                     return 'Please enter a valid price';
                   }
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _vehicleTypeController,
-              decoration: const InputDecoration(
-                labelText: 'Vehicle Type',
-                border: OutlineInputBorder(),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter the vehicle type';
                 }
                 return null;
               },

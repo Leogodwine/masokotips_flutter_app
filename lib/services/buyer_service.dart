@@ -91,7 +91,7 @@ class BuyerService {
         throw errorData['message'] ?? 'Failed to create request';
       }
     } catch (e) {
-      if (e is String) throw e;
+      if (e is String) rethrow;
       throw Exception('Network error: $e');
     }
   }

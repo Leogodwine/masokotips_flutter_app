@@ -325,11 +325,7 @@ class _TransportListScreenState extends State<TransportListScreen> {
                     spacing: 10,
                     runSpacing: 10,
                     children: [
-                      _buildFeatureChip(
-                        context,
-                        icon: Icons.directions_car,
-                        label: transport.vehicleType,
-                      ),
+
                       _buildFeatureChip(
                         context,
                         icon: Icons.scale,

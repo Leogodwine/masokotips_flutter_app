@@ -408,31 +408,6 @@ class _SellerTransportScreenState extends State<SellerTransportScreen> {
                       child: Row(
                         children: [
                           Icon(
-                            Icons.directions_car,
-                            size: 18,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                          const SizedBox(width: 6),
-                          Flexible(
-                            child: Text(
-                              transport.vehicleType,
-                              style: TextStyle(
-                                color: Colors.grey[800],
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Icon(
                             Icons.location_on_outlined,
                             size: 18,
                             color: Colors.grey[600],
