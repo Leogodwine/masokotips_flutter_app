@@ -15,6 +15,8 @@ class SubscriptionProvider with ChangeNotifier {
   // Keep AzamPay service for backward compatibility (other screens still use it)
   final AzamPayService _azamPayService = AzamPayService();
 
+  BillingOptions? _billingOptions;
+
   // STATE
   List<SubscriptionPackage>? _packages;
   List<Subscription>? _userSubscriptions;
@@ -25,6 +27,7 @@ class SubscriptionProvider with ChangeNotifier {
 
   // GETTERS
   List<SubscriptionPackage>? get packages => _packages;
+  BillingOptions? get billingOptions => _billingOptions;
   List<Subscription>? get userSubscriptions => _userSubscriptions;
   Map<String, Subscription>? get currentSubscriptions => _currentSubscriptions;
 
@@ -48,8 +51,19 @@ class SubscriptionProvider with ChangeNotifier {
       final response = await _subscriptionService.getSubscriptionPackages();
 
       if (response != null && response['success'] == true) {
+        final currency = (response['billing_options']?['currency'] as String?) ?? 'TZS';
+
+        if (response['billing_options'] is Map<String, dynamic>) {
+          _billingOptions = BillingOptions.fromJson(
+            response['billing_options'] as Map<String, dynamic>,
+          );
+        }
+
         _packages = (response['data'] as List)
-            .map((p) => SubscriptionPackage.fromJson(p))
+            .map((p) => SubscriptionPackage.fromJson(
+                  p as Map<String, dynamic>,
+                  currency: _billingOptions?.currency ?? currency,
+                ))
             .toList();
       } else {
         _setError(
@@ -109,6 +123,7 @@ class SubscriptionProvider with ChangeNotifier {
     required String subscriptionType,
     required String duration,
     required String paymentMethod,
+    int? months,
     String? phone, // optional — not needed for card payments
   }) async {
     try {
@@ -118,7 +133,8 @@ class SubscriptionProvider with ChangeNotifier {
       final response = await _subscriptionService.createSubscription(
         subscriptionType: subscriptionType,
         duration: duration,
-        paymentMethod: paymentMethod, // 'azampay' OR 'zenopay'
+        paymentMethod: paymentMethod,
+        months: months,
         phone: phone,
       );
 
@@ -126,7 +142,11 @@ class SubscriptionProvider with ChangeNotifier {
         return Subscription.fromJson(response['data']);
       }
 
-      _setError(response?['message'] ?? 'Failed to create subscription');
+      final message = response?['code'] == 'SUBSCRIPTION_EXPIRED'
+          ? (response?['message'] ??
+              'Your subscription has expired. Please renew to continue.')
+          : (response?['message'] ?? 'Failed to create subscription');
+      _setError(message);
       return null;
     } catch (e) {
       Log.e('Create subscription error: $e');
@@ -236,18 +256,20 @@ class SubscriptionProvider with ChangeNotifier {
 
       if (res['success'] == true) {
         final data = (res['data'] as Map?)?.cast<String, dynamic>() ?? {};
+        final orderId = data['order_id'] ?? res['order_id'];
 
         return {
           'success': true,
           'message': res['message'] ?? 'Request in progress...',
-          'order_id': data['order_id'], // 🔥 FLATTENED
-          'subscription_id': data['subscription_id'],
+          'order_id': orderId,
+          'subscription_id': data['subscription_id'] ?? subscriptionId,
         };
       }
 
       return {
         'success': false,
         'message': res['message'] ?? 'Failed to initiate payment.',
+        'code': res['code'],
       };
     } catch (e) {
       Log.e('Zenopay checkout start failed: $e');

@@ -22,6 +22,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _bioController = TextEditingController();
   bool _isLoading = false;
   File? _profileImage;
+  bool _removeExistingAvatar = false;
+  bool _hadExistingAvatar = false;
   String? _errorMessage;
 
   @override
@@ -35,10 +37,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _nameController.text = user.name;
       _emailController.text = user.email;
       _phoneController.text = user.phoneNumber ?? '';
-      // Bio would come from an extended user profile in a real app
-      _bioController.text = 'I love shopping for agricultural products!';
+      _bioController.text = '';
 
-      // Load existing profile image if available
+      _hadExistingAvatar = user.avatar != null && user.avatar!.isNotEmpty;
       if (user.avatarPath != null) {
         _profileImage = File(user.avatarPath!);
       }
@@ -75,6 +76,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (pickedFile != null) {
         setState(() {
           _profileImage = File(pickedFile.path);
+          _removeExistingAvatar = false;
         });
       }
     } catch (e) {
@@ -109,14 +111,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   _pickImage(ImageSource.camera);
                 },
               ),
-              if (_profileImage != null)
+              if (_profileImage != null || _hadExistingAvatar)
                 ListTile(
-                  leading: const Icon(Icons.delete, color: Colors.red),
-                  title: const Text('Remove Photo',
-                      style: TextStyle(color: Colors.red)),
+                  leading: const Icon(Icons.delete_outline, color: Colors.red),
+                  title: Text(
+                    AppLocalizations.of(context)!.removePhoto,
+                    style: const TextStyle(color: Colors.red),
+                  ),
                   onTap: () {
                     setState(() {
                       _profileImage = null;
+                      _removeExistingAvatar = true;
                     });
                     Navigator.of(context).pop();
                   },
@@ -146,8 +151,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         name: _nameController.text,
         email: _emailController.text,
         phone: _phoneController.text,
-        bio: _bioController.text,
+        bio: _bioController.text.isNotEmpty ? _bioController.text : null,
         avatarPath: _profileImage?.path,
+        removeAvatar: _removeExistingAvatar && _profileImage == null,
       );
 
       if (mounted) {
@@ -184,10 +190,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  ImageProvider? _currentAvatarImage(AuthProvider authProvider) {
+    if (_profileImage != null) {
+      return FileImage(_profileImage!);
+    }
+
+    if (!_removeExistingAvatar) {
+      final avatar = authProvider.user?.avatar;
+      if (avatar != null && avatar.isNotEmpty) {
+        return NetworkImage(ImageUploadHelper.constructFullImageUrl(avatar));
+      }
+    }
+
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final avatarImage = _currentAvatarImage(authProvider);
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.editProfile),
@@ -209,11 +231,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         onTap: _showImageSourceActionSheet,
                         child: CircleAvatar(
                           radius: 60,
-                          backgroundImage: _profileImage != null
-                              ? FileImage(_profileImage!) as ImageProvider
-                              : const AssetImage(
-                                  'assets/images/default_avatar.webp'),
-                          child: _profileImage == null
+                          backgroundImage: avatarImage,
+                          child: avatarImage == null
                               ? const Icon(Icons.person,
                                   size: 60, color: Colors.white54)
                               : null,

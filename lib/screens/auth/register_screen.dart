@@ -7,6 +7,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
 import '../../utils/image_upload_helper.dart';
 import 'dart:io';
+import 'package:url_launcher/url_launcher.dart';
+import '../../config/phone_countries.dart';
+import '../../widgets/phone_input_field.dart';
 import '../../l10n/app_localizations.dart';
 import '../subscription/subscription_screen.dart';
 
@@ -18,6 +21,9 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  static const String _termsUrl = 'https://masokotips.com/terms-of-service';
+  static const String _privacyUrl = 'https://masokotips.com/privacy-policy';
+
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _usernameController = TextEditingController();
@@ -26,12 +32,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _confirmPasswordController = TextEditingController();
   final _phoneController = TextEditingController();
   final _locationController = TextEditingController();
-  final _countryController = TextEditingController();
   final _referralCodeController = TextEditingController();
+
+  String _phoneCountryIso = PhoneCountries.defaultIso;
 
   String _selectedRole = 'buyer'; // Default role
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  bool _agreedToTerms = false;
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -48,14 +56,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _confirmPasswordController.dispose();
     _phoneController.dispose();
     _locationController.dispose();
-    _countryController.dispose();
     _referralCodeController.dispose();
     super.dispose();
   }
 
   Future<void> _register() async {
+    final localizations = AppLocalizations.of(context)!;
+
+    if (!_agreedToTerms) {
+      setState(() {
+        _errorMessage = localizations.pleaseAcceptTerms;
+      });
+      return;
+    }
+
     if (_formKey.currentState!.validate()) {
-      final localizations = AppLocalizations.of(context)!;
       setState(() {
         _isLoading = true;
         _errorMessage = null;
@@ -65,15 +80,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
         final authProvider = context.read<AuthProvider>();
 
         // 1. Register the user
+        final country = PhoneCountries.byIso(_phoneCountryIso);
+
         await authProvider.register(
           _nameController.text.trim(),
           _usernameController.text.trim(),
           _emailController.text.trim(),
           _passwordController.text,
           role: _selectedRole,
-          phone: _phoneController.text,
+          phoneCountry: _phoneCountryIso,
+          phoneNational: _phoneController.text.trim(),
+          phone: country.composeE164(_phoneController.text.trim()),
           location: _locationController.text,
-          country: _countryController.text,
+          country: country.name,
           referralCode: _referralCodeController.text.isNotEmpty
               ? _referralCodeController.text
               : null,
@@ -164,6 +183,92 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _proofOfAddressFile = null;
       _selectedProofType = '';
     });
+  }
+
+  Future<void> _openLegalUrl(String url) async {
+    final uri = Uri.parse(url);
+    final localizations = AppLocalizations.of(context)!;
+
+    bool opened = false;
+    if (await canLaunchUrl(uri)) {
+      opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+    if (!opened) {
+      opened = await launchUrl(
+        uri,
+        mode: LaunchMode.inAppWebView,
+        webViewConfiguration: const WebViewConfiguration(enableJavaScript: true),
+      );
+    }
+    if (!opened && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(localizations.couldNotOpenLink)),
+      );
+    }
+  }
+
+  Widget _buildTermsAgreement(BuildContext context) {
+    final theme = Theme.of(context);
+    final localizations = AppLocalizations.of(context)!;
+    final linkStyle = theme.textTheme.bodyMedium?.copyWith(
+      color: theme.colorScheme.primary,
+      fontWeight: FontWeight.w600,
+      decoration: TextDecoration.underline,
+    );
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Checkbox(
+          value: _agreedToTerms,
+          onChanged: (value) {
+            setState(() {
+              _agreedToTerms = value ?? false;
+              if (_agreedToTerms) {
+                _errorMessage = null;
+              }
+            });
+          },
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        Expanded(
+          child: GestureDetector(
+            onTap: () {
+              setState(() {
+                _agreedToTerms = !_agreedToTerms;
+                if (_agreedToTerms) {
+                  _errorMessage = null;
+                }
+              });
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text(localizations.agreeToTermsPrefix),
+                  GestureDetector(
+                    onTap: () => _openLegalUrl(_termsUrl),
+                    child: Text(
+                      localizations.termsAndConditions,
+                      style: linkStyle,
+                    ),
+                  ),
+                  Text(localizations.agreeToTermsMiddle),
+                  GestureDetector(
+                    onTap: () => _openLegalUrl(_privacyUrl),
+                    child: Text(
+                      localizations.privacyPolicy,
+                      style: linkStyle,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -298,23 +403,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 16),
 
                   // Phone Field
-                  TextFormField(
-                    controller: _phoneController,
-                    keyboardType: TextInputType.phone,
-                    textInputAction: TextInputAction.next,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.phoneNumber,
-                      hintText: AppLocalizations.of(context)!.enterPhoneNumber,
-                      prefixIcon: const Icon(Icons.phone_outlined),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return AppLocalizations.of(context)!.pleaseEnterPhoneNumber;
-                      }
-                      return null;
+                  PhoneInputField(
+                    nationalController: _phoneController,
+                    selectedIso: _phoneCountryIso,
+                    onCountryChanged: (iso) {
+                      setState(() => _phoneCountryIso = iso);
                     },
                   ),
 
@@ -340,26 +433,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     },
                   ),
 
-                  const SizedBox(height: 16),
-
-                  // Country Field
-                  TextFormField(
-                    controller: _countryController,
-                    textInputAction: TextInputAction.next,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.country,
-                      hintText: AppLocalizations.of(context)!.enterCountry,
-                      prefixIcon: const Icon(Icons.public_outlined),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Country: ${PhoneCountries.byIso(_phoneCountryIso).name}',
+                      style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return AppLocalizations.of(context)!.pleaseEnterCountry;
-                      }
-                      return null;
-                    },
                   ),
 
                   const SizedBox(height: 16),
@@ -791,7 +871,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
+
+                  _buildTermsAgreement(context),
+
+                  const SizedBox(height: 24),
 
                   // Register Button
                   LoadingButton(

@@ -1,11 +1,14 @@
 // lib/screens/subscription/widgets/header_section.dart
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 
 class HeaderSection extends StatelessWidget {
   const HeaderSection({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -32,14 +35,14 @@ class HeaderSection extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Membership Plans",
+                  l10n.membershipPlansTitle,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "Choose the plan that fits your needs.",
+                  l10n.membershipPlansSubtitle,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Colors.grey.shade700,
                       ),

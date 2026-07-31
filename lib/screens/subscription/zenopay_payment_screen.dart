@@ -186,7 +186,7 @@ class _ZenopayPaymentScreenState extends State<ZenopayPaymentScreen>
       return true;
     }
 
-    if (result.status == 'failed') {
+    if (result.status == 'failed' || result.status == 'cancelled') {
       _stopPolling();
       _setFailed(_resolveFailReason(result));
       return true;

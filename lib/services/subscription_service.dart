@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../config/api_config.dart';
 import '../utils/api_response.dart';
 import '../utils/logger.dart';
+import 'zenopay_service.dart';
 
 class SubscriptionService {
   static String get _baseUrl => ApiConfig.baseUrl;
@@ -84,6 +85,7 @@ class SubscriptionService {
     required String subscriptionType,
     required String duration,
     required String paymentMethod,
+    int? months,
     String? phone,
   }) async {
     try {
@@ -92,6 +94,9 @@ class SubscriptionService {
         'duration': duration,
         'payment_method': paymentMethod,
       };
+      if (months != null && months > 0) {
+        body['months'] = months;
+      }
       // Only include phone when it has a real value — card payments don't need it
       if (phone != null && phone.trim().isNotEmpty) {
         body['phone'] = phone;
@@ -123,7 +128,7 @@ class SubscriptionService {
         body: jsonEncode({
           'subscription_id': subscriptionId,
           'amount': amount,
-          'phone': phone,
+          'phone': ZenoPayService.formatPhoneNumber(phone),
         }),
       );
       return _safeJson(res);
@@ -163,7 +168,7 @@ class SubscriptionService {
       int subscriptionId) async {
     try {
       final res = await http.get(
-        Uri.parse('$_baseUrl/subscriptions/status/$subscriptionId'),
+        Uri.parse('$_baseUrl/zenopay/subscription/$subscriptionId/payment-status'),
         headers: await _headers(auth: true),
       );
       return _safeJson(res);

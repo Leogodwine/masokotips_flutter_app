@@ -171,7 +171,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appName => 'maSOKOtips';
 
   @override
-  String get appSubtitle => 'Tanzania\'s Premier Agricultural Marketplace';
+  String get appSubtitle => 'Connect buyers, sellers, transporters & service providers';
+
+  @override
+  String get membershipPlansTitle => 'Membership Plans';
+
+  @override
+  String get membershipPlansSubtitle => 'Subscribe to connect, post listings, and unlock contact details';
 
   @override
   String get poweredBy => 'Sponsored by: COSTECH';
@@ -207,7 +213,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get copyright => 'Â© 2023 Masoko Tips - All rights reserved';
 
   @override
-  String get aboutDescription => 'Masoko Tips is a platform connecting buyers and sellers of agricultural products. Our mission is to promote sustainable farming and fair trade practices.';
+  String get aboutDescription => 'maSOKOtips connects buyers, sellers, transporters, and service providers in Tanzania\'s agricultural sector. Discover listings, post buying requests, chat, and build trusted relationships — membership unlocks contact and posting.';
+
+  @override
+  String get agricultureDescription => 'Discover, connect, and grow with Tanzania\'s agricultural community';
 
   @override
   String get aboutContact => 'For more information, contact us at support@masokotips.com';
@@ -1052,9 +1061,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeTo => 'Welcome to';
 
   @override
-  String get agricultureDescription => 'Everything you need to know about agriculture is here';
-
-  @override
   String get searchProducts => 'Search products...';
 
   @override
@@ -1197,7 +1203,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get agentCodeOptional => 'Agent / Referral Code (Optional)';
 
   @override
-  String get agentCodeHint => 'e.g. MSK-AB12 — ask your agent';
+  String get agentCodeHint => 'e.g. FA… or RF… — field agent or member code';
 
   @override
   String get agentCodeHelper => 'If an agent helped you sign up, enter their code here';
@@ -1264,6 +1270,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get createAccountCaps => 'CREATE ACCOUNT';
+
+  @override
+  String get agreeToTermsPrefix => 'I agree to the ';
+
+  @override
+  String get termsAndConditions => 'Terms and Conditions';
+
+  @override
+  String get agreeToTermsMiddle => ' and ';
+
+  @override
+  String get pleaseAcceptTerms => 'You must accept the Terms and Conditions and Privacy Policy to register.';
 
   @override
   String get featuredServices => 'Featured Services';

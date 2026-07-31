@@ -79,6 +79,8 @@ class AuthProvider with ChangeNotifier {
     String password, {
     String role = 'buyer',
     String? phone,
+    String? phoneCountry,
+    String? phoneNational,
     String? location,
     String? country,
     String? proofOfAddressType,
@@ -93,6 +95,8 @@ class AuthProvider with ChangeNotifier {
         password,
         role: role,
         phone: phone,
+        phoneCountry: phoneCountry,
+        phoneNational: phoneNational,
         location: location,
         country: country,
         proofOfAddressType: proofOfAddressType,
@@ -169,6 +173,7 @@ class AuthProvider with ChangeNotifier {
     String? phone,
     String? bio,
     String? avatarPath,
+    bool removeAvatar = false,
   }) async {
     try {
       _user = await _apiService.updateProfile(
@@ -177,6 +182,7 @@ class AuthProvider with ChangeNotifier {
         phone: phone,
         bio: bio,
         avatarPath: avatarPath,
+        removeAvatar: removeAvatar,
       );
       notifyListeners();
     } catch (e) {

@@ -18,10 +18,23 @@ class SubscriptionStatusResult {
   });
 
   factory SubscriptionStatusResult.fromJson(Map<String, dynamic> json) {
+    final rawStatus = json['status']?.toString() ?? 'UNKNOWN';
+    final subscriptionStatus =
+        json['subscription_status']?.toString() ?? rawStatus;
+    final isActive = json['is_active'] == true || rawStatus == 'active';
+
+    String resolvedStatus = rawStatus;
+    if (isActive) {
+      resolvedStatus = 'active';
+    } else if (subscriptionStatus == 'failed' ||
+        subscriptionStatus == 'cancelled') {
+      resolvedStatus = subscriptionStatus;
+    }
+
     return SubscriptionStatusResult(
       success: json['success'] == true,
-      isActive: json['is_active'] == true,
-      status: json['status'] ?? 'UNKNOWN',
+      isActive: isActive,
+      status: resolvedStatus,
       message: json['message'],
       subscription: json['subscription'] != null
           ? Subscription.fromJson(json['subscription'])

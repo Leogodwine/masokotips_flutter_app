@@ -352,6 +352,8 @@ class ApiService {
       String name, String username, String email, String password,
       {String role = 'buyer',
       String? phone,
+      String? phoneCountry,
+      String? phoneNational,
       String? location,
       String? country,
       String? proofOfAddressType,
@@ -371,6 +373,8 @@ class ApiService {
         request.fields['password'] = password;
         request.fields['password_confirmation'] = password;
         request.fields['role'] = role;
+        if (phoneCountry != null) request.fields['phone_country'] = phoneCountry;
+        if (phoneNational != null) request.fields['phone_national'] = phoneNational;
         if (phone != null) request.fields['phone'] = phone;
         if (location != null) request.fields['location'] = location;
         if (country != null) request.fields['country'] = country;
@@ -419,6 +423,8 @@ class ApiService {
           'password': password,
           'password_confirmation': password,
           'role': role,
+          if (phoneCountry != null) 'phone_country': phoneCountry,
+          if (phoneNational != null) 'phone_national': phoneNational,
           if (phone != null) 'phone': phone,
           if (location != null) 'location': location,
           if (country != null) 'country': country,
@@ -530,20 +536,22 @@ class ApiService {
     String? phone,
     String? bio,
     String? avatarPath,
+    bool removeAvatar = false,
   }) async {
     try {
-      final url = Uri.parse('$baseUrl/user/profile');
+      if (removeAvatar) {
+        await deleteProfileImage();
+      }
+
+      final url = Uri.parse('$baseUrl/profile');
       final request = http.MultipartRequest('POST', url);
 
       request.headers.addAll(ApiConfig.getHeaders(_authToken));
-
-      // Laravel method spoofing
       request.fields['_method'] = 'PUT';
-
       request.fields['name'] = name;
       request.fields['email'] = email;
       if (phone != null) request.fields['phone'] = phone;
-      if (bio != null) request.fields['bio'] = bio;
+      if (bio != null) request.fields['location'] = bio;
 
       if (avatarPath != null) {
         final avatarBytes = await File(avatarPath).readAsBytes();
@@ -558,8 +566,13 @@ class ApiService {
       final response = await request.send();
       final body = await response.stream.bytesToString();
 
-      if (response.statusCode == 200 || response.statusCode == 403 || response.statusCode == 400 || response.statusCode == 422) {
+      if (response.statusCode == 200 ||
+          response.statusCode == 201 ||
+          response.statusCode == 422) {
         final data = _decodeJson(body);
+        if (data.containsKey('errors')) {
+          throw Exception(data['errors'].toString());
+        }
         return User.fromJson(data['user']);
       } else {
         throw Exception('Profile update failed: $body');
@@ -569,33 +582,81 @@ class ApiService {
     }
   }
 
-  // Removed duplicate _getAuthHeaders method to resolve the conflict.
-  // Upload profile image
-  Future<void> uploadProfileImage(String imagePath) async {
+  Future<User> uploadProfileImage(String imagePath) async {
     try {
       final url = Uri.parse('$baseUrl/profile/avatar');
       final request = http.MultipartRequest('POST', url);
       final bytes = await File(imagePath).readAsBytes();
       final filename = imagePath.split('/').last.split('\\').last;
-      request.headers['Authorization'] = 'Bearer $_authToken';
-      request.headers['Accept'] = 'application/json';
-      final ua = ApiConfig.userAgent;
-      if (ua.isNotEmpty) request.headers['User-Agent'] = ua;
+      request.headers.addAll(ApiConfig.getHeaders(_authToken));
       request.files.add(
-          http.MultipartFile.fromBytes('avatar', bytes, filename: filename));
+        http.MultipartFile.fromBytes('avatar', bytes, filename: filename),
+      );
       final response = await request.send();
-      if (response.statusCode != 200) {
-        throw Exception('Failed to upload profile image');
+      final body = await response.stream.bytesToString();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = _decodeJson(body);
+        return User.fromJson(data['user']);
+      } else {
+        throw Exception('Failed to upload profile image: $body');
       }
     } catch (e) {
       throw Exception('Error uploading profile image: ${e.toFriendlyError}');
     }
   }
 
+  Future<User> deleteProfileImage() async {
+    try {
+      final url = Uri.parse('$baseUrl/profile/avatar');
+      final response = await http.delete(
+        url,
+        headers: headers,
+      );
+      final body = response.body;
+
+      if (response.statusCode == 200) {
+        final data = _decodeJson(body);
+        return User.fromJson(data['user']);
+      } else {
+        throw Exception('Failed to remove profile image: $body');
+      }
+    } catch (e) {
+      throw Exception('Error removing profile image: ${e.toFriendlyError}');
+    }
+  }
+
   // Change password
   Future<void> changePassword(
       String currentPassword, String newPassword) async {
-    throw Exception('Change password endpoint not implemented in API yet');
+    try {
+      final url = Uri.parse('$baseUrl/profile/password');
+      final response = await http.put(
+        url,
+        headers: headers,
+        body: jsonEncode({
+          'current_password': currentPassword,
+          'password': newPassword,
+          'password_confirmation': newPassword,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return;
+      }
+
+      final data = _decodeJson(response.body);
+      if (data.containsKey('errors')) {
+        throw Exception(data['errors'].toString());
+      }
+      if (data.containsKey('message')) {
+        throw Exception(data['message'].toString());
+      }
+
+      throw Exception('Failed to change password: ${response.body}');
+    } catch (e) {
+      throw Exception('Error changing password: ${e.toFriendlyError}');
+    }
   }
 
   // Fetch related products

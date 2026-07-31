@@ -33,6 +33,7 @@ import 'screens/buyer/buyer_dashboard_screen.dart';
 import 'screens/wishlist/wishlist_screen.dart';
 import 'screens/orders/orders_screen.dart';
 import 'screens/profile/profile_screen.dart';
+import 'screens/profile/edit_profile_screen.dart';
 
 import 'screens/seller/seller_dashboard_screen.dart';
 import 'screens/organic_products_screen.dart';
@@ -195,6 +196,7 @@ class _MyAppState extends State<MyApp> {
               '/wishlist': (context) => const WishlistScreen(),
               '/orders': (context) => const OrdersScreen(),
               '/profile': (context) => const ProfileScreen(),
+              '/profile/edit': (context) => const EditProfileScreen(),
               '/buyer/dashboard': (context) => const BuyerDashboardScreen(),
               '/seller/dashboard': (context) => const SellerDashboardScreen(),
               '/organic-products': (context) => const OrganicProductsScreen(),

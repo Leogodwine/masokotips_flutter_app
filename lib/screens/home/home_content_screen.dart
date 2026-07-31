@@ -272,9 +272,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(children: [_buildContent()]),
-    );
+    return _buildContent();
   }
 
   Widget _buildContent() {

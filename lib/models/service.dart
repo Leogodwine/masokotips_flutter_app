@@ -83,7 +83,8 @@ class Service {
   String get sellerName {
     final username = user?['username'];
     if (username != null && username.toString().trim().isNotEmpty) {
-      return username.toString();
+      final value = username.toString().trim();
+      return value.startsWith('@') ? value : '@$value';
     }
     return user?['name'] ?? 'Unknown';
   }

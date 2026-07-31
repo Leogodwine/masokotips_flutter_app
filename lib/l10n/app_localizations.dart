@@ -422,8 +422,20 @@ abstract class AppLocalizations {
   /// Description for appSubtitle
   ///
   /// In en, this message translates to:
-  /// **'Tanzania\'s Premier Agricultural Marketplace'**
+  /// **'Connect buyers, sellers, transporters & service providers'**
   String get appSubtitle;
+
+  /// No description provided for @membershipPlansTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Membership Plans'**
+  String get membershipPlansTitle;
+
+  /// No description provided for @membershipPlansSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe to connect, post listings, and unlock contact details'**
+  String get membershipPlansSubtitle;
 
   /// Description for poweredBy
   ///
@@ -494,8 +506,14 @@ abstract class AppLocalizations {
   /// Description for aboutDescription
   ///
   /// In en, this message translates to:
-  /// **'Masoko Tips is a platform connecting buyers and sellers of agricultural products. Our mission is to promote sustainable farming and fair trade practices.'**
+  /// **'maSOKOtips connects buyers, sellers, transporters, and service providers in Tanzania\'s agricultural sector. Discover listings, post buying requests, chat, and build trusted relationships — membership unlocks contact and posting.'**
   String get aboutDescription;
+
+  /// Description for agricultureDescription
+  ///
+  /// In en, this message translates to:
+  /// **'Discover, connect, and grow with Tanzania\'s agricultural community'**
+  String get agricultureDescription;
 
   /// Description for aboutContact
   ///
@@ -2045,12 +2063,6 @@ abstract class AppLocalizations {
   /// **'Welcome to'**
   String get welcomeTo;
 
-  /// Description for agricultureDescription
-  ///
-  /// In en, this message translates to:
-  /// **'Everything you need to know about agriculture is here'**
-  String get agricultureDescription;
-
   /// Description for searchProducts
   ///
   /// In en, this message translates to:
@@ -2330,7 +2342,7 @@ abstract class AppLocalizations {
   /// No description provided for @agentCodeHint.
   ///
   /// In en, this message translates to:
-  /// **'e.g. MSK-AB12 — ask your agent'**
+  /// **'e.g. FA… or RF… — field agent or member code'**
   String get agentCodeHint;
 
   /// No description provided for @agentCodeHelper.
@@ -2464,6 +2476,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'CREATE ACCOUNT'**
   String get createAccountCaps;
+
+  /// No description provided for @agreeToTermsPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree to the '**
+  String get agreeToTermsPrefix;
+
+  /// No description provided for @termsAndConditions.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms and Conditions'**
+  String get termsAndConditions;
+
+  /// No description provided for @agreeToTermsMiddle.
+  ///
+  /// In en, this message translates to:
+  /// **' and '**
+  String get agreeToTermsMiddle;
+
+  /// No description provided for @pleaseAcceptTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'You must accept the Terms and Conditions and Privacy Policy to register.'**
+  String get pleaseAcceptTerms;
 
   /// No description provided for @featuredServices.
   ///

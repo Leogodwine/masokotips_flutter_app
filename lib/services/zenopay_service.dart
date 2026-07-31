@@ -4,7 +4,9 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/api_config.dart';
+import '../config/phone_countries.dart';
 import '../utils/logger.dart';
+import '../utils/api_response.dart';
 
 class ZenoCheckoutResult {
   final bool success;
@@ -22,7 +24,7 @@ class ZenoPayService {
   static String get _backendBaseUrl => ApiConfig.baseUrl;
 
   // MUST match Laravel route
-  static const String _checkoutEndpoint = '/zenopay/checkout/initiate';
+  static const String _checkoutEndpoint = '/zenopay/checkout';
 
 
   // ---------------------------------------------------------------------------
@@ -67,13 +69,25 @@ class ZenoPayService {
 
       Log.d('🟡 INIT CHECKOUT RESPONSE: ${res.statusCode} | ${res.body}');
 
+      if (res.statusCode != 200 && res.statusCode != 201) {
+        final decoded = ApiResponse.decodeJson(res.body);
+        return ZenoCheckoutResult(
+          success: false,
+          orderId: null,
+          message: decoded?['message']?.toString() ??
+              'Payment could not be started (${res.statusCode}).',
+        );
+      }
+
       final data = jsonDecode(res.body) as Map<String, dynamic>;
       Log.d('🟢 PARSED RESPONSE: $data');
 
-      // backend should return: { success: true, orderId: "...", message: "...", status: "pending" }
-      final orderId =
-          (data['orderId'] ?? data['order_id'] ?? data['externalId'])
-              ?.toString();
+      final nested = data['data'] as Map<String, dynamic>?;
+      final orderId = (nested?['order_id'] ??
+              data['orderId'] ??
+              data['order_id'] ??
+              data['externalId'])
+          ?.toString();
 
       return ZenoCheckoutResult(
         success: data['success'] == true,
@@ -109,14 +123,42 @@ class ZenoPayService {
     return token;
   }
 
-  /// Keep same formatting you used for AzamPay: E.164 (+255...)
-  static String formatPhoneNumber(String phone) {
-    String p = phone.replaceAll(RegExp(r'[^\d]'), '');
+  /// Normalize to E.164 (+...) for international numbers.
+  /// Uses Tanzania (255) as default when a local number is entered without country code.
+  static String formatPhoneNumber(String phone, {String defaultDialCode = '255', String? countryIso}) {
+    if (countryIso != null) {
+      final country = PhoneCountries.byIso(countryIso);
+      final national = PhoneCountries.normalizeNational(phone);
+      if (country.validateNational(national) == null) {
+        return '+${country.composeE164(national)}';
+      }
+    }
 
-    if (p.startsWith('255')) return '+$p';
-    if (p.startsWith('0')) return '+255${p.substring(1)}';
-    if (p.length == 9 && p.startsWith('7')) return '+255$p';
+    final raw = phone.trim();
 
-    return '+255$p';
+    if (raw.startsWith('+')) {
+      final digits = raw.replaceAll(RegExp(r'\D'), '');
+      return digits.isEmpty ? raw : '+$digits';
+    }
+
+    String p = raw.replaceAll(RegExp(r'\D'), '');
+
+    if (p.startsWith('00') && p.length > 2) {
+      return '+${p.substring(2)}';
+    }
+
+    if (p.length >= 11) {
+      return '+$p';
+    }
+
+    if (p.startsWith('0') && p.length > 1) {
+      return '+$defaultDialCode${p.substring(1)}';
+    }
+
+    if (p.isNotEmpty) {
+      return '+$defaultDialCode$p';
+    }
+
+    return raw;
   }
 }

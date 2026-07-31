@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../l10n/app_localizations.dart';
+import '../../providers/auth_provider.dart';
 
 class AboutSettingsScreen extends StatelessWidget {
   const AboutSettingsScreen({super.key});
@@ -10,6 +12,9 @@ class AboutSettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isAuthenticated =
+        context.watch<AuthProvider>().isAuthenticated;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.settingsAndAbout),
@@ -24,12 +29,13 @@ class AboutSettingsScreen extends StatelessWidget {
             trailing: const Icon(Icons.open_in_new_rounded),
             onTap: () => _openExternalUrl(context, _privacyPolicyUrl),
           ),
-          ListTile(
-            leading: const Icon(Icons.delete_forever_rounded),
-            title: Text(AppLocalizations.of(context)!.requestAccountDeletion),
-            trailing: const Icon(Icons.open_in_new_rounded),
-            onTap: () => _composeDeletionEmail(context),
-          ),
+          if (isAuthenticated)
+            ListTile(
+              leading: const Icon(Icons.delete_forever_rounded),
+              title: Text(AppLocalizations.of(context)!.requestAccountDeletion),
+              trailing: const Icon(Icons.open_in_new_rounded),
+              onTap: () => _composeDeletionEmail(context),
+            ),
           const Divider(height: 0),
           const SizedBox(height: 16),
           _sectionHeader(context, AppLocalizations.of(context)!.appTitleSection),

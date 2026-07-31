@@ -216,7 +216,9 @@
   "@appName": {
     "description": "Translation for appName"
   },
-  "appSubtitle": "Soko kuu la Kilimo la Tanzania",
+  "appSubtitle": "Unganisha wanunuzi, wauzaji, wasafirishaji na watoa huduma",
+  "membershipPlansTitle": "Mipango ya Uanachama",
+  "membershipPlansSubtitle": "Jisajili kuunganisha, kuweka matangazo, na kufungua maelezo ya mawasiliano",
   "@appSubtitle": {
     "description": "Translation for appSubtitle"
   },
@@ -264,7 +266,7 @@
   "@copyright": {
     "description": "Translation for copyright"
   },
-  "aboutDescription": "Masoko Tips ni jukwaa linalounganisha wanunuzi na wauzaji wa bidhaa za kilimo. Dhamira yetu ni kukuza kilimo endelevu na mazoea ya biashara ya haki.",
+  "aboutDescription": "maSOKOtips inaunganisha wanunuzi, wauzaji, wasafirishaji, na watoa huduma katika sekta ya kilimo Tanzania. Gundua matangazo, weka maombi ya ununuzi, piga gumzo, na jenga uhusiano wa kuaminika — uanachama unafungua mawasiliano na kuweka matangazo.",
   "@aboutDescription": {
     "description": "Translation for aboutDescription"
   },
@@ -1461,7 +1463,7 @@
   "@welcomeTo": {
     "description": "Translation for welcomeTo"
   },
-  "agricultureDescription": "Kila kitu unachohitaji kujua kuhusu kilimo kiko hapa",
+  "agricultureDescription": "Gundua, unganisha, na kukua na jamii ya kilimo Tanzania",
   "@agricultureDescription": {
     "description": "Translation for agricultureDescription"
   },
@@ -1584,7 +1586,7 @@
   "pleaseEnterLocation": "Tafadhali ingiza eneo lako",
   "pleaseEnterCountry": "Tafadhali ingiza nchi yako",
   "agentCodeOptional": "Nambari ya Wakala (Si lazima)",
-  "agentCodeHint": "mfano MSK-AB12 — muulize wakala wako",
+  "agentCodeHint": "mfano FA… au RF… — msimbo wa wakala au mwanachama",
   "agentCodeHelper": "Kama wakala alikusaidia kujisajili, ingiza nambari yake hapa",
   "pleaseEnterPassword": "Tafadhali ingiza nenosiri",
   "passwordTooShort": "Nenosiri lazima liwe na angalau herufi 8",
@@ -1607,6 +1609,10 @@
   "gallery": "Nyumba ya Picha",
   "uploadTip": "Kidokezo: Weka kitambulisho chako kwenye sehemu bapa yenye mwanga mzuri kabla ya kupiga picha.",
   "createAccountCaps": "FUNGUA AKAUNTI",
+  "agreeToTermsPrefix": "Nakubali ",
+  "termsAndConditions": "Sheria na Masharti",
+  "agreeToTermsMiddle": " na ",
+  "pleaseAcceptTerms": "Lazima ukubali Sheria na Masharti na Sera ya Faragha ili kujisajili.",
   "featuredServices": "Huduma Zinazopendekezwa",
   "noFeaturedServicesAvailable": "Hakuna huduma zinazopendekezwa kwa sasa",
   "yesCancel": "Ndiyo, Ghairi",

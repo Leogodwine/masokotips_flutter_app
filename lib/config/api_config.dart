@@ -2,11 +2,12 @@ import 'package:flutter/foundation.dart';
 
 class ApiConfig {
   // Set to true for production, false for development
-  static const bool isProduction = true; // Back to production for live testing
+  static const bool isProduction = true;
 
-  static const String baseUrl = isProduction
-      ? 'https://masokotips.com/api' // Production URL
-      : 'https://masokotips.com/api'; // Development URL
+  static const String _productionUrl = 'https://masokotips.com/api';
+  static const String _localUrl = 'http://10.0.2.2/masokotips/public/api';
+
+  static String get baseUrl => isProduction ? _productionUrl : _localUrl;
 
   static const Duration timeoutDuration = Duration(seconds: 60);
   static const String apiKey = '';

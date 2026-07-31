@@ -84,12 +84,18 @@ class AppScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final route = ModalRoute.of(context);
+    final isHomeRoute = route?.settings.name == '/home';
+    final canShowBack = showBackButton &&
+        Navigator.canPop(context) &&
+        !isHomeRoute;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
-        leading: showBackButton && Navigator.canPop(context)
+        leading: canShowBack
             ? IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () {
@@ -170,13 +176,6 @@ class AppScaffold extends StatelessWidget {
                           );
                         },
                       ),
-                      // Admin login button
-                      IconButton(
-                        icon: const Icon(Icons.admin_panel_settings),
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/admin/login');
-                        },
-                      ),
                       // User profile dropdown
                       PopupMenuButton<String>(
                         icon: CircleAvatar(
@@ -203,9 +202,6 @@ class AppScaffold extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(builder: (_) => const InboxScreen()),
                               );
-                              break;
-                            case 'admin_login':
-                              Navigator.pushNamed(context, '/admin/login');
                               break;
                             case 'logout':
                               authProvider.logout();
@@ -249,16 +245,6 @@ class AppScaffold extends StatelessWidget {
                             ),
                           ),
                           const PopupMenuItem(
-                            value: 'admin_login',
-                            child: Row(
-                              children: [
-                                Icon(Icons.admin_panel_settings),
-                                SizedBox(width: 8),
-                                Text('Admin Login'),
-                              ],
-                            ),
-                          ),
-                          const PopupMenuItem(
                             value: 'logout',
                             child: Row(
                               children: [
@@ -273,22 +259,12 @@ class AppScaffold extends StatelessWidget {
                     ],
                   );
                 } else {
-                  // Login and Admin buttons for unauthenticated users
-                  return Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.admin_panel_settings),
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/admin/login');
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.login),
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/login');
-                        },
-                      ),
-                    ],
+                  // Login button for unauthenticated users
+                  return IconButton(
+                    icon: const Icon(Icons.login),
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/login');
+                    },
                   );
                 }
               },

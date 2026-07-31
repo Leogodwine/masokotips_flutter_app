@@ -8,10 +8,13 @@ import 'dart:io';
 import '../seller/seller_dashboard_screen.dart';
 import '../service_provider/provider_dashboard_screen.dart';
 import '../chat/inbox_screen.dart';
-import './admin_login_screen.dart';
 import '../subscription/subscription_screen.dart';
 import '../../models/subscription.dart';
+import '../../models/user.dart';
 import '../../l10n/app_localizations.dart';
+import '../../utils/image_upload_helper.dart';
+import './edit_profile_screen.dart';
+import './security_settings_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -105,7 +108,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.myProfile),
         actions: [
-          if (isLoggedIn)
+          if (isLoggedIn) ...[
+            IconButton(
+              icon: const Icon(Icons.edit_outlined),
+              tooltip: AppLocalizations.of(context)!.editProfile,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const EditProfileScreen(),
+                  ),
+                );
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.logout),
               onPressed: () async {
@@ -117,6 +132,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 }
               },
             ),
+          ],
         ],
       ),
       body: SingleChildScrollView(
@@ -132,14 +148,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Center(
                   child: Column(
                     children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundImage: user.avatarPath != null
-                            ? FileImage(File(user.avatarPath!))
-                            : null,
-                        child: user.avatarPath == null
-                            ? const Icon(Icons.person, size: 50)
-                            : null,
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const EditProfileScreen(),
+                            ),
+                          );
+                        },
+                        child: Stack(
+                          children: [
+                            CircleAvatar(
+                              radius: 50,
+                              backgroundImage: _profileImageProvider(user),
+                              child: _profileImageProvider(user) == null
+                                  ? const Icon(Icons.person, size: 50)
+                                  : null,
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).primaryColor,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.white, width: 2),
+                                ),
+                                child: const Icon(
+                                  Icons.camera_alt,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -149,6 +194,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      if (user.displayUsername != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          user.displayUsername!,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 4),
                       Text(
                         user.email,
                         style: const TextStyle(
@@ -375,34 +432,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Card(
                 child: Column(
                   children: [
-                    ListTile(
-                      leading: const Icon(Icons.delete_forever_rounded),
-                      title: Text(
-                          AppLocalizations.of(context)!.requestAccountDeletion),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () async {
-                        // Capture context-dependent objects before async operation
-                        final scaffoldMessenger = ScaffoldMessenger.of(context);
-                        final localizations = AppLocalizations.of(context)!;
-
-                        final uri = Uri(
-                          scheme: 'mailto',
-                          path: 'info@masokotips.com',
-                          queryParameters: <String, String>{
-                            'subject': 'Account Deletion Request - maSOKOtips',
-                            'body': 'Hello maSOKOtips Team,\n\nI would like to request deletion of my account and associated data.'
-                                '\n\nPlease confirm once completed.\n\nThanks.',
-                          },
-                        );
-                        if (await canLaunchUrl(uri)) {
-                          await launchUrl(uri);
-                        } else if (mounted) {
-                          scaffoldMessenger.showSnackBar(
-                            SnackBar(content: Text(localizations.noEmailApp)),
+                    if (isLoggedIn)
+                      ListTile(
+                        leading: const Icon(Icons.lock_outline),
+                        title: Text(AppLocalizations.of(context)!.changePassword),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SecuritySettingsScreen(),
+                            ),
                           );
-                        }
-                      },
-                    ),
+                        },
+                      ),
+                    if (isLoggedIn)
+                      ListTile(
+                        leading: const Icon(Icons.delete_forever_rounded),
+                        title: Text(
+                            AppLocalizations.of(context)!.requestAccountDeletion),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () async {
+                          // Capture context-dependent objects before async operation
+                          final scaffoldMessenger = ScaffoldMessenger.of(context);
+                          final localizations = AppLocalizations.of(context)!;
+
+                          final uri = Uri(
+                            scheme: 'mailto',
+                            path: 'info@masokotips.com',
+                            queryParameters: <String, String>{
+                              'subject': 'Account Deletion Request - maSOKOtips',
+                              'body': 'Hello maSOKOtips Team,\n\nI would like to request deletion of my account and associated data.'
+                                  '\n\nPlease confirm once completed.\n\nThanks.',
+                            },
+                          );
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(uri);
+                          } else if (mounted) {
+                            scaffoldMessenger.showSnackBar(
+                              SnackBar(content: Text(localizations.noEmailApp)),
+                            );
+                          }
+                        },
+                      ),
                     // Add Buyer Dashboard for users with buyer role
                     if (isLoggedIn &&
                         user != null &&
@@ -502,22 +574,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
                         Navigator.pushNamed(context, '/wishlist');
-                      },
-                    ),
-                    const Divider(height: 1),
-                    // Admin Login Access
-                    ListTile(
-                      leading: const Icon(Icons.admin_panel_settings),
-                      title: Text(localizations.adminLoginAdmin),
-                      subtitle: Text(localizations.accessAdminDashboard),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const AdminLoginScreen(),
-                          ),
-                        );
                       },
                     ),
                   ],
@@ -735,6 +791,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
     );
+  }
+
+  ImageProvider? _profileImageProvider(User user) {
+    if (user.avatarPath != null && user.avatarPath!.isNotEmpty) {
+      return FileImage(File(user.avatarPath!));
+    }
+
+    final avatar = user.avatar;
+    if (avatar != null && avatar.isNotEmpty) {
+      return NetworkImage(ImageUploadHelper.constructFullImageUrl(avatar));
+    }
+
+    return null;
   }
 
   IconData _getRoleIcon(String role) {

@@ -63,7 +63,8 @@ class Transport {
   String get sellerName {
     final username = user?['username'];
     if (username != null && username.toString().trim().isNotEmpty) {
-      return username.toString();
+      final value = username.toString().trim();
+      return value.startsWith('@') ? value : '@$value';
     }
     if (user != null && user!['name'] != null && user!['name'].toString().trim().isNotEmpty) {
       return user!['name'];

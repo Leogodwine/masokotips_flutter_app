@@ -44,6 +44,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   List<SubscriptionPackage> packages = [];
   SubscriptionPackage? selectedPackage;
   SubscriptionPlan? selectedPlan;
+  BillingOptions? billingOptions;
 
   @override
   void initState() {
@@ -86,8 +87,18 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       final response = await provider.getSubscriptionPackages();
 
       if (response != null && response['success'] == true) {
+        if (response['billing_options'] is Map<String, dynamic>) {
+          billingOptions = BillingOptions.fromJson(
+            response['billing_options'] as Map<String, dynamic>,
+          );
+        }
+
+        final currency = billingOptions?.currency ?? 'TZS';
         packages = (response['data'] as List)
-            .map((e) => SubscriptionPackage.fromJson(e))
+            .map((e) => SubscriptionPackage.fromJson(
+                  e as Map<String, dynamic>,
+                  currency: currency,
+                ))
             .toList();
 
         setState(() => isLoading = false);
@@ -149,7 +160,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                 icon: Icons.phone_android,
                 iconColor: Colors.green,
                 title: 'Mobile Money',
-                subtitle: 'M-Pesa · Airtel Money',
+                subtitle: 'M-Pesa · Airtel · Tigo · Halo Pesa · Mixx by YAS',
                 onTap: () async {
                   Navigator.pop(ctx);
                   final result = await Navigator.push(
@@ -255,6 +266,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       final subscription = await provider.createSubscription(
         subscriptionType: selectedPackage!.id,
         duration: selectedPlan!.duration,
+        months: selectedPlan!.months,
         paymentMethod: 'card',
         // phone not needed for card payment
       );
@@ -343,9 +355,14 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   // ---------------------------------------------------------------------------
   String _displayPrice() {
     if (selectedPlan != null) {
-      return '${selectedPlan!.price!.toStringAsFixed(0)} TZS';
+      return '${_formatPrice(selectedPlan!.price)} ${billingOptions?.currency ?? 'TZS'}';
     }
     return '';
+  }
+
+  String _formatPrice(double? price) {
+    if (price == null) return '—';
+    return price.toStringAsFixed(0);
   }
 
   // ---------------------------------------------------------------------------
@@ -368,6 +385,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                     padding: const EdgeInsets.all(16),
                     children: [
                       const HeaderSection(),
+                      if (billingOptions != null) ...[
+                        const SizedBox(height: 12),
+                        _BillingSummary(options: billingOptions!),
+                      ],
                       const SizedBox(height: 20),
                       ...packages.map((package) {
                         final isSelected = selectedPackage?.id == package.id;
@@ -407,14 +428,40 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
                                     return ListTile(
                                       title: Text(plan.durationLabel),
-                                      subtitle: Text(
-                                          '${plan.price!.toStringAsFixed(0)} TZS'),
-                                      trailing: selected
-                                          ? const Icon(
-                                              Icons.check_circle,
-                                              color: Colors.green,
+                                      subtitle: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '${_formatPrice(plan.price)} ${billingOptions?.currency ?? 'TZS'}',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          if (plan.originalPrice != null &&
+                                              plan.originalPrice! > (plan.price ?? 0))
+                                            Text(
+                                              'Was ${_formatPrice(plan.originalPrice)} ${billingOptions?.currency ?? 'TZS'}',
+                                              style: TextStyle(
+                                                decoration: TextDecoration.lineThrough,
+                                                color: Colors.grey.shade600,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                      trailing: plan.popular
+                                          ? Chip(
+                                              label: Text(
+                                                plan.badge ?? 'Popular',
+                                                style: const TextStyle(fontSize: 11),
+                                              ),
                                             )
-                                          : null,
+                                          : (selected
+                                              ? const Icon(
+                                                  Icons.check_circle,
+                                                  color: Colors.green,
+                                                )
+                                              : null),
                                       onTap: () {
                                         setState(() {
                                           selectedPackage = package;
@@ -439,6 +486,55 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         onPressed: (selectedPackage != null && selectedPlan != null)
             ? _subscribe
             : null,
+      ),
+    );
+  }
+}
+
+class _BillingSummary extends StatelessWidget {
+  final BillingOptions options;
+
+  const _BillingSummary({required this.options});
+
+  @override
+  Widget build(BuildContext context) {
+    final plans = options.publicPlans;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.blue.shade100),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Reference: ${options.currency} ${options.pricePerMonth} / month',
+            style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: plans.map((plan) {
+              final listPrice = options.pricePerMonth * plan.months;
+              final hasDiscount = listPrice > plan.amount;
+
+              return Chip(
+                label: Text(
+                  hasDiscount
+                      ? '${plan.months} mo · ${options.currency} ${plan.amount} (was $listPrice)'
+                      : '${plan.months} mo · ${options.currency} ${plan.amount}',
+                  style: const TextStyle(fontSize: 12),
+                ),
+                visualDensity: VisualDensity.compact,
+              );
+            }).toList(),
+          ),
+        ],
       ),
     );
   }

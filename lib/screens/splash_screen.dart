@@ -73,7 +73,7 @@ class _SplashScreenState extends State<SplashScreen>
       debugPrint('SplashScreen: Navigation error: $e');
       if (mounted) {
         debugPrint('SplashScreen: Attempting fallback navigation');
-        Navigator.of(context).push(
+        Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const HomeScreen()),
         );
       }

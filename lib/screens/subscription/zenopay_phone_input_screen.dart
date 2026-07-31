@@ -5,6 +5,8 @@ import '../../models/subscription.dart';
 import '../../providers/subscription_provider.dart';
 import '../../utils/logger.dart';
 import 'zenopay_payment_screen.dart';
+import '../../config/phone_countries.dart';
+import '../../widgets/phone_input_field.dart';
 import 'package:masoko_tips/l10n/app_localizations.dart';
 
 // ── Tanzanian network detection ──────────────────────────────────────────────
@@ -78,8 +80,8 @@ _NetworkInfo _detectNetwork(String phone) {
       network: _TzNetwork.tigo,
       name: 'Tigo Pesa',
       color: Color(0xFF1565C0),
-      icon: Icons.warning_amber_rounded,
-      supported: false, // ← gateway issues reported
+      icon: Icons.check_circle,
+      supported: true,
     );
   }
 
@@ -89,8 +91,8 @@ _NetworkInfo _detectNetwork(String phone) {
       network: _TzNetwork.halotel,
       name: 'Halo Pesa (Halotel)',
       color: Color(0xFFFF6F00),
-      icon: Icons.warning_amber_rounded,
-      supported: false, // ← gateway issues reported
+      icon: Icons.check_circle,
+      supported: true,
     );
   }
 
@@ -100,8 +102,8 @@ _NetworkInfo _detectNetwork(String phone) {
       network: _TzNetwork.yas,
       name: 'Mixx by YAS',
       color: Color(0xFF9C27B0),
-      icon: Icons.warning_amber_rounded,
-      supported: false, // ← NOT supported by Zenopay
+      icon: Icons.check_circle,
+      supported: true,
     );
   }
 
@@ -161,33 +163,11 @@ class _ZenopayPhoneInputScreenState extends State<ZenopayPhoneInputScreen> {
   }
 
   String _normalizePhone(String phone) {
-    final digits = phone.replaceAll(RegExp(r'\D'), '');
-
-    // E.164: 255XXXXXXXXX (12 digits)
-    if (digits.startsWith('255') && digits.length == 12) return digits;
-
-    // Local with leading 0: 0XXXXXXXXX (10 digits)  — handles 07X AND 06X
-    if (digits.startsWith('0') && digits.length == 10) {
-      return '255${digits.substring(1)}';
-    }
-
-    // 9 digits starting with 7 or 6
-    if (digits.length == 9 &&
-        (digits.startsWith('7') || digits.startsWith('6'))) {
-      return '255$digits';
-    }
-
-    return digits;
+    return PhoneCountries.byIso('TZ').composeE164(phone);
   }
 
   Future<void> _proceedToPayment() async {
     if (!_formKey.currentState!.validate()) return;
-
-    // Block Yas — not supported
-    if (_detectedNetwork?.supported == false) {
-      _showUnsupportedNetworkDialog(_detectedNetwork!);
-      return;
-    }
 
     setState(() => _isLoading = true);
 
@@ -207,6 +187,7 @@ class _ZenopayPhoneInputScreenState extends State<ZenopayPhoneInputScreen> {
       final subscription = await provider.createSubscription(
         subscriptionType: widget.package.id,
         duration: widget.plan.duration,
+        months: widget.plan.months,
         paymentMethod: 'zenopay',
         phone: phone,
       );
@@ -237,78 +218,10 @@ class _ZenopayPhoneInputScreenState extends State<ZenopayPhoneInputScreen> {
         .showSnackBar(SnackBar(content: Text(message)));
   }
 
-  void _showUnsupportedNetworkDialog(_NetworkInfo info) {
-    final isTempIssue = info.network == _TzNetwork.tigo ||
-        info.network == _TzNetwork.halotel;
-
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            Icon(
-              isTempIssue ? Icons.construction : Icons.warning_amber_rounded,
-              color: isTempIssue ? Colors.orange : Colors.red,
-              size: 28,
-            ),
-            const SizedBox(width: 10),
-            Text(isTempIssue ? 'Temporarily Unavailable' : 'Network Not Supported'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              isTempIssue
-                  ? '${info.name} payments are temporarily experiencing issues. Please try again later or use a different network.'
-                  : '${info.name} is currently not supported by our payment provider (Zenopay).',
-              style: const TextStyle(fontSize: 15),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'Currently working:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 6),
-            _supportedNetworkChip('M-Pesa (Vodacom)', const Color(0xFF4CAF50)),
-            _supportedNetworkChip('Airtel Money', const Color(0xFFE53935)),
-            const SizedBox(height: 6),
-            const Text(
-              'Alternatively, you can pay by Card (Visa/Mastercard) — tap Go Back and choose Card Payment.',
-              style: TextStyle(color: Colors.grey, fontSize: 13),
-            ),
-          ],
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(AppLocalizations.of(context)!.okChangeNumber),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _supportedNetworkChip(String name, Color color) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Row(
-        children: [
-          Icon(Icons.check_circle, color: color, size: 16),
-          const SizedBox(width: 8),
-          Text(name),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final price = widget.plan.price?.toStringAsFixed(0) ?? '0';
-    final network = _detectedNetwork;
 
     return Scaffold(
       appBar: AppBar(
@@ -373,97 +286,47 @@ class _ZenopayPhoneInputScreenState extends State<ZenopayPhoneInputScreen> {
               ),
               const SizedBox(height: 12),
 
-              // Phone input
-              TextFormField(
-                controller: _phoneController,
-                keyboardType: TextInputType.phone,
-                style: const TextStyle(fontSize: 18, letterSpacing: 1),
-                decoration: InputDecoration(
-                  hintText: '07XXXXXXXX or 06XXXXXXXX',
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                  prefixIcon: const Icon(Icons.phone),
-                  // Live network badge
-                  suffixIcon: network != null && network.name.isNotEmpty
-                      ? Padding(
-                          padding: const EdgeInsets.only(right: 10),
-                          child: Chip(
-                            label: Text(
-                              network.name,
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: network.supported
-                                    ? Colors.white
-                                    : Colors.white,
-                              ),
-                            ),
-                            backgroundColor: network.supported
-                                ? network.color
-                                : Colors.orange,
-                            padding: EdgeInsets.zero,
-                            avatar: Icon(
-                              network.icon,
-                              size: 14,
-                              color: Colors.white,
-                            ),
-                          ),
-                        )
-                      : null,
-                ),
+              // Phone input (Tanzania mobile money)
+              PhoneInputField(
+                nationalController: _phoneController,
+                lockIso: true,
+                lockIsoCode: 'TZ',
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Please enter a phone number';
                   }
-                  final digits =
-                      value.trim().replaceAll(RegExp(r'\D'), '');
-                  if (digits.length < 9) {
-                    return 'Invalid phone number format';
-                  }
-                  return null;
+                  return PhoneCountries.byIso('TZ').validateNational(value);
                 },
               ),
 
+              if (_detectedNetwork != null && _detectedNetwork!.name.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Chip(
+                  label: Text(
+                    _detectedNetwork!.name,
+                    style: const TextStyle(fontSize: 11, color: Colors.white),
+                  ),
+                  backgroundColor: _detectedNetwork!.color,
+                  avatar: Icon(
+                    _detectedNetwork!.icon,
+                    size: 14,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+
               const SizedBox(height: 8),
 
-              // Unsupported / temporary issue warning
-              if (network != null && !network.supported)
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                        color: Colors.orange.withValues(alpha: 0.4)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.warning_amber_rounded,
-                          color: Colors.orange, size: 20),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          (network.network == _TzNetwork.tigo ||
-                                  network.network == _TzNetwork.halotel)
-                              ? '${network.name} payments are temporarily unavailable. Use M-Pesa, Airtel, or Card Payment.'
-                              : '${network.name} is not supported. Use M-Pesa, Airtel, or Card Payment.',
-                          style: const TextStyle(
-                              color: Colors.orange, fontSize: 13),
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              else
-                // Supported networks info
-                Wrap(
-                  spacing: 6,
-                  children: [
-                    _networkBadge('M-Pesa', const Color(0xFF4CAF50)),
-                    _networkBadge('Airtel', const Color(0xFFE53935)),
-                    _networkBadge('Tigo', const Color(0xFF1565C0)),
-                    _networkBadge('Halopesa', const Color(0xFFFF6F00)),
-                  ],
-                ),
+              Wrap(
+                spacing: 6,
+                children: [
+                  _networkBadge('M-Pesa', const Color(0xFF4CAF50)),
+                  _networkBadge('Airtel', const Color(0xFFE53935)),
+                  _networkBadge('Tigo', const Color(0xFF1565C0)),
+                  _networkBadge('Halopesa', const Color(0xFFFF6F00)),
+                  _networkBadge('Mixx YAS', const Color(0xFF9C27B0)),
+                ],
+              ),
 
               const SizedBox(height: 28),
 
@@ -471,10 +334,7 @@ class _ZenopayPhoneInputScreenState extends State<ZenopayPhoneInputScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: (_isLoading ||
-                          (network != null && !network.supported))
-                      ? null
-                      : _proceedToPayment,
+                  onPressed: _isLoading ? null : _proceedToPayment,
                   icon: _isLoading
                       ? const SizedBox(
                           width: 18,

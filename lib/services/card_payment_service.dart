@@ -22,7 +22,10 @@ class CardPaymentService {
     try {
       final res = await http.post(
         Uri.parse('$_base/zenopay/card/checkout'),
-        headers: await _headers(),
+        headers: {
+          ...await _headers(),
+          'Content-Type': 'application/json',
+        },
         body: jsonEncode({
           'subscription_id': subscriptionId,
           'amount': amount,

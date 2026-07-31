@@ -60,7 +60,7 @@ class CustomDrawer extends StatelessWidget {
                           radius: 28,
                           backgroundColor: Colors.white,
                           child: Icon(
-                            Icons.person,
+                            Icons.account_circle_outlined,
                             size: 32,
                             color: Theme.of(context).primaryColor,
                           ),
@@ -127,7 +127,7 @@ class CustomDrawer extends StatelessWidget {
                 children: [
                   _buildDrawerItem(
                     context,
-                    icon: Icons.home_rounded,
+                    icon: Icons.home_outlined,
                     title: AppLocalizations.of(context)!.homeMenu,
                     onTap: () {
                       Navigator.pop(context);
@@ -136,7 +136,7 @@ class CustomDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     context,
-                    icon: Icons.shopping_basket_rounded,
+                    icon: Icons.storefront_outlined,
                     title: AppLocalizations.of(context)!.productsMenu,
                     onTap: () {
                       Navigator.pop(context);
@@ -145,7 +145,7 @@ class CustomDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     context,
-                    icon: Icons.local_shipping_rounded,
+                    icon: Icons.local_shipping_outlined,
                     title: AppLocalizations.of(context)!.transportMenu,
                     onTap: () {
                       Navigator.pop(context);
@@ -154,7 +154,7 @@ class CustomDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     context,
-                    icon: Icons.analytics_rounded,
+                    icon: Icons.insights_outlined,
                     title: AppLocalizations.of(context)!.marketInfoMenu,
                     onTap: () {
                       Navigator.pop(context);
@@ -174,7 +174,7 @@ class CustomDrawer extends StatelessWidget {
                   children: [
                     _buildDrawerItem(
                       context,
-                      icon: Icons.person_rounded,
+                      icon: Icons.person_outline,
                       title: AppLocalizations.of(context)!.profileMenu,
                       onTap: () {
                         Navigator.pop(context);
@@ -183,7 +183,7 @@ class CustomDrawer extends StatelessWidget {
                     ),
                     _buildDrawerItem(
                       context,
-                      icon: Icons.shopping_bag_rounded,
+                      icon: Icons.receipt_long_outlined,
                       title: AppLocalizations.of(context)!.myOrdersMenu,
                       onTap: () {
                         Navigator.pop(context);
@@ -192,7 +192,7 @@ class CustomDrawer extends StatelessWidget {
                     ),
                     _buildDrawerItem(
                       context,
-                      icon: Icons.favorite_rounded,
+                      icon: Icons.favorite_border,
                       title: AppLocalizations.of(context)!.wishlistMenu,
                       onTap: () {
                         Navigator.pop(context);
@@ -212,25 +212,26 @@ class CustomDrawer extends StatelessWidget {
                 children: [
                   _buildDrawerItem(
                     context,
-                    icon: Icons.settings_rounded,
+                    icon: Icons.settings_outlined,
                     title: AppLocalizations.of(context)!.settingsMenu,
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.pushNamed(context, '/settings');
                     },
                   ),
+                  if (isAuthenticated)
+                    _buildDrawerItem(
+                      context,
+                      icon: Icons.delete_outline,
+                      title: AppLocalizations.of(context)!.requestAccountDeletion,
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _composeDeletionEmail(context);
+                      },
+                    ),
                   _buildDrawerItem(
                     context,
-                    icon: Icons.delete_forever_rounded,
-                    title: AppLocalizations.of(context)!.requestAccountDeletion,
-                    onTap: () async {
-                      Navigator.pop(context);
-                      await _composeDeletionEmail(context);
-                    },
-                  ),
-                  _buildDrawerItem(
-                    context,
-                    icon: Icons.privacy_tip_rounded,
+                    icon: Icons.privacy_tip_outlined,
                     title: AppLocalizations.of(context)!.privacyPolicyMenu,
                     onTap: () async {
                       Navigator.pop(context);
@@ -242,7 +243,7 @@ class CustomDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     context,
-                    icon: Icons.help_rounded,
+                    icon: Icons.help_outline,
                     title: AppLocalizations.of(context)!.helpAndSupportMenu,
                     onTap: () {
                       Navigator.pop(context);
@@ -251,7 +252,7 @@ class CustomDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     context,
-                    icon: Icons.info_rounded,
+                    icon: Icons.info_outline,
                     title: AppLocalizations.of(context)!.aboutMenu,
                     onTap: () {
                       Navigator.pop(context);
@@ -261,7 +262,7 @@ class CustomDrawer extends StatelessWidget {
                   if (isAuthenticated)
                     _buildDrawerItem(
                       context,
-                      icon: Icons.logout_rounded,
+                      icon: Icons.logout,
                       title: AppLocalizations.of(context)!.logoutMenu,
                       onTap: () async {
                         // Capture context-dependent objects before async operation
@@ -292,27 +293,28 @@ class CustomDrawer extends StatelessWidget {
     required String title,
     required VoidCallback onTap,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return ListTile(
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Theme.of(context).primaryColor.withValues(),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Icon(
-          icon,
-          color: Theme.of(context).primaryColor,
-        ),
+      leading: Icon(
+        icon,
+        size: 24,
+        color: colorScheme.onSurfaceVariant,
       ),
       title: Text(
         title,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-        ),
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w500,
+              color: colorScheme.onSurface,
+            ),
       ),
       onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
+      minLeadingWidth: 24,
+      horizontalTitleGap: 16,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(28),
+      ),
     );
   }
 

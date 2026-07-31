@@ -1,3 +1,81 @@
+class BillingPlanOption {
+  final int months;
+  final int amount;
+  final bool popular;
+
+  BillingPlanOption({
+    required this.months,
+    required this.amount,
+    this.popular = false,
+  });
+
+  factory BillingPlanOption.fromJson(Map<String, dynamic> json) {
+    return BillingPlanOption(
+      months: json['months'] is int
+          ? json['months'] as int
+          : int.tryParse('${json['months'] ?? 0}') ?? 0,
+      amount: json['amount'] is int
+          ? json['amount'] as int
+          : int.tryParse('${json['amount'] ?? 0}') ?? 0,
+      popular: json['popular'] as bool? ?? false,
+    );
+  }
+}
+
+class BillingOptions {
+  final String currency;
+  final int pricePerMonth;
+  final List<int> publicMonths;
+  final List<BillingPlanOption> publicPlans;
+  final int maxPublicMonths;
+
+  BillingOptions({
+    required this.currency,
+    required this.pricePerMonth,
+    required this.publicMonths,
+    required this.publicPlans,
+    required this.maxPublicMonths,
+  });
+
+  factory BillingOptions.fromJson(Map<String, dynamic> json) {
+    final monthsRaw = json['public_months'];
+    final months = monthsRaw is List
+        ? monthsRaw.map((m) => int.tryParse('$m') ?? 0).where((m) => m > 0).toList()
+        : <int>[];
+
+    final plansRaw = json['public_plans'];
+    List<BillingPlanOption> plans = [];
+    if (plansRaw is List) {
+      plans = plansRaw
+          .whereType<Map<String, dynamic>>()
+          .map(BillingPlanOption.fromJson)
+          .where((p) => p.months > 0 && p.amount > 0)
+          .toList();
+    }
+
+    if (plans.isEmpty && months.isNotEmpty) {
+      final ppm = json['price_per_month'] is int
+          ? json['price_per_month'] as int
+          : int.tryParse('${json['price_per_month'] ?? 1000}') ?? 1000;
+      plans = months
+          .map((m) => BillingPlanOption(months: m, amount: m * ppm))
+          .toList();
+    }
+
+    return BillingOptions(
+      currency: json['currency'] as String? ?? 'TZS',
+      pricePerMonth: json['price_per_month'] is int
+          ? json['price_per_month'] as int
+          : int.tryParse('${json['price_per_month'] ?? 1000}') ?? 1000,
+      publicMonths: months.isNotEmpty ? months : plans.map((p) => p.months).toList(),
+      publicPlans: plans.isNotEmpty ? plans : [BillingPlanOption(months: 12, amount: 12000)],
+      maxPublicMonths: json['max_public_months'] is int
+          ? json['max_public_months'] as int
+          : int.tryParse('${json['max_public_months'] ?? 36}') ?? 36,
+    );
+  }
+}
+
 class SubscriptionPackage {
   final String id;
   final String name;
@@ -21,7 +99,10 @@ class SubscriptionPackage {
     required this.currency,
   });
 
-  factory SubscriptionPackage.fromJson(Map<String, dynamic> json) {
+  factory SubscriptionPackage.fromJson(
+    Map<String, dynamic> json, {
+    String currency = 'TZS',
+  }) {
     // Extract price from package level or from first plan
     double? packagePrice;
     if (json['price'] != null) {
@@ -52,7 +133,7 @@ class SubscriptionPackage {
       icon: json['icon'] as String,
       color: json['color'] as String,
       price: packagePrice,
-      currency: json['currency'] as String? ?? 'TZS',
+      currency: json['currency'] as String? ?? currency,
     );
   }
 
@@ -74,6 +155,7 @@ class SubscriptionPackage {
 class SubscriptionPlan {
   final String duration;
   final String durationLabel;
+  final int? months;
   final double? price;
   final double? originalPrice;
   final int? savings;
@@ -83,6 +165,7 @@ class SubscriptionPlan {
   SubscriptionPlan({
     required this.duration,
     required this.durationLabel,
+    this.months,
     this.price,
     this.originalPrice,
     this.savings,
@@ -94,6 +177,7 @@ class SubscriptionPlan {
     return SubscriptionPlan(
       duration: json['duration'] as String,
       durationLabel: json['duration_label'] as String,
+      months: json['months'] is int ? json['months'] as int : int.tryParse('${json['months'] ?? ''}'),
       price: json['price'] != null
           ? (json['price'] is num
               ? (json['price'] as num).toDouble()
@@ -104,7 +188,11 @@ class SubscriptionPlan {
               ? (json['original_price'] as num).toDouble()
               : double.parse(json['original_price'].toString()))
           : null,
-      savings: json['savings'] as int?,
+      savings: json['savings'] is int
+          ? json['savings'] as int
+          : (json['savings'] is num
+              ? (json['savings'] as num).toInt()
+              : int.tryParse('${json['savings'] ?? ''}')),
       popular: json['popular'] as bool? ?? false,
       badge: json['badge'] as String?,
     );
@@ -114,6 +202,7 @@ class SubscriptionPlan {
     return {
       'duration': duration,
       'duration_label': durationLabel,
+      if (months != null) 'months': months,
       'price': price,
       'original_price': originalPrice,
       'savings': savings,

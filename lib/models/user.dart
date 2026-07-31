@@ -11,6 +11,7 @@ class User {
 
   final String name;
   final String email;
+  final String? username;
 
   /// Backend sends: "phone"
   /// Used by subscriptions & AzamPay
@@ -52,6 +53,7 @@ class User {
     required this.id,
     required this.name,
     required this.email,
+    this.username,
     this.phoneNumber,
     this.address,
     this.avatar,
@@ -147,6 +149,15 @@ class User {
 
   String? get primaryRole => roles.isNotEmpty ? roles.first : null;
 
+  String? get displayUsername {
+    if (username == null || username!.trim().isEmpty) {
+      return null;
+    }
+
+    final value = username!.trim();
+    return value.startsWith('@') ? value : '@$value';
+  }
+
   // ---------------------------------------------------------------------------
   // FEATURE ACCESS
   // ---------------------------------------------------------------------------
@@ -195,6 +206,7 @@ class User {
     int? id,
     String? name,
     String? email,
+    String? username,
     String? phoneNumber,
     String? avatar,
     List<String>? roles,
@@ -210,6 +222,7 @@ class User {
       id: id ?? this.id,
       name: name ?? this.name,
       email: email ?? this.email,
+      username: username ?? this.username,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       avatar: avatar ?? this.avatar,
       roles: roles ?? this.roles,

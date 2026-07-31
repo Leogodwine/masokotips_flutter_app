@@ -171,7 +171,13 @@ class AppLocalizationsSw extends AppLocalizations {
   String get appName => 'maSOKOtips';
 
   @override
-  String get appSubtitle => 'Soko kuu la Kilimo la Tanzania';
+  String get appSubtitle => 'Unganisha wanunuzi, wauzaji, wasafirishaji na watoa huduma';
+
+  @override
+  String get membershipPlansTitle => 'Mipango ya Uanachama';
+
+  @override
+  String get membershipPlansSubtitle => 'Jisajili kuunganisha, kuweka matangazo, na kufungua maelezo ya mawasiliano';
 
   @override
   String get poweredBy => 'Inaendeshwa na: COSTECH';
@@ -207,7 +213,10 @@ class AppLocalizationsSw extends AppLocalizations {
   String get copyright => '© 2023 Masoko Tips - Haki zote zimehifadhiwa';
 
   @override
-  String get aboutDescription => 'Masoko Tips ni jukwaa linalounganisha wanunuzi na wauzaji wa bidhaa za kilimo. Dhamira yetu ni kukuza kilimo endelevu na mazoea ya biashara ya haki.';
+  String get aboutDescription => 'maSOKOtips inaunganisha wanunuzi, wauzaji, wasafirishaji, na watoa huduma katika sekta ya kilimo Tanzania. Gundua matangazo, weka maombi ya ununuzi, piga gumzo, na jenga uhusiano wa kuaminika — uanachama unafungua mawasiliano na kuweka matangazo.';
+
+  @override
+  String get agricultureDescription => 'Gundua, unganisha, na kukua na jamii ya kilimo Tanzania';
 
   @override
   String get aboutContact => 'Kwa maelezo zaidi, wasiliana nasi kwa support@masokotips.com';
@@ -1052,9 +1061,6 @@ class AppLocalizationsSw extends AppLocalizations {
   String get welcomeTo => 'Karibu katika';
 
   @override
-  String get agricultureDescription => 'Kila kitu unachohitaji kujua kuhusu kilimo kiko hapa';
-
-  @override
   String get searchProducts => 'Tafuta bidhaa...';
 
   @override
@@ -1197,7 +1203,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get agentCodeOptional => 'Nambari ya Wakala (Si lazima)';
 
   @override
-  String get agentCodeHint => 'mfano MSK-AB12 — muulize wakala wako';
+  String get agentCodeHint => 'mfano FA… au RF… — msimbo wa wakala au mwanachama';
 
   @override
   String get agentCodeHelper => 'Kama wakala alikusaidia kujisajili, ingiza nambari yake hapa';
@@ -1264,6 +1270,18 @@ class AppLocalizationsSw extends AppLocalizations {
 
   @override
   String get createAccountCaps => 'FUNGUA AKAUNTI';
+
+  @override
+  String get agreeToTermsPrefix => 'Nakubali ';
+
+  @override
+  String get termsAndConditions => 'Sheria na Masharti';
+
+  @override
+  String get agreeToTermsMiddle => ' na ';
+
+  @override
+  String get pleaseAcceptTerms => 'Lazima ukubali Sheria na Masharti na Sera ya Faragha ili kujisajili.';
 
   @override
   String get featuredServices => 'Huduma Zinazopendekezwa';

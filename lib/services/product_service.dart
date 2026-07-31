@@ -29,7 +29,7 @@ class ProductService {
   Future<List<Product>> getSellerProducts() async {
     _checkAuthToken(); // Ensure auth token is set
     try {
-      const url = '${ApiConfig.baseUrl}/seller/products';
+      final url = '${ApiConfig.baseUrl}/seller/products';
       final response = await http.get(
         Uri.parse(url),
         headers: _getHeaders(),
@@ -72,7 +72,7 @@ class ProductService {
     try {
       debugPrint('Adding product: ${product.name}');
 
-      const url = '${ApiConfig.baseUrl}/seller/products';
+      final url = '${ApiConfig.baseUrl}/seller/products';
       debugPrint('Sending request to: $url');
       final request = http.MultipartRequest('POST', Uri.parse(url));
 
@@ -290,7 +290,7 @@ class ProductService {
   Future<String> uploadProductImage(String imagePath) async {
     _checkAuthToken(); // Ensure auth token is set
     try {
-      const url = '${ApiConfig.baseUrl}/seller/products/upload-image';
+      final url = '${ApiConfig.baseUrl}/seller/products/upload-image';
       final request = http.MultipartRequest('POST', Uri.parse(url));
 
       // Add headers

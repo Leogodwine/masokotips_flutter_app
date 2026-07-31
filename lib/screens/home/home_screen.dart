@@ -107,14 +107,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
 
-    return AppScaffold(
-      title: AppLocalizations.of(context)!.homeTitle,
-      body: const HomeContentScreen(),
-      currentIndex: _currentIndex,
-      onBottomNavItemTapped: _onBottomNavItemTapped,
-      showAuthActions:
-          false, // Disable default auth buttons since we have custom ones
-      actions: [
+    return PopScope(
+      canPop: false,
+      child: AppScaffold(
+        title: AppLocalizations.of(context)!.homeTitle,
+        showBackButton: false,
+        body: const HomeContentScreen(),
+        currentIndex: _currentIndex,
+        onBottomNavItemTapped: _onBottomNavItemTapped,
+        showAuthActions:
+            false, // Disable default auth buttons since we have custom ones
+        actions: [
         // Language Switch Button (visible on all screens)
         Consumer<LocaleProvider>(
           builder: (context, localeProvider, child) {
@@ -212,6 +215,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ],
+      ),
     );
   }
 }
